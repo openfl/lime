@@ -1,6 +1,7 @@
 #include <system/CFFI.h>
 #include <system/CFFIPointer.h>
 #include <system/Mutex.h>
+#include <system/System.h>
 #include <utils/Bytes.h>
 #include "OpenGL.h"
 #include "OpenGLBindings.h"
@@ -105,6 +106,22 @@ namespace lime {
 	std::vector<void*> gc_gl_ptr;
 	std::vector<GLObjectType> gc_gl_type;
 	Mutex gc_gl_mutex;
+
+
+	// The finalizers change the maps above, and can run on another thread, so
+	// registering and deregistering take the same lock. A thread that has to
+	// wait is blocked for the collector, which may need it to stop.
+	void lock_gl_objects () {
+
+		if (!gc_gl_mutex.TryLock ()) {
+
+			System::GCEnterBlocking ();
+			gc_gl_mutex.Lock ();
+			System::GCExitBlocking ();
+
+		}
+
+	}
 
 
 	void gc_gl_object (value object) {
@@ -4048,6 +4065,10 @@ namespace lime {
 
 	void lime_gl_object_deregister (value object) {
 
+		value handle = 0;
+
+		lock_gl_objects ();
+
 		if (glObjectIDs.find (object) != glObjectIDs.end ()) {
 
 			GLuint id = glObjectIDs[object];
@@ -4061,16 +4082,22 @@ namespace lime {
 
 		if (glObjectPtrs.find (object) != glObjectPtrs.end ()) {
 
-			value handle = (value)glObjectPtrs[object];
-			val_gc (handle, 0);
+			handle = (value)glObjectPtrs[object];
 			glObjectPtrs.erase (object);
 
 		}
+
+		gc_gl_mutex.Unlock ();
+
+		// Outside the lock, as the collector keeps its finalizers under a lock of its own
+		if (handle) val_gc (handle, 0);
 
 	}
 
 
 	HL_PRIM void HL_NAME(hl_gl_object_deregister) (void* object) {
+
+		lock_gl_objects ();
 
 		if (glObjectIDs.find (object) != glObjectIDs.end ()) {
 
@@ -4092,22 +4119,27 @@ namespace lime {
 
 		}
 
+		gc_gl_mutex.Unlock ();
+
 	}
 
 
 	value lime_gl_object_from_id (int id, int type) {
 
 		GLObjectType _type = (GLObjectType)type;
+		value object = 0;
+
+		lock_gl_objects ();
 
 		if (glObjects[_type].find (id) != glObjects[_type].end ()) {
 
-			return (value)glObjects[_type][id];
-
-		} else {
-
-			return alloc_null ();
+			object = (value)glObjects[_type][id];
 
 		}
+
+		gc_gl_mutex.Unlock ();
+
+		return object ? object : alloc_null ();
 
 	}
 
@@ -4115,16 +4147,19 @@ namespace lime {
 	HL_PRIM void* HL_NAME(hl_gl_object_from_id) (int id, int type) {
 
 		GLObjectType _type = (GLObjectType)type;
+		void* object = NULL;
+
+		lock_gl_objects ();
 
 		if (glObjects[_type].find (id) != glObjects[_type].end ()) {
 
-			return glObjects[_type][id];
-
-		} else {
-
-			return NULL;
+			object = glObjects[_type][id];
 
 		}
+
+		gc_gl_mutex.Unlock ();
+
+		return object;
 
 	}
 
@@ -4146,10 +4181,15 @@ namespace lime {
 			//
 		//}
 
+		// The handle is made first, outside the lock, as making it may collect
+		lock_gl_objects ();
+
 		glObjectTypes[object] = (GLObjectType)type;
 		glObjectIDs[object] = id;
 		glObjects[_type][id] = object;
 		glObjectPtrs[object] = handle;
+
+		gc_gl_mutex.Unlock ();
 
 		return handle;
 
@@ -4173,10 +4213,15 @@ namespace lime {
 			//
 		//}
 
+		// The handle is made first, outside the lock, as making it may collect
+		lock_gl_objects ();
+
 		glObjectTypes[object] = (GLObjectType)type;
 		glObjectIDs[object] = id;
 		glObjects[_type][id] = object;
 		glObjectPtrs[object] = handle;
+
+		gc_gl_mutex.Unlock ();
 
 		return handle;
 

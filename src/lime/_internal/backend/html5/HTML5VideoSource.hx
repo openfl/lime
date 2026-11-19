@@ -17,6 +17,7 @@ class HTML5VideoSource
 	private var completed:Bool;
 	private var dropLateFrames:Bool;
 	private var element:VideoElement;
+	private var frameCallbackID:Int;
 	private var frameTime:Float;
 	private var gain:Float;
 	private var rate:Float;
@@ -25,6 +26,8 @@ class HTML5VideoSource
 	private var parent:VideoSource;
 	private var path:String;
 	private var playing:Bool;
+	// The media time of the frame last presented, from requestVideoFrameCallback, or -1
+	private var presentedTime:Float;
 
 	public function new(parent:VideoSource)
 	{
@@ -33,12 +36,14 @@ class HTML5VideoSource
 		clockMode = SMOOTH;
 		completed = false;
 		dropLateFrames = true;
+		frameCallbackID = -1;
 		frameTime = -1;
 		gain = 1;
 		rate = 1;
 		loops = 0;
 		pan = 0;
 		playing = false;
+		presentedTime = -1;
 	}
 
 	public function dispose():Void
@@ -227,6 +232,8 @@ class HTML5VideoSource
 
 		completed = false;
 		frameTime = -1;
+		presentedTime = -1;
+		requestFrameCallback();
 		this.path = path;
 		return true;
 	}
@@ -270,9 +277,14 @@ class HTML5VideoSource
 	{
 		// HAVE_CURRENT_DATA, so the element has a picture to upload
 		if (element == null || frame == null || element.readyState < 2) return false;
-		if (element.currentTime == frameTime) return false;
 
-		frameTime = element.currentTime;
+		// currentTime is the media clock, which moves on every animation frame while a video plays,
+		// so where the browser says when each frame is presented, that is used instead. Until it
+		// has, as for a paused video's first frame, currentTime still is.
+		var time = (presentedTime >= 0) ? presentedTime : element.currentTime;
+		if (time == frameTime) return false;
+
+		frameTime = time;
 
 		frame.data = null;
 		frame.duration = 0;
@@ -281,7 +293,7 @@ class HTML5VideoSource
 		frame.height = element.videoHeight;
 		frame.length = 0;
 		frame.src = element;
-		frame.time = element.currentTime;
+		frame.time = time;
 		frame.width = element.videoWidth;
 
 		return true;
@@ -343,6 +355,7 @@ class HTML5VideoSource
 			element.currentTime = 0;
 			completed = false;
 			frameTime = -1;
+			presentedTime = -1;
 		}
 	}
 
@@ -350,6 +363,13 @@ class HTML5VideoSource
 	{
 		if (element != null)
 		{
+			if (frameCallbackID >= 0 && untyped element.cancelVideoFrameCallback != null)
+			{
+				untyped element.cancelVideoFrameCallback(frameCallbackID);
+			}
+
+			frameCallbackID = -1;
+			presentedTime = -1;
 			element.removeEventListener("ended", element_onEnded);
 			element.removeEventListener("error", element_onError);
 			element.pause();
@@ -359,6 +379,24 @@ class HTML5VideoSource
 		}
 
 		playing = false;
+	}
+
+	@:noCompletion private function requestFrameCallback():Void
+	{
+		// Not in every browser yet; without it readFrame() compares currentTime
+		var target = element;
+
+		if (target != null && untyped target.requestVideoFrameCallback != null)
+		{
+			frameCallbackID = untyped target.requestVideoFrameCallback(function(now:Float, metadata:Dynamic)
+			{
+				// One still queued for an element this source has since let go of
+				if (element != target) return;
+
+				presentedTime = metadata.mediaTime;
+				requestFrameCallback();
+			});
+		}
 	}
 
 	// Event Handlers

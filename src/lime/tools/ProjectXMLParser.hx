@@ -22,12 +22,31 @@ class ProjectXMLParser extends HXProject
 {
 	public var includePaths:Array<String>;
 
+	/**
+		The files and haxelibs read so far for the project being parsed, shared by the parser of
+		the project file and those of the files it includes, so each is read once.
+	**/
+	private static var readOnce:{files:Array<String>, haxelibs:Array<String>} = null;
+
+	/**
+		What this file, and the files it included, changed with `<define>`, `<set>`, `<setenv>`,
+		`<haxedef>`, `<undefine>` and `<unset>`. A null value was removed. The file that included
+		this one applies the same changes, as if the tags had been written in its place.
+	**/
+	private var changedDefines:Map<String, Null<String>>;
+	private var changedEnvironment:Map<String, Null<String>>;
+	private var changedHaxedefs:Map<String, Null<String>>;
+
 	private static var doubleVarMatch = new EReg("\\$\\${(.*?)}", "");
 	private static var varMatch = new EReg("\\${(.*?)}", "");
 
 	public function new(path:String = "", defines:Map<String, Dynamic> = null, includePaths:Array<String> = null, useExtensionPath:Bool = false)
 	{
 		super(defines);
+
+		changedDefines = new Map();
+		changedEnvironment = new Map();
+		changedHaxedefs = new Map();
 
 		if (includePaths != null)
 		{
@@ -41,8 +60,93 @@ class ProjectXMLParser extends HXProject
 		if (path != "")
 		{
 			projectFilePath = path;
-			process(path, useExtensionPath);
+
+			var outermost = (readOnce == null);
+
+			if (outermost)
+			{
+				readOnce = {files: [], haxelibs: []};
+			}
+
+			firstRead(path);
+
+			try
+			{
+				process(path, useExtensionPath);
+			}
+			catch (e:Dynamic)
+			{
+				if (outermost) readOnce = null;
+				throw e;
+			}
+
+			if (outermost)
+			{
+				readOnce = null;
+			}
 		}
+	}
+
+	/**
+		Records that the file at `path` is being read, and returns false if it already was.
+	**/
+	private static function firstRead(path:String):Bool
+	{
+		if (readOnce == null) return true;
+
+		var key = FileSystem.fullPath(path);
+
+		if (System.hostPlatform == WINDOWS)
+		{
+			key = key.toLowerCase();
+		}
+
+		if (readOnce.files.indexOf(key) > -1) return false;
+
+		readOnce.files.push(key);
+		return true;
+	}
+
+	/**
+		Merges a project read from an included file, then applies the values it defined, set or
+		removed, so they replace earlier ones as they would have in this file.
+	**/
+	private function mergeIncluded(project:HXProject):Void
+	{
+		merge(project);
+
+		var parser = Std.downcast(project, ProjectXMLParser);
+
+		if (parser == null) return;
+
+		for (name in parser.changedDefines.keys())
+		{
+			changeValue(defines, changedDefines, name, parser.changedDefines.get(name));
+		}
+
+		for (name in parser.changedEnvironment.keys())
+		{
+			changeValue(environment, changedEnvironment, name, parser.changedEnvironment.get(name));
+		}
+
+		for (name in parser.changedHaxedefs.keys())
+		{
+			changeValue(haxedefs, changedHaxedefs, name, parser.changedHaxedefs.get(name));
+		}
+	}
+
+	private static function changeValue(values:Map<String, Dynamic>, changes:Map<String, Null<String>>, name:String, value:Null<String>):Void
+	{
+		if (value == null)
+		{
+			values.remove(name);
+		}
+		else
+		{
+			values.set(name, value);
+		}
+
+		changes.set(name, value);
 	}
 
 	private function isValidElement(element:Access, section:String):Bool
@@ -635,10 +739,11 @@ class ProjectXMLParser extends HXProject
 	{
 		var includePath = findIncludeFile(path);
 
-		if (includePath != null && includePath != "" && FileSystem.exists(includePath) && !FileSystem.isDirectory(includePath))
+		if (includePath != null && includePath != "" && FileSystem.exists(includePath) && !FileSystem.isDirectory(includePath)
+			&& firstRead(includePath))
 		{
 			var includeProject = new ProjectXMLParser(includePath, defines);
-			merge(includeProject);
+			mergeIncluded(includeProject);
 		}
 
 		var processedLibrary = false;
@@ -898,12 +1003,12 @@ class ProjectXMLParser extends HXProject
 						case "ANDROID_INSTALL_LOCATION": config.set("android.install-location", value);
 					}
 
-					defines.set(name, value);
-					environment.set(name, value);
+					changeValue(defines, changedDefines, name, value);
+					changeValue(environment, changedEnvironment, name, value);
 
 				case "unset":
-					defines.remove(element.att.name);
-					environment.remove(element.att.name);
+					changeValue(defines, changedDefines, element.att.name, null);
+					changeValue(environment, changedEnvironment, element.att.name, null);
 
 				case "define":
 					var name = element.att.name;
@@ -914,14 +1019,14 @@ class ProjectXMLParser extends HXProject
 						value = substitute(element.att.value);
 					}
 
-					defines.set(name, value);
-					haxedefs.set(name, value);
-					environment.set(name, value);
+					changeValue(defines, changedDefines, name, value);
+					changeValue(haxedefs, changedHaxedefs, name, value);
+					changeValue(environment, changedEnvironment, name, value);
 
 				case "undefine":
-					defines.remove(element.att.name);
-					haxedefs.remove(element.att.name);
-					environment.remove(element.att.name);
+					changeValue(defines, changedDefines, element.att.name, null);
+					changeValue(haxedefs, changedHaxedefs, element.att.name, null);
+					changeValue(environment, changedEnvironment, element.att.name, null);
 
 				case "setenv":
 					var value = "";
@@ -937,8 +1042,8 @@ class ProjectXMLParser extends HXProject
 
 					var name = substitute(element.att.name);
 
-					defines.set(name, value);
-					environment.set(name, value);
+					changeValue(defines, changedDefines, name, value);
+					changeValue(environment, changedEnvironment, name, value);
 					setenv(name, value);
 
 					if (needRerun) return;
@@ -1023,6 +1128,8 @@ class ProjectXMLParser extends HXProject
 
 					if (path != null && path != "" && FileSystem.exists(path) && !FileSystem.isDirectory(path))
 					{
+						if (!firstRead(path)) continue;
+
 						var includeProject = new ProjectXMLParser(path, defines);
 
 						if (includeProject != null && haxelib != null)
@@ -1046,7 +1153,7 @@ class ProjectXMLParser extends HXProject
 							}
 						}
 
-						merge(includeProject);
+						mergeIncluded(includeProject);
 					}
 					else if (!element.has.noerror)
 					{
@@ -1162,6 +1269,14 @@ class ProjectXMLParser extends HXProject
 
 					haxelibs.push(haxelib);
 
+					var includeKey = HXProject.getHaxelibIncludeKey(haxelib);
+
+					if (readOnce != null)
+					{
+						if (readOnce.haxelibs.indexOf(includeKey) > -1) continue;
+						readOnce.haxelibs.push(includeKey);
+					}
+
 					var includeProject = HXProject.fromHaxelib(haxelib, defines);
 
 					if (includeProject != null)
@@ -1174,8 +1289,8 @@ class ProjectXMLParser extends HXProject
 							}
 						}
 
-						ArrayTools.addUnique(processedHaxelibIncludes, HXProject.getHaxelibIncludeKey(haxelib));
-						merge(includeProject);
+						ArrayTools.addUnique(processedHaxelibIncludes, includeKey);
+						mergeIncluded(includeProject);
 					}
 
 				case "ndll":
@@ -1494,7 +1609,7 @@ class ProjectXMLParser extends HXProject
 				case "haxedef":
 					if (element.has.remove)
 					{
-						haxedefs.remove(substitute(element.att.remove));
+						changeValue(haxedefs, changedHaxedefs, substitute(element.att.remove), null);
 					}
 					else
 					{
@@ -1506,7 +1621,7 @@ class ProjectXMLParser extends HXProject
 							value = substitute(element.att.value);
 						}
 
-						haxedefs.set(name, value);
+						changeValue(haxedefs, changedHaxedefs, name, value);
 					}
 
 				case "haxeflag", "compilerflag":
@@ -1940,7 +2055,7 @@ class ProjectXMLParser extends HXProject
 					}
 
 				case "config":
-					config.parse(element, substitute);
+					config.parse(filterConfigElement(element, section), substitute);
 
 				case "prebuild":
 					parseCommandElement(element, preBuildCallbacks);
@@ -1951,10 +2066,57 @@ class ProjectXMLParser extends HXProject
 				default:
 					if (StringTools.startsWith(element.name, "config:"))
 					{
-						config.parse(element, substitute);
+						config.parse(filterConfigElement(element, section), substitute);
 					}
 			}
 		}
+	}
+
+	/**
+		A copy of a `<config>` element without the tags inside it whose `if` or `unless` fails,
+		and without `if` and `unless` themselves, so they are never read as config values.
+	**/
+	private function filterConfigElement(element:Access, section:String):Access
+	{
+		return new Access(copyValidXml(element.x, section));
+	}
+
+	private function copyValidXml(xml:Xml, section:String):Xml
+	{
+		var copy = Xml.createElement(xml.nodeName);
+
+		for (attribute in xml.attributes())
+		{
+			if (attribute != "if" && attribute != "unless")
+			{
+				copy.set(attribute, xml.get(attribute));
+			}
+		}
+
+		for (child in xml)
+		{
+			switch (child.nodeType)
+			{
+				case Element:
+					if (isValidElement(new Access(child), section))
+					{
+						copy.addChild(copyValidXml(child, section));
+					}
+
+				case PCData:
+					copy.addChild(Xml.createPCData(child.nodeValue));
+
+				case CData:
+					copy.addChild(Xml.createCData(child.nodeValue));
+
+				case Comment:
+					copy.addChild(Xml.createComment(child.nodeValue));
+
+				default:
+			}
+		}
+
+		return copy;
 	}
 
 	private function parseWindowElement(element:Access):Void

@@ -47,6 +47,19 @@ abstract RGBA(#if (flash && !lime_doc_gen) Int #else UInt #end) from Int to Int 
 	**/
 	public var r(get, set):Int;
 
+	// Premultiplying and unmultiplying round to the nearest value, the same
+	// way as the native RGBA, and a channel above alpha unmultiplies to 0xFF
+	@:noCompletion public static inline function __multiply(channel:Int, alpha:Int):Int
+	{
+		return Std.int((channel * alpha + 127) / 255);
+	}
+
+	@:noCompletion public static inline function __unmultiply(channel:Int, alpha:Int):Int
+	{
+		var value = Std.int((channel * 255 + (alpha >> 1)) / alpha);
+		return value > 0xFF ? 0xFF : value;
+	}
+
 	private static function __init__():Void
 	{
 		#if (js && modular)
@@ -83,7 +96,7 @@ abstract RGBA(#if (flash && !lime_doc_gen) Int #else UInt #end) from Int to Int 
 			__alpha16[i] = Math.ceil((i) * ((1 << 16) / 0xFF));
 		}
 
-		__clamp = new UInt8Array(0xFF + 0xFF);
+		__clamp = new UInt8Array(0xFF + 0xFF + 1);
 
 		for (i in 0...0xFF)
 		{
@@ -135,8 +148,7 @@ abstract RGBA(#if (flash && !lime_doc_gen) Int #else UInt #end) from Int to Int 
 		}
 		else if (a != 0xFF)
 		{
-			a16 = __alpha16[a];
-			set((r * a16) >> 16, (g * a16) >> 16, (b * a16) >> 16, a);
+			set(__multiply(r, a), __multiply(g, a), __multiply(b, a), a);
 		}
 	}
 
@@ -186,8 +198,7 @@ abstract RGBA(#if (flash && !lime_doc_gen) Int #else UInt #end) from Int to Int 
 	{
 		if (a != 0 && a != 0xFF)
 		{
-			unmult = 255.0 / a;
-			set(__clamp[Math.round(r * unmult)], __clamp[Math.round(g * unmult)], __clamp[Math.round(b * unmult)], a);
+			set(__unmultiply(r, a), __unmultiply(g, a), __unmultiply(b, a), a);
 		}
 	}
 
@@ -200,30 +211,33 @@ abstract RGBA(#if (flash && !lime_doc_gen) Int #else UInt #end) from Int to Int 
 	**/
 	public inline function writeUInt8(data:UInt8Array, offset:Int, format:PixelFormat = RGBA32, premultiplied:Bool = false):Void
 	{
+		// A copy, so that writing leaves the color as it was
+		var color:RGBA = this;
+
 		if (premultiplied)
 		{
-			multiplyAlpha();
+			color.multiplyAlpha();
 		}
 
 		switch (format)
 		{
 			case BGRA32:
-				data[offset] = b;
-				data[offset + 1] = g;
-				data[offset + 2] = r;
-				data[offset + 3] = a;
+				data[offset] = color.b;
+				data[offset + 1] = color.g;
+				data[offset + 2] = color.r;
+				data[offset + 3] = color.a;
 
 			case RGBA32:
-				data[offset] = r;
-				data[offset + 1] = g;
-				data[offset + 2] = b;
-				data[offset + 3] = a;
+				data[offset] = color.r;
+				data[offset + 1] = color.g;
+				data[offset + 2] = color.b;
+				data[offset + 3] = color.a;
 
 			case ARGB32:
-				data[offset] = a;
-				data[offset + 1] = r;
-				data[offset + 2] = g;
-				data[offset + 3] = b;
+				data[offset] = color.a;
+				data[offset + 1] = color.r;
+				data[offset + 2] = color.g;
+				data[offset + 3] = color.b;
 		}
 	}
 

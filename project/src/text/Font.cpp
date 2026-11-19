@@ -334,6 +334,7 @@ namespace lime {
 		this->library = 0;
 		this->face = 0;
 		this->faceMemory = 0;
+		this->mReferences = 1;
 
 		if (resource) {
 
@@ -436,6 +437,24 @@ namespace lime {
 
 		free (faceMemory);
 		faceMemory = 0;
+
+	}
+
+
+	void Font::Retain () {
+
+		mReferences++;
+
+	}
+
+
+	void Font::Release () {
+
+		if (--mReferences == 0) {
+
+			delete this;
+
+		}
 
 	}
 
