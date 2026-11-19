@@ -315,27 +315,31 @@ class OpenALStateTest extends Test
 		AL.deleteBuffer(buffer);
 	}
 
-	@Ignored("Waiting on #2248")
 	public function testCreatingAnObjectKeepsAnErrorTheApplicationHasNotRead():Void
 	{
 		if (!hasContext()) return;
 
-		// Only reading the error clears it
+		// Only reading the error clears it. Which error an unknown name gives differs between
+		// OpenAL versions (INVALID_ENUM or INVALID_VALUE), so it is read once first.
+		AL.getFloat(UNKNOWN);
+		var pending = AL.getError();
+		Assert.notEquals(AL.NO_ERROR, pending);
+
 		AL.getFloat(UNKNOWN);
 		var buffer = AL.createBuffer();
-		OpenALSandbox.error(AL.INVALID_ENUM, "after createBuffer");
+		OpenALSandbox.error(pending, "after createBuffer");
 
 		AL.getFloat(UNKNOWN);
 		var source = AL.createSource();
-		OpenALSandbox.error(AL.INVALID_ENUM, "after createSource");
+		OpenALSandbox.error(pending, "after createSource");
 
 		AL.getFloat(UNKNOWN);
 		var buffers = AL.genBuffers(2);
-		OpenALSandbox.error(AL.INVALID_ENUM, "after genBuffers");
+		OpenALSandbox.error(pending, "after genBuffers");
 
 		AL.getFloat(UNKNOWN);
 		var sources = AL.genSources(2);
-		OpenALSandbox.error(AL.INVALID_ENUM, "after genSources");
+		OpenALSandbox.error(pending, "after genSources");
 
 		AL.deleteSource(source);
 		AL.deleteSources(sources);
