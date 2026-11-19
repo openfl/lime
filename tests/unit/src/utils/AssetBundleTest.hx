@@ -113,7 +113,6 @@ class AssetBundleTest extends Test
 		if (library != null) Assert.equals("alpha", library.getText("text"));
 	}
 
-	@Ignored("Waiting on #2156")
 	public function testReadingABundleFromAFileLetsGoOfTheFile():Void
 	{
 		var path = files.write("released.zip", withManifest(false));
@@ -163,7 +162,6 @@ class AssetBundleTest extends Test
 		Assert.isNull(bundle);
 	}
 
-	@Ignored("Waiting on #2156")
 	public function testAMissingFileGivesNoBundle():Void
 	{
 		var bundle:AssetBundle = null;
