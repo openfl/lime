@@ -32,11 +32,26 @@ class AssetBundle
 		return __extractBundle(input);
 	}
 
+	/**
+		The bundle in the zip file at `path`, or `null` when it can't be read as one.
+	**/
 	public static function fromFile(path:String):AssetBundle
 	{
 		#if sys
-		var input = File.read(path);
-		return __extractBundle(input);
+		var input = null;
+
+		try
+		{
+			input = File.read(path);
+			var bundle = __extractBundle(input);
+			input.close();
+			return bundle;
+		}
+		catch (e:Dynamic)
+		{
+			if (input != null) input.close();
+			return null;
+		}
 		#else
 		return null;
 		#end
