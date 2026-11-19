@@ -92,6 +92,11 @@ class AssetManifest
 			manifest.libraryArgs = manifestData.libraryArgs;
 		}
 
+		if (Reflect.hasField(manifestData, "version"))
+		{
+			manifest.version = manifestData.version;
+		}
+
 		if (Reflect.hasField(manifestData, "assets"))
 		{
 			var assets:Dynamic = manifestData.assets;
@@ -116,7 +121,7 @@ class AssetManifest
 			{
 				manifest.rootPath = rootPath;
 			}
-			else
+			else if (!__isAbsolutePath(manifest.rootPath))
 			{
 				manifest.rootPath = rootPath + "/" + manifest.rootPath;
 			}
@@ -143,6 +148,17 @@ class AssetManifest
 		#else
 		return null;
 		#end
+	}
+
+	// A path that a root path shouldn't be put in front of: one from the root of
+	// the file system or a drive, a network share or a URL
+	@:noCompletion @:allow(lime.utils) private static function __isAbsolutePath(path:String):Bool
+	{
+		if (path == null || path == "") return false;
+		if (Path.isAbsolute(path)) return true;
+
+		var schemeEnd = path.indexOf("://");
+		return schemeEnd > 0 && ~/^[A-Za-z][A-Za-z0-9+.-]*$/.match(path.substr(0, schemeEnd));
 	}
 
 	private static function __resolvePath(path:String):String

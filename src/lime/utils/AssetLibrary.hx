@@ -830,7 +830,7 @@ class AssetLibrary
 
 			if (Reflect.hasField(asset, "path"))
 			{
-				paths.set(id, __cacheBreak(__resolvePath(basePath + Reflect.field(asset, "path"))));
+				paths.set(id, __cacheBreak(__resolvePath(__underBasePath(basePath, Reflect.field(asset, "path")))));
 			}
 
 			if (Reflect.hasField(asset, "pathGroup"))
@@ -839,7 +839,7 @@ class AssetLibrary
 
 				for (i in 0...pathGroup.length)
 				{
-					pathGroup[i] = __cacheBreak(__resolvePath(basePath + pathGroup[i]));
+					pathGroup[i] = __cacheBreak(__resolvePath(__underBasePath(basePath, pathGroup[i])));
 				}
 
 				pathGroups.set(id, pathGroup);
@@ -881,6 +881,12 @@ class AssetLibrary
 		}
 	}
 
+	// An absolute asset path is used as it is, as a path join would
+	@:noCompletion private static inline function __underBasePath(basePath:String, path:String):String
+	{
+		return AssetManifest.__isAbsolutePath(path) ? path : basePath + path;
+	}
+
 	@:noCompletion private function __resolvePath(path:String):String
 	{
 		path = StringTools.replace(path, "\\", "/");
@@ -913,9 +919,21 @@ class AssetLibrary
 			{
 				if (split[i] == "..")
 				{
-					if (i == 0 || newPath[i - 1] == "..")
+					// Compared with the last part kept, and kept when there is
+					// nothing left to cancel, so a/../../b is ../b
+					var last = newPath.length > 0 ? newPath[newPath.length - 1] : null;
+
+					if (last == null || last == "..")
 					{
 						newPath.push("..");
+					}
+					else if (last == ".")
+					{
+						newPath[newPath.length - 1] = "..";
+					}
+					else if (last == "" || (newPath.length == 1 && StringTools.endsWith(last, ":")))
+					{
+						// Nothing is above the root of the file system or a drive
 					}
 					else
 					{
