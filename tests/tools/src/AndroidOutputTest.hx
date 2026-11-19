@@ -121,7 +121,6 @@ class AndroidOutputTest extends Test
 	}
 
 	// An attribute value in XML: "&", "<" and the quote that ends it have to be escaped
-	@Ignored("Waiting on #2259")
 	public function testATitleWithSpecialCharactersKeepsTheManifestValid():Void
 	{
 		output.update('<project>
@@ -377,7 +376,6 @@ class AndroidOutputTest extends Test
 	}
 
 	// The template asks whether the plugin is 4.0 or later, and 7.1 or later; version 10 is both
-	@Ignored("Waiting on #2260")
 	public function testGradlePluginVersionsCompareAsVersions():Void
 	{
 		output.update('<project>

@@ -185,7 +185,6 @@ class WindowTest extends Test
 	}
 
 	// WindowData.expectedFields gives x and y as numbers (x: 0.0, y: 0.0)
-	@Ignored("Waiting on #2161")
 	public function testWindowPositionIsNumeric():Void
 	{
 		var project = fixture.parse('<project>
@@ -197,7 +196,6 @@ class WindowTest extends Test
 	}
 
 	// WindowData.expectedFields gives display as a number (display: 0)
-	@Ignored("Waiting on #2161")
 	public function testWindowDisplayIsNumeric():Void
 	{
 		var project = fixture.parse('<project>

@@ -288,7 +288,6 @@ class ImageCodecTest extends Test
 		if (header != null) Assert.equals("5x3", header.width + "x" + header.height);
 	}
 
-	@Ignored("Waiting on #2190")
 	public function testPNGsWithoutAlphaOrATransparencyChunkDecodeAsNotTransparent():Void
 	{
 		// Greyscale and truecolour have no alpha channel, so only tRNS can make a pixel transparent (PNG §6.1, §11.3.2.1)
@@ -527,7 +526,6 @@ class ImageCodecTest extends Test
 		Assert.equals(-1, firstNot(255, alphas), "alpha " + alphas[Std.int(Math.max(0, firstNot(255, alphas)))]);
 	}
 
-	@Ignored("Waiting on #2190")
 	public function testDecodedJPEGsAreNotTransparent():Void
 	{
 		// JPEG has no alpha, and in Flash the BitmapData of a loaded JPEG isn't transparent

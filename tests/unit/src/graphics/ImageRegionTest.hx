@@ -232,7 +232,6 @@ class ImageRegionTest extends Test
 		Assert.equals(8 * 6 * 4, image.buffer.data.length);
 	}
 
-	@Ignored("Waiting on #2175")
 	public function testResizeKeepsAnEvenColor():Void
 	{
 		for (size in [[8, 6], [3, 2], [1, 1], [4, 9]])
@@ -245,7 +244,6 @@ class ImageRegionTest extends Test
 		}
 	}
 
-	@Ignored("Waiting on #2175")
 	public function testResizeKeepsTheFormatAndPremultipliedAlpha():Void
 	{
 		var image = create(4, 4, 0x80FF8040, BGRA32, true);
