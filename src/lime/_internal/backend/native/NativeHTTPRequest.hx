@@ -351,21 +351,110 @@ class NativeHTTPRequest
 		var future = loadData(uri, false);
 
 		future.onProgress(promise.progress);
-		future.onError(promise.error);
 
-		future.onComplete(function(bytes)
+		future.onError(function(error:Dynamic)
 		{
-			if (bytes == null)
+			// The body of an error status is text too, for a text request
+			if (#if (haxe_ver >= 4.2) Std.isOfType #else Std.is #end (error, _HTTPRequestErrorResponse))
 			{
-				promise.complete(null);
+				var response:_HTTPRequestErrorResponse<Bytes> = cast error;
+				promise.error(new _HTTPRequestErrorResponse(response.error, response.responseData == null ? null : decodeText(response.responseData)));
 			}
 			else
 			{
-				promise.complete(bytes.getString(0, bytes.length));
+				promise.error(error);
 			}
 		});
 
+		future.onComplete(function(bytes)
+		{
+			promise.complete(bytes == null ? null : decodeText(bytes));
+		});
+
 		return promise.future;
+	}
+
+	// The Encoding Standard's UTF-8 decode, as XMLHttpRequest's responseText: a leading
+	// byte order mark is dropped, and each invalid sequence becomes U+FFFD
+	private static function decodeText(bytes:Bytes):String
+	{
+		var start = (bytes.length >= 3 && bytes.get(0) == 0xEF && bytes.get(1) == 0xBB && bytes.get(2) == 0xBF) ? 3 : 0;
+
+		// Replaced here, as hxcpp ends the text at the first invalid sequence, and
+		// Neko and HashLink keep its bytes
+		var text = validUTF8(bytes, start);
+		return text.getString(0, text.length);
+	}
+
+	// The bytes from start, with each invalid sequence, the lead byte and the continuation
+	// bytes that fit it, replaced by U+FFFD
+	private static function validUTF8(bytes:Bytes, start:Int):Bytes
+	{
+		var length = bytes.length;
+		var output:BytesBuffer = null;
+		var copied = start;
+		var i = start;
+
+		while (i < length)
+		{
+			var lead = bytes.get(i);
+
+			if (lead < 0x80)
+			{
+				i++;
+				continue;
+			}
+
+			var needed = 0;
+			var lower = 0x80;
+			var upper = 0xBF;
+
+			if (lead >= 0xC2 && lead <= 0xDF)
+			{
+				needed = 1;
+			}
+			else if (lead >= 0xE0 && lead <= 0xEF)
+			{
+				needed = 2;
+				if (lead == 0xE0) lower = 0xA0;
+				else if (lead == 0xED) upper = 0x9F;
+			}
+			else if (lead >= 0xF0 && lead <= 0xF4)
+			{
+				needed = 3;
+				if (lead == 0xF0) lower = 0x90;
+				else if (lead == 0xF4) upper = 0x8F;
+			}
+
+			var fit = 0;
+
+			while (fit < needed && i + 1 + fit < length)
+			{
+				var next = bytes.get(i + 1 + fit);
+				if (next < (fit == 0 ? lower : 0x80) || next > (fit == 0 ? upper : 0xBF)) break;
+				fit++;
+			}
+
+			if (needed > 0 && fit == needed)
+			{
+				i += needed + 1;
+				continue;
+			}
+
+			if (output == null) output = new BytesBuffer();
+			output.addBytes(bytes, copied, i - copied);
+			output.addByte(0xEF);
+			output.addByte(0xBF);
+			output.addByte(0xBD);
+
+			i += 1 + fit;
+			copied = i;
+		}
+
+		if (output == null) return start == 0 ? bytes : bytes.sub(start, length - start);
+
+		output.addBytes(bytes, copied, length - copied);
+		return output.getBytes();
 	}
 
 	private function buildBuffer()
@@ -633,15 +722,9 @@ class NativeHTTPRequest
 						promise.complete(data);
 					}
 				}
-				else if (instance.bytes != null)
-				{
-					var error = instance.bytes.getString(0, instance.bytes.length);
-					var responseData = instance.buildBuffer();
-					instance.finishLoad(promise);
-					promise.error(new _HTTPRequestErrorResponse(error, responseData));
-				}
 				else
 				{
+					// The body is kept as responseData, as XMLHttpRequest keeps it
 					var error = 'Status ${state.status}';
 					var responseData = instance.buildBuffer();
 					instance.finishLoad(promise);
