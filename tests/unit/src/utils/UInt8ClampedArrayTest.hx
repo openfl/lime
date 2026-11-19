@@ -68,7 +68,6 @@ class UInt8ClampedArrayTest extends Test
 		assertElements([255, 255, 0, 0], array);
 	}
 
-	@Ignored("Waiting on #2152")
 	public function testClampedValuesRoundHalfToEven():Void
 	{
 		// ToUint8Clamp rounds to the nearest integer, and halves to the even one
@@ -76,7 +75,6 @@ class UInt8ClampedArrayTest extends Test
 		assertElements([0, 2, 2, 4, 254, 0, 1, 1, 2, 255], array);
 	}
 
-	@Ignored("Waiting on #2152")
 	public function testClampedValuesOutOfRange():Void
 	{
 		var array = new UInt8ClampedArray([Math.NaN, -0.5, -1, -1000.7, 255.5, 300, 1e10, Math.POSITIVE_INFINITY, Math.NEGATIVE_INFINITY]);
@@ -92,7 +90,6 @@ class UInt8ClampedArrayTest extends Test
 		assertElements([0, 0, 128, 255, 255, 255], array);
 	}
 
-	@Ignored("Waiting on #2150")
 	public function testConstructFromTypedArrayClampsValues():Void
 	{
 		assertElements([0, 255, 128, 255, 255], new UInt8ClampedArray(new Int16Array([-5, 300, 128, 255, 256])));
@@ -152,7 +149,6 @@ class UInt8ClampedArrayTest extends Test
 
 	#if !js
 	// js.lib typed arrays only take Array<Int> in set
-	@Ignored("Waiting on #2152")
 	public function testSetArrayOfFloatsRoundsHalfToEven():Void
 	{
 		var array = new UInt8ClampedArray(5);
@@ -174,7 +170,6 @@ class UInt8ClampedArrayTest extends Test
 		assertElements([0, 0, 255, 2], array);
 	}
 
-	@Ignored("Waiting on #2150")
 	public function testSetInt8ArrayClampsNegativeValues():Void
 	{
 		// Int8 and UInt8Clamped elements are both 1 byte, but -1 clamps to 0 rather than keeping its bits
@@ -190,7 +185,8 @@ class UInt8ClampedArrayTest extends Test
 		assertElements([1, 2, 1, 2, 3, 4], forward);
 	}
 
-	@Ignored("Waiting on #2152")
+	// Release builds leave out the bounds check, as it would cost every access (#2152)
+	#if debug
 	public function testOutOfBoundsWriteIsIgnored():Void
 	{
 		var buffer = new ArrayBuffer(6);
@@ -199,4 +195,5 @@ class UInt8ClampedArrayTest extends Test
 		array[-1] = 9;
 		Assert.same([0, 0, 0, 0, 0, 0], bytesOf(buffer));
 	}
+	#end
 }
