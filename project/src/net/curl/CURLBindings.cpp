@@ -1303,8 +1303,43 @@ namespace lime {
 				break;
 			}
 
-			case CURLINFO_SSL_ENGINES:
 			case CURLINFO_COOKIELIST:
+			{
+				struct curl_slist* cookies = NULL;
+				code = curl_easy_getinfo (handle, CURLINFO_COOKIELIST, &cookies);
+				if (code != CURLE_OK) return NULL;
+
+				// One line for each cookie, which CURL.getInfo makes an array, as the
+				// other targets give. A cookie line holds no line breaks.
+				int length = 0;
+
+				for (struct curl_slist* each = cookies; each; each = each->next) {
+
+					length += (int)strlen (each->data) + 1;
+
+				}
+
+				vbyte* bytes = hl_alloc_bytes (length + 1);
+				int position = 0;
+
+				for (struct curl_slist* each = cookies; each; each = each->next) {
+
+					int size = (int)strlen (each->data);
+					memcpy (bytes + position, each->data, size);
+					position += size;
+					if (each->next) bytes[position++] = '\n';
+
+				}
+
+				bytes[position] = 0;
+				curl_slist_free_all (cookies);
+
+				result = hl_alloc_dynamic (&hlt_bytes);
+				result->v.bytes = bytes;
+				return result;
+			}
+
+			case CURLINFO_SSL_ENGINES:
 			case CURLINFO_CERTINFO:
 			case CURLINFO_TLS_SESSION:
 			case CURLINFO_TLS_SSL_PTR:

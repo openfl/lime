@@ -81,7 +81,15 @@ class CURL
 		// String infos come back as their UTF-8 bytes
 		if (result != null && hl.Type.getDynamic(result).kind == HBytes)
 		{
-			return @:privateAccess String.fromUTF8((result : hl.Bytes));
+			var text = @:privateAccess String.fromUTF8((result : hl.Bytes));
+
+			// The cookie list comes as a line for each cookie, and is an array of them, as elsewhere
+			if (info == CURLInfo.COOKIELIST)
+			{
+				return text == "" ? [] : text.split("\n");
+			}
+
+			return text;
 		}
 		return result;
 		#else
