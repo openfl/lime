@@ -1015,6 +1015,11 @@ class ImageDataUtil
 					u = ((x + 0.5) / newWidth) * imageWidth - 0.5;
 					v = ((y + 0.5) / newHeight) * imageHeight - 0.5;
 
+					// Samples before the first pixel are held at the edge, as at the right and
+					// bottom, rather than extrapolated past it
+					if (u < 0) u = 0;
+					if (v < 0) v = 0;
+
 					sourceX = Std.int(u);
 					sourceY = Std.int(v);
 
