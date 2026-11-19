@@ -554,7 +554,7 @@ abstract TypedArrayType(Int) from Int to Int
 	#if (haxe_ver >= 4.0) extern #else @:extern #end
 	inline
 	#end
-	public static function setUint8Clamped(buffer:ArrayBuffer, byteOffset:Int, value:UInt)
+	public static function setUint8Clamped(buffer:ArrayBuffer, byteOffset:Int, value:Float)
 	{
 		setUint8(buffer, byteOffset, _clamp(value));
 	}
@@ -987,12 +987,15 @@ abstract TypedArrayType(Int) from Int to Int
 	#if (haxe_ver >= 4.0) extern #else @:extern #end
 	inline
 	#end
-	// clamp a Int to a 0-255 Uint8 (for Uint8Clamped array)
+	// clamp a value to a 0-255 Uint8 (for Uint8Clamped array). The value is
+	// clamped before Std.int sees it, since converting a float outside the Int32
+	// range is undefined in C++, and ARM64 and x86 give different results.
 	static function _clamp(_in:Float):Int
 	{
-		var _out = Std.int(_in);
-		_out = _out > 255 ? 255 : _out;
-		return _out < 0 ? 0 : _out;
+		// NaN fails the comparison too
+		if (!(_in > 0)) return 0;
+		if (_in >= 255) return 255;
+		return Std.int(_in);
 	} // _clamp
 }
 #else // #error "ArrayBufferIO is not used on js target, use DataView instead"
