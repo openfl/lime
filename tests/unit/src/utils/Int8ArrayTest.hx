@@ -162,7 +162,6 @@ class Int8ArrayTest extends Test
 		});
 	}
 
-	@Ignored("Waiting on #2151")
 	public function testSubarray():Void
 	{
 		var array = new Int8Array([1, 2, 3, 4, 5, 6]);
@@ -180,7 +179,6 @@ class Int8ArrayTest extends Test
 		assertElements([5, 6], beyondLength);
 	}
 
-	@Ignored("Waiting on #2151")
 	public function testSubarrayNegativeIndices():Void
 	{
 		// Negative indices count back from the end
@@ -196,7 +194,6 @@ class Int8ArrayTest extends Test
 		Assert.equals(0, array.subarray(-1, -3).length);
 	}
 
-	@Ignored("Waiting on #2151")
 	public function testSubarrayBeginBeyondLengthIsEmpty():Void
 	{
 		var array = new Int8Array([1, 2, 3, 4, 5, 6]);
@@ -205,7 +202,6 @@ class Int8ArrayTest extends Test
 		Assert.equals(0, array.subarray(100, 200).length);
 	}
 
-	@Ignored("Waiting on #2151")
 	public function testSubarrayEndBeyondLengthStaysInsideView():Void
 	{
 		// end is clamped to this view's length, even when the buffer continues past it

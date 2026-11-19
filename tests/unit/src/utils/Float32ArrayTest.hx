@@ -163,7 +163,6 @@ class Float32ArrayTest extends Test
 		assertElements([Math.NaN, Math.POSITIVE_INFINITY, Math.NEGATIVE_INFINITY], new Float32Array(buffer));
 	}
 
-	@Ignored("Waiting on #2151")
 	public function testSubarray():Void
 	{
 		var array = new Float32Array([1, 2, 3, 4, 5, 6]);
