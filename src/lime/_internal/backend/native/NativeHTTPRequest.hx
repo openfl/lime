@@ -169,6 +169,12 @@ class NativeHTTPRequest
 					curl.setOption(INFILE, data);
 					curl.setOption(INFILESIZE, data.length);
 				}
+				else
+				{
+					// Without a size, libcurl sends the upload chunked and reads it from the
+					// application's standard input, which may never end
+					curl.setOption(INFILESIZE, 0);
+				}
 
 			case _:
 				curl.setOption(CUSTOMREQUEST, Std.string(parent.method));
@@ -252,7 +258,12 @@ class NativeHTTPRequest
 		curl.setOption(SSL_VERIFYHOST, parent.verifyCertificates ? 2 : 0);
 		curl.setOption(USERAGENT, parent.userAgent == null ? "libcurl-agent/1.0" : parent.userAgent);
 
-		// curl.setOption (CONNECTTIMEOUT, 30);
+		// The whole request, as XMLHttpRequest.timeout is on HTML5
+		if (parent.timeout > 0)
+		{
+			curl.setOption(TIMEOUT_MS, parent.timeout);
+		}
+
 		curl.setOption(NOSIGNAL, true);
 
 		#if curl_verbose

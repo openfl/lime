@@ -43,7 +43,6 @@ class ImageRegionTest extends Test
 	}
 
 	#if flash
-	@Ignored("Waiting on #2212")
 	#end
 	public function testScrollDownKeepsTheTopEdge():Void
 	{
@@ -64,7 +63,6 @@ class ImageRegionTest extends Test
 	}
 
 	#if flash
-	@Ignored("Waiting on #2212")
 	#end
 	public function testScrollBothWaysAtOnce():Void
 	{
@@ -234,7 +232,6 @@ class ImageRegionTest extends Test
 		Assert.equals(8 * 6 * 4, image.buffer.data.length);
 	}
 
-	@Ignored("Waiting on #2175")
 	public function testResizeKeepsAnEvenColor():Void
 	{
 		for (size in [[8, 6], [3, 2], [1, 1], [4, 9]])
@@ -247,7 +244,6 @@ class ImageRegionTest extends Test
 		}
 	}
 
-	@Ignored("Waiting on #2175")
 	public function testResizeKeepsTheFormatAndPremultipliedAlpha():Void
 	{
 		var image = create(4, 4, 0x80FF8040, BGRA32, true);
@@ -259,25 +255,24 @@ class ImageRegionTest extends Test
 		assertPixels([for (i in 0...36) 0x80FF8040], image, 1);
 	}
 
-	@Ignored("Waiting on #2182")
 	public function testResizeUpKeepsAnEdgeBetweenItsTwoColors():Void
 	{
 		// Bilinear scaling blends neighbouring pixels and holds the outermost ones at the
 		// image's edges, so going from white to black it never leaves that range
 		var image = create(2, 1, 0xFFFFFFFF);
-		image.setPixel32(1, 0, 0xFF000000);
+		image.setPixel32(1, 0, 0xFF000000, ARGB32);
 
 		image.resize(8, 1);
 
 		var previous = 0xFF;
 		for (x in 0...8)
 		{
-			var red = (image.getPixel32(x, 0) >> 16) & 0xFF;
+			var red = (image.getPixel32(x, 0, ARGB32) >> 16) & 0xFF;
 			Assert.isTrue(red <= previous, 'red $red at x $x, after $previous');
 			previous = red;
 		}
-		Assert.equals(0xFFFFFFFF, image.getPixel32(0, 0));
-		Assert.equals(0xFF000000, image.getPixel32(7, 0));
+		Assert.equals(0xFFFFFFFF, image.getPixel32(0, 0, ARGB32));
+		Assert.equals(0xFF000000, image.getPixel32(7, 0, ARGB32));
 	}
 
 	public function testResizeToTheSameSizeKeepsThePixels():Void

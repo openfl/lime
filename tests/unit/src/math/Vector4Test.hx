@@ -139,7 +139,6 @@ class Vector4Test extends Test
 		near(Math.PI / 4, Vector4.angleBetween(new Vector4(1, 1, 0), new Vector4(3, 0, 0)), "eighth of a turn");
 	}
 
-	@Ignored("Waiting on #2205")
 	public function testAngleBetweenParallelVectorsIsZero():Void
 	{
 		// The unit vectors' dot product can round to just above 1, which has no arccosine

@@ -288,7 +288,6 @@ class ImageCodecTest extends Test
 		if (header != null) Assert.equals("5x3", header.width + "x" + header.height);
 	}
 
-	@Ignored("Waiting on #2190")
 	public function testPNGsWithoutAlphaOrATransparencyChunkDecodeAsNotTransparent():Void
 	{
 		// Greyscale and truecolour have no alpha channel, so only tRNS can make a pixel transparent (PNG §6.1, §11.3.2.1)
@@ -396,7 +395,6 @@ class ImageCodecTest extends Test
 		}
 	}
 
-	@Ignored("Waiting on #2181")
 	public function testAnImageWithinALargerBufferEncodesOnlyItself():Void
 	{
 		// An Image can be a region of its buffer (Image.offsetX, Image.width), and encoding it encodes that region
@@ -528,7 +526,6 @@ class ImageCodecTest extends Test
 		Assert.equals(-1, firstNot(255, alphas), "alpha " + alphas[Std.int(Math.max(0, firstNot(255, alphas)))]);
 	}
 
-	@Ignored("Waiting on #2190")
 	public function testDecodedJPEGsAreNotTransparent():Void
 	{
 		// JPEG has no alpha, and in Flash the BitmapData of a loaded JPEG isn't transparent
@@ -552,7 +549,6 @@ class ImageCodecTest extends Test
 
 	// BMP
 
-	@Ignored("Waiting on #2180")
 	public function testBMPEncodingHasAValidFileHeader():Void
 	{
 		var bmp = imageOf(3, opaque(pattern(3, 2))).encode(ImageFileFormat.BMP);
@@ -572,7 +568,6 @@ class ImageCodecTest extends Test
 		Assert.equals("", firstDifference(4, pixels, read.pixels));
 	}
 
-	@Ignored("Waiting on #2180")
 	public function testBMPRowsArePaddedToFourBytes():Void
 	{
 		// Each row is a whole number of 4-byte words, whatever the width
@@ -592,7 +587,6 @@ class ImageCodecTest extends Test
 		}
 	}
 
-	@Ignored("Waiting on #2180")
 	public function testBMPTypesEncodeTheirOwnLayout():Void
 	{
 		var pixels = pattern(3, 2);
@@ -619,7 +613,6 @@ class ImageCodecTest extends Test
 		}
 	}
 
-	@Ignored("Waiting on #2180")
 	public function testICOBitmapsHaveADoubleHeightAndAnANDMask():Void
 	{
 		// An icon's bitmap has no file header, gives twice its height, and follows its colours with a
@@ -637,7 +630,6 @@ class ImageCodecTest extends Test
 		Assert.equals("", firstDifference(5, pixels, read.pixels));
 	}
 
-	@Ignored("Waiting on #2180")
 	public function testICOANDMaskMarksTransparentPixels():Void
 	{
 		// A set AND bit keeps the screen, so a pixel with no alpha sets it and an opaque one clears it

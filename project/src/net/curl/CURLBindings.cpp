@@ -45,6 +45,7 @@ namespace lime {
 	std::map<void*, ValuePointer*> headerCallbacks;
 	std::map<void*, curl_slist*> headerSLists;
 	std::map<void*, std::vector<char*>* > headerValues;
+	std::map<void*, char*> postFields;
 	std::map<void*, ValuePointer*> progressCallbacks;
 	std::map<void*, CURL_Progress*> progressValues;
 	std::map<void*, Bytes*> readBytes;
@@ -110,6 +111,53 @@ namespace lime {
 	}
 
 
+	// libcurl only points at POSTFIELDS, which have to last until the
+	// transfer, so the handle keeps a copy. COPYPOSTFIELDS would be dropped
+	// by a POSTFIELDSIZE set afterwards.
+	CURLcode set_post_fields (void* handle, CURL* curl, const char* fields) {
+
+		char* copy = NULL;
+
+		if (fields) {
+
+			size_t size = strlen (fields) + 1;
+			copy = (char*)malloc (size);
+			memcpy (copy, fields, size);
+
+		}
+
+		lock_curl_gc ();
+
+		CURLcode code = curl_easy_setopt (curl, CURLOPT_POSTFIELDS, copy);
+
+		if (postFields.find (handle) != postFields.end ()) {
+
+			free (postFields[handle]);
+			postFields.erase (handle);
+
+		}
+
+		if (copy) postFields[handle] = copy;
+
+		curl_gc_mutex.Unlock ();
+
+		return code;
+
+	}
+
+
+	void release_post_fields (void* handle) {
+
+		if (postFields.find (handle) != postFields.end ()) {
+
+			free (postFields[handle]);
+			postFields.erase (handle);
+
+		}
+
+	}
+
+
 	void release_curl (value handle, CURL* curl) {
 
 		if (curlMultiReferences.find (handle) != curlMultiReferences.end ()) {
@@ -156,6 +204,9 @@ namespace lime {
 			writeBufferSize.erase (handle);
 
 		}
+
+		// After curl_easy_cleanup, which is the last that may read them
+		release_post_fields (handle);
 
 		ValuePointer* callback;
 		Bytes* bytes;
@@ -278,6 +329,9 @@ namespace lime {
 			writeBufferSize.erase (handle);
 
 		}
+
+		// After curl_easy_cleanup, which is the last that may read them
+		release_post_fields (handle);
 
 		ValuePointer* callback;
 		Bytes* bytes;
@@ -562,6 +616,51 @@ namespace lime {
 	}
 
 
+	// curl_easy_duphandle copies the options, so the clone's still point at
+	// the original's header list and callback data. Give it its own.
+	void curl_own_duplicated_state (void* handle, void* duphandle, CURL* dup) {
+
+		if (headerSLists.find (handle) != headerSLists.end ()) {
+
+			struct curl_slist* chunk = NULL;
+
+			for (struct curl_slist* item = headerSLists[handle]; item; item = item->next) {
+
+				chunk = curl_slist_append (chunk, item->data);
+
+			}
+
+			headerSLists[duphandle] = chunk;
+			curl_easy_setopt (dup, CURLOPT_HTTPHEADER, chunk);
+
+		}
+
+		if (postFields.find (handle) != postFields.end ()) {
+
+			// curl_easy_duphandle copies the pointer, not the data
+			size_t size = strlen (postFields[handle]) + 1;
+			char* copy = (char*)malloc (size);
+			memcpy (copy, postFields[handle], size);
+			postFields[duphandle] = copy;
+			curl_easy_setopt (dup, CURLOPT_POSTFIELDS, copy);
+
+		}
+
+		if (headerCallbacks.find (duphandle) != headerCallbacks.end ()) curl_easy_setopt (dup, CURLOPT_HEADERDATA, duphandle);
+		if (progressCallbacks.find (duphandle) != progressCallbacks.end ()) curl_easy_setopt (dup, CURLOPT_PROGRESSDATA, duphandle);
+		if (writeCallbacks.find (duphandle) != writeCallbacks.end ()) curl_easy_setopt (dup, CURLOPT_WRITEDATA, duphandle);
+		if (xferInfoCallbacks.find (duphandle) != xferInfoCallbacks.end ()) curl_easy_setopt (dup, CURLOPT_XFERINFODATA, duphandle);
+
+		if (readBytes.find (duphandle) != readBytes.end ()) {
+
+			curl_easy_setopt (dup, CURLOPT_READDATA, duphandle);
+			curl_easy_setopt (dup, CURLOPT_SEEKDATA, duphandle);
+
+		}
+
+	}
+
+
 	value lime_curl_easy_duphandle (value handle) {
 
 		lock_curl_gc ();
@@ -626,6 +725,8 @@ namespace lime {
 			xferInfoValues[duphandle] = new CURL_XferInfo ();
 
 		}
+
+		curl_own_duplicated_state (handle, duphandle, dup);
 
 		curl_gc_mutex.Unlock ();
 
@@ -693,6 +794,8 @@ namespace lime {
 			xferInfoValues[duphandle] = new CURL_XferInfo ();
 
 		}
+
+		curl_own_duplicated_state (handle, duphandle, dup);
 
 		curl_gc_mutex.Unlock ();
 
@@ -971,10 +1074,25 @@ namespace lime {
 			case CURLINFO_RTSP_SESSION_ID:
 			case CURLINFO_SCHEME:
 
-				char stringValue;
+			{
+				char* stringValue = NULL;
 				code = curl_easy_getinfo (handle, type, &stringValue);
-				return alloc_string (&stringValue);
-				break;
+				return (code == CURLE_OK && stringValue) ? alloc_string (stringValue) : alloc_null ();
+			}
+
+			case CURLINFO_SIZE_UPLOAD_T:
+			case CURLINFO_SIZE_DOWNLOAD_T:
+			case CURLINFO_SPEED_DOWNLOAD_T:
+			case CURLINFO_SPEED_UPLOAD_T:
+			case CURLINFO_CONTENT_LENGTH_DOWNLOAD_T:
+			case CURLINFO_CONTENT_LENGTH_UPLOAD_T:
+			{
+				// 64 bits, where a long is 32 on Windows
+				curl_off_t offValue = 0;
+				code = curl_easy_getinfo (handle, type, &offValue);
+				if (offValue >= INT_MIN && offValue <= INT_MAX) return alloc_int ((int)offValue);
+				return alloc_float ((double)offValue);
+			}
 
 			case CURLINFO_RESPONSE_CODE:
 			case CURLINFO_HTTP_CONNECTCODE:
@@ -997,17 +1115,11 @@ namespace lime {
 			case CURLINFO_HTTP_VERSION:
 			case CURLINFO_PROXY_SSL_VERIFYRESULT:
 			case CURLINFO_PROTOCOL:
-			case CURLINFO_SIZE_UPLOAD_T: // TODO: These should be larger
-			case CURLINFO_SIZE_DOWNLOAD_T:
-			case CURLINFO_SPEED_DOWNLOAD_T:
-			case CURLINFO_SPEED_UPLOAD_T:
-			case CURLINFO_CONTENT_LENGTH_DOWNLOAD_T:
-			case CURLINFO_CONTENT_LENGTH_UPLOAD_T:
-
-				long intValue;
+			{
+				long intValue = 0;
 				code = curl_easy_getinfo (handle, type, &intValue);
 				return alloc_int (intValue);
-				break;
+			}
 
 			case CURLINFO_TOTAL_TIME:
 			case CURLINFO_NAMELOOKUP_TIME:
@@ -1089,17 +1201,40 @@ namespace lime {
 			case CURLINFO_RTSP_SESSION_ID:
 			case CURLINFO_SCHEME:
 			{
-				char stringValue;
+				char* stringValue = NULL;
 				code = curl_easy_getinfo (handle, type, &stringValue);
+				if (code != CURLE_OK || !stringValue) return NULL;
 
-				int size = strlen (&stringValue) + 1;
-				char* val = (char*)malloc (size);
-				memcpy (val, &stringValue, size);
-
+				// CURL.getInfo makes the bytes a String
 				result = hl_alloc_dynamic (&hlt_bytes);
-				result->v.b = val;
+				result->v.bytes = hl_copy_bytes ((const vbyte*)stringValue, (int)strlen (stringValue) + 1);
 				return result;
-				break;
+			}
+
+			case CURLINFO_SIZE_UPLOAD_T:
+			case CURLINFO_SIZE_DOWNLOAD_T:
+			case CURLINFO_SPEED_DOWNLOAD_T:
+			case CURLINFO_SPEED_UPLOAD_T:
+			case CURLINFO_CONTENT_LENGTH_DOWNLOAD_T:
+			case CURLINFO_CONTENT_LENGTH_UPLOAD_T:
+			{
+				// 64 bits, where a long is 32 on Windows
+				curl_off_t offValue = 0;
+				code = curl_easy_getinfo (handle, type, &offValue);
+
+				if (offValue >= INT_MIN && offValue <= INT_MAX) {
+
+					result = hl_alloc_dynamic (&hlt_i32);
+					result->v.i = (int)offValue;
+
+				} else {
+
+					result = hl_alloc_dynamic (&hlt_f64);
+					result->v.d = (double)offValue;
+
+				}
+
+				return result;
 			}
 
 			case CURLINFO_RESPONSE_CODE:
@@ -1123,14 +1258,8 @@ namespace lime {
 			case CURLINFO_HTTP_VERSION:
 			case CURLINFO_PROXY_SSL_VERIFYRESULT:
 			case CURLINFO_PROTOCOL:
-			case CURLINFO_SIZE_UPLOAD_T: // TODO: These should be larger
-			case CURLINFO_SIZE_DOWNLOAD_T:
-			case CURLINFO_SPEED_DOWNLOAD_T:
-			case CURLINFO_SPEED_UPLOAD_T:
-			case CURLINFO_CONTENT_LENGTH_DOWNLOAD_T:
-			case CURLINFO_CONTENT_LENGTH_UPLOAD_T:
 			{
-				long intValue;
+				long intValue = 0;
 				code = curl_easy_getinfo (handle, type, &intValue);
 
 				result = hl_alloc_dynamic (&hlt_i32);
@@ -1743,6 +1872,14 @@ namespace lime {
 			case CURLOPT_REQUEST_TARGET:
 
 				if (type == CURLOPT_CAINFO || type == CURLOPT_CAPATH || type == CURLOPT_PROXY_CAINFO || type == CURLOPT_PROXY_CAPATH) CURL_UseOwnCertificates (easy_handle, type);
+				if (type == CURLOPT_POSTFIELDS) {
+
+					// The string can be collected before the transfer
+					code = set_post_fields (handle, easy_handle, val_string (parameter));
+					break;
+
+				}
+
 				code = curl_easy_setopt (easy_handle, type, val_string (parameter));
 				break;
 
@@ -2176,6 +2313,14 @@ namespace lime {
 			{
 				hl_vstring* str = (hl_vstring*)parameter;
 				if (type == CURLOPT_CAINFO || type == CURLOPT_CAPATH || type == CURLOPT_PROXY_CAINFO || type == CURLOPT_PROXY_CAPATH) CURL_UseOwnCertificates (easy_handle, type);
+				if (type == CURLOPT_POSTFIELDS) {
+
+					// hl_to_utf8's buffer can be collected before the transfer
+					code = set_post_fields (handle, easy_handle, str ? hl_to_utf8 (str->bytes) : NULL);
+					break;
+
+				}
+
 				code = curl_easy_setopt (easy_handle, type, str ? hl_to_utf8 (str->bytes) : NULL);
 				break;
 			}

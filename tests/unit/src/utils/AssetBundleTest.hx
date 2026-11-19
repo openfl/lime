@@ -113,7 +113,6 @@ class AssetBundleTest extends Test
 		if (library != null) Assert.equals("alpha", library.getText("text"));
 	}
 
-	@Ignored("Waiting on #2156")
 	public function testReadingABundleFromAFileLetsGoOfTheFile():Void
 	{
 		var path = files.write("released.zip", withManifest(false));
@@ -146,7 +145,6 @@ class AssetBundleTest extends Test
 		});
 	}
 
-	@Ignored("Waiting on #2155")
 	public function testBytesThatAreNotAZipGiveNoBundle():Void
 	{
 		var bundle:AssetBundle = null;
@@ -164,7 +162,6 @@ class AssetBundleTest extends Test
 		Assert.isNull(bundle);
 	}
 
-	@Ignored("Waiting on #2156")
 	public function testAMissingFileGivesNoBundle():Void
 	{
 		var bundle:AssetBundle = null;
@@ -224,7 +221,6 @@ class AssetBundleTest extends Test
 	}
 
 	@:timeout(5000)
-	@Ignored("Waiting on #2155")
 	public function testLoadingBytesThatAreNotAZipFails(async:Async):Void
 	{
 		var future:Future<AssetBundle> = null;
@@ -252,7 +248,6 @@ class AssetBundleTest extends Test
 	}
 
 	@:timeout(5000)
-	@Ignored("Waiting on #2155")
 	public function testABrokenBundleIsNamedWhenItsLibraryFails(async:Async):Void
 	{
 		// loadFromFile() reads the bundle with loadFromBytes(), from the application's event loop,

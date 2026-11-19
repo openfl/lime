@@ -25,7 +25,10 @@ namespace lime {
 
 			buffer _buffer = alloc_buffer_len (1);
 
-			if (buffer_data (_buffer)) {
+			// Neko's buffers are strings one byte longer than asked for, ending in
+			// a zero that Haxe's Bytes would then compare and copy, so Value () only
+			// uses buffers that are the length given, and strings otherwise
+			if (buffer_data (_buffer) && buffer_size (_buffer) == 1) {
 
 				useBuffer = true;
 
@@ -91,13 +94,15 @@ namespace lime {
 	}
 
 
-	void Bytes::ReadFile (const char* path) {
+	bool Bytes::ReadFile (const char* path) {
+
+		if (!path) return false;
 
 		FILE_HANDLE *file = lime::fopen (path, "rb");
 
 		if (!file) {
 
-			return;
+			return false;
 
 		}
 
@@ -105,17 +110,16 @@ namespace lime {
 		int size = lime::ftell (file);
 		lime::fseek (file, 0, SEEK_SET);
 
+		bool read = (size >= 0);
+
 		if (size > 0) {
 
-			if (TryResize (size)) {
-
-				lime::fread (b, 1, size, file);
-
-			}
+			read = TryResize (size) && lime::fread (b, 1, size, file) == (size_t)size;
 
 		}
 
 		lime::fclose (file);
+		return read;
 
 	}
 

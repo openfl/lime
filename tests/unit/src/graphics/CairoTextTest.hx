@@ -215,7 +215,6 @@ class CairoTextTest extends Test
 		Assert.equals(CairoSubpixelOrder.VBGR, options.subpixelOrder);
 	}
 
-	@Ignored("Waiting on #2256")
 	public function testFontOptionsSetOnAContextAreReadBack():Void
 	{
 		var cairo = new CairoFixture(4, 4).cairo;
@@ -237,7 +236,6 @@ class CairoTextTest extends Test
 		Assert.equals(CairoSubpixelOrder.BGR, read.subpixelOrder);
 	}
 
-	@Ignored("Waiting on #2256")
 	public function testAContextWithoutFontOptionsGivesDefaults():Void
 	{
 		var read = new CairoFixture(4, 4).cairo.fontOptions;
@@ -421,9 +419,6 @@ class CairoTextTest extends Test
 		assertPoint(10, 40, fixture.cairo.currentPoint);
 	}
 
-	#if hl
-	@Ignored("Waiting on #2263")
-	#end
 	public function testShowTextOfNullDrawsNothing():Void
 	{
 		var fixture = text(32);

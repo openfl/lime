@@ -138,7 +138,6 @@ class HTTPRequestTransferTest extends Test
 	}
 
 	@:timeout(5000)
-	@Ignored("Waiting on #2193")
 	public function testAServerThatNeverAnswersTimesOut(async:Async):Void
 	{
 		var server = serve(function(_) return ScriptedResponse.unanswered());
@@ -154,7 +153,6 @@ class HTTPRequestTransferTest extends Test
 	}
 
 	@:timeout(5000)
-	@Ignored("Waiting on #2193")
 	public function testABodyThatStopsComingTimesOut(async:Async):Void
 	{
 		var server = serve(function(_)

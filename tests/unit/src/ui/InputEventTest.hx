@@ -542,7 +542,6 @@ class InputEventTest extends Test
 		Assert.equals("", heard.join(","));
 	}
 
-	@Ignored("Waiting on #2250")
 	public function testACopyOfAMouseEventNamesTheSameWindow():Void
 	{
 		var backend = @:privateAccess Application.current.__backend;
@@ -648,7 +647,6 @@ class InputEventTest extends Test
 		Assert.equals(path, dropped[0]);
 	}
 
-	@Ignored("Waiting on #2251")
 	public function testADroppedFileIsReportedByTheWindowItWasDroppedOn():Void
 	{
 		var window = open();
@@ -786,10 +784,8 @@ class InputEventTest extends Test
 		var info = @:privateAccess backend.dropEventInfo;
 		info.type = cast 0;
 		info.file = #if hl @:privateAccess file.toUtf8() #else file #end;
-
-		// SDL says which window the file was dropped on, which the event has no
-		// field for until it is passed on
-		if (Reflect.hasField(info, "windowID")) Reflect.setField(info, "windowID", window.id);
+		// SDL says which window the file was dropped on
+		info.windowID = window.id;
 
 		@:privateAccess backend.handleDropEvent();
 	}
