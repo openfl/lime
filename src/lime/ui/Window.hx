@@ -164,6 +164,31 @@ class Window
 	public var onClose(default, null) = new Event<Void->Void>();
 	public var onDeactivate(default, null) = new Event<Void->Void>();
 	public var onDropFile(default, null) = new Event<String->Void>();
+
+	/**
+		Dispatched after everything dropped on the window at once has been
+		dispatched, so files dropped together can be handled as one group.
+
+		Dispatched on native desktop targets and HTML5.
+	**/
+	public var onDropEnd(default, null) = new Event<Void->Void>();
+
+	/**
+		Dispatched when something is dropped on the window, before the files
+		or text it holds are dispatched with `onDropFile` and `onDropText`.
+
+		Dispatched on native desktop targets and HTML5.
+	**/
+	public var onDropStart(default, null) = new Event<Void->Void>();
+
+	/**
+		Dispatched with text dropped on the window, such as a selection dragged
+		from another application.
+
+		Dispatched on macOS, Linux and HTML5. SDL only takes files dropped on a
+		window on Windows.
+	**/
+	public var onDropText(default, null) = new Event<String->Void>();
 	public var onEnter(default, null) = new Event<Void->Void>();
 	public var onExpose(default, null) = new Event<Void->Void>();
 	public var onFocusIn(default, null) = new Event<Void->Void>();
