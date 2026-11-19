@@ -305,6 +305,8 @@ class NativeHTTPRequest
 				#if (cpp || neko || hl)
 				if (multiAddHandle == null) multiAddHandle = new Deque<CURL>();
 				multiAddHandle.add(curl);
+				// The transfer thread may be waiting on other transfers' sockets
+				multi.wakeup();
 				#end
 
 				if (multiThreadPool == null)
@@ -496,11 +498,19 @@ class NativeHTTPRequest
 		while (true)
 		{
 			#if (cpp || neko || hl)
+			// Every request queued since the last pass
 			var curl = multiAddHandle.pop(false);
-			if (curl != null) multi.addHandle(curl);
+
+			while (curl != null)
+			{
+				multi.addHandle(curl);
+				curl = multiAddHandle.pop(false);
+			}
 			#end
 
-			var code = multi.wait(1000);
+			// load() wakes this when it queues a request, which wait() would leave queued until
+			// the other transfers' sockets had activity or the second ran out
+			var code = multi.poll(1000);
 
 			if (code == CURLMultiCode.OK)
 			{

@@ -2939,6 +2939,47 @@ namespace lime {
 	}
 
 
+	int lime_curl_multi_poll (value multi_handle, int timeout_ms) {
+
+		System::GCEnterBlocking ();
+
+		int retcode;
+		CURLMcode result = curl_multi_poll ((CURLM*)val_data (multi_handle), 0, 0, timeout_ms, &retcode);
+
+		System::GCExitBlocking ();
+		return result;
+
+	}
+
+
+	HL_PRIM int HL_NAME(hl_curl_multi_poll) (HL_CFFIPointer* multi_handle, int timeout_ms) {
+
+		System::GCEnterBlocking ();
+
+		int retcode;
+		CURLMcode result = curl_multi_poll ((CURLM*)multi_handle->ptr, 0, 0, timeout_ms, &retcode);
+
+		System::GCExitBlocking ();
+		return result;
+
+	}
+
+
+	// Called from any thread: it takes no lock, so a thread in curl_multi_poll wakes at once
+	int lime_curl_multi_wakeup (value multi_handle) {
+
+		return curl_multi_wakeup ((CURLM*)val_data (multi_handle));
+
+	}
+
+
+	HL_PRIM int HL_NAME(hl_curl_multi_wakeup) (HL_CFFIPointer* multi_handle) {
+
+		return curl_multi_wakeup ((CURLM*)multi_handle->ptr);
+
+	}
+
+
 	int lime_curl_multi_wait (value multi_handle, int timeout_ms) {
 
 		System::GCEnterBlocking ();
@@ -3070,7 +3111,9 @@ namespace lime {
 	DEFINE_PRIME1 (lime_curl_multi_perform);
 	DEFINE_PRIME2 (lime_curl_multi_remove_handle);
 	DEFINE_PRIME3 (lime_curl_multi_setopt);
+	DEFINE_PRIME2 (lime_curl_multi_poll);
 	DEFINE_PRIME2 (lime_curl_multi_wait);
+	DEFINE_PRIME1 (lime_curl_multi_wakeup);
 	DEFINE_PRIME0 (lime_curl_version);
 	DEFINE_PRIME1 (lime_curl_version_info);
 
@@ -3103,7 +3146,9 @@ namespace lime {
 	DEFINE_HL_PRIM (_I32, hl_curl_multi_perform, _TCFFIPOINTER);
 	DEFINE_HL_PRIM (_I32, hl_curl_multi_remove_handle, _TCFFIPOINTER _TCFFIPOINTER);
 	DEFINE_HL_PRIM (_I32, hl_curl_multi_setopt, _TCFFIPOINTER _I32 _DYN);
+	DEFINE_HL_PRIM (_I32, hl_curl_multi_poll, _TCFFIPOINTER _I32);
 	DEFINE_HL_PRIM (_I32, hl_curl_multi_wait, _TCFFIPOINTER _I32);
+	DEFINE_HL_PRIM (_I32, hl_curl_multi_wakeup, _TCFFIPOINTER);
 	DEFINE_HL_PRIM (_BYTES, hl_curl_version, _NO_ARG);
 	DEFINE_HL_PRIM (_DYN, hl_curl_version_info, _I32);
 
