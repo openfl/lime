@@ -325,7 +325,6 @@ class FutureTest extends Test
 
 	// The docs say errors propagate along a chain; as with other promise
 	// libraries, an exception from a callback is taken to be that error
-	@Ignored("Waiting on #2147")
 	public function testThenCallbackThatThrowsFailsTheChain():Void
 	{
 		var chained:Future<Int> = null;
@@ -352,7 +351,6 @@ class FutureTest extends Test
 		}
 	}
 
-	@Ignored("Waiting on #2147")
 	public function testThenCallbackThatThrowsLaterFailsTheChain():Void
 	{
 		var promise = new Promise<Int>();

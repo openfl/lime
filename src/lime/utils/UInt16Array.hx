@@ -151,14 +151,16 @@ abstract UInt16Array(ArrayBufferView) from ArrayBufferView to ArrayBufferView
 	@:arrayAccess #if (haxe_ver >= 4.0) extern #else @:extern #end
 	public inline function __get(idx:Int)
 	{
-		return ArrayBufferIO.getUint16(this.buffer, this.byteOffset + (idx * BYTES_PER_ELEMENT));
+		// Outside the view, debug builds read 0, as ECMAScript reads undefined
+		return #if debug (idx < 0 || idx >= this.length) ? 0 : #end ArrayBufferIO.getUint16(this.buffer, this.byteOffset + (idx * BYTES_PER_ELEMENT));
 	}
 
 	@:noCompletion
 	@:arrayAccess #if (haxe_ver >= 4.0) extern #else @:extern #end
 	public inline function __set(idx:Int, val:UInt)
 	{
-		ArrayBufferIO.setUint16(this.buffer, this.byteOffset + (idx * BYTES_PER_ELEMENT), val);
+		// Outside the view, debug builds ignore the write, as ECMAScript does
+		#if debug if (idx >= 0 && idx < this.length) #end ArrayBufferIO.setUint16(this.buffer, this.byteOffset + (idx * BYTES_PER_ELEMENT), val);
 		return val;
 	}
 

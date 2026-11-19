@@ -106,7 +106,6 @@ class AssetsTest extends Test
 		Assert.isFalse(Assets.exists(VIDEO, FONT), "a binary asset exists as a font");
 	}
 
-	@Ignored("Waiting on #2158")
 	public function testUnknownIdsDoNotExist():Void
 	{
 		Assert.isFalse(Assets.exists(MISSING));
@@ -182,7 +181,6 @@ class AssetsTest extends Test
 		}
 	}
 
-	@Ignored("Waiting on #2158")
 	public function testListedIdsCanBeUsed():Void
 	{
 		files.writeText("listed/a.txt", "alpha");
@@ -421,7 +419,6 @@ class AssetsTest extends Test
 	}
 
 	@:timeout(5000)
-	@Ignored("Waiting on #2155")
 	public function testABrokenManifestIsNamedWhenItsLibraryFails(async:Async):Void
 	{
 		// loadFromFile() reads the manifest with fromBytes(), from the application's event loop,
