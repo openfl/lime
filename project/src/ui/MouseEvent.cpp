@@ -16,6 +16,7 @@ namespace lime {
 	static int id_x;
 	static int id_y;
 	static int id_clickCount;
+	static int id_timestamp;
 	static bool init = false;
 
 
@@ -29,6 +30,7 @@ namespace lime {
 		movementX = 0.0;
 		movementY = 0.0;
 		clickCount = 0;
+		timestamp = 0;
 
 	}
 
@@ -49,6 +51,7 @@ namespace lime {
 					id_x = val_id ("x");
 					id_y = val_id ("y");
 					id_clickCount = val_id ("clickCount");
+					id_timestamp = val_id ("timestamp");
 					init = true;
 
 				}
@@ -71,6 +74,7 @@ namespace lime {
 				alloc_field (object, id_windowID, alloc_int (event->windowID));
 				alloc_field (object, id_x, alloc_float (event->x));
 				alloc_field (object, id_y, alloc_float (event->y));
+				alloc_field (object, id_timestamp, alloc_int (event->timestamp));
 
 			} else {
 
@@ -84,6 +88,7 @@ namespace lime {
 				eventObject->x = event->x;
 				eventObject->y = event->y;
 				eventObject->clickCount = event->clickCount;
+				eventObject->timestamp = event->timestamp;
 
 			}
 
