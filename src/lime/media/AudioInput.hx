@@ -2,6 +2,7 @@ package lime.media;
 
 import haxe.io.Bytes;
 import lime.app.Event;
+import lime.system.PermissionStatus;
 
 #if !lime_debug
 @:fileXml('tags="haxe,release"')
@@ -28,6 +29,11 @@ import lime.app.Event;
 	runtime too. Listing any permission replaces Lime's default ones, so list
 	`android.permission.INTERNET` and the others the application still needs.
 
+	`permissionStatus` tells whether the user has allowed the microphone, and
+	`requestPermission` asks for it without starting a capture. The answer comes
+	through `onPermission`. HTML5, Android, iOS and macOS ask the user; Windows
+	and Linux have no prompt for desktop applications and report `GRANTED`.
+
 	@see lime.media.AudioInputDevice
 	@see lime.media.AudioBuffer
 **/
@@ -48,6 +54,28 @@ class AudioInput
 		Whether audio input capture is supported by the current backend.
 	**/
 	public static var isSupported(get, never):Bool;
+
+	/**
+		Dispatched on the main thread with `true` when the microphone is allowed
+		and `false` when it is refused. It is dispatched once for each call to
+		`requestPermission`, when the user answers or at once if they already
+		have, and also when the status changes another way: on HTML5 when the
+		browser prompt from `start` is answered, or when the user changes the
+		site's setting.
+	**/
+	public static var onPermission(default, null) = new Event<Bool->Void>();
+
+	/**
+		Whether the user has allowed the application to use the microphone.
+
+		HTML5 reports `UNDETERMINED` until the browser answers a permission query,
+		which some browsers do not support for the microphone; it learns the
+		status from `requestPermission` and `start` there too. Android, iOS and
+		macOS report the system's status. Windows and Linux report `GRANTED`.
+		Flash reports `GRANTED` once the user has allowed it in the Flash
+		Player dialog, and on AIR the runtime's status.
+	**/
+	public static var permissionStatus(get, never):PermissionStatus;
 
 	/**
 		The number of bits per sample used by this input.
@@ -115,6 +143,21 @@ class AudioInput
 		running = false;
 
 		__backend = new AudioInputBackend(this);
+	}
+
+	/**
+		Asks the user to allow the microphone, if they have not answered yet,
+		and dispatches `onPermission` with the answer. It does not start a
+		capture.
+
+		On HTML5 this opens the microphone briefly, since browsers only ask when
+		a page opens it, and needs a secure context. On Android it shows the
+		`RECORD_AUDIO` dialog, which needs the permission in project.xml; once
+		the user refuses twice, Android stops asking and the answer is `false`.
+	**/
+	public static function requestPermission():Void
+	{
+		AudioInputBackend.requestPermission();
 	}
 
 	/**
@@ -192,6 +235,11 @@ class AudioInput
 	@:noCompletion private static function get_isSupported():Bool
 	{
 		return AudioInputBackend.isSupported();
+	}
+
+	@:noCompletion private static function get_permissionStatus():PermissionStatus
+	{
+		return AudioInputBackend.getPermissionStatus();
 	}
 
 	@:noCompletion private function get_samplesAvailable():Int
