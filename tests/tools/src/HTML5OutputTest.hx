@@ -73,7 +73,6 @@ class HTML5OutputTest extends Test
 	}
 
 	// Text in an HTML page: "&" starts a character reference, so "&micro" would be shown as a micro sign
-	@Ignored("Waiting on #2259")
 	public function testThePageTitleIsEscaped():Void
 	{
 		output.update('<project>
@@ -401,7 +400,6 @@ class HTML5OutputTest extends Test
 	}
 
 	// The values are written as Haxe strings, where a quote or a backslash has to be escaped
-	@Ignored("Waiting on #2259")
 	public function testMetaValuesWithQuotesAreValidHaxeStrings():Void
 	{
 		output.update('<project>
@@ -415,7 +413,6 @@ class HTML5OutputTest extends Test
 		Assert.equals("Back\\Slash Ltd", metaValue(main, "company"));
 	}
 
-	@Ignored("Waiting on #2259")
 	public function testAWindowTitleWithQuotesIsAValidHaxeString():Void
 	{
 		output.update('<project>
@@ -469,7 +466,6 @@ class HTML5OutputTest extends Test
 	}
 
 	// <window id="1" /> describes a second window, with settings of its own
-	@Ignored("Waiting on #2262")
 	public function testEachWindowKeepsItsOwnSettings():Void
 	{
 		output.update('<project>

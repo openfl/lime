@@ -81,7 +81,6 @@ class AssetEmbeddingTest extends Test
 	// Where the generated code embeds an asset (the template context's embed), the manifest
 	// names its class, and where it doesn't, the manifest gives its path, so no asset is
 	// both embedded and loaded from a file
-	@Ignored("Waiting on #2165")
 	public function testTemplatesAndManifestsAgreeOnWhatIsEmbedded():Void
 	{
 		var disagreements = [];

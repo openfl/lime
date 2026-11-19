@@ -196,7 +196,6 @@ class OpenGLTest extends Test
 		gl.activeTexture(gl.TEXTURE0);
 	}
 
-	@Ignored("Waiting on #2188")
 	public function testGetUniformReturnsTheUniformAtALocationWithItsOwnType():Void
 	{
 		var main = getMainWindow();
@@ -249,10 +248,8 @@ class OpenGLTest extends Test
 		finishBufferTest(gl, buffer);
 	}
 
-	@Ignored("Waiting on #2135")
 	public function testWebGL2BufferDataTakesSrcOffsetAndLengthInElements():Void
 	{
-		// Native targets take both as bytes today, and upload the whole view's byteLength (see #2135)
 		var gl2 = getWebGL2();
 		if (gl2 == null) return;
 
@@ -289,10 +286,8 @@ class OpenGLTest extends Test
 		finishBufferTest(gl, buffer);
 	}
 
-	@Ignored("Waiting on #2135")
 	public function testWebGL2BufferSubDataTakesSrcOffsetAndLengthInElements():Void
 	{
-		// Native targets take both as bytes today (see #2135)
 		var gl2 = getWebGL2();
 		if (gl2 == null) return;
 
@@ -322,10 +317,8 @@ class OpenGLTest extends Test
 		finishProgramTest(gl, program);
 	}
 
-	@Ignored("Waiting on #2135")
 	public function testWebGL2UniformVectorsTakeSrcOffsetAndSrcLength():Void
 	{
-		// Native targets ignore both today, and send the whole array (see #2135)
 		var gl2 = getWebGL2();
 		if (gl2 == null) return;
 
@@ -356,10 +349,8 @@ class OpenGLTest extends Test
 		finishProgramTest(gl, program);
 	}
 
-	@Ignored("Waiting on #2135")
 	public function testWebGL2UniformMatrixTakesSrcOffsetAndSrcLengthInFloats():Void
 	{
-		// Native targets take srcOffset as bytes today, and srcLength as a number of matrices (see #2135)
 		var gl2 = getWebGL2();
 		if (gl2 == null) return;
 
@@ -407,10 +398,8 @@ class OpenGLTest extends Test
 		finishTargetTest(gl, target);
 	}
 
-	@Ignored("Waiting on #2135")
 	public function testWebGL2ReadPixelsTakesDstOffsetInElements():Void
 	{
-		// Native targets take dstOffset as bytes today (see #2135)
 		var gl2 = getWebGL2();
 		if (gl2 == null) return;
 
@@ -454,10 +443,8 @@ class OpenGLTest extends Test
 		finishTargetTest(gl, target);
 	}
 
-	@Ignored("Waiting on #2135")
 	public function testWebGL2ClearBufferTakesSrcOffsetInElements():Void
 	{
-		// Native targets take srcOffset as bytes today (see #2135)
 		var gl2 = getWebGL2();
 		if (gl2 == null) return;
 
@@ -471,14 +458,11 @@ class OpenGLTest extends Test
 	}
 
 	#if (sys && target.threaded)
-	#if neko
-	@Ignored("Waiting on #2136")
-	#end
 	public function testGLObjectsStayRegisteredWhileOtherThreadsCollect():Void
 	{
 		// Objects are made and deleted here while other threads collect, which runs the finalizers of
-		// the objects dropped without being deleted. While the finalizers change the registered objects
-		// without the lock that register and deregister skip, this can hang or crash (see #2136).
+		// the objects dropped without being deleted. Registering and deregistering changed the same
+		// objects without the finalizers' lock, which could hang or crash this (#2136).
 		var main = getMainWindow();
 		if (main == null) return;
 

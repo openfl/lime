@@ -118,7 +118,6 @@ class ARGBTest extends Test
 		Assert.equals(100, color.a, "a");
 	}
 
-	@Ignored("Waiting on #2141")
 	public function testUnmultiplyAlphaClampsChannelsFarAboveAlpha():Void
 	{
 		var color = make(255, 128, 0, 1);
@@ -229,7 +228,6 @@ class ARGBTest extends Test
 		}
 	}
 
-	@Ignored("Waiting on #2141")
 	public function testWriteUInt8PremultipliedLeavesTheColorUnchanged():Void
 	{
 		var color = make(200, 100, 50, 128);
