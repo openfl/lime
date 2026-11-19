@@ -78,7 +78,6 @@ class HTTPRequestResponseTest extends Test
 	}
 
 	@:timeout(10000)
-	@Ignored("Waiting on #2195")
 	public function testTheErrorOfAnErrorStatusNamesIt(async:Async):Void
 	{
 		var server = serve(function(request) return statusResponse(request));
@@ -96,9 +95,6 @@ class HTTPRequestResponseTest extends Test
 	}
 
 	@:timeout(10000)
-	#if (neko || hl)
-	@Ignored("Waiting on #2195")
-	#end
 	public function testAnErrorResponseKeepsItsBody(async:Async):Void
 	{
 		// As XMLHttpRequest keeps responseText whatever the status
@@ -350,7 +346,6 @@ class HTTPRequestResponseTest extends Test
 	}
 
 	@:timeout(10000)
-	@Ignored("Waiting on #2198")
 	public function testAByteOrderMarkIsNotPartOfTheText(async:Async):Void
 	{
 		// The Encoding Standard's UTF-8 decode, as XMLHttpRequest's text, and
@@ -371,9 +366,6 @@ class HTTPRequestResponseTest extends Test
 	}
 
 	@:timeout(10000)
-	#if (neko || hl)
-	@Ignored("Waiting on #2198")
-	#end
 	public function testInvalidUTF8BecomesReplacementCharacters(async:Async):Void
 	{
 		// The Encoding Standard's UTF-8 decode, as XMLHttpRequest's text: each
@@ -462,7 +454,6 @@ class HTTPRequestResponseTest extends Test
 	}
 
 	@:timeout(10000)
-	@Ignored("Waiting on #2196")
 	public function testResponseHeaderValuesNeedNoSpaceAndCanHoldColons(async:Async):Void
 	{
 		// RFC 9112 section 5.1: field-line = field-name ":" OWS field-value OWS,
@@ -494,7 +485,6 @@ class HTTPRequestResponseTest extends Test
 	}
 
 	@:timeout(10000)
-	@Ignored("Waiting on #2196")
 	public function testInterimResponsesAreNotTheResponse(async:Async):Void
 	{
 		// RFC 9110 section 15.2: a client parses 1xx responses that come

@@ -806,8 +806,16 @@ namespace lime {
 
 	value lime_curl_easy_escape (value curl, HxString url, int length) {
 
-		char* result = curl_easy_escape ((CURL*)val_data(curl), url.__s, length);
-		return result ? alloc_string (result) : alloc_null ();
+		// The string's UTF-8 bytes, as hxcpp may hold it as UTF-16
+		const char* text = url.__s ? hxs_utf8 (url, nullptr) : NULL;
+		if (!text) return alloc_null ();
+
+		char* result = curl_easy_escape ((CURL*)val_data(curl), text, length);
+		if (!result) return alloc_null ();
+
+		value _result = alloc_string (result);
+		curl_free (result);
+		return _result;
 
 	}
 
@@ -815,7 +823,11 @@ namespace lime {
 	HL_PRIM vbyte* HL_NAME(hl_curl_easy_escape) (HL_CFFIPointer* curl, hl_vstring* url, int length) {
 
 		char* result = curl_easy_escape ((CURL*)curl->ptr, url ? hl_to_utf8 (url->bytes) : NULL, length);
-		return (vbyte*)result;
+		if (!result) return NULL;
+
+		vbyte* _result = hl_copy_bytes ((const vbyte*)result, (int)strlen (result) + 1);
+		curl_free (result);
+		return _result;
 
 	}
 
@@ -1291,8 +1303,43 @@ namespace lime {
 				break;
 			}
 
-			case CURLINFO_SSL_ENGINES:
 			case CURLINFO_COOKIELIST:
+			{
+				struct curl_slist* cookies = NULL;
+				code = curl_easy_getinfo (handle, CURLINFO_COOKIELIST, &cookies);
+				if (code != CURLE_OK) return NULL;
+
+				// One line for each cookie, which CURL.getInfo makes an array, as the
+				// other targets give. A cookie line holds no line breaks.
+				int length = 0;
+
+				for (struct curl_slist* each = cookies; each; each = each->next) {
+
+					length += (int)strlen (each->data) + 1;
+
+				}
+
+				vbyte* bytes = hl_alloc_bytes (length + 1);
+				int position = 0;
+
+				for (struct curl_slist* each = cookies; each; each = each->next) {
+
+					int size = (int)strlen (each->data);
+					memcpy (bytes + position, each->data, size);
+					position += size;
+					if (each->next) bytes[position++] = '\n';
+
+				}
+
+				bytes[position] = 0;
+				curl_slist_free_all (cookies);
+
+				result = hl_alloc_dynamic (&hlt_bytes);
+				result->v.bytes = bytes;
+				return result;
+			}
+
+			case CURLINFO_SSL_ENGINES:
 			case CURLINFO_CERTINFO:
 			case CURLINFO_TLS_SESSION:
 			case CURLINFO_TLS_SSL_PTR:
@@ -2086,6 +2133,8 @@ namespace lime {
 
 			default:
 
+				// As libcurl answers for an option it doesn't know
+				code = CURLE_UNKNOWN_OPTION;
 				break;
 
 		}
@@ -2527,6 +2576,8 @@ namespace lime {
 
 			default:
 
+				// As libcurl answers for an option it doesn't know
+				code = CURLE_UNKNOWN_OPTION;
 				break;
 
 		}
@@ -2557,8 +2608,16 @@ namespace lime {
 
 	value lime_curl_easy_unescape (value curl, HxString url, int inlength, int outlength) {
 
-		char* result = curl_easy_unescape ((CURL*)val_data(curl), url.__s, inlength, &outlength);
-		return result ? alloc_string (result) : alloc_null ();
+		const char* text = url.__s ? hxs_utf8 (url, nullptr) : NULL;
+		if (!text) return alloc_null ();
+
+		// Every byte curl decoded, a %00 included
+		char* result = curl_easy_unescape ((CURL*)val_data(curl), text, inlength, &outlength);
+		if (!result) return alloc_null ();
+
+		value _result = alloc_string_len (result, outlength);
+		curl_free (result);
+		return _result;
 
 	}
 
@@ -2566,10 +2625,16 @@ namespace lime {
 	HL_PRIM vbyte* HL_NAME(hl_curl_easy_unescape) (HL_CFFIPointer* curl, hl_vstring* url, int inlength, int outlength) {
 
 		char* result = curl_easy_unescape ((CURL*)curl->ptr, url ? hl_to_utf8 (url->bytes) : NULL, inlength, &outlength);
-		int length = strlen (result);
-		char* _result = (char*)malloc (length + 1);
-		strcpy (_result, result);
-		return (vbyte*)_result;
+		if (!result) return NULL;
+
+		// The decoded length, then the bytes, as a %00 decodes to a zero that would end
+		// the string. CURL.unescape() reads them back.
+		vbyte* _result = hl_alloc_bytes (outlength + 5);
+		memcpy (_result, &outlength, 4);
+		memcpy (_result + 4, result, outlength);
+		_result[outlength + 4] = 0;
+		curl_free (result);
+		return _result;
 
 	}
 

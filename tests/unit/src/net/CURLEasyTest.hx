@@ -321,7 +321,6 @@ class CURLEasyTest extends Test
 		Assert.same([""], received.headerValues("X-Empty"));
 	}
 
-	@Ignored("Waiting on #2204")
 	public function testACookieIsSent():Void
 	{
 		// CURLOPT_COOKIE: sent as the Cookie header
@@ -591,9 +590,6 @@ class CURLEasyTest extends Test
 		Assert.isNull(curl.getInfo(CONTENT_TYPE));
 	}
 
-	#if !neko
-	@Ignored("Waiting on #2203")
-	#end
 	public function testEscapeEncodesAllButUnreservedCharacters():Void
 	{
 		// curl_easy_escape: every character but a-z, A-Z, 0-9, '-', '.', '_'
@@ -607,7 +603,6 @@ class CURLEasyTest extends Test
 		Assert.equals("abc", curl.escape("abcdef", 3));
 	}
 
-	@Ignored("Waiting on #2203")
 	public function testUnescapeDecodesPercentEncoding():Void
 	{
 		// curl_easy_unescape: %NN becomes the byte, and '+' stays as it is
@@ -622,9 +617,6 @@ class CURLEasyTest extends Test
 		Assert.same([97, 0, 98], decoded == null ? null : [for (i in 0...decoded.length) decoded.charCodeAt(i)]);
 	}
 
-	#if !neko
-	@Ignored("Waiting on #2203")
-	#end
 	public function testEscapeAndUnescapeRoundTrip():Void
 	{
 		var curl = handle();
@@ -674,7 +666,6 @@ class CURLEasyTest extends Test
 		if (first != null) Assert.equals(info.versionNum, first.versionNum);
 	}
 
-	@Ignored("Waiting on #2204")
 	public function testOptionAndInfoNumbersAreLibcurls():Void
 	{
 		// curl.h numbers each option from its type, and each info from the type

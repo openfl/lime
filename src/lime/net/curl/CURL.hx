@@ -81,7 +81,15 @@ class CURL
 		// String infos come back as their UTF-8 bytes
 		if (result != null && hl.Type.getDynamic(result).kind == HBytes)
 		{
-			return @:privateAccess String.fromUTF8((result : hl.Bytes));
+			var text = @:privateAccess String.fromUTF8((result : hl.Bytes));
+
+			// The cookie list comes as a line for each cookie, and is an array of them, as elsewhere
+			if (info == CURLInfo.COOKIELIST)
+			{
+				return text == "" ? [] : text.split("\n");
+			}
+
+			return text;
 		}
 		return result;
 		#else
@@ -232,11 +240,60 @@ class CURL
 	{
 		#if (lime_cffi && lime_curl && !macro)
 		var result = NativeCFFI.lime_curl_easy_unescape(handle, url, inLength, outLength);
+		#if hl
+		// The decoded length comes first, as a %00 decodes to a zero, which would end
+		// the string if it were read up to its first zero
+		if (result == null) return null;
+		return __utf8String(result.offset(4), result.getI32(0));
+		#else
 		return CFFI.stringValue(result);
+		#end
 		#else
 		return null;
 		#end
 	}
+
+	#if hl
+	// length bytes of UTF-8 as a String, zeros included
+	private static function __utf8String(bytes:hl.Bytes, length:Int):String
+	{
+		var text = new StringBuf();
+		var i = 0;
+
+		while (i < length)
+		{
+			var lead = bytes[i];
+
+			if (lead < 0x80)
+			{
+				text.addChar(lead);
+				i++;
+			}
+			else if (lead >= 0xC2 && lead < 0xE0 && i + 1 < length)
+			{
+				text.addChar(((lead & 0x1F) << 6) | (bytes[i + 1] & 0x3F));
+				i += 2;
+			}
+			else if (lead >= 0xE0 && lead < 0xF0 && i + 2 < length)
+			{
+				text.addChar(((lead & 0x0F) << 12) | ((bytes[i + 1] & 0x3F) << 6) | (bytes[i + 2] & 0x3F));
+				i += 3;
+			}
+			else if (lead >= 0xF0 && lead < 0xF5 && i + 3 < length)
+			{
+				text.addChar(((lead & 0x07) << 18) | ((bytes[i + 1] & 0x3F) << 12) | ((bytes[i + 2] & 0x3F) << 6) | (bytes[i + 3] & 0x3F));
+				i += 4;
+			}
+			else
+			{
+				text.addChar(0xFFFD);
+				i++;
+			}
+		}
+
+		return text.toString();
+	}
+	#end
 
 	public static function version():String
 	{
