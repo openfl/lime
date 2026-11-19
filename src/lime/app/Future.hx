@@ -51,12 +51,12 @@ import lime.utils.Log;
 	/**
 		Whether the `Future` finished with a completion state
 	**/
-	public var isComplete(default, null):Bool;
+	public var isComplete(default, null):Bool = false;
 
 	/**
 		Whether the `Future` finished with an error state
 	**/
-	public var isError(default, null):Bool;
+	public var isError(default, null):Bool = false;
 
 	/**
 		If the `Future` has finished with a completion state, the completion `value`
