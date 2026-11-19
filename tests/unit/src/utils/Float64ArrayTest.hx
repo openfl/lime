@@ -141,7 +141,6 @@ class Float64ArrayTest extends Test
 		assertElements([Math.POSITIVE_INFINITY, Math.NaN], new Float64Array(buffer));
 	}
 
-	@Ignored("Waiting on #2151")
 	public function testSubarray():Void
 	{
 		var array = new Float64Array([1, 2, 3, 4, 5, 6]);

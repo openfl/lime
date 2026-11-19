@@ -150,7 +150,6 @@ class Int32ArrayTest extends Test
 		assertElements([-2147483648], new Int32Array(buffer));
 	}
 
-	@Ignored("Waiting on #2151")
 	public function testSubarray():Void
 	{
 		var array = new Int32Array([1, 2, 3, 4, 5, 6]);
@@ -164,7 +163,6 @@ class Int32ArrayTest extends Test
 		assertElements([5, 6], array.subarray(4, 100));
 	}
 
-	@Ignored("Waiting on #2151")
 	public function testSubarrayNegativeIndices():Void
 	{
 		var array = new Int32Array([1, 2, 3, 4, 5, 6]);
