@@ -75,6 +75,46 @@ class VideoSource
 	public var onError = new Event<String->Void>();
 
 	/**
+		Dispatched with `true` when playback has to wait for the video to be
+		read or decoded, and with `false` when it carries on. On native targets
+		it is dispatched when a playing video has waited a tenth of a second for
+		a frame, as after seeking, and on HTML5 when the browser runs out of
+		data, as a slow network stream does. Pausing ends the wait.
+	**/
+	public var onBuffering = new Event<Bool->Void>();
+
+	/**
+		Dispatched once a video opened with `open`, or by passing a path to the
+		constructor, has its `length`, `width`, `height` and `frameRate`, and
+		before it is played. It is dispatched on a later frame, never during
+		`open`, so listeners can be added after opening. A video from
+		`loadFromFile` dispatches it too, after the future completes.
+	**/
+	public var onReady = new Event<Void->Void>();
+
+	/**
+		Dispatched when setting `currentTime` has moved playback, once the new
+		position can be shown. Moves the video makes itself, such as looping or
+		catching up after falling behind, do not dispatch it. A video that
+		cannot seek does not dispatch it.
+	**/
+	public var onSeek = new Event<Void->Void>();
+
+	/**
+		How many bytes of the video have been read, or 0 when it is unknown.
+		Native targets know the size of a local file, which is read as it plays
+		but counted as loaded, and know nothing of a URL's. Browsers do not
+		say, so it is always 0 on HTML5.
+	**/
+	public var bytesLoaded(get, never):Float;
+
+	/**
+		The size of the video in bytes, or 0 when it is unknown, as
+		`bytesLoaded` describes.
+	**/
+	public var bytesTotal(get, never):Float;
+
+	/**
 		How frames are timed against the sound, `SMOOTH` by default. On HTML5,
 		the browser keeps the `<video>` element in sync itself, and this has no
 		effect.
@@ -115,6 +155,14 @@ class VideoSource
 		The volume of the video's sound, from 0 for silent to 1 for full volume.
 	**/
 	public var gain(get, set):Float;
+
+	/**
+		The number of frames the video shows each second, or 0 when it is
+		unknown. Browsers do not say, so on HTML5 it is measured from the frames
+		shown once the video plays, in browsers that report them, and is 0
+		before.
+	**/
+	public var frameRate(get, never):Float;
 
 	/**
 		Whether the video has sound that can be played. A video whose sound
@@ -299,6 +347,16 @@ class VideoSource
 	}
 
 	// Get & Set Methods
+	@:noCompletion private function get_bytesLoaded():Float
+	{
+		return __backend.getBytesLoaded();
+	}
+
+	@:noCompletion private function get_bytesTotal():Float
+	{
+		return __backend.getBytesTotal();
+	}
+
 	@:noCompletion private function get_clockMode():VideoClockMode
 	{
 		return __backend.getClockMode();
@@ -342,6 +400,11 @@ class VideoSource
 	@:noCompletion private function set_dropLateFrames(value:Bool):Bool
 	{
 		return __backend.setDropLateFrames(value);
+	}
+
+	@:noCompletion private function get_frameRate():Float
+	{
+		return __backend.getFrameRate();
 	}
 
 	@:noCompletion private function get_gain():Float

@@ -13,11 +13,18 @@ import lime.utils.Assets;
 @:access(lime.media.VideoSource)
 class HTML5VideoSource
 {
+	private var buffering:Bool;
 	private var clockMode:VideoClockMode;
 	private var completed:Bool;
 	private var dropLateFrames:Bool;
 	private var element:VideoElement;
 	private var frameCallbackID:Int;
+	// Frames and media time counted from requestVideoFrameCallback, to measure the frame rate
+	private var frameCount:Float;
+	private var frameMediaTime:Float;
+	private var framePresented:Float;
+	private var frameRate:Float;
+	private var frameSeconds:Float;
 	private var frameTime:Float;
 	private var gain:Float;
 	private var rate:Float;
@@ -25,6 +32,7 @@ class HTML5VideoSource
 	private var pan:Float;
 	private var parent:VideoSource;
 	private var path:String;
+	private var pendingSeeks:Int;
 	private var playing:Bool;
 	// The media time of the frame last presented, from requestVideoFrameCallback, or -1
 	private var presentedTime:Float;
@@ -49,6 +57,17 @@ class HTML5VideoSource
 	public function dispose():Void
 	{
 		close();
+	}
+
+	public function getBytesLoaded():Float
+	{
+		// Browsers do not say how much of a video they have read
+		return 0;
+	}
+
+	public function getBytesTotal():Float
+	{
+		return 0;
 	}
 
 	public function getClockMode():VideoClockMode
@@ -83,6 +102,11 @@ class HTML5VideoSource
 	public function getDropLateFrames():Bool
 	{
 		return dropLateFrames;
+	}
+
+	public function getFrameRate():Float
+	{
+		return frameRate;
 	}
 
 	public function getGain():Float
@@ -227,10 +251,21 @@ class HTML5VideoSource
 		element.setAttribute("playsinline", "");
 		element.addEventListener("ended", element_onEnded);
 		element.addEventListener("error", element_onError);
+		element.addEventListener("loadedmetadata", element_onLoadedMetadata);
+		element.addEventListener("playing", element_onPlaying);
+		element.addEventListener("seeked", element_onSeeked);
+		element.addEventListener("waiting", element_onWaiting);
 		element.src = url;
 		element.load();
 
+		buffering = false;
 		completed = false;
+		frameCount = 0;
+		frameMediaTime = -1;
+		framePresented = -1;
+		frameRate = 0;
+		frameSeconds = 0;
+		pendingSeeks = 0;
 		frameTime = -1;
 		presentedTime = -1;
 		requestFrameCallback();
@@ -246,6 +281,8 @@ class HTML5VideoSource
 		{
 			element.pause();
 		}
+
+		setBuffering(false);
 	}
 
 	public function play():Void
@@ -309,6 +346,8 @@ class HTML5VideoSource
 	{
 		if (element != null)
 		{
+			// Only seeks asked for here dispatch onSeek, not those for loops or stop()
+			pendingSeeks++;
 			element.currentTime = Math.max(0, value / 1000);
 			completed = false;
 			frameTime = -1;
@@ -372,13 +411,42 @@ class HTML5VideoSource
 			presentedTime = -1;
 			element.removeEventListener("ended", element_onEnded);
 			element.removeEventListener("error", element_onError);
+			element.removeEventListener("loadedmetadata", element_onLoadedMetadata);
+			element.removeEventListener("playing", element_onPlaying);
+			element.removeEventListener("seeked", element_onSeeked);
+			element.removeEventListener("waiting", element_onWaiting);
 			element.pause();
 			element.removeAttribute("src");
 			element.load();
 			element = null;
 		}
 
+		buffering = false;
+		pendingSeeks = 0;
 		playing = false;
+	}
+
+	@:noCompletion private function measureFrameRate(metadata:Dynamic):Void
+	{
+		var presented:Dynamic = metadata.presentedFrames;
+		var mediaTime:Dynamic = metadata.mediaTime;
+
+		if (framePresented >= 0 && presented != null && mediaTime != null)
+		{
+			var frames = presented - framePresented;
+			var seconds = mediaTime - frameMediaTime;
+
+			// Gaps from seeking, pausing or a hidden page are left out
+			if (frames > 0 && seconds > 0 && seconds < 0.5 * frames)
+			{
+				frameCount += frames;
+				frameSeconds += seconds;
+				frameRate = frameCount / frameSeconds;
+			}
+		}
+
+		framePresented = presented != null ? presented : -1;
+		frameMediaTime = mediaTime != null ? mediaTime : -1;
 	}
 
 	@:noCompletion private function requestFrameCallback():Void
@@ -394,6 +462,7 @@ class HTML5VideoSource
 				if (element != target) return;
 
 				presentedTime = metadata.mediaTime;
+				measureFrameRate(metadata);
 				requestFrameCallback();
 			});
 		}
@@ -413,6 +482,43 @@ class HTML5VideoSource
 		playing = false;
 		completed = true;
 		parent.onComplete.dispatch();
+	}
+
+	@:noCompletion private function setBuffering(value:Bool):Void
+	{
+		if (buffering == value) return;
+		buffering = value;
+		parent.onBuffering.dispatch(value);
+	}
+
+	@:noCompletion private function element_onLoadedMetadata(_):Void
+	{
+		var target = element;
+
+		// After loadFromFile completes its future, as native targets do
+		Browser.window.setTimeout(function()
+		{
+			if (element == target) parent.onReady.dispatch();
+		}, 0);
+	}
+
+	@:noCompletion private function element_onPlaying(_):Void
+	{
+		setBuffering(false);
+	}
+
+	@:noCompletion private function element_onSeeked(_):Void
+	{
+		if (pendingSeeks > 0)
+		{
+			pendingSeeks = 0;
+			parent.onSeek.dispatch();
+		}
+	}
+
+	@:noCompletion private function element_onWaiting(_):Void
+	{
+		if (playing) setBuffering(true);
 	}
 
 	@:noCompletion private function element_onError(_):Void

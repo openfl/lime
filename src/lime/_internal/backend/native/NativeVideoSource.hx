@@ -55,6 +55,8 @@ class NativeVideoSource
 	private static inline var AUDIO_RETRY_SECONDS:Float = 1.0;
 	private static inline var AUDIO_STEER_RATE:Float = 0.1;
 	private static inline var AUDIO_STEER_SECONDS:Float = 0.5;
+	// A wait for a frame shorter than this, as for each frame after seeking, is not reported as buffering
+	private static inline var BUFFERING_SECONDS:Float = 0.1;
 	// A looping video opens its next loop this long before the end
 	private static inline var LOOP_OPEN_SECONDS:Float = 2.0;
 	private static inline var LOOP_POLL_SECONDS:Float = 0.05;
@@ -114,6 +116,8 @@ class NativeVideoSource
 		that what is left of the queue can be panned again. Null for mono.
 	**/
 	private var bufferSounds:Array<QueuedSound>;
+	private var buffering:Bool;
+	private var bytesTotal:Float;
 	private var buffers:Array<ALBuffer>;
 	private var bytesPerSecond:Float;
 	private var clockMode:VideoClockMode;
@@ -143,6 +147,7 @@ class NativeVideoSource
 	private var playing:Bool;
 	private var retiredDecoder:VideoDecoder;
 	private var timer:Timer;
+	private var waitingStamp:Float;
 
 	public function new(parent:VideoSource)
 	{
@@ -198,6 +203,17 @@ class NativeVideoSource
 		close();
 	}
 
+	public function getBytesLoaded():Float
+	{
+		// A local file can be read at any point, so all of it counts as loaded
+		return bytesTotal;
+	}
+
+	public function getBytesTotal():Float
+	{
+		return bytesTotal;
+	}
+
 	public function getClockMode():VideoClockMode
 	{
 		return clockMode;
@@ -229,6 +245,11 @@ class NativeVideoSource
 	public function getDropLateFrames():Bool
 	{
 		return dropLateFrames;
+	}
+
+	public function getFrameRate():Float
+	{
+		return decoder != null ? decoder.frameRate : 0;
 	}
 
 	public function getGain():Float
@@ -380,6 +401,7 @@ class NativeVideoSource
 		lockAudio();
 		pauseUnlocked();
 		unlockAudio();
+		checkBuffering();
 	}
 
 	@:noCompletion private function pauseUnlocked():Void
@@ -479,9 +501,15 @@ class NativeVideoSource
 
 	public function setCurrentTime(value:Int):Int
 	{
-		if (decoder != null)
+		if (decoder != null && seek(value / 1000))
 		{
-			seek(value / 1000);
+			// After the call, as on HTML5, where the browser seeks in the background
+			var seeked = decoder;
+
+			Timer.delay(function()
+			{
+				if (decoder == seeked) parent.onSeek.dispatch();
+			}, 0);
 		}
 
 		return value;
@@ -580,6 +608,16 @@ class NativeVideoSource
 
 		this.decoder = decoder;
 		decoder.dropLateFrames = dropLateFrames;
+		bytesTotal = getFileSize(decoder.source);
+		buffering = false;
+		waitingStamp = -1;
+
+		// Dispatched later, so listeners added after opening hear it, and not for
+		// a video closed or replaced before then
+		Timer.delay(function()
+		{
+			if (this.decoder == decoder) parent.onReady.dispatch();
+		}, 0);
 
 		audioDecoder = decoder;
 		audioOffset = 0;
@@ -1429,6 +1467,55 @@ class NativeVideoSource
 		lockAudio();
 		updateUnlocked();
 		unlockAudio();
+		checkBuffering();
+	}
+
+	@:noCompletion private function checkBuffering():Void
+	{
+		var waiting = decoder != null && playing && !failed && isWaitingForFrame();
+
+		if (!waiting)
+		{
+			waitingStamp = -1;
+		}
+		else if (waitingStamp < 0)
+		{
+			waitingStamp = getStamp();
+		}
+
+		var nowBuffering = waiting && getStamp() - waitingStamp >= BUFFERING_SECONDS;
+
+		if (nowBuffering != buffering)
+		{
+			buffering = nowBuffering;
+			parent.onBuffering.dispatch(buffering);
+		}
+	}
+
+	@:noCompletion private static function getFileSize(path:String):Float
+	{
+		// The size of a URL, or of a file packed in an Android application, is not known
+		if (path == null || path.indexOf("://") > -1) return 0;
+
+		#if sys
+		try
+		{
+			// An asset ID is read from the asset's path, as VideoDecoder opens it
+			if (!sys.FileSystem.exists(path) && lime.utils.Assets.exists(path))
+			{
+				var assetPath = lime.utils.Assets.getPath(path);
+				if (assetPath != null) path = assetPath;
+			}
+
+			if (sys.FileSystem.exists(path) && !sys.FileSystem.isDirectory(path))
+			{
+				return sys.FileSystem.stat(path).size;
+			}
+		}
+		catch (e:Dynamic) {}
+		#end
+
+		return 0;
 	}
 
 	@:noCompletion private function updateUnlocked():Void
