@@ -41,17 +41,27 @@ class NativeHTTPRequest
 	private static var multiThreadPoolRunning:Bool;
 	#if (cpp || neko || hl)
 	private static var multiAddHandle:Deque<CURL>;
+	private static var multiRemoveHandle:Deque<CURL>;
 	#end
 	private static var cookieList:Array<String>;
+
+	// libcurl's own limit
+	private static inline var MAX_REDIRECTS = 30;
 
 	private var buffer:BytesBuffer = new BytesBuffer();
 	private var bytes:Bytes;
 	private var bytesLoaded:Int;
 	private var bytesTotal:Int;
 	private var canceled:Bool;
+	private var contentType:String;
 	private var curl:CURL;
+	private var followManually:Bool;
 	private var parent:_IHTTPRequest;
 	private var promise:Promise<Bytes>;
+	private var redirects:Int;
+	private var requestData:Bytes;
+	private var requestMethod:HTTPRequestMethod;
+	private var requestUri:String;
 	private var writeBytesLoaded:Int;
 	private var writeBytesTotal:Int;
 	private var timeout:Timer;
@@ -66,14 +76,25 @@ class NativeHTTPRequest
 	{
 		canceled = true;
 
+		// Nothing more is reported for the load, as with URLLoader.close()
+		promise = null;
+
 		if (curl != null)
 		{
-			// This is probably run from a different thread if cURL is running
-			// TODO
+			var curl = this.curl;
+			this.curl = null;
 
-			// CURLEasy.cleanup (curl);
-			// CURLEasy.reset (curl);
-			// CURLEasy.perform (curl);
+			if (multiInstances != null) multiInstances.remove(curl);
+			if (activeInstances != null) activeInstances.remove(this);
+
+			#if (cpp || neko || hl)
+			// The transfer thread owns the handle, so it stops the transfer and closes the connection
+			if (multiRemoveHandle != null)
+			{
+				multiRemoveHandle.add(curl);
+				multi.wakeup();
+			}
+			#end
 		}
 
 		if (timeout != null)
@@ -90,17 +111,11 @@ class NativeHTTPRequest
 
 	private function initRequest(uri:String):Void
 	{
-		bytes = Bytes.alloc(0);
-		buffer = new BytesBuffer();
-
 		bytesLoaded = 0;
 		bytesTotal = 0;
 		writeBytesLoaded = 0;
 		writeBytesTotal = 0;
-
-		// The multi thread cleans up a handle when its transfer ends, and a
-		// transfer may still be running, so every load has a handle of its own
-		curl = new CURL();
+		redirects = 0;
 
 		var data = parent.data;
 		var query = "";
@@ -137,9 +152,54 @@ class NativeHTTPRequest
 			if (data != null && data.length == 0) data = null;
 		}
 
+		var contentType = null;
+
+		for (header in cast(parent.headers, Array<Dynamic>))
+		{
+			if (header.name == "Content-Type")
+			{
+				contentType = header.value;
+			}
+		}
+
+		if (parent.contentType != null)
+		{
+			contentType = parent.contentType;
+		}
+
+		if (contentType == null)
+		{
+			if (parent.data != null)
+			{
+				contentType = "application/octet-stream";
+			}
+			else if (query != "")
+			{
+				contentType = "application/x-www-form-urlencoded";
+			}
+		}
+
+		initTransfer(uri, parent.method, data, contentType, null);
+	}
+
+	// One request of the load: the first, or one a redirect leads to
+	private function initTransfer(uri:String, method:HTTPRequestMethod, data:Bytes, contentType:String, referer:String):Void
+	{
+		bytes = Bytes.alloc(0);
+		buffer = new BytesBuffer();
+
+		requestUri = uri;
+		requestMethod = method;
+		requestData = data;
+		this.contentType = contentType;
+
+		// The multi thread cleans up a handle when its transfer ends, and a
+		// transfer may still be running, so every load has a handle of its own
+		curl = new CURL();
+
 		curl.setOption(URL, uri);
 
-		switch (parent.method)
+		switch (method)
 		{
 			case HEAD:
 				curl.setOption(NOBODY, true);
@@ -177,7 +237,7 @@ class NativeHTTPRequest
 				}
 
 			case _:
-				curl.setOption(CUSTOMREQUEST, Std.string(parent.method));
+				curl.setOption(CUSTOMREQUEST, Std.string(method));
 
 				if (data != null)
 				{
@@ -186,40 +246,21 @@ class NativeHTTPRequest
 				}
 		}
 
-		curl.setOption(FOLLOWLOCATION, parent.followRedirects);
+		// A request whose method a redirect can change follows redirects itself, as curl
+		// would send its Content-Type header on to a GET without content (RFC 9110 section 15.4)
+		followManually = parent.followRedirects && method != GET && method != HEAD;
+		curl.setOption(FOLLOWLOCATION, parent.followRedirects && !followManually);
 		curl.setOption(AUTOREFERER, true);
+		if (referer != null) curl.setOption(REFERER, referer);
 
 		var headers = [];
 		headers.push("Expect: ");
 
-		var contentType = null;
-
 		for (header in cast(parent.headers, Array<Dynamic>))
 		{
-			if (header.name == "Content-Type")
-			{
-				contentType = header.value;
-			}
-			else
+			if (header.name != "Content-Type")
 			{
 				headers.push('${header.name}: ${header.value}');
-			}
-		}
-
-		if (parent.contentType != null)
-		{
-			contentType = parent.contentType;
-		}
-
-		if (contentType == null)
-		{
-			if (parent.data != null)
-			{
-				contentType = "application/octet-stream";
-			}
-			else if (query != "")
-			{
-				contentType = "application/x-www-form-urlencoded";
 			}
 		}
 
@@ -307,42 +348,68 @@ class NativeHTTPRequest
 			}
 
 			initRequest(uri);
-
-			if (curl != null)
-			{
-				if (activeInstances.indexOf(this) == -1) activeInstances.push(this);
-				multiInstances.set(curl, this);
-
-				#if (cpp || neko || hl)
-				if (multiAddHandle == null) multiAddHandle = new Deque<CURL>();
-				multiAddHandle.add(curl);
-				// The transfer thread may be waiting on other transfers' sockets
-				multi.wakeup();
-				#end
-
-				if (multiThreadPool == null)
-				{
-					multiThreadPool = new ThreadPool(0, 1);
-					multiThreadPool.onProgress.add(multiThreadPool_onProgress);
-					multiThreadPool.onComplete.add(multiThreadPool_onComplete);
-				}
-
-				if (!multiThreadPoolRunning)
-				{
-					multiThreadPoolRunning = true;
-					multiThreadPool.run(multiThreadPool_doWork, multi);
-				}
-
-				if (multiProgressTimer == null)
-				{
-					multiProgressTimer = new Timer(8);
-					multiProgressTimer.run = multiProgressTimer_onRun;
-					multiProgressTimer_onRun();
-				}
-			}
+			startTransfer();
 		}
 
 		return promise.future;
+	}
+
+	// Hands the request initTransfer() made to the transfer thread
+	private function startTransfer():Void
+	{
+		if (curl == null) return;
+
+		if (activeInstances.indexOf(this) == -1) activeInstances.push(this);
+		multiInstances.set(curl, this);
+
+		#if (cpp || neko || hl)
+		if (multiAddHandle == null) multiAddHandle = new Deque<CURL>();
+		if (multiRemoveHandle == null) multiRemoveHandle = new Deque<CURL>();
+		multiAddHandle.add(curl);
+		// The transfer thread may be waiting on other transfers' sockets
+		multi.wakeup();
+		#end
+
+		if (multiThreadPool == null)
+		{
+			multiThreadPool = new ThreadPool(0, 1);
+			multiThreadPool.onProgress.add(multiThreadPool_onProgress);
+			multiThreadPool.onComplete.add(multiThreadPool_onComplete);
+		}
+
+		if (!multiThreadPoolRunning)
+		{
+			multiThreadPoolRunning = true;
+			multiThreadPool.run(multiThreadPool_doWork, multi);
+		}
+
+		if (multiProgressTimer == null)
+		{
+			multiProgressTimer = new Timer(8);
+			multiProgressTimer.run = multiProgressTimer_onRun;
+			multiProgressTimer_onRun();
+		}
+	}
+
+	private function followRedirect(status:Int, uri:String):Void
+	{
+		redirects++;
+
+		var method = requestMethod;
+		var data = requestData;
+		var contentType = this.contentType;
+
+		// RFC 9110 sections 15.4.2 to 15.4.4: a 303 is followed with GET, as is a POST after
+		// a 301 or 302, as browsers and curl do, and without the content. 307 and 308 keep both.
+		if ((status == 303 && method != HEAD) || ((status == 301 || status == 302) && method == POST))
+		{
+			method = GET;
+			data = null;
+			contentType = null;
+		}
+
+		initTransfer(uri, method, data, contentType, requestUri);
+		startTransfer();
 	}
 
 	public function loadText(uri:String):Future<String>
@@ -577,7 +644,8 @@ class NativeHTTPRequest
 	private static function localThreadPool_onComplete(state:{instance:NativeHTTPRequest, promise:Promise<Bytes>, result:Bytes}):Void
 	{
 		var promise:Promise<Bytes> = state.promise;
-		if (promise.isError) return;
+		// Cancelled, or loaded again
+		if (state.instance.promise != promise || promise.isError) return;
 		state.instance.finishLoad(promise);
 		promise.complete(state.result);
 	}
@@ -585,6 +653,7 @@ class NativeHTTPRequest
 	private static function localThreadPool_onError(state:{instance:NativeHTTPRequest, promise:Promise<Bytes>, error:String}):Void
 	{
 		var promise:Promise<Bytes> = state.promise;
+		if (state.instance.promise != promise) return;
 		state.instance.finishLoad(promise);
 		promise.error(new _HTTPRequestErrorResponse(state.error, null));
 	}
@@ -598,12 +667,15 @@ class NativeHTTPRequest
 		}):Void
 	{
 		var promise:Promise<Bytes> = state.promise;
-		if (promise.isComplete || promise.isError) return;
+		if (state.instance.promise != promise || promise.isComplete || promise.isError) return;
 		promise.progress(state.bytesLoaded, state.bytesTotal);
 	}
 
 	private static function multiThreadPool_doWork(multi:CURLMulti, output:WorkOutput):Void
 	{
+		// The handles this pass added that are still running
+		var transfers:Array<CURL> = [];
+
 		while (true)
 		{
 			#if (cpp || neko || hl)
@@ -613,7 +685,22 @@ class NativeHTTPRequest
 			while (curl != null)
 			{
 				multi.addHandle(curl);
+				transfers.push(curl);
 				curl = multiAddHandle.pop(false);
+			}
+
+			// Then those cancelled, whose transfers end here
+			curl = multiRemoveHandle.pop(false);
+
+			while (curl != null)
+			{
+				if (transfers.remove(curl))
+				{
+					multi.removeHandle(curl);
+					curl.cleanup();
+				}
+
+				curl = multiRemoveHandle.pop(false);
 			}
 			#end
 
@@ -637,13 +724,17 @@ class NativeHTTPRequest
 					var curl = message.curl;
 					var status = curl.getInfo(RESPONSE_CODE);
 
+					// Where a redirect leads, for a request that follows them itself
+					var redirect:String = (status >= 300 && status < 400) ? curl.getInfo(REDIRECT_URL) : null;
+
 					// returns an array of cookie values
 					cookieList = curl.getInfo(COOKIELIST);
 
 					multi.removeHandle(curl);
+					transfers.remove(curl);
 					curl.cleanup();
 
-					output.sendProgress({curl: curl, result: message.result, status: status});
+					output.sendProgress({curl: curl, result: message.result, status: status, redirect: redirect});
 					message = multi.infoRead();
 				}
 			}
@@ -673,7 +764,7 @@ class NativeHTTPRequest
 		#end
 	}
 
-	private static function multiThreadPool_onProgress(state:{curl:CURL, result:Int, status:Int}):Void
+	private static function multiThreadPool_onProgress(state:{curl:CURL, result:Int, status:Int, redirect:String}):Void
 	{
 		if (multiInstances.exists(state.curl))
 		{
@@ -696,7 +787,20 @@ class NativeHTTPRequest
 
 			var promise = instance.promise;
 
-			if (state.result == CURLCode.OK)
+			if (state.result == CURLCode.OK && instance.followManually && state.redirect != null && state.redirect != ""
+				&& [301, 302, 303, 307, 308].indexOf(state.status) > -1)
+			{
+				if (instance.redirects < MAX_REDIRECTS)
+				{
+					instance.followRedirect(state.status, state.redirect);
+				}
+				else
+				{
+					instance.finishLoad(promise);
+					promise.error(new _HTTPRequestErrorResponse(CURL.strerror(CURLCode.TOO_MANY_REDIRECTS), null));
+				}
+			}
+			else if (state.result == CURLCode.OK)
 			{
 				if ((state.status >= 200 && state.status < 400) || state.status == 0)
 				{
