@@ -341,6 +341,12 @@ class NativeCFFI
 
 	@:cffi private static function lime_menu_get_support():Int;
 
+	@:cffi private static function lime_menu_get_open_event(index:Int):Int;
+
+	@:cffi private static function lime_menu_set_open_callback(callback:Dynamic):Void;
+
+	@:cffi private static function lime_menu_set_open_items(data:Dynamic):Void;
+
 	@:cffi private static function lime_mouse_event_manager_register(callback:Dynamic, eventObject:Dynamic):Void;
 
 	@:cffi private static function lime_neko_execute(module:String):Void;
@@ -1143,6 +1149,10 @@ class NativeCFFI
 	private static var lime_menu_get_application_menu = new cpp.Callable<cpp.Object->cpp.Object>(cpp.Prime._loadPrime("lime",
 		"lime_menu_get_application_menu", "oo", false));
 	private static var lime_menu_get_support = new cpp.Callable<Void->Int>(cpp.Prime._loadPrime("lime", "lime_menu_get_support", "i", false));
+	private static var lime_menu_get_open_event = new cpp.Callable<Int->Int>(cpp.Prime._loadPrime("lime", "lime_menu_get_open_event", "ii", false));
+	private static var lime_menu_set_open_callback = new cpp.Callable<cpp.Object->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_menu_set_open_callback", "ov",
+		false));
+	private static var lime_menu_set_open_items = new cpp.Callable<cpp.Object->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_menu_set_open_items", "ov", false));
 	private static var lime_mouse_event_manager_register = new cpp.Callable<cpp.Object->cpp.Object->cpp.Void>(cpp.Prime._loadPrime("lime",
 		"lime_mouse_event_manager_register", "oov", false));
 	private static var lime_neko_execute = new cpp.Callable<String->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_neko_execute", "sv", false));
@@ -1704,6 +1714,9 @@ class NativeCFFI
 	private static var lime_menu_event_manager_register = CFFI.load("lime", "lime_menu_event_manager_register", 2);
 	private static var lime_menu_get_application_menu = CFFI.load("lime", "lime_menu_get_application_menu", 1);
 	private static var lime_menu_get_support = CFFI.load("lime", "lime_menu_get_support", 0);
+	private static var lime_menu_get_open_event = CFFI.load("lime", "lime_menu_get_open_event", 1);
+	private static var lime_menu_set_open_callback = CFFI.load("lime", "lime_menu_set_open_callback", 1);
+	private static var lime_menu_set_open_items = CFFI.load("lime", "lime_menu_set_open_items", 1);
 	private static var lime_mouse_event_manager_register = CFFI.load("lime", "lime_mouse_event_manager_register", 2);
 	private static var lime_neko_execute = CFFI.load("lime", "lime_neko_execute", 1);
 	private static var lime_orientation_event_manager_register = CFFI.load("lime", "lime_orientation_event_manager_register", 2);
@@ -2535,6 +2548,15 @@ class NativeCFFI
 	{
 		return 0;
 	}
+
+	@:hlNative("lime", "hl_menu_get_open_event") private static function lime_menu_get_open_event(index:Int):Int
+	{
+		return 0;
+	}
+
+	@:hlNative("lime", "hl_menu_set_open_callback") private static function lime_menu_set_open_callback(callback:Void->Void):Void {}
+
+	@:hlNative("lime", "hl_menu_set_open_items") private static function lime_menu_set_open_items(data:Bytes):Void {}
 
 	@:hlNative("lime", "hl_mouse_event_manager_register") private static function lime_mouse_event_manager_register(callback:Void->Void,
 		eventObject:MouseEventInfo):Void {}
