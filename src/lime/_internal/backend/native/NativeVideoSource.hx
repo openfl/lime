@@ -116,8 +116,8 @@ class NativeVideoSource
 		that what is left of the queue can be panned again. Null for mono.
 	**/
 	private var bufferSounds:Array<QueuedSound>;
-	private var buffering:Bool;
-	private var bytesTotal:Float;
+	private var buffering:Bool = false;
+	private var bytesTotal:Float = 0;
 	private var buffers:Array<ALBuffer>;
 	private var bytesPerSecond:Float;
 	private var clockMode:VideoClockMode;
@@ -147,7 +147,8 @@ class NativeVideoSource
 	private var playing:Bool;
 	private var retiredDecoder:VideoDecoder;
 	private var timer:Timer;
-	private var waitingStamp:Float;
+	private var readStamp:Float = -1;
+	private var waitingStamp:Float = -1;
 
 	public function new(parent:VideoSource)
 	{
@@ -401,7 +402,7 @@ class NativeVideoSource
 		lockAudio();
 		pauseUnlocked();
 		unlockAudio();
-		checkBuffering();
+		checkBuffering(false);
 	}
 
 	@:noCompletion private function pauseUnlocked():Void
@@ -459,6 +460,7 @@ class NativeVideoSource
 	{
 		if (decoder == null || frame == null) return false;
 
+		readStamp = getStamp();
 		update();
 
 		// Updating can complete playback, and the handler can dispose of the source
@@ -1466,13 +1468,35 @@ class NativeVideoSource
 	{
 		lockAudio();
 		updateUnlocked();
+		// Only worked out for a video something listens to
+		var waiting = (buffering || parent.onBuffering.__listeners.length > 0) && isWaitingForData();
 		unlockAudio();
-		checkBuffering();
+		checkBuffering(waiting);
 	}
 
-	@:noCompletion private function checkBuffering():Void
+	// Called with the audio locked, as the audio thread fills its queue
+	@:noCompletion private function isWaitingForData():Bool
 	{
-		var waiting = decoder != null && playing && !failed && isWaitingForFrame();
+		if (decoder == null || !playing || failed || completed) return false;
+
+		// The first frame, after opening or seeking, holds the clock
+		if (isWaitingForFrame()) return true;
+
+		// So does sound that has run out before its end, unless the clock runs on its own
+		if (handle != null && !audioStalled && clockMode != MONOTONIC && bufferTimes.length == 0 && audioDecoder != null
+			&& !audioDecoder.audioComplete) return true;
+
+		// Without that, the picture falls behind while frames are read: the frame shown has ended,
+		// a frame's time ago in case its duration was not known, and the next one has not come
+		// The clock is only read here, as reading it through getTime moves it on
+		var interval = decoder.frameRate > 0 ? 1 / decoder.frameRate : 0.05;
+		var time = clockTime + (getStamp() - clockStamp) * playbackRate;
+		return hasFrame && decoder.hasVideo && !decoder.videoComplete && readStamp >= 0 && getStamp() - readStamp < 0.5
+			&& time > frameEndTime + interval;
+	}
+
+	@:noCompletion private function checkBuffering(waiting:Bool):Void
+	{
 
 		if (!waiting)
 		{
