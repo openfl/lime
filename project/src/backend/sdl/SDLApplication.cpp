@@ -1554,6 +1554,7 @@ namespace lime
 			}
 
 			mouseEvent.windowID = event->button.windowID;
+			mouseEvent.timestamp = event->common.timestamp;
 			MouseEvent::Dispatch(&mouseEvent);
 		}
 	}
@@ -1672,6 +1673,7 @@ namespace lime
 			touchEvent.dy = event->tfinger.dy;
 			touchEvent.pressure = event->tfinger.pressure;
 			touchEvent.device = event->tfinger.touchId;
+			touchEvent.timestamp = event->common.timestamp;
 
 			TouchEvent::Dispatch(&touchEvent);
 		}

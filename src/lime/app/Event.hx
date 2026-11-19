@@ -32,9 +32,10 @@ class Event<T>
 
 	/**
 		The timestamp of the most recent dispatch, in milliseconds, on the clock
-		of `System.getTimer()`. Key and gamepad events carry the time the platform
-		took the input; other events, the time they were dispatched. Before the
-		first dispatch, this returns the current timer value.
+		of `System.getTimer()`. On native targets, key, mouse, touch and gamepad
+		events carry the time the platform took the input; other events, and
+		input on other targets, the time they were dispatched. Before the first
+		dispatch, this returns the current timer value.
 	**/
 	public var timestamp(get, never):Int;
 

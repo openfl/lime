@@ -21,6 +21,7 @@ Changelog
 - Added `Window.alwaysOnTop` and transparent window support.
 - Added `Window.nativeHandle`, the system's own window and display, for native code that works with them directly.
 - Added input event timestamps without changing listener signatures.
+- Added the platform's input time to mouse and touch event timestamps on native targets, as key and gamepad events already had.
 - Added `Promise.completeAsync()`.
 - Added explicit font rendering flags, DPI-aware glyph rendering, unhinted font decomposition, and HarfBuzz FT font change notifications.
 - Added `Font.isBold` and `Font.isItalic`.
