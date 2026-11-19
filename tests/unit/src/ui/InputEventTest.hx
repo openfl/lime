@@ -542,7 +542,6 @@ class InputEventTest extends Test
 		Assert.equals("", heard.join(","));
 	}
 
-	@Ignored("Waiting on #2250")
 	public function testACopyOfAMouseEventNamesTheSameWindow():Void
 	{
 		var backend = @:privateAccess Application.current.__backend;
