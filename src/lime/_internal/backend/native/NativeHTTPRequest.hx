@@ -169,6 +169,11 @@ class NativeHTTPRequest
 					curl.setOption(INFILE, data);
 					curl.setOption(INFILESIZE, data.length);
 				}
+				else
+				{
+					// Without a size, curl reads the content from standard input
+					curl.setOption(INFILESIZE, 0);
+				}
 
 			case _:
 				curl.setOption(CUSTOMREQUEST, Std.string(parent.method));
