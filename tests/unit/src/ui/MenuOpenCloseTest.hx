@@ -361,7 +361,15 @@ class MenuOpenCloseTest extends Test
 			utf16.setUInt16(i * 2, StringTools.fastCodeAt(script, i));
 		}
 
-		return new sys.io.Process("powershell", ["-NoProfile", "-NonInteractive", "-EncodedCommand", haxe.crypto.Base64.encode(utf16)]);
+		return new sys.io.Process(powerShell(), ["-NoProfile", "-NonInteractive", "-EncodedCommand", haxe.crypto.Base64.encode(utf16)]);
+	}
+
+	private static function powerShell():String
+	{
+		// HashLink starts a process by its path, without looking through PATH
+		var root = Sys.getEnv("SystemRoot");
+		var path = root != null ? root + "\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" : null;
+		return path != null && sys.FileSystem.exists(path) ? path : "powershell";
 	}
 	#end
 
