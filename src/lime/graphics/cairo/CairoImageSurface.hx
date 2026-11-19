@@ -52,7 +52,10 @@ import lime.utils.DataPointer;
 	@:noCompletion private function get_data():DataPointer
 	{
 		#if (lime_cffi && lime_cairo && !macro)
-		return NativeCFFI.lime_cairo_image_surface_get_data(this);
+		// A cast, as on HashLink the binding gives a Float, which would become a DataPointer
+		// through fromCFFIPointer and be read as a handle
+		var data:Float = NativeCFFI.lime_cairo_image_surface_get_data(this);
+		return cast data;
 		#else
 		return 0;
 		#end
