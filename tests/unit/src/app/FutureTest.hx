@@ -109,9 +109,6 @@ class FutureTest extends Test
 	#end
 
 	// Documented as Bools, so false rather than null on every target
-	#if neko
-	@Ignored("Waiting on #2146")
-	#end
 	public function testStateFlagsAreFalseUntilSet():Void
 	{
 		var pending = new Future<Int>();
@@ -376,16 +373,13 @@ class FutureTest extends Test
 		Assert.isTrue(promise.future.isComplete, "the first future did not keep its value");
 	}
 
-	// ofEvents() takes an Event<T->Void>, which Event's generic build makes a class
-	// of its own that no concrete event is, so it can't be called without a cast,
-	// and the cast only holds where fields are looked up by name
-	#if (neko || js)
+	// ofEvents() takes concrete events without a cast on every target
 	public function testOfEventsCompletesWithTheCompleteEvent():Void
 	{
 		var complete = new Event<Int->Void>();
 		var error = new Event<Dynamic->Void>();
 		var progress = new Event<Int->Int->Void>();
-		var future:Future<Int> = Future.ofEvents(cast complete, error, progress);
+		var future:Future<Int> = Future.ofEvents(complete, error, progress);
 		var progressed:Array<String> = [];
 
 		future.onProgress(function(loaded, total) progressed.push(loaded + "/" + total));
@@ -399,14 +393,11 @@ class FutureTest extends Test
 		Assert.same(["1/2"], progressed);
 	}
 
-	#if neko
-	@Ignored("Waiting on #2148")
-	#end
 	public function testOfEventsForwardsEveryProgressUpdate():Void
 	{
 		var complete = new Event<Int->Void>();
 		var progress = new Event<Int->Int->Void>();
-		var future:Future<Int> = Future.ofEvents(cast complete, null, progress);
+		var future:Future<Int> = Future.ofEvents(complete, null, progress);
 		var progressed:Array<String> = [];
 
 		future.onProgress(function(loaded, total) progressed.push(loaded + "/" + total));
@@ -422,7 +413,7 @@ class FutureTest extends Test
 	{
 		var complete = new Event<Int->Void>();
 		var error = new Event<Dynamic->Void>();
-		var future:Future<Int> = Future.ofEvents(cast complete, error);
+		var future:Future<Int> = Future.ofEvents(complete, error);
 
 		error.dispatch("failed");
 
@@ -434,7 +425,7 @@ class FutureTest extends Test
 	public function testOfEventsWorksWithACompleteEventAlone():Void
 	{
 		var complete = new Event<String->Void>();
-		var future:Future<String> = Future.ofEvents(cast complete);
+		var future:Future<String> = Future.ofEvents(complete);
 
 		complete.dispatch("done");
 		Assert.equals("done", future.value);
@@ -445,7 +436,7 @@ class FutureTest extends Test
 		var complete = new Event<Int->Void>();
 		var error = new Event<Dynamic->Void>();
 		var progress = new Event<Int->Int->Void>();
-		var future:Future<Int> = Future.ofEvents(cast complete, error, progress);
+		var future:Future<Int> = Future.ofEvents(complete, error, progress);
 		var calls:Array<String> = [];
 
 		future.onComplete(function(value) calls.push("complete " + value));
@@ -461,7 +452,28 @@ class FutureTest extends Test
 		assertUnset(future.isError);
 		Assert.same(["complete 5"], calls);
 	}
-	#end
+
+	public function testOfEventsLetsGoOfTheEventsOnceSettled():Void
+	{
+		var complete = new Event<Int->Void>();
+		var error = new Event<Dynamic->Void>();
+		var progress = new Event<Int->Int->Void>();
+		var future:Future<Int> = Future.ofEvents(complete, error, progress);
+
+		progress.dispatch(1, 2);
+		Assert.equals(1, progress.__listeners.length, "progress keeps its listener until the future settles");
+
+		error.dispatch("failed");
+
+		Assert.equals("failed", future.error);
+		// HashLink wraps the complete listener anew for each call through ofEvents()'s
+		// structure type, so remove() can't find it there; it no longer holds the promise
+		#if !hl
+		Assert.equals(0, complete.__listeners.length, "listeners left on complete");
+		#end
+		Assert.equals(0, error.__listeners.length, "listeners left on error");
+		Assert.equals(0, progress.__listeners.length, "listeners left on progress");
+	}
 
 	// Only whether a flag was set; that the flags start out false is tested on its own
 	private static function assertUnset(flag:Bool, ?message:String, ?pos:haxe.PosInfos):Void

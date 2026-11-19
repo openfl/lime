@@ -21,9 +21,6 @@ class PromiseTest extends Test
 		super();
 	}
 
-	#if neko
-	@Ignored("Waiting on #2146")
-	#end
 	public function testPromiseStartsUnresolved():Void
 	{
 		var promise = new Promise<Int>();
@@ -82,7 +79,6 @@ class PromiseTest extends Test
 		assertUnset(promise.isComplete);
 	}
 
-	@Ignored("Waiting on #2146")
 	public function testCompletingTwiceKeepsTheFirstValue():Void
 	{
 		var promise = new Promise<Int>();
@@ -128,7 +124,6 @@ class PromiseTest extends Test
 		Assert.same([], received);
 	}
 
-	@Ignored("Waiting on #2146")
 	public function testFailingTwiceKeepsTheFirstError():Void
 	{
 		var promise = new Promise<Int>();
