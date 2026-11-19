@@ -46,6 +46,11 @@ jobs:
           haxelib install hxp --quiet
           haxelib install utest --quiet
 
+      - name: Run tools tests
+        working-directory: tests/tools
+        # Parses project files from Lime's own source, so needs no native library
+        run: haxe test.hxml
+
       # CrossByte, which serves lime test html5, needs Haxe 4.3 to build the tools
       - uses: ./.github/actions/rebuild-lime-tools
         with:
@@ -218,7 +223,8 @@ jobs:
         run: |
           sudo add-apt-repository ppa:haxe/releases -y
           sudo apt-get update
-          sudo apt-get install -y haxe
+          # Launchpad sometimes answers 503 for a while; retry rather than fail the job
+          sudo apt-get install -y -o Acquire::Retries=5 haxe
           mkdir $HOME/haxelib
           haxelib setup $HOME/haxelib
 
