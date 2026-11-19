@@ -22,6 +22,7 @@ Changelog
 - Added `Window.nativeHandle`, the system's own window and display, for native code that works with them directly.
 - Added input event timestamps without changing listener signatures.
 - Added `Promise.completeAsync()`.
+- Added `System.getFreeSpace()` and `System.isSymbolicLink()` on native targets.
 - Added explicit font rendering flags, DPI-aware glyph rendering, unhinted font decomposition, and HarfBuzz FT font change notifications.
 - Added `Font.isBold` and `Font.isItalic`.
 - Added `Font.setVariation()` to set the axes of variable fonts.

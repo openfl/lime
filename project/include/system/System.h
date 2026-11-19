@@ -34,6 +34,7 @@ namespace lime {
 			static std::wstring* GetDeviceModel ();
 			static std::wstring* GetDeviceVendor ();
 			static std::wstring* GetDirectory (SystemDirectory type, const char* company, const char* title);
+			static double GetAvailableSpace (const char* path);
 			static void* GetDisplay (bool useCFFIValue, int id);
 			#ifdef IPHONE
 			static std::wstring* GetIOSDirectory (SystemDirectory type);
@@ -49,6 +50,7 @@ namespace lime {
 			#if defined(HX_WINDOWS) && !defined (HX_WINRT)
 			static int GetWindowsConsoleMode (int handleType);
 			#endif
+			static bool IsSymbolicLink (const char* path);
 			static void OpenFile (const char* path);
 			static void OpenURL (const char* url, const char* target);
 			static bool SetAllowScreenTimeout (bool allow);
