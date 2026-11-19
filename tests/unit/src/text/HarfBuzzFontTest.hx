@@ -41,9 +41,6 @@ class HarfBuzzFontTest extends Test
 
 	// Blobs
 
-	#if cpp
-	@Ignored("Waiting on #2280")
-	#end
 	public function testABlobHoldsAsManyBytesAsItWasGiven():Void
 	{
 		var bytes = FontFixture.monoBytes();
