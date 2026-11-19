@@ -1164,6 +1164,8 @@ class HXProject extends Script
 		}
 
 		context.APP_PACKAGE = context.META_PACKAGE = meta.packageName;
+		// For text in an HTML page, where "&" and "<" have meanings of their own
+		context.APP_TITLE_HTML = StringTools.htmlEscape(meta.title != null ? meta.title : "", true);
 
 		for (field in Reflect.fields(windows[0]))
 		{
