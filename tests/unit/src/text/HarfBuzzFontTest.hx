@@ -76,7 +76,6 @@ class HarfBuzzFontTest extends Test
 		Assert.equals(bytes.length, blob.length);
 	}
 
-	@Ignored("Waiting on #2254")
 	public function testAnImmutableBlobHasNoWritableData():Void
 	{
 		// hb_blob_get_data_writable: fails, giving NULL, once the blob has been made immutable
@@ -88,7 +87,6 @@ class HarfBuzzFontTest extends Test
 		Assert.isTrue(address(blob.dataWritable) == 0);
 	}
 
-	@Ignored("Waiting on #2254")
 	public function testWritableDataOfAReadOnlyBlobIsNotTheCallersMemory():Void
 	{
 		// HB_MEMORY_MODE_READONLY: nothing writes to the data given, so writing takes a copy
@@ -191,14 +189,12 @@ class HarfBuzzFontTest extends Test
 		assertVector(FontFixture.MONO_ADVANCE * 2, 0, font.getGlyphAdvanceForDirection(H, HBDirection.LTR));
 	}
 
-	@Ignored("Waiting on #2254")
 	public function testPpemIsUnsetOnANewFont():Void
 	{
 		// hb_font_set_ppem: a font's pixels per em can be left unset, which is 0
 		assertVector(0, 0, monoFont().ppem);
 	}
 
-	@Ignored("Waiting on #2254")
 	public function testPpemIsKept():Void
 	{
 		var font = monoFont();
