@@ -98,7 +98,6 @@ class ImageCopyTest extends Test
 		}
 	}
 
-	@Ignored("Waiting on #2170")
 	public function testCopyPixelsClipsASourceRectThatLeavesTheSource():Void
 	{
 		// Each source pixel lands at destPoint plus its place in sourceRect, if it is in the source at all
@@ -120,7 +119,6 @@ class ImageCopyTest extends Test
 	}
 
 	#if flash
-	@Ignored("Waiting on #2212")
 	#end
 	public function testCopyPixelsWithinOneImageCopiesThePixelsAsTheyWere():Void
 	{
@@ -146,7 +144,6 @@ class ImageCopyTest extends Test
 		assertPixels(expected, square, 0, "down and right");
 	}
 
-	@Ignored("Waiting on #2174")
 	public function testCopyPixelsIntoAnImageWithAnOffsetWritesOnlyItsOwnPart():Void
 	{
 		var whole = create(4, 4);
@@ -157,7 +154,6 @@ class ImageCopyTest extends Test
 		assertPixels([0, 0, 0, 0, 0, RED, RED, 0, 0, RED, RED, 0, 0, 0, 0, 0], whole);
 	}
 
-	@Ignored("Waiting on #2174")
 	public function testCopyPixelsIntoAnOpaqueImageKeepsItOpaque():Void
 	{
 		// An opaque image has no alpha to hold, as in Flash
@@ -186,7 +182,6 @@ class ImageCopyTest extends Test
 		}
 	}
 
-	@Ignored("Waiting on #2174")
 	public function testCopyPixelsBetweenPremultipliedAndPlainImages():Void
 	{
 		var premultiplied = fromRows([[0x80FF8040, 0xFF112233]], null, true);
@@ -225,7 +220,6 @@ class ImageCopyTest extends Test
 		assertPixels([0xFF80007F], dest, 1);
 	}
 
-	@Ignored("Waiting on #2173")
 	public function testCopyPixelsReadsTheAlphaImageFromTheAlphaPoint():Void
 	{
 		// Flash: alphaPoint is "the point in the alpha image that corresponds to the upper-left corner of the source rectangle"
@@ -286,7 +280,6 @@ class ImageCopyTest extends Test
 		}
 	}
 
-	@Ignored("Waiting on #2170")
 	public function testCopyChannelClipsAtEveryEdge():Void
 	{
 		for (point in [[1, 1], [-1, -1], [2, -1], [-1, 2], [2, 2], [4, 0], [-3, 0]])
@@ -308,7 +301,6 @@ class ImageCopyTest extends Test
 		}
 	}
 
-	@Ignored("Waiting on #2170")
 	public function testCopyChannelWithinOneImage():Void
 	{
 		var image = fromRows([[0xFF100000, 0xFF200000, 0xFF300000]]);
@@ -372,7 +364,6 @@ class ImageCopyTest extends Test
 		assertPixels([0x7F102030], dest);
 	}
 
-	@Ignored("Waiting on #2170")
 	public function testMergeClipsAtTheEdges():Void
 	{
 		for (point in [[-1, -1], [2, 2], [-1, 2], [2, -1]])
@@ -440,7 +431,6 @@ class ImageCopyTest extends Test
 		Assert.equals(2, count, ">= count");
 	}
 
-	@Ignored("Waiting on #2172")
 	public function testThresholdComparesWholeColorsAsNumbers():Void
 	{
 		// Flash compares the masked 32-bit ARGB values, in which alpha is the highest byte
@@ -463,7 +453,6 @@ class ImageCopyTest extends Test
 		assertPixels([0xFF100000, GREEN, 0xFF500000], dest);
 	}
 
-	@Ignored("Waiting on #2172")
 	public function testThresholdComparesOnlyTheMaskedBits():Void
 	{
 		var source = fromRows([[0xFF114400, 0x80FF44FF, 0xFF114500]]);
@@ -486,7 +475,6 @@ class ImageCopyTest extends Test
 		Assert.equals(1, count);
 	}
 
-	@Ignored("Waiting on #2170")
 	public function testThresholdWritesAtTheDestPointAndClips():Void
 	{
 		var source = create(2, 2, 0xFF300000);

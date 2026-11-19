@@ -399,7 +399,7 @@ abstract Matrix3(Float32Array) to Float32Array
 
 	/**
 		Applies rotation to the current matrix
-		@param	theta	A rotation value in degrees
+		@param	theta	A rotation value in radians
 	**/
 	public function rotate(theta:Float):Void
 	{
@@ -498,7 +498,7 @@ abstract Matrix3(Float32Array) to Float32Array
 		Transforms a `Rectangle` instance by the current matrix
 		and returns `Rectangle` with the bounds of the transformed
 		rectangle.
-		@param	transform	A `Matrix3` instance to transform by
+		@param	rect	The `Rectangle` to transform
 		@param	result	(Optional) A `Rectangle` instance to use for the result
 		@return	A `Rectangle` represented the transformed bounds
 	**/
@@ -511,29 +511,29 @@ abstract Matrix3(Float32Array) to Float32Array
 		var ty0 = b * rect.x + d * rect.y;
 		var ty1 = ty0;
 
-		var tx = a * (rect.x + rect.width) + c * rect.y;
-		var ty = b * (rect.x + rect.width) + d * rect.y;
+		var cx = a * (rect.x + rect.width) + c * rect.y;
+		var cy = b * (rect.x + rect.width) + d * rect.y;
 
-		if (tx < tx0) tx0 = tx;
-		if (ty < ty0) ty0 = ty;
-		if (tx > tx1) tx1 = tx;
-		if (ty > ty1) ty1 = ty;
+		if (cx < tx0) tx0 = cx;
+		if (cy < ty0) ty0 = cy;
+		if (cx > tx1) tx1 = cx;
+		if (cy > ty1) ty1 = cy;
 
-		tx = a * (rect.x + rect.width) + c * (rect.y + rect.height);
-		ty = b * (rect.x + rect.width) + d * (rect.y + rect.height);
+		cx = a * (rect.x + rect.width) + c * (rect.y + rect.height);
+		cy = b * (rect.x + rect.width) + d * (rect.y + rect.height);
 
-		if (tx < tx0) tx0 = tx;
-		if (ty < ty0) ty0 = ty;
-		if (tx > tx1) tx1 = tx;
-		if (ty > ty1) ty1 = ty;
+		if (cx < tx0) tx0 = cx;
+		if (cy < ty0) ty0 = cy;
+		if (cx > tx1) tx1 = cx;
+		if (cy > ty1) ty1 = cy;
 
-		tx = a * rect.x + c * (rect.y + rect.height);
-		ty = b * rect.x + d * (rect.y + rect.height);
+		cx = a * rect.x + c * (rect.y + rect.height);
+		cy = b * rect.x + d * (rect.y + rect.height);
 
-		if (tx < tx0) tx0 = tx;
-		if (ty < ty0) ty0 = ty;
-		if (tx > tx1) tx1 = tx;
-		if (ty > ty1) ty1 = ty;
+		if (cx < tx0) tx0 = cx;
+		if (cy < ty0) ty0 = cy;
+		if (cx > tx1) tx1 = cx;
+		if (cy > ty1) ty1 = cy;
 
 		result.setTo(tx0 + tx, ty0 + ty, tx1 - tx0, ty1 - ty0);
 		return result;

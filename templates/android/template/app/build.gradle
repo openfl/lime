@@ -17,7 +17,7 @@ android {
 	namespace "::APP_PACKAGE::"
 	compileSdkVersion Integer.parseInt(project.ANDROID_BUILD_SDK_VERSION)
 	buildToolsVersion project.ANDROID_BUILD_TOOLS_VERSION
-	::if (ANDROID_GRADLE_PLUGIN>="4.0")::ndkPath '::ANDROID_NDK_ROOT_ESCAPED::'::end::
+	::if (ANDROID_GRADLE_PLUGIN_4_0)::ndkPath '::ANDROID_NDK_ROOT_ESCAPED::'::end::
 	::if (ANDROID_NDK_VERSION)::ndkVersion '::ANDROID_NDK_VERSION::'::end::
 
 	defaultConfig {
@@ -78,7 +78,7 @@ android {
 
 	// Video is read from the APK in place, which compressed files cannot be, and
 	// these containers are not in the default list of files left uncompressed
-	::if (ANDROID_GRADLE_PLUGIN>="7.1")::androidResources::else::aaptOptions::end:: {
+	::if (ANDROID_GRADLE_PLUGIN_7_1)::androidResources::else::aaptOptions::end:: {
 		noCompress 'avi', 'f4v', 'flv', 'm2ts', 'mov', 'mts', 'mxf', 'ogv', 'qt', 'ts'
 	}
 

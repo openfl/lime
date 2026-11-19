@@ -154,9 +154,6 @@ class OpenALSourceTest extends Test
 		AL.deleteSource(source);
 	}
 
-	#if hl
-	@Ignored("Waiting on #2246")
-	#end
 	public function testGetSource3fGivesThreeValuesInOrder():Void
 	{
 		if (!hasContext()) return;
@@ -194,7 +191,6 @@ class OpenALSourceTest extends Test
 		AL.deleteSource(source);
 	}
 
-	@Ignored("Waiting on #2246")
 	public function testGetSource3iGivesThreeValuesInOrder():Void
 	{
 		if (!hasContext()) return;
@@ -314,9 +310,6 @@ class OpenALSourceTest extends Test
 		AL.deleteSource(source);
 	}
 
-	#if !hl
-	@Ignored("Waiting on #2247")
-	#end
 	public function testAnArrayQueryOpenALRefusesGivesZeros():Void
 	{
 		if (!hasContext()) return;

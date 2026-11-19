@@ -97,15 +97,24 @@ abstract ColorMatrix(Float32Array) from Float32Array to Float32Array
 	}
 
 	/**
-		Adds the color multipliers from a second `ColorMatrix` to the current one
+		Combines a second `ColorMatrix` with the current one, as Flash's
+		`ColorTransform.concat()` does, so that the current one has the effect of
+		both: the multipliers multiply, and each offset of `second` is scaled by
+		the current multiplier and added to the current offset. With multipliers
+		of 1, the offsets add.
 		@param	second	The `ColorMatrix` to `concat` to the current one
 	**/
 	public function concat(second:ColorMatrix):Void
 	{
-		redMultiplier += second.redMultiplier;
-		greenMultiplier += second.greenMultiplier;
-		blueMultiplier += second.blueMultiplier;
-		alphaMultiplier += second.alphaMultiplier;
+		redOffset = redMultiplier * second.redOffset + redOffset;
+		greenOffset = greenMultiplier * second.greenOffset + greenOffset;
+		blueOffset = blueMultiplier * second.blueOffset + blueOffset;
+		alphaOffset = alphaMultiplier * second.alphaOffset + alphaOffset;
+
+		redMultiplier *= second.redMultiplier;
+		greenMultiplier *= second.greenMultiplier;
+		blueMultiplier *= second.blueMultiplier;
+		alphaMultiplier *= second.alphaMultiplier;
 	}
 
 	/**
@@ -160,9 +169,13 @@ abstract ColorMatrix(Float32Array) from Float32Array to Float32Array
 		colorMatrix.alphaOffset = 12;
 
 		var alphaTable = colorMatrix.getAlphaTable ();
-		trace (alphaTable[0]); // 12
+		trace (alphaTable[0]); // 0
 		trace (alphaTable[1]); // 13
+		trace (alphaTable[2]); // 14
 		```
+
+		An alpha of 0 always stays 0, so a fully transparent pixel stays
+		transparent whatever the offset.
 	**/
 	public function getAlphaTable():UInt8Array
 	{
@@ -176,7 +189,7 @@ abstract ColorMatrix(Float32Array) from Float32Array to Float32Array
 
 		for (i in 1...256)
 		{
-			value = Math.floor(i * alphaMultiplier + alphaOffset);
+			value = __tableValue(i, alphaMultiplier, alphaOffset);
 			if (value > 0xFF) value = 0xFF;
 			if (value < 0) value = 0;
 			__alphaTable[i] = value;
@@ -216,7 +229,7 @@ abstract ColorMatrix(Float32Array) from Float32Array to Float32Array
 
 		for (i in 0...256)
 		{
-			value = Math.floor(i * blueMultiplier + blueOffset);
+			value = __tableValue(i, blueMultiplier, blueOffset);
 			if (value > 0xFF) value = 0xFF;
 			if (value < 0) value = 0;
 			__blueTable[i] = value;
@@ -256,7 +269,7 @@ abstract ColorMatrix(Float32Array) from Float32Array to Float32Array
 
 		for (i in 0...256)
 		{
-			value = Math.floor(i * greenMultiplier + greenOffset);
+			value = __tableValue(i, greenMultiplier, greenOffset);
 			if (value > 0xFF) value = 0xFF;
 			if (value < 0) value = 0;
 			__greenTable[i] = value;
@@ -296,13 +309,22 @@ abstract ColorMatrix(Float32Array) from Float32Array to Float32Array
 
 		for (i in 0...256)
 		{
-			value = Math.floor(i * redMultiplier + redOffset);
+			value = __tableValue(i, redMultiplier, redOffset);
 			if (value > 0xFF) value = 0xFF;
 			if (value < 0) value = 0;
 			__redTable[i] = value;
 		}
 
 		return __redTable;
+	}
+
+	// An offset is stored divided by 255 in single precision, so a whole one
+	// can read back a hair under itself, -16 as -16.0000009, which Math.floor
+	// would put a whole value lower
+	@:noCompletion private static inline function __tableValue(i:Int, multiplier:Float, offset:Float):Int
+	{
+		var value = Math.floor(i * multiplier + offset + 0.0001);
+		return value > 0xFF ? 0xFF : (value < 0 ? 0 : value);
 	}
 
 	@:noCompletion private function __toFlashColorTransform():#if flash ColorTransform #else Dynamic #end

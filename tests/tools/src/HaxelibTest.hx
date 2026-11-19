@@ -102,7 +102,6 @@ class HaxelibTest extends Test
 	}
 
 	// Paths in a file are relative to that file, as <source /> and <assets /> are in an included file
-	@Ignored("Waiting on #2166")
 	public function testHaxelibPathInAnIncludedFileIsRelativeToThatFile():Void
 	{
 		fixture.write("sub/nested/haxelib.json", '{"name": "toolstest-nested", "version": "1.0.0"}');
@@ -175,7 +174,6 @@ class HaxelibTest extends Test
 	}
 
 	// The include.xml of a haxelib that another haxelib also asks for is added once, as an HXP project's is
-	@Ignored("Waiting on #2164")
 	public function testHaxelibIncludeAskedForTwiceIsAddedOnce():Void
 	{
 		fixture.addHaxelib("toolstest-base", '<project>

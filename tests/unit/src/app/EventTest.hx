@@ -328,7 +328,6 @@ class EventTest extends Test
 		Assert.same(["once", "repeating", "repeating"], calls);
 	}
 
-	@Ignored("Waiting on #2145")
 	public function testOnceListenerIsNotCalledAgainByANestedDispatch():Void
 	{
 		var event = new Event<Int->Void>();
@@ -633,7 +632,6 @@ class EventTest extends Test
 		Assert.same(["first", "first", "second"], calls);
 	}
 
-	@Ignored("Waiting on #2145")
 	public function testOnceListenerThatThrowsIsStillRemoved():Void
 	{
 		var event = new Event<Void->Void>();

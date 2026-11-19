@@ -158,9 +158,6 @@ class CairoSurfaceTest extends Test
 
 	// Surfaces over memory
 
-	#if hl
-	@Ignored("Waiting on #2264")
-	#end
 	public function testCreateTakesTheFormatThenTheSizeThenTheStride():Void
 	{
 		// Two rows of an 8-bit surface 8 bytes apart, seen as one row of two 32-bit pixels
@@ -242,7 +239,6 @@ class CairoSurfaceTest extends Test
 		copyOf(surface, 2, 1).assertRows(["GB"]);
 	}
 
-	@Ignored("Waiting on #2258")
 	public function testFromImageCoversThePartOfTheBufferTheImageUses():Void
 	{
 		var whole = ImageFixture.create(4, 3, 0, BGRA32, true);

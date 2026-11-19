@@ -74,7 +74,20 @@ class AssetManifest
 		if (data == null || data == "") return null;
 
 		#if !macro
-		var manifestData = Json.parse(data);
+		var manifestData:Dynamic;
+
+		try
+		{
+			manifestData = Json.parse(data);
+		}
+		catch (e:Dynamic)
+		{
+			// Not a manifest, as for empty data
+			return null;
+		}
+
+		if (manifestData == null) return null;
+
 		var manifest = new AssetManifest();
 
 		if (Reflect.hasField(manifestData, "name"))
@@ -90,6 +103,11 @@ class AssetManifest
 		if (Reflect.hasField(manifestData, "libraryArgs"))
 		{
 			manifest.libraryArgs = manifestData.libraryArgs;
+		}
+
+		if (Reflect.hasField(manifestData, "version"))
+		{
+			manifest.version = manifestData.version;
 		}
 
 		if (Reflect.hasField(manifestData, "assets"))
@@ -116,7 +134,7 @@ class AssetManifest
 			{
 				manifest.rootPath = rootPath;
 			}
-			else
+			else if (!__isAbsolutePath(manifest.rootPath))
 			{
 				manifest.rootPath = rootPath + "/" + manifest.rootPath;
 			}
@@ -143,6 +161,17 @@ class AssetManifest
 		#else
 		return null;
 		#end
+	}
+
+	// A path that a root path shouldn't be put in front of: one from the root of
+	// the file system or a drive, a network share or a URL
+	@:noCompletion @:allow(lime.utils) private static function __isAbsolutePath(path:String):Bool
+	{
+		if (path == null || path == "") return false;
+		if (Path.isAbsolute(path)) return true;
+
+		var schemeEnd = path.indexOf("://");
+		return schemeEnd > 0 && ~/^[A-Za-z][A-Za-z0-9+.-]*$/.match(path.substr(0, schemeEnd));
 	}
 
 	private static function __resolvePath(path:String):String

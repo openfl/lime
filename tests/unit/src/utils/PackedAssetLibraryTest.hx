@@ -102,7 +102,6 @@ class PackedAssetLibraryTest extends Test
 
 	// The tools write "zip" libraries as "deflate", and the library reads "zip" as "deflate" too
 	@:timeout(5000)
-	@Ignored("Waiting on #2159")
 	public function testZipPacksRead(async:Async):Void
 	{
 		assertReads(pack("zip.pak", "zip"), async);
@@ -143,7 +142,6 @@ class PackedAssetLibraryTest extends Test
 
 	// Loading the pack first, or failing the future, but not throwing out of a loader
 	@:timeout(5000)
-	@Ignored("Waiting on #2159")
 	public function testLoadingAnAssetBeforeItsPackDoesNotThrow(async:Async):Void
 	{
 		var library = AssetLibrary.fromManifest(pack("early.pak", "deflate"));
@@ -234,7 +232,6 @@ class PackedAssetLibraryTest extends Test
 	}
 
 	@:timeout(5000)
-	@Ignored("Waiting on #2191")
 	public function testUnloadReleasesTheCachedAssetsAndThePack(async:Async):Void
 	{
 		var manifest = pack("unload.pak", "pak");
