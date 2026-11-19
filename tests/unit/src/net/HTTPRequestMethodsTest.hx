@@ -43,7 +43,9 @@ class HTTPRequestMethodsTest extends Test
 	public function testEachMethodSendsItsOwnRequestLine(async:Async):Void
 	{
 		var server = serve(function(_) return ScriptedResponse.text(200, "ok"));
-		var methods:Array<HTTPRequestMethod> = [GET, HEAD, POST, PUT, DELETE, OPTIONS];
+		// A PUT without content is in testAPutWithoutContentSaysItsLengthIsZero,
+		// as it can stop every later request
+		var methods:Array<HTTPRequestMethod> = [GET, HEAD, POST, DELETE, OPTIONS];
 
 		ScriptedServer.each(methods, function(method, next)
 		{
@@ -137,6 +139,27 @@ class HTTPRequestMethodsTest extends Test
 			var received = last(server);
 			Assert.equals("POST", received.method);
 			Assert.isFalse(received.chunked, "the empty POST was sent chunked");
+			Assert.equals("0", received.header("Content-Length"));
+			Assert.equals(0, received.body.length);
+			async.done();
+		});
+	}
+
+	@:timeout(10000)
+	@Ignored("Waiting on #2265")
+	public function testAPutWithoutContentSaysItsLengthIsZero(async:Async):Void
+	{
+		// A request's content is its data, so a PUT without data sends none, as
+		// a POST does, and reads nothing from the application's standard input
+		var server = serve(function(_) return ScriptedResponse.text(200, "ok"));
+		var request = new HTTPRequest<String>();
+		request.method = PUT;
+		LoadOutcome.watch(request.load(server.url("/put")), async, function(outcome)
+		{
+			Assert.isTrue(outcome.completed, Std.string(outcome));
+			var received = last(server);
+			Assert.equals("PUT", received.method);
+			Assert.isFalse(received.chunked, "the empty PUT was sent chunked");
 			Assert.equals("0", received.header("Content-Length"));
 			Assert.equals(0, received.body.length);
 			async.done();
@@ -278,9 +301,6 @@ class HTTPRequestMethodsTest extends Test
 	}
 
 	@:timeout(10000)
-	#if (cpp && windows)
-	@Ignored("Waiting on #2265")
-	#end
 	public function testCustomHeadersAreSent(async:Async):Void
 	{
 		var server = serve(function(_) return ScriptedResponse.text(200, "ok"));

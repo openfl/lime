@@ -603,7 +603,9 @@ class OpenALSourceTest extends Test
 		// The same place in each unit: the buffer is 16-bit mono, so two bytes a sample
 		Assert.equals(samples * 2, integer(source, AL.BYTE_OFFSET));
 		Assert.floatEquals(samples / OpenALSandbox.SAMPLE_RATE, AL.getSourcef(source, AL.SEC_OFFSET), 0.0001);
-		Assert.floatEquals(samples, AL.getSourcef(source, AL.SAMPLE_OFFSET), 0.5);
+		// The float offset also counts the part of a sample played, which the integer one drops
+		var exact = AL.getSourcef(source, AL.SAMPLE_OFFSET);
+		Assert.isTrue(exact >= samples && exact < samples + 1, "SAMPLE_OFFSET " + exact + " for " + samples + " whole samples");
 
 		Sys.sleep(0.1);
 		Assert.equals(samples, integer(source, AL.SAMPLE_OFFSET), "the source played on while paused");
