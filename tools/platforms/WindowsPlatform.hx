@@ -1071,6 +1071,15 @@ class WindowsPlatform extends PlatformTarget
 			// hxcpp only recompiles ApplicationMain.rc when its text changes, so the
 			// icon's hash goes into it; otherwise a new icon keeps the old resource.
 			context.ICON_HASH = context.HAS_ICON ? haxe.crypto.Md5.make(File.getBytes(iconPath)).toHex() : "";
+			// For the resource file's quoted strings, where a backslash starts an escape and a quote is doubled
+			var rcString = function(value:Dynamic):String
+			{
+				return StringTools.replace(StringTools.replace(Std.string(value), "\\", "\\\\"), "\"", "\"\"");
+			};
+			context.RC_COMPANY = rcString(context.APP_COMPANY);
+			context.RC_DESCRIPTION = rcString(context.APP_DESCRIPTION);
+			context.RC_FILE = rcString(context.APP_FILE);
+			context.RC_PACKAGE = rcString(context.APP_PACKAGE);
 			ProjectHelper.recursiveSmartCopyTemplate(project, "windows/resource", targetDirectory + "/obj", context);
 
 			if (project.targetFlags.exists("static"))

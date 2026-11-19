@@ -614,6 +614,15 @@ class AndroidPlatform extends PlatformTarget
 			}
 		}
 
+		// Written into the manifest's attributes, inside double quotes
+		for (attributes in [context.ANDROID_APPLICATION, context.ANDROID_ACTIVITY])
+		{
+			for (attribute in (attributes : Array<Dynamic>))
+			{
+				if (attribute.value != null) attribute.value = StringTools.htmlEscape(Std.string(attribute.value), true);
+			}
+		}
+
 		for (attribute in context.ANDROID_APPLICATION)
 		{
 			if (attribute.key == "android:icon")
