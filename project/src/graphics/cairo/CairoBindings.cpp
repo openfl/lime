@@ -2119,6 +2119,8 @@ namespace lime {
 
 	HL_PRIM void HL_NAME(hl_cairo_show_text) (HL_CFFIPointer* handle, hl_vstring* text) {
 
+		// A null String draws nothing, as on the other native targets
+		if (!text) return;
 		cairo_show_text ((cairo_t*)handle->ptr, (char*)hl_to_utf8 ((const uchar*)text->bytes));
 
 	}
