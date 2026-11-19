@@ -156,6 +156,9 @@ namespace lime {
 		png_read_info (png_ptr, info_ptr);
 		png_get_IHDR (png_ptr, info_ptr, &width, &height, &bit_depth, &color_type, &interlace_type, NULL, NULL);
 
+		// Only the colour types with alpha, or any with a tRNS chunk, can be transparent
+		imageBuffer->transparent = (color_type & PNG_COLOR_MASK_ALPHA) != 0 || png_get_valid (png_ptr, info_ptr, PNG_INFO_tRNS) != 0;
+
 		if (decodeData) {
 
 			//bool has_alpha = (color_type == PNG_COLOR_TYPE_GRAY_ALPHA || color_type == PNG_COLOR_TYPE_RGB_ALPHA || png_get_valid (png_ptr, info_ptr, PNG_INFO_tRNS));
