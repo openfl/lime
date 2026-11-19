@@ -1970,7 +1970,8 @@ class ProjectXMLParser extends HXProject
 						windows[id].orientation = orientation;
 					}
 
-				case "height", "width", "fps", "antialiasing":
+				// x and y are whole numbers, as WindowAttributes takes them
+				case "height", "width", "fps", "antialiasing", "x", "y", "display":
 					var parsedValue = Std.parseInt(value);
 					if (parsedValue == null)
 					{
