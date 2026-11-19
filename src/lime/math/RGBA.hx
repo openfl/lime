@@ -49,9 +49,6 @@ abstract RGBA(#if (flash && !lime_doc_gen) Int #else UInt #end) from Int to Int 
 
 	private static function __init__():Void
 	{
-		#if (js && modular)
-		__initColors();
-		#else
 		__alpha16 = new UInt32Array(256);
 
 		for (i in 0...256)
@@ -70,32 +67,7 @@ abstract RGBA(#if (flash && !lime_doc_gen) Int #else UInt #end) from Int to Int 
 		{
 			__clamp[i] = 0xFF;
 		}
-		#end
 	}
-
-	#if (js && modular)
-	private static function __initColors()
-	{
-		__alpha16 = new UInt32Array(256);
-
-		for (i in 0...256)
-		{
-			__alpha16[i] = Math.ceil((i) * ((1 << 16) / 0xFF));
-		}
-
-		__clamp = new UInt8Array(0xFF + 0xFF);
-
-		for (i in 0...0xFF)
-		{
-			__clamp[i] = i;
-		}
-
-		for (i in 0xFF...(0xFF + 0xFF + 1))
-		{
-			__clamp[i] = 0xFF;
-		}
-	}
-	#end
 
 	/**
 		Creates a new RGBA instance

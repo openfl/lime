@@ -69,7 +69,20 @@ class ModuleHelper
 
 				for (haxelib in project.haxelibs)
 				{
-					hxml += "\n-cp " + Haxelib.getPath(haxelib);
+					var libPath:String = Haxelib.getPath(haxelib);
+					var classPath:String = null;
+					var json:String = Path.combine(libPath, "haxelib.json");
+					if (FileSystem.exists(json))
+						try
+						{
+							classPath = haxe.Json.parse(File.getContent(json)).classPath;
+						}
+						catch (e:Dynamic) {}
+
+					if (classPath != null)
+						libPath = Path.combine(libPath, classPath);
+
+					hxml += "\n-cp " + libPath;
 				}
 
 				for (key in project.haxedefs.keys())
@@ -91,7 +104,11 @@ class ModuleHelper
 
 				hxml += "\n-D html5";
 				hxml += "\n-D html";
+				#if !haxe4
 				hxml += "\n--no-inline";
+				#else
+				hxml += "\n-D no-inline";
+				#end
 				hxml += "\n-dce no";
 				hxml += "\n-js " + outputPath;
 
