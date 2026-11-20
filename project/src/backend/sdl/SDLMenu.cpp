@@ -1,6 +1,7 @@
 #include "SDLMenu.h"
 #include "SDLTrayIcon.h"
 #include "SDLWindow.h"
+#include <system/System.h>
 #include <ui/DockIcon.h>
 #include <native_desktop/Desktop.h>
 #include <stdint.h>
@@ -316,6 +317,18 @@ namespace lime {
 		// SDL already dispatches Win32 and Cocoa events. GTK's context is separate.
 		#ifdef LIME_SDL_MENU_GTK
 		native_desktop::TrayIcon::Update ();
+		#endif
+
+	}
+
+
+	// System's, as native-desktop is only in desktop builds
+	bool System::MoveToTrash (const char* path) {
+
+		#ifdef NATIVE_DESKTOP_TRASH
+		return native_desktop::Trash::MoveToTrash (path);
+		#else
+		return false;
 		#endif
 
 	}
