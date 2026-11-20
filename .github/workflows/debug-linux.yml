@@ -78,4 +78,9 @@ jobs:
         run: |
           lime build linux -release -verbose -nocolor -DHXCPP_DEBUG_LINK -DHXCPP_STACK_TRACE -DHXCPP_STACK_LINE
           cd bin/linux/bin
-          xvfb-run -a gdb -batch -ex "set pagination off" -ex "handle SIGPIPE nostop noprint" -ex "handle SIG32 nostop noprint" -ex "handle SIG33 nostop noprint" -ex run -ex "info threads" -ex "thread apply all bt 40" --args ./TestMain || true
+          for i in 1 2 3; do
+            echo "=== attempt $i"
+            xvfb-run -a gdb -batch -ex "set pagination off" -ex "set disable-randomization off" -ex "handle SIGPIPE nostop noprint" -ex "handle SIG32 nostop noprint" -ex "handle SIG33 nostop noprint" -ex run -ex "info threads" -ex "thread apply all bt 40" --args ./TestMain > gdb-$i.txt 2>&1 || true
+            grep -E "results: |received signal|exited" gdb-$i.txt || true
+            if grep -q "received signal" gdb-$i.txt; then sed -n '/received signal/,$p' gdb-$i.txt; break; fi
+          done
