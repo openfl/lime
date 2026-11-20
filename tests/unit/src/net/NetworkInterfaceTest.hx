@@ -190,9 +190,9 @@ class NetworkInterfaceTest extends Test
 			Assert.notNull(networkInterface, name + " is not listed");
 			if (networkInterface == null) continue;
 
-			Assert.equals(Std.parseInt(StringTools.trim(sys.io.File.getContent(folder + "/" + name + "/mtu"))), networkInterface.mtu, name + "'s MTU");
+			Assert.equals(Std.parseInt(StringTools.trim(readSysFile(folder + "/" + name + "/mtu"))), networkInterface.mtu, name + "'s MTU");
 
-			var hardwareAddress = try StringTools.trim(sys.io.File.getContent(folder + "/" + name + "/address")) catch (_:Dynamic) "";
+			var hardwareAddress = try StringTools.trim(readSysFile(folder + "/" + name + "/address")) catch (_:Dynamic) "";
 			if (hardwareAddress != "" && ~/[1-9a-f]/.match(hardwareAddress))
 			{
 				Assert.equals(hardwareAddress.toUpperCase().split(":").join("-"), networkInterface.hardwareAddress, name + "'s hardware address");
@@ -512,6 +512,18 @@ class NetworkInterfaceTest extends Test
 	}
 
 	#if !windows
+	/**
+		Reads a sysfs file. File.getContent() takes the size from stat(), which
+		is the page size for these files, and Neko fails when fewer bytes come.
+	**/
+	private static function readSysFile(path:String):String
+	{
+		var input = sys.io.File.read(path, false);
+		var text = input.readAll().toString();
+		input.close();
+		return text;
+	}
+
 	private static function find(paths:Array<String>):String
 	{
 		for (path in paths)
