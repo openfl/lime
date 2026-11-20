@@ -375,6 +375,7 @@
 		<file name="src/net/LocalSocket.cpp" />
 		<file name="src/net/LocalSocketBindings.cpp" />
 		<file name="src/net/LocalSocketEvent.cpp" />
+		<file name="src/net/NetworkInterfaceBindings.cpp" />
 		<file name="src/system/CFFI.cpp" />
 		<file name="src/system/CFFIPointer.cpp" />
 		<file name="src/system/ClipboardEvent.cpp" />
@@ -517,7 +518,7 @@
 
 				<lib name="bcrypt.lib" />
 				<lib name="crypt32.lib" if="LIME_CURL" />
-				<lib name="iphlpapi.lib" if="LIME_CURL" />
+				<lib name="iphlpapi.lib" />
 
 				<lib name="usp10.lib" if="LIME_HARFBUZZ" />
 				<lib name="rpcrt4.lib" if="LIME_HARFBUZZ" />
