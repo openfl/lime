@@ -4807,7 +4807,8 @@ namespace lime {
 
 	double lime_system_get_free_space (HxString path) {
 
-		return System::GetAvailableSpace (path.c_str ());
+		// hxcpp keeps strings with characters beyond ASCII as UTF-16, which hxs_utf8 converts
+		return System::GetAvailableSpace (hxs_utf8 (path, nullptr));
 
 	}
 
@@ -4822,7 +4823,8 @@ namespace lime {
 
 	bool lime_system_is_symbolic_link (HxString path) {
 
-		return System::IsSymbolicLink (path.c_str ());
+		// hxcpp keeps strings with characters beyond ASCII as UTF-16, which hxs_utf8 converts
+		return System::IsSymbolicLink (hxs_utf8 (path, nullptr));
 
 	}
 
