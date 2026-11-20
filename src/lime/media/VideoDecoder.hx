@@ -598,6 +598,12 @@ class VideoDecoder
 		return "mp4";
 	}
 
+	// Neko's ints have 31 bits, and Std.random() throws for a larger maximum
+	@:noCompletion private static function __randomHex():String
+	{
+		return StringTools.hex(Std.random(0x10000), 4) + StringTools.hex(Std.random(0x10000), 4);
+	}
+
 	@:noCompletion private static function __writeTemporaryFile(bytes:Bytes, name:String):String
 	{
 		var directory = __getTemporaryDirectory();
@@ -609,7 +615,7 @@ class VideoDecoder
 
 			var path = Path.join([
 				directory,
-				"video-" + StringTools.hex(Std.int(Date.now().getTime() / 1000) & 0xFFFFFF, 6) + "-" + StringTools.hex(Std.random(0x7FFFFFFF), 8) + "."
+				"video-" + StringTools.hex(Std.int(Date.now().getTime() / 1000) & 0xFFFFFF, 6) + "-" + __randomHex() + "."
 				+ __getVideoExtension(bytes, name)
 			]);
 
