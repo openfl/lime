@@ -336,7 +336,7 @@ class IOSPlatform extends PlatformTarget
 
 		if (project.config.exists("ios.camera-usage-description"))
 		{
-			context.IOS_CAMERA_USAGE_DESCRIPTION = project.config.getString("ios.camera-usage-description");
+			context.IOS_CAMERA_USAGE_DESCRIPTION = StringTools.htmlEscape(project.config.getString("ios.camera-usage-description"), true);
 		}
 
 		if (project.config.exists("ios.microphone-usage-description"))

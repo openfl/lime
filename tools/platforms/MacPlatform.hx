@@ -413,7 +413,7 @@ class MacPlatform extends PlatformTarget
 
 		if (project.config.exists("mac.camera-usage-description"))
 		{
-			context.MAC_CAMERA_USAGE_DESCRIPTION = project.config.getString("mac.camera-usage-description");
+			context.MAC_CAMERA_USAGE_DESCRIPTION = StringTools.htmlEscape(project.config.getString("mac.camera-usage-description"), true);
 		}
 
 		if (project.config.exists("mac.microphone-usage-description"))
