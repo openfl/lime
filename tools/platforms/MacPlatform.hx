@@ -413,7 +413,8 @@ class MacPlatform extends PlatformTarget
 
 		if (project.config.exists("mac.microphone-usage-description"))
 		{
-			context.MAC_MICROPHONE_USAGE_DESCRIPTION = project.config.getString("mac.microphone-usage-description");
+			// Info.plist is XML, so a description with & or < would break it
+			context.MAC_MICROPHONE_USAGE_DESCRIPTION = StringTools.htmlEscape(project.config.getString("mac.microphone-usage-description"), true);
 		}
 
 		return context;
