@@ -394,20 +394,35 @@ class NativeApplication
 
 	private function handleDropEvent():Void
 	{
-		var file = CFFI.stringValue(dropEventInfo.file);
+		var text = CFFI.stringValue(dropEventInfo.file);
 		var window = parent.__windowByID.get(dropEventInfo.windowID);
 
 		if (window != null)
 		{
-			window.onDropFile.dispatch(file);
+			dispatchDropEvent(window, dropEventInfo.type, text);
 		}
 		else
 		{
 			// SDL doesn't always know the window, as for a file dropped on the application's icon
 			for (window in parent.windows)
 			{
-				window.onDropFile.dispatch(file);
+				dispatchDropEvent(window, dropEventInfo.type, text);
 			}
+		}
+	}
+
+	private function dispatchDropEvent(window:Window, type:DropEventType, text:String):Void
+	{
+		switch (type)
+		{
+			case DROP_TEXT:
+				window.onDropText.dispatch(text);
+			case DROP_BEGIN:
+				window.onDropStart.dispatch();
+			case DROP_COMPLETE:
+				window.onDropEnd.dispatch();
+			default:
+				window.onDropFile.dispatch(text);
 		}
 	}
 
@@ -1016,6 +1031,9 @@ class NativeApplication
 #if (haxe_ver >= 4.0) private enum #else @:enum private #end abstract DropEventType(Int)
 {
 	var DROP_FILE = 0;
+	var DROP_TEXT = 1;
+	var DROP_BEGIN = 2;
+	var DROP_COMPLETE = 3;
 }
 
 @:keep /*private*/ class GamepadEventInfo
