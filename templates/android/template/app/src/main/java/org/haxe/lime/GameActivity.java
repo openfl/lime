@@ -156,6 +156,39 @@ public class GameActivity extends SDLActivity {
 
 	}
 
+	::if (ANDROID_TARGET_SDK_VERSION >= 33)::
+	// An application that targets API 36 gets neither onBackPressed nor KEYCODE_BACK on
+	// Android 16, only this callback. Before Android 16, unless the manifest opts in with
+	// android:enableOnBackInvokedCallback, the callback is not called and the key arrives
+	// as before.
+	@android.annotation.TargetApi(33) private void registerBackCallback () {
+
+		getOnBackInvokedDispatcher ().registerOnBackInvokedCallback (android.window.OnBackInvokedDispatcher.PRIORITY_DEFAULT, new android.window.OnBackInvokedCallback () {
+
+			@Override public void onBackInvoked () {
+
+				for (Extension extension : extensions) {
+
+					if (!extension.onBackPressed ()) {
+
+						return;
+
+					}
+
+				}
+
+				// The press reaches Haxe as the key did, as APP_CONTROL_BACK: an application
+				// that cancels onKeyUp keeps it, and otherwise the task moves to the back
+				SDLActivity.onNativeKeyDown (KeyEvent.KEYCODE_BACK);
+				SDLActivity.onNativeKeyUp (KeyEvent.KEYCODE_BACK);
+
+			}
+
+		});
+
+	}
+	::end::
+
 
 	protected void onCreate (Bundle state) {
 
@@ -253,6 +286,13 @@ public class GameActivity extends SDLActivity {
 			extension.onCreate (state);
 
 		}
+		::if (ANDROID_TARGET_SDK_VERSION >= 33)::
+		if (Build.VERSION.SDK_INT >= 33) {
+
+			registerBackCallback ();
+
+		}
+		::end::
 
 	}
 
