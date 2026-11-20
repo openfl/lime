@@ -69,7 +69,7 @@ class NativeWindow
 	private var closing:Bool;
 	private var cursor:MouseCursor;
 	private var displayMode:DisplayMode;
-	private var dragTarget:Bool;
+	private var dragTarget:Bool = false;
 	private var frameRate:Float;
 	private var menuItems:Array<MenuItem>;
 	private var mouseLock:Bool;

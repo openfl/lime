@@ -535,6 +535,9 @@ namespace lime {
 
 	bool DragDrop::SetTarget (Window* window, bool enabled) {
 
+		// Drags reach Lime through the handler this sets, which an application without menus has not set yet
+		ConfigureDesktop ();
+
 		native_desktop::Window native;
 		if (!window || !GetDesktopWindow (((SDLWindow*)window)->sdlWindow, &native)) return false;
 		return native_desktop::DragDrop::SetTarget (&native, enabled);
@@ -543,6 +546,9 @@ namespace lime {
 
 
 	int DragDrop::StartDrag (Window* window, const unsigned char* items, int itemsLength, const unsigned char* image, int imageLength, int offsetX, int offsetY, int actions, int id) {
+
+		// Its completion comes as an event, through the sink this sets
+		ConfigureDesktop ();
 
 		native_desktop::Window native;
 		std::vector<native_desktop::ClipboardItem> parsed;

@@ -74,7 +74,7 @@ class HTML5Window
 	private var cursor:MouseCursor;
 	private var dragDepth:Int = 0;
 	private var dragOut:{data:DragData, image:Image, offsetX:Int, offsetY:Int, actions:DropAction, promise:Promise<DropAction>, started:Bool};
-	private var dragTarget:Bool;
+	private var dragTarget:Bool = false;
 	private var currentTouches = new Map<Int, Touch>();
 	private var isFullscreen:Bool;
 	private var menus:HTML5Menu;
