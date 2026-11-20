@@ -259,6 +259,30 @@ class NetworkInterfaceTest extends Test
 		}, 2500);
 	}
 
+	@:timeout(10000)
+	public function testThePollingDispatchesOnChangeOnTheMainThread(async:Async):Void
+	{
+		// A list that is not the network's stands in for a change, as the next poll differs from it
+		var changes = 0;
+		var onMainThread = true;
+		var listener = function()
+		{
+			changes++;
+			if (!lime.system.ThreadPool.isMainThread()) onMainThread = false;
+		};
+
+		NetworkInterface.onChange.add(listener);
+		NetworkInterface.__known = "stale";
+
+		haxe.Timer.delay(function()
+		{
+			NetworkInterface.onChange.remove(listener);
+			Assert.equals(1, changes, "the polling did not dispatch onChange once for a list that differs");
+			Assert.isTrue(onMainThread, "onChange was dispatched on another thread");
+			async.done();
+		}, 3500);
+	}
+
 	#if (linux || mac)
 	@:timeout(30000)
 	public function testOnChangeIsDispatchedWhenTheNetworkChanges(async:Async):Void
