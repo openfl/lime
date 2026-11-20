@@ -270,6 +270,8 @@
 	</files>
 	<files id="ui">
 		<compilerflag value="-I${HASHLINK_PATH}/src" />
+		<compilerflag value="-D_UNICODE" if="windows" />
+		<compilerflag value="-DUNICODE" if="windows" />
 
 		<file name="${HASHLINK_PATH}/libs/ui/ui_stub.c" unless="windows" />
 		<file name="${HASHLINK_PATH}/libs/ui/ui_win.c" if="windows" />
