@@ -30,6 +30,7 @@
 		<file name="${NATIVE_TOOLKIT_PATH}/harfbuzz/src/hb-buffer-verify.cc" />
 		<file name="${NATIVE_TOOLKIT_PATH}/harfbuzz/src/hb-buffer.cc" />
 		<file name="${NATIVE_TOOLKIT_PATH}/harfbuzz/src/hb-common.cc" />
+		<file name="${NATIVE_TOOLKIT_PATH}/harfbuzz/src/hb-coretext-font.cc" if="mac || ios" />
 		<file name="${NATIVE_TOOLKIT_PATH}/harfbuzz/src/hb-coretext-shape.cc" if="mac || ios" />
 		<file name="${NATIVE_TOOLKIT_PATH}/harfbuzz/src/hb-coretext.cc" if="mac || ios" />
 		<file name="${NATIVE_TOOLKIT_PATH}/harfbuzz/src/hb-directwrite.cc" if="windows HXCPP_M64" />
