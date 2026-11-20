@@ -339,6 +339,18 @@ class IOSPlatform extends PlatformTarget
 			context.IOS_MICROPHONE_USAGE_DESCRIPTION = project.config.getString("ios.microphone-usage-description");
 		}
 
+		// ProMotion iPhones run Core Animation above 60 Hz only with this key, which iPads
+		// don't need. It is set when a window asks for more than 60 frames a second, so an
+		// application at 60 isn't woken at 120 for frames it skips.
+		var highFrameRate = false;
+
+		for (window in project.windows)
+		{
+			if (window.fps != null && window.fps > 60) highFrameRate = true;
+		}
+
+		context.IOS_HIGH_FRAME_RATE = project.config.getBool("ios.high-frame-rate", highFrameRate);
+
 		switch (project.window.orientation)
 		{
 			case PORTRAIT:
