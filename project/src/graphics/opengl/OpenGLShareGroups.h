@@ -4,6 +4,7 @@
 
 #include <map>
 #include <mutex>
+#include <set>
 
 
 namespace lime {
@@ -13,7 +14,8 @@ namespace lime {
 	// that share their textures and other objects. A group lasts while one of
 	// its contexts does, and its number is never given to another group, so an
 	// object made in a group can be used while the group lasts, from any of its
-	// contexts.
+	// contexts. Each context also has a number of its own, never given to
+	// another, for the objects contexts don't share, such as framebuffers.
 	class OpenGLShareGroups {
 
 		public:
@@ -28,12 +30,27 @@ namespace lime {
 				Forget (state, context);
 
 				int group = 0;
-				std::map<void*, int>::iterator shared = shareWith ? state->contexts.find (shareWith) : state->contexts.end ();
-				if (shared != state->contexts.end ()) group = shared->second;
+				std::map<void*, Entry>::iterator shared = shareWith ? state->contexts.find (shareWith) : state->contexts.end ();
+				if (shared != state->contexts.end ()) group = shared->second.group;
 				if (!group) group = state->next++;
 
-				state->contexts[context] = group;
+				Entry entry;
+				entry.group = group;
+				entry.id = state->next++;
+				state->contexts[context] = entry;
+				state->ids.insert (entry.id);
 				state->sizes[group]++;
+
+			}
+
+			// Whether the context with a number from GetContextId is still alive
+			static bool ContextExists (int id) {
+
+				if (!id) return false;
+
+				State* state = GetState ();
+				std::lock_guard<std::mutex> lock (state->mutex);
+				return state->ids.find (id) != state->ids.end ();
 
 			}
 
@@ -55,8 +72,20 @@ namespace lime {
 
 				State* state = GetState ();
 				std::lock_guard<std::mutex> lock (state->mutex);
-				std::map<void*, int>::iterator found = state->contexts.find (context);
-				return found != state->contexts.end () ? found->second : 0;
+				std::map<void*, Entry>::iterator found = state->contexts.find (context);
+				return found != state->contexts.end () ? found->second.group : 0;
+
+			}
+
+			// The number of a context Lime made, or 0 for any other
+			static int GetContextId (void* context) {
+
+				if (!context) return 0;
+
+				State* state = GetState ();
+				std::lock_guard<std::mutex> lock (state->mutex);
+				std::map<void*, Entry>::iterator found = state->contexts.find (context);
+				return found != state->contexts.end () ? found->second.id : 0;
 
 			}
 
@@ -86,10 +115,18 @@ namespace lime {
 
 		private:
 
+			struct Entry {
+
+				int group;
+				int id;
+
+			};
+
 			struct State {
 
 				std::mutex mutex;
-				std::map<void*, int> contexts;
+				std::map<void*, Entry> contexts;
+				std::set<int> ids;
 				std::map<int, int> sizes;
 				int next;
 
@@ -99,10 +136,11 @@ namespace lime {
 
 			static void Forget (State* state, void* context) {
 
-				std::map<void*, int>::iterator found = state->contexts.find (context);
+				std::map<void*, Entry>::iterator found = state->contexts.find (context);
 				if (found == state->contexts.end ()) return;
 
-				int group = found->second;
+				int group = found->second.group;
+				state->ids.erase (found->second.id);
 				state->contexts.erase (found);
 				if (--state->sizes[group] <= 0) state->sizes.erase (group);
 
