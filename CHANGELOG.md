@@ -20,6 +20,7 @@ Changelog
 - Added `AudioSource.playTogether()`, which starts several sources in the same mixer update on native targets, for tracks that must stay aligned.
 - Added `Window.alwaysOnTop` and transparent window support.
 - Added `Window.onDropStart`, `onDropText` and `onDropEnd`, so files dropped together can be handled as one group, and text drops on macOS, Linux and HTML5.
+- Added drag and drop in and out of windows: `Window.dragTarget`, `onDragEnter`, `onDragOver`, `onDragLeave`, `onDrop`, `dropAction` and `startDrag()`, with `DragData` in the clipboard's formats and `DropAction`, on Windows, macOS, Linux on X11 and HTML5.
 - Added `Window.nativeHandle`, the system's own window and display, for native code that works with them directly.
 - Added input event timestamps without changing listener signatures.
 - Added `Promise.completeAsync()`.

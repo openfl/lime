@@ -42,6 +42,8 @@
 #include <text/Font.h>
 #include <ui/Cursor.h>
 #include <ui/DockIcon.h>
+#include <ui/DragDrop.h>
+#include <ui/DragEvent.h>
 #include <ui/DropEvent.h>
 #include <ui/FileDialog.h>
 #include <ui/Gamepad.h>
@@ -2099,6 +2101,168 @@ namespace lime {
 	HL_PRIM bool HL_NAME(hl_clipboard_set_items) (Bytes* data) {
 
 		return data && Clipboard::SetItems (data->b, data->length);
+
+	}
+
+
+	value lime_drag_data_get_files () {
+
+		std::vector<std::string> files;
+		if (!DragDrop::GetFiles (&files)) return alloc_null ();
+		return alloc_string (JoinClipboardFiles (files).c_str ());
+
+	}
+
+
+	HL_PRIM vbyte* HL_NAME(hl_drag_data_get_files) () {
+
+		std::vector<std::string> files;
+		if (!DragDrop::GetFiles (&files)) return NULL;
+
+		std::string text = JoinClipboardFiles (files);
+		vbyte* result = hl_alloc_bytes ((int)text.size () + 1);
+		memcpy (result, text.c_str (), text.size () + 1);
+		return result;
+
+	}
+
+
+	value lime_drag_data_get_format_text (int format) {
+
+		std::string text;
+		if (!DragDrop::GetFormatText (format, &text)) return alloc_null ();
+		return alloc_string_len (text.c_str (), (int)text.size ());
+
+	}
+
+
+	HL_PRIM vbyte* HL_NAME(hl_drag_data_get_format_text) (int format) {
+
+		std::string text;
+		if (!DragDrop::GetFormatText (format, &text)) return NULL;
+
+		vbyte* result = hl_alloc_bytes ((int)text.size () + 1);
+		memcpy (result, text.c_str (), text.size () + 1);
+		return result;
+
+	}
+
+
+	// The width and height as two Int32 values, then the pixels, as for the clipboard
+	value lime_drag_data_get_image (value data) {
+
+		std::vector<unsigned char> pixels;
+		int width = 0, height = 0;
+		if (!DragDrop::GetImage (&pixels, &width, &height)) return alloc_null ();
+
+		Bytes bytes (data);
+		bytes.Resize ((int)pixels.size () + 8);
+		memcpy (bytes.b, &width, 4);
+		memcpy (bytes.b + 4, &height, 4);
+		if (!pixels.empty ()) memcpy (bytes.b + 8, &pixels[0], pixels.size ());
+		return bytes.Value (data);
+
+	}
+
+
+	HL_PRIM Bytes* HL_NAME(hl_drag_data_get_image) (Bytes* data) {
+
+		std::vector<unsigned char> pixels;
+		int width = 0, height = 0;
+		if (!data || !DragDrop::GetImage (&pixels, &width, &height)) return NULL;
+
+		data->Resize ((int)pixels.size () + 8);
+		memcpy (data->b, &width, 4);
+		memcpy (data->b + 4, &height, 4);
+		if (!pixels.empty ()) memcpy (data->b + 8, &pixels[0], pixels.size ());
+		return data;
+
+	}
+
+
+	bool lime_drag_data_has_format (int format) {
+
+		return DragDrop::HasFormat (format);
+
+	}
+
+
+	HL_PRIM bool HL_NAME(hl_drag_data_has_format) (int format) {
+
+		return DragDrop::HasFormat (format);
+
+	}
+
+
+	bool lime_drag_drop_is_supported () {
+
+		return DragDrop::IsSupported ();
+
+	}
+
+
+	HL_PRIM bool HL_NAME(hl_drag_drop_is_supported) () {
+
+		return DragDrop::IsSupported ();
+
+	}
+
+
+	void lime_drag_event_manager_register (value callback, value eventObject) {
+
+		DragEvent::callback = new ValuePointer (callback);
+		DragEvent::eventObject = new ValuePointer (eventObject);
+
+	}
+
+
+	HL_PRIM void HL_NAME(hl_drag_event_manager_register) (vclosure* callback, DragEvent* eventObject) {
+
+		DragEvent::callback = new ValuePointer (callback);
+		DragEvent::eventObject = new ValuePointer ((vobj*)eventObject);
+
+	}
+
+
+	bool lime_window_set_drag_target (value window, bool enabled) {
+
+		Window* targetWindow = (Window*)val_data (window);
+		return DragDrop::SetTarget (targetWindow, enabled);
+
+	}
+
+
+	HL_PRIM bool HL_NAME(hl_window_set_drag_target) (HL_CFFIPointer* window, bool enabled) {
+
+		Window* targetWindow = (Window*)window->ptr;
+		return DragDrop::SetTarget (targetWindow, enabled);
+
+	}
+
+
+	int lime_window_start_drag (value window, value items, value image, int offsetX, int offsetY, int actions, int id) {
+
+		Window* targetWindow = (Window*)val_data (window);
+		Bytes itemBytes (items);
+
+		if (val_is_null (image)) {
+
+			return DragDrop::StartDrag (targetWindow, itemBytes.b, itemBytes.length, NULL, 0, offsetX, offsetY, actions, id);
+
+		}
+
+		Bytes imageBytes (image);
+		return DragDrop::StartDrag (targetWindow, itemBytes.b, itemBytes.length, imageBytes.b, imageBytes.length, offsetX, offsetY, actions, id);
+
+	}
+
+
+	HL_PRIM int HL_NAME(hl_window_start_drag) (HL_CFFIPointer* window, Bytes* items, Bytes* image, int offsetX, int offsetY, int actions, int id) {
+
+		Window* targetWindow = (Window*)window->ptr;
+		if (!items) return 0;
+
+		return DragDrop::StartDrag (targetWindow, items->b, items->length, image ? image->b : NULL, image ? image->length : 0, offsetX, offsetY, actions, id);
 
 	}
 
@@ -14396,6 +14560,12 @@ namespace lime {
 	DEFINE_PRIME0 (lime_dock_icon_is_supported);
 	DEFINE_PRIME1v (lime_dock_icon_set_icon);
 	DEFINE_PRIME1 (lime_dock_icon_set_menu);
+	DEFINE_PRIME0 (lime_drag_data_get_files);
+	DEFINE_PRIME1 (lime_drag_data_get_format_text);
+	DEFINE_PRIME1 (lime_drag_data_get_image);
+	DEFINE_PRIME1 (lime_drag_data_has_format);
+	DEFINE_PRIME0 (lime_drag_drop_is_supported);
+	DEFINE_PRIME2v (lime_drag_event_manager_register);
 	DEFINE_PRIME2v (lime_drop_event_manager_register);
 	DEFINE_PRIME3 (lime_file_dialog_open_directory);
 	DEFINE_PRIME3 (lime_file_dialog_open_file);
@@ -14524,6 +14694,8 @@ namespace lime {
 	DEFINE_PRIME2 (lime_tray_icon_set_menu);
 	DEFINE_PRIME2v (lime_tray_icon_set_tooltip);
 	DEFINE_PRIME3v (lime_window_alert);
+	DEFINE_PRIME2 (lime_window_set_drag_target);
+	DEFINE_PRIME7 (lime_window_start_drag);
 	DEFINE_PRIME1v (lime_window_close);
 	DEFINE_PRIME1v (lime_window_context_flip);
 	DEFINE_PRIME1 (lime_window_context_lock);
@@ -14698,6 +14870,7 @@ namespace lime {
 	#define _TCFFIPOINTER _DYN
 	#define _TCLIPBOARD_EVENT _OBJ (_I32)
 	#define _TDISPLAYMODE _OBJ (_I32 _I32 _I32 _I32)
+	#define _TDRAG_EVENT _OBJ (_I32 _I32 _I32 _I32 _F64 _F64)
 	#define _TDROP_EVENT _OBJ (_BYTES _I32 _I32)
 	#define _TGAMEPAD_EVENT _OBJ (_I32 _I32 _I32 _I32 _F64 _I32 _F64 _F64 _F64)
 	#define _TJOYSTICK_EVENT _OBJ (_I32 _I32 _I32 _I32 _F64 _F64)
@@ -14762,6 +14935,12 @@ namespace lime {
 	DEFINE_HL_PRIM (_BOOL, hl_dock_icon_is_supported, _NO_ARG);
 	DEFINE_HL_PRIM (_VOID, hl_dock_icon_set_icon, _TIMAGEBUFFER);
 	DEFINE_HL_PRIM (_BOOL, hl_dock_icon_set_menu, _TBYTES);
+	DEFINE_HL_PRIM (_BYTES, hl_drag_data_get_files, _NO_ARG);
+	DEFINE_HL_PRIM (_BYTES, hl_drag_data_get_format_text, _I32);
+	DEFINE_HL_PRIM (_TBYTES, hl_drag_data_get_image, _TBYTES);
+	DEFINE_HL_PRIM (_BOOL, hl_drag_data_has_format, _I32);
+	DEFINE_HL_PRIM (_BOOL, hl_drag_drop_is_supported, _NO_ARG);
+	DEFINE_HL_PRIM (_VOID, hl_drag_event_manager_register, _FUN(_VOID, _NO_ARG) _TDRAG_EVENT);
 	DEFINE_HL_PRIM (_VOID, hl_drop_event_manager_register, _FUN(_VOID, _NO_ARG) _TDROP_EVENT);
 	DEFINE_HL_PRIM (_BYTES, hl_file_dialog_open_directory, _STRING _STRING _STRING);
 	DEFINE_HL_PRIM (_BYTES, hl_file_dialog_open_file, _STRING _STRING _STRING);
@@ -14890,6 +15069,8 @@ namespace lime {
 	DEFINE_HL_PRIM (_BOOL, hl_tray_icon_set_menu, _TCFFIPOINTER _TBYTES);
 	DEFINE_HL_PRIM (_VOID, hl_tray_icon_set_tooltip, _TCFFIPOINTER _STRING);
 	DEFINE_HL_PRIM (_VOID, hl_window_alert, _TCFFIPOINTER _STRING _STRING);
+	DEFINE_HL_PRIM (_BOOL, hl_window_set_drag_target, _TCFFIPOINTER _BOOL);
+	DEFINE_HL_PRIM (_I32, hl_window_start_drag, _TCFFIPOINTER _TBYTES _TBYTES _I32 _I32 _I32 _I32);
 	DEFINE_HL_PRIM (_VOID, hl_window_close, _TCFFIPOINTER);
 	DEFINE_HL_PRIM (_VOID, hl_window_context_flip, _TCFFIPOINTER);
 	DEFINE_HL_PRIM (_DYN, hl_window_context_lock, _TCFFIPOINTER);

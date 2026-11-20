@@ -2,6 +2,7 @@
 #include "SDLTrayIcon.h"
 #include <system/Clipboard.h>
 #include <ui/DockIcon.h>
+#include <ui/DragDrop.h>
 
 
 namespace lime {
@@ -12,6 +13,15 @@ namespace lime {
 	bool Clipboard::GetImage (std::vector<unsigned char>* pixels, int* width, int* height) { return false; }
 	bool Clipboard::HasFormat (int format) { return false; }
 	bool Clipboard::SetItems (const unsigned char* data, int length) { return false; }
+
+
+	bool DragDrop::IsSupported () { return false; }
+	bool DragDrop::SetTarget (Window* window, bool enabled) { return false; }
+	int DragDrop::StartDrag (Window* window, const unsigned char* items, int itemsLength, const unsigned char* image, int imageLength, int offsetX, int offsetY, int actions, int id) { return 0; }
+	bool DragDrop::GetFiles (std::vector<std::string>* files) { return false; }
+	bool DragDrop::GetFormatText (int format, std::string* text) { return false; }
+	bool DragDrop::GetImage (std::vector<unsigned char>* pixels, int* width, int* height) { return false; }
+	bool DragDrop::HasFormat (int format) { return false; }
 
 
 	TrayIcon* CreateTrayIcon () {
