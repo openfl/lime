@@ -4033,7 +4033,8 @@ namespace lime {
 	void lime_gl_polygon_mode (int face, int mode) {
 
 		#ifndef LIME_GLES
-		glPolygonMode (face, mode);
+		// Loaded at run time on desktop, as other functions OpenGL ES lacks
+		if (glPolygonMode) glPolygonMode (face, mode);
 		#endif
 
 	}
@@ -4042,7 +4043,8 @@ namespace lime {
 	HL_PRIM void HL_NAME(hl_gl_polygon_mode) (int face, int mode) {
 
 		#ifndef LIME_GLES
-		glPolygonMode (face, mode);
+		// Loaded at run time on desktop, as other functions OpenGL ES lacks
+		if (glPolygonMode) glPolygonMode (face, mode);
 		#endif
 
 	}
