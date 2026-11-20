@@ -125,9 +125,10 @@ namespace lime {
 			}
 
 
-			virtual void Focus () {
+			virtual void Focus (int direction) {
 
-				if (backend) backend->assignFocus (0);
+				// The engine's directions: 0 enters at the last element, 1 leaves the focus, 2 enters at the first
+				if (backend) backend->assignFocus (direction);
 
 			}
 

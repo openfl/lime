@@ -1,5 +1,6 @@
 package lime._internal.backend.native;
 
+import lime.ui.FocusDirection;
 import haxe.crypto.Base64;
 import lime.app.Future;
 import lime.app.Promise;
@@ -179,10 +180,10 @@ class NativeWebView
 		return cast Future.withError("The view is not available");
 	}
 
-	public function focus():Void
+	public function focus(direction:FocusDirection):Void
 	{
 		#if (!macro && lime_cffi)
-		if (handle != null) NativeCFFI.lime_web_view_focus(handle);
+		if (handle != null) NativeCFFI.lime_web_view_focus(handle, direction);
 		#end
 	}
 
