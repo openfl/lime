@@ -375,6 +375,65 @@ class AndroidOutputTest extends Test
 			properties(output.read("bin/gradle/wrapper/gradle-wrapper.properties")).get("distributionUrl"));
 	}
 
+	// Google Play requires API 36 for new apps and updates. Android lists plugin 8.9.1 as the
+	// first for API 36, and plugin 8.9 needs Gradle 8.11.1
+	public function testTheDefaultsTargetTheLevelGooglePlayRequires():Void
+	{
+		output.update('<project>
+			<app main="Main" file="MyApplication" />
+		</project>');
+
+		var properties = properties(output.read("bin/gradle.properties"));
+		Assert.equals("36", properties.get("ANDROID_BUILD_TARGET_SDK_VERSION"));
+		Assert.equals("36", properties.get("ANDROID_BUILD_SDK_VERSION"));
+
+		var build = output.read("bin/build.gradle");
+		Assert.isTrue(build.indexOf("classpath 'com.android.tools.build:gradle:8.9.1'") > -1);
+		Assert.isTrue(build.indexOf("gradleVersion = '8.11.1'") > -1);
+	}
+
+	// From API 36, on screens 600dp wide both ways, Android ignores the orientation lock of an
+	// app that isn't a game
+	public function testTheApplicationIsAGameUnlessTheProjectSaysOtherwise():Void
+	{
+		output.update('<project>
+			<app main="Main" file="MyApplication" />
+			<window orientation="landscape" />
+		</project>');
+
+		Assert.equals("game", manifest().node.application.x.get("android:appCategory"));
+
+		output.update('<project>
+			<app main="Main" file="MyApplication" />
+			<config:android>
+				<application android:appCategory="productivity" />
+			</config:android>
+		</project>');
+
+		Assert.equals("productivity", manifest().node.application.x.get("android:appCategory"));
+	}
+
+	// From API 36, Android 16 gives back presses only to an OnBackInvokedCallback. The class is
+	// only in API 33 and later, so a project that compiles against an older one doesn't name it
+	public function testBackReachesTheApplicationThroughAnOnBackInvokedCallback():Void
+	{
+		output.update('<project>
+			<app main="Main" file="MyApplication" />
+		</project>');
+
+		var activity = output.read("bin/app/src/main/java/org/haxe/lime/GameActivity.java");
+		Assert.isTrue(activity.indexOf("registerOnBackInvokedCallback") > -1);
+		Assert.isFalse(manifest().node.application.x.exists("android:enableOnBackInvokedCallback"));
+
+		output.update('<project>
+			<app main="Main" file="MyApplication" />
+			<config:android target-sdk-version="32" />
+		</project>');
+
+		activity = output.read("bin/app/src/main/java/org/haxe/lime/GameActivity.java");
+		Assert.equals(-1, activity.indexOf("OnBackInvoked"));
+	}
+
 	// The template asks whether the plugin is 4.0 or later, and 7.1 or later; version 10 is both
 	public function testGradlePluginVersionsCompareAsVersions():Void
 	{
