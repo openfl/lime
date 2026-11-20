@@ -69,18 +69,28 @@ jobs:
         with:
           python-version: '3.12'
 
-      - name: Run the C++ unit tests under gdb
+      - name: Run the C++ unit tests, with core dumps
         working-directory: tests/unit
-        timeout-minutes: 40
+        timeout-minutes: 45
         env:
           LIME_TEST_PYTHON: ${{ steps.tls-python.outputs.python-path }}
           ALSOFT_DRIVERS: "null"
         run: |
-          lime build linux -release -verbose -nocolor -DHXCPP_DEBUG_LINK -DHXCPP_STACK_TRACE -DHXCPP_STACK_LINE
+          # The same build as CI, which crashes where gdb and stack traces don't
+          lime build linux -release -verbose -nocolor -DHXCPP_DEBUG_LINK
           cd bin/linux/bin
-          for i in 1 2 3; do
+          sudo sysctl -w kernel.core_pattern="$PWD/core.%p"
+          ulimit -c unlimited
+          for i in 1 2 3 4; do
             echo "=== attempt $i"
-            xvfb-run -a gdb -batch -ex "set pagination off" -ex "set disable-randomization off" -ex "handle SIGPIPE nostop noprint" -ex "handle SIG32 nostop noprint" -ex "handle SIG33 nostop noprint" -ex run -ex "info threads" -ex "thread apply all bt 40" --args ./TestMain > gdb-$i.txt 2>&1 || true
-            grep -E "results: |received signal|exited" gdb-$i.txt || true
-            if grep -q "received signal" gdb-$i.txt; then sed -n '/received signal/,$p' gdb-$i.txt; break; fi
+            rm -f core.*
+            xvfb-run -a ./TestMain > run-$i.txt 2>&1 && code=0 || code=$?
+            echo "exit code $code"
+            tail -n 3 run-$i.txt
+            core=$(ls core.* 2>/dev/null | head -n 1)
+            if [ -n "$core" ]; then
+              tail -n 40 run-$i.txt
+              gdb -batch -ex "set pagination off" -ex "info threads" -ex "thread apply all bt 40" -ex "info registers" -ex "x/32gx \$sp" ./TestMain "$core" 2>&1 | tail -n 600
+              break
+            fi
           done
