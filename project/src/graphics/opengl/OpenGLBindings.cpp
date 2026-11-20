@@ -141,6 +141,7 @@ namespace lime {
 
 				glObjects[type].erase (id);
 				glObjectIDs.erase (object);
+				glObjectPtrs.erase (object);
 				glObjectTypes.erase (object);
 
 			} else {
@@ -180,6 +181,7 @@ namespace lime {
 
 				glObjects[type].erase (id);
 				glObjectIDs.erase (object);
+				glObjectPtrs.erase (object);
 				glObjectTypes.erase (object);
 
 			} else {
@@ -202,9 +204,11 @@ namespace lime {
 
 	void gc_gl_run () {
 
-		if (gc_gl_id.size () > 0) {
+		// The finalizers fill the queues from any thread, so they are read
+		// under the lock
+		lock_gl_objects ();
 
-			gc_gl_mutex.Lock ();
+		if (gc_gl_id.size () > 0 || gc_gl_ptr.size () > 0) {
 
 			int size = gc_gl_id.size ();
 
@@ -265,6 +269,13 @@ namespace lime {
 						if (glIsTexture (id)) glDeleteTextures (1, &id);
 						break;
 
+					#ifdef LIME_GLES3_API
+					case TYPE_TRANSFORM_FEEDBACK:
+
+						if (glIsTransformFeedback && glDeleteTransformFeedbacks && glIsTransformFeedback (id)) glDeleteTransformFeedbacks (1, &id);
+						break;
+					#endif
+
 					#if defined(LIME_GLES3_API) || !defined(LIME_GLES)
 					case TYPE_VERTEX_ARRAY_OBJECT:
 					
@@ -306,9 +317,9 @@ namespace lime {
 			gc_gl_ptr.clear ();
 			gc_gl_type.clear ();
 
-			gc_gl_mutex.Unlock ();
-
 		}
+
+		gc_gl_mutex.Unlock ();
 
 	}
 
@@ -1434,7 +1445,15 @@ namespace lime {
 
 		#ifdef LIME_GLES3_API
 		if (val_is_null (sync)) return;
-		glDeleteSync ((GLsync)val_data (sync));
+
+		// Forgotten first, so that collecting it later doesn't delete another
+		// sync that has been given the same address
+		lock_gl_objects ();
+		bool registered = glObjectTypes.erase (sync) > 0;
+		glObjectPtrs.erase (sync);
+		gc_gl_mutex.Unlock ();
+
+		if (registered) glDeleteSync ((GLsync)val_data (sync));
 		#endif
 
 	}
@@ -1443,8 +1462,15 @@ namespace lime {
 	HL_PRIM void HL_NAME(hl_gl_delete_sync) (HL_CFFIPointer* sync) {
 
 		#ifdef LIME_GLES3_API
-		if (!sync) return;
-		glDeleteSync ((GLsync)sync->ptr);
+		if (!sync || !sync->ptr) return;
+
+		lock_gl_objects ();
+		bool registered = glObjectTypes.erase (sync->ptr) > 0;
+		glObjectPtrs.erase (sync->ptr);
+		gc_gl_mutex.Unlock ();
+
+		sync->finalizer = NULL;
+		if (registered) glDeleteSync ((GLsync)sync->ptr);
 		#endif
 
 	}
@@ -1803,7 +1829,17 @@ namespace lime {
 		#ifdef LIME_GLES3_API
 		GLsync result = glFenceSync (condition, flags);
 		value handle = CFFIPointer (result, gc_gl_object);
-		glObjectPtrs[handle] = result;
+
+		// Registered as a sync, so that its finalizer queues it for deleting
+		if (!val_is_null (handle)) {
+
+			lock_gl_objects ();
+			glObjectTypes[handle] = TYPE_SYNC;
+			glObjectPtrs[handle] = result;
+			gc_gl_mutex.Unlock ();
+
+		}
+
 		return handle;
 		#else
 		return alloc_null ();
@@ -1817,7 +1853,17 @@ namespace lime {
 		#ifdef LIME_GLES3_API
 		GLsync result = glFenceSync (condition, flags);
 		HL_CFFIPointer* handle = HLCFFIPointer (result, (hl_finalizer)hl_gc_gl_object);
-		glObjectPtrs[handle] = result;
+
+		// The finalizer is given the sync itself, so it is registered by that
+		if (handle) {
+
+			lock_gl_objects ();
+			glObjectTypes[result] = TYPE_SYNC;
+			glObjectPtrs[result] = result;
+			gc_gl_mutex.Unlock ();
+
+		}
+
 		return handle;
 		#else
 		return NULL;
