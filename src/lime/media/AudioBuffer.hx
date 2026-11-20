@@ -665,6 +665,11 @@ class AudioBuffer
 	**/
 	public function readSamples(position:Int, count:Int, output:Bytes, outputOffset:Int = 0):Int
 	{
+		// Neko leaves the format null on a buffer that was never filled
+		var channels:Null<Int> = this.channels;
+		var bitsPerSample:Null<Int> = this.bitsPerSample;
+		if (channels == null || bitsPerSample == null) return 0;
+
 		var frameSize = Std.int(channels * bitsPerSample / 8);
 
 		if (__isDisposed || output == null || position < 0 || count <= 0 || frameSize <= 0 || outputOffset < 0) return 0;
