@@ -62,6 +62,7 @@ class TestMain extends Application
 		runner.addCase(new net.URIParserTest());
 		runner.addCase(new net.WebSocketTest());
 		runner.addCase(new system.DisplayTest());
+		runner.addCase(new system.FileSystemInfoTest());
 		runner.addCase(new system.FinalizerTest());
 		runner.addCase(new system.LocaleTest());
 		runner.addCase(new system.TimerTest());
