@@ -414,6 +414,37 @@ class System
 	#end
 
 	/**
+		Moves the file or folder at `path` to the system's trash, from where
+		the user can restore it, and returns whether it went there. It does not
+		delete what cannot go to the trash, as on a drive without one.
+
+		Windows uses the Recycle Bin, macOS the Trash, and Linux GIO's trash,
+		or else the freedesktop.org trash in the user's home, for files on the
+		same drive. Other targets return `false`.
+
+		It can take a moment for large folders; `moveToTrashAsync` does it on
+		a background thread.
+	**/
+	public static function moveToTrash(path:String):Bool
+	{
+		#if (lime_cffi && !macro)
+		if (path != null && path != "") return NativeCFFI.lime_system_move_to_trash(path);
+		#end
+
+		return false;
+	}
+
+	/**
+		Moves the file or folder at `path` to the system's trash on a
+		background thread, as `moveToTrash` does, and completes with whether it
+		went there.
+	**/
+	public static function moveToTrashAsync(path:String):lime.app.Future<Bool>
+	{
+		return new lime.app.Future<Bool>(function() return moveToTrash(path), true);
+	}
+
+	/**
 		Opens a file with the system default application.
 
 		In a web browser, opens a URL with target `_blank`.

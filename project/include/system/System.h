@@ -49,6 +49,8 @@ namespace lime {
 			#if defined(HX_WINDOWS) && !defined (HX_WINRT)
 			static int GetWindowsConsoleMode (int handleType);
 			#endif
+			// Through native-desktop, where Lime has it; any thread may call it
+			static bool MoveToTrash (const char* path);
 			static void OpenFile (const char* path);
 			static void OpenURL (const char* url, const char* target);
 			static bool SetAllowScreenTimeout (bool allow);

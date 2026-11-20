@@ -1,9 +1,13 @@
 #include "SDLMenu.h"
 #include "SDLTrayIcon.h"
+#include <system/System.h>
 #include <ui/DockIcon.h>
 
 
 namespace lime {
+
+
+	bool System::MoveToTrash (const char* path) { return false; }
 
 
 	TrayIcon* CreateTrayIcon () {
