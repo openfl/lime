@@ -54,12 +54,7 @@ class Zlib
 		return @:privateAccess new Bytes(data.length, data.b);
 		#end
 		#elseif js
-		#if commonjs
-		var data = untyped #if haxe4 js.Syntax.code #else __js__ #end ("require (\"pako\").inflate")(bytes.getData());
-		#else
-		var data = untyped #if haxe4 js.Syntax.code #else __js__ #end ("pako.inflate")(bytes.getData());
-		#end
-		return Bytes.ofData(data);
+		return PakoInflate.inflate(bytes, PakoInflate.ZLIB);
 		#elseif flash
 		var byteArray:ByteArray = cast bytes.getData();
 

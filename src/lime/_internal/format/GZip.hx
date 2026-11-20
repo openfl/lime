@@ -63,12 +63,7 @@ class GZip
 		return @:privateAccess new Bytes(data.length, data.b);
 		#end
 		#elseif js
-		#if commonjs
-		var data = untyped #if haxe4 js.Syntax.code #else __js__ #end ("require (\"pako\").ungzip")(bytes.getData());
-		#else
-		var data = untyped #if haxe4 js.Syntax.code #else __js__ #end ("pako.ungzip")(bytes.getData());
-		#end
-		return Bytes.ofData(data);
+		return PakoInflate.inflate(bytes, PakoInflate.GZIP);
 		#elseif flash
 		return __flashDecompress(bytes);
 		#else

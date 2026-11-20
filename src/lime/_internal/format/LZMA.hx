@@ -2,7 +2,6 @@ package lime._internal.format;
 
 import haxe.io.Bytes;
 import lime._internal.backend.native.NativeCFFI;
-import lime.utils.UInt8Array;
 #if flash
 import flash.utils.CompressionAlgorithm;
 import flash.utils.ByteArray;
@@ -15,6 +14,15 @@ import flash.utils.ByteArray;
 @:access(lime._internal.backend.native.NativeCFFI)
 class LZMA
 {
+	#if js
+	// LZMA-JS gives bytes as an array of signed values
+	private static function __jsBytes(data:Dynamic):Bytes
+	{
+		var bytes:Dynamic = untyped #if haxe4 js.Syntax.code #else __js__ #end ("new Uint8Array({0})", data);
+		return Bytes.ofData(bytes.buffer);
+	}
+	#end
+
 	public static function compress(bytes:Bytes):Bytes
 	{
 		#if (lime_cffi && !macro)
@@ -26,15 +34,8 @@ class LZMA
 		return @:privateAccess new Bytes(data.length, data.b);
 		#end
 		#elseif js
-		var data = untyped #if haxe4 js.Syntax.code #else __js__ #end ("LZMA.compress")(new UInt8Array(bytes.getData()), 5);
-		if ((data is String))
-		{
-			return Bytes.ofString(data);
-		}
-		else
-		{
-			return Bytes.ofData(cast data);
-		}
+		var data = untyped #if haxe4 js.Syntax.code #else __js__ #end ("LZMA.compress")(@:privateAccess bytes.b, 5);
+		return __jsBytes(data);
 		#elseif flash
 		var byteArray:ByteArray = cast bytes.getData();
 
@@ -59,15 +60,27 @@ class LZMA
 		return @:privateAccess new Bytes(data.length, data.b);
 		#end
 		#elseif js
-		var data = untyped #if haxe4 js.Syntax.code #else __js__ #end ("LZMA.decompress")(new UInt8Array(bytes.getData()));
-		if ((data is String))
+		// The header's size is all ones when it isn't known. LZMA-JS stops at an end marker without checking it
+		// against a known size, and reads a size of 0 as unknown.
+		if (bytes.length < 13) return null;
+		var sizeKnown = (bytes.getInt32(5) != -1 || bytes.getInt32(9) != -1);
+		if (sizeKnown && (bytes.getInt32(9) != 0 || bytes.getInt32(5) < 0)) return null;
+		if (sizeKnown && bytes.getInt32(5) == 0) return Bytes.alloc(0);
+
+		var data:Dynamic = null;
+
+		try
 		{
-			return Bytes.ofString(data);
+			// decompress() would give a string when the bytes happen to read as UTF-8
+			data = untyped #if haxe4 js.Syntax.code #else __js__ #end ("LZMA.decompressBytes")(@:privateAccess bytes.b);
 		}
-		else
+		catch (e:Dynamic)
 		{
-			return Bytes.ofData(cast data);
+			return null;
 		}
+
+		if (sizeKnown && data.length != bytes.getInt32(5)) return null;
+		return __jsBytes(data);
 		#elseif flash
 		var byteArray:ByteArray = cast bytes.getData();
 
