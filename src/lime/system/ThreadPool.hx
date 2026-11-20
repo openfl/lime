@@ -320,8 +320,14 @@ class ThreadPool extends WorkOutput
 			{
 				__queuedExitEvents--;
 			}
+			else if (queuedEvent.event == WORK)
+			{
+				__queuedWorkEvents--;
+			}
 		}
-		__queuedWorkEvents = 0;
+		// A job a thread has taken, but whose `WORK` event hasn't arrived, is
+		// still counted: the event comes, and takes it off. Setting the count
+		// to 0 took it below 0, and `__update()` stopped while a job ran.
 
 		while (currentThreads > minThreads)
 		{
@@ -384,7 +390,9 @@ class ThreadPool extends WorkOutput
 			{
 				if (threadData != null && threadData.jobID == jobID)
 				{
-					threadData.thread.sendMessage({event: IDLE});
+					// The thread may have moved on to another job, which this
+					// must not stop, so the message says which job it is for
+					threadData.thread.sendMessage({event: IDLE, jobID: jobID});
 					break;
 				}
 			}
@@ -501,7 +509,8 @@ class ThreadPool extends WorkOutput
 		// marks it to be canceled later. (And "later" is now.)
 		if (event.event == WORK && event.threadID != null)
 		{
-			__threads[event.threadID].thread.sendMessage({event: IDLE});
+			// The thread may be on the next job by now: see `cancelJob()`
+			__threads[event.threadID].thread.sendMessage({event: IDLE, jobID: event.jobID});
 			__queuedWorkEvents--;
 		}
 		#end
@@ -641,6 +650,31 @@ class ThreadPool extends WorkOutput
 	/**
 		__Run this only on a background thread.__
 
+		The next message that interrupts the job `jobID`, or `null`. The main
+		thread learns which job a thread is on from its `WORK` event, so a
+		cancel can be sent after the thread has moved on from the job it is
+		for: such a cancel names its job, and is dropped here.
+	**/
+	private static function nextInterruption(jobID:Null<Int>):ThreadEvent
+	{
+		var message:ThreadEvent;
+
+		while ((message = Thread.readMessage(false)) != null)
+		{
+			if (message.event == IDLE && message.jobID != null && message.jobID != jobID)
+			{
+				continue;
+			}
+
+			return message;
+		}
+
+		return null;
+	}
+
+	/**
+		__Run this only on a background thread.__
+
 		Retrieves jobs using `Thread.readMessage()`, runs them until complete,
 		and repeats. The first message must be `ThreadArguments`, and the rest
 		must be `ThreadEvent`s.
@@ -720,7 +754,7 @@ class ThreadPool extends WorkOutput
 				var interruption:ThreadEvent = null;
 				try
 				{
-					while (!output.__jobComplete.value && (interruption = Thread.readMessage(false)) == null)
+					while (!output.__jobComplete.value && (interruption = nextInterruption(event.jobID)) == null)
 					{
 						if (output.workIterations.value == 0)
 						{
