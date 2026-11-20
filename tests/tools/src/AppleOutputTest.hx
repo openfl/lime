@@ -84,6 +84,37 @@ class AppleOutputTest extends Test
 		Assert.isFalse(plist.exists("NSMicrophoneUsageDescription"));
 	}
 
+	public function testMacUsageDescriptionsAreEscaped():Void
+	{
+		// A description is the user's own text, so "&" and "<" in it must not break Info.plist
+		fixture.target = MAC;
+		output.update(escapedProject("mac"));
+
+		var plist = Plist.parse(output.read("bin/MyApplication.app/Contents/Info.plist"));
+		Assert.equals("Scans the code & the <label>", plist.get("NSCameraUsageDescription"));
+		Assert.equals("Hears \"you\" & me", plist.get("NSMicrophoneUsageDescription"));
+	}
+
+	public function testIOSUsageDescriptionsAreEscaped():Void
+	{
+		fixture.target = IOS;
+		output.update(escapedProject("ios"));
+
+		var plist = Plist.parse(output.read("MyApplication/MyApplication-Info.plist"));
+		Assert.equals("Scans the code & the <label>", plist.get("NSCameraUsageDescription"));
+		Assert.equals("Hears \"you\" & me", plist.get("NSMicrophoneUsageDescription"));
+	}
+
+	private static function escapedProject(platform:String):String
+	{
+		return '<project>
+			<meta title="My Application" package="com.example.app" />
+			<app main="Main" file="MyApplication" />
+			<config:' + platform + ' camera-usage-description="Scans the code &amp; the &lt;label&gt;"'
+			+ ' microphone-usage-description="Hears &quot;you&quot; &amp; me" />
+		</project>';
+	}
+
 	private static function project(platform:String):String
 	{
 		var config = platform == null ? "" : '<config:' + platform + ' camera-usage-description="Shows you in the video call"'
