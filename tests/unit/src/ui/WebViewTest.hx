@@ -1,6 +1,7 @@
 package ui;
 
 import lime.app.Application;
+import lime.ui.FocusDirection;
 import lime.ui.WebView;
 import lime.ui.Window;
 import utest.Assert;
@@ -14,10 +15,80 @@ class WebViewTest extends Test
 {
 	private var view:WebView;
 
+	// A link first, an input last, and hidden elements that do not take the focus
+	private static inline var FOCUS_PAGE = "<!doctype html><html><body><a href='#'>link</a> <input id='first'> <input id='middle'> <input id='last'>"
+		+ "<input id='hidden' type='hidden'><button id='gone' style='display: none'>gone</button></body></html>";
+
 	public function new()
 	{
 		super();
 	}
+
+	public function testFocusDirectionsHaveTheEnginesValues():Void
+	{
+		Assert.equals(0, (FocusDirection.BOTTOM : Int));
+		Assert.equals(1, (FocusDirection.NONE : Int));
+		Assert.equals(2, (FocusDirection.TOP : Int));
+	}
+
+	#if (js && html5)
+	@:timeout(10000)
+	public function testFocusEntersThePageAtItsFirstOrLastElement(async:utest.Async):Void
+	{
+		var view:WebView = null;
+		var loaded = false;
+		var timer = new haxe.Timer(10);
+		var started = false;
+		var end = haxe.Timer.stamp() + 8;
+		timer.run = function()
+		{
+			// A view is only shown in a window, which the tests start before
+			if (view == null)
+			{
+				if (Application.current.window == null) return;
+				view = new WebView(Application.current.window, {width: 200, height: 100});
+				view.onLoad.add(function() loaded = true);
+				view.loadHTML(FOCUS_PAGE);
+				return;
+			}
+
+			// A run already queued can come after stop()
+			if (started || (!loaded && haxe.Timer.stamp() < end)) return;
+			started = true;
+			timer.stop();
+
+			if (!loaded)
+			{
+				Assert.fail("onLoad was not dispatched");
+				view.close();
+				async.done();
+				return;
+			}
+
+			var frame:js.html.IFrameElement = @:privateAccess view.__backend.frame;
+			var focused = function()
+			{
+				var element = frame.contentDocument.activeElement;
+				return element.id != "" ? element.id : element.tagName;
+			};
+
+			view.focus(TOP);
+			var top = focused();
+			Assert.equals("A", top, "focus(TOP) entered at " + top);
+
+			view.focus(BOTTOM);
+			var bottom = focused();
+			Assert.equals("last", bottom, "focus(BOTTOM) entered at " + bottom);
+
+			view.focus();
+			var none = focused();
+			Assert.equals("last", none, "focus() moved the focus to " + none);
+
+			view.close();
+			async.done();
+		};
+	}
+	#end
 
 	#if (lime_cffi && !macro)
 	public function setup():Void
@@ -402,6 +473,59 @@ class WebViewTest extends Test
 		window.close();
 		pumpFor(0.1);
 		Assert.equals(1, closed);
+	}
+
+	public function testFocusEntersThePageAtItsFirstOrLastElement():Void
+	{
+		if (!canRun()) return;
+
+		// Shown in a window, which the focus can go to
+		var window = create();
+		if (window == null)
+		{
+			trace("No window can be created here, so the focus was not tested");
+			Assert.pass();
+			return;
+		}
+
+		view.close();
+		view = new WebView(window);
+		loadAndWait(FOCUS_PAGE);
+
+		view.focus(TOP);
+		var top = focused();
+
+		#if !(StageWebView > "1.0.1")
+		if (top != '"A"')
+		{
+			// utest takes a warning as a failure, so the test passes, saying why
+			trace("StageWebView " + haxe.macro.Compiler.getDefine("StageWebView") + " does not enter a page at an element, so the direction was not tested");
+			Assert.pass();
+			return;
+		}
+		#end
+
+		Assert.equals('"A"', top, "focus(TOP) did not enter at the first element");
+
+		view.focus(BOTTOM);
+		Assert.equals('"last"', focused(), "focus(BOTTOM) did not enter at the last element");
+
+		// Wherever it was
+		view.focus();
+		Assert.equals('"last"', focused(), "focus() moved the focus within the page");
+
+		// The window is left open, hidden, as closing the last window of the application ends it
+	}
+
+	private function focused():String
+	{
+		// The engine moves the focus on its own thread
+		pumpFor(0.3);
+
+		var value:String = null;
+		view.evaluateJavaScript("document.activeElement.id || document.activeElement.tagName").onComplete(function(result) value = result);
+		pumpUntil(function() return value != null);
+		return value;
 	}
 
 	private function loadAndWait(html:String):Void
