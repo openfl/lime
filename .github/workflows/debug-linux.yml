@@ -1,0 +1,86 @@
+name: Debug Linux C++ crash
+on: [push]
+
+env:
+  HAXE_VERSION: 4.2.5
+  HXCPP_COMPILE_CACHE: ${{ github.workspace }}/.hxcpp_cache
+  HXCPP_NONINTERACTIVE: 1
+
+jobs:
+
+  linux:
+    runs-on: ubuntu-22.04
+    steps:
+
+      - uses: actions/checkout@v6
+        with:
+          submodules: true
+
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libgl1-mesa-dev libglu1-mesa-dev g++-multilib gcc-multilib libasound2-dev libx11-dev libxext-dev libxi-dev libxrandr-dev libxinerama-dev libpulse-dev libmbedtls-dev libpng-dev libturbojpeg-dev libuv1-dev libvorbis-dev libvulkan-dev gdb
+          # GStreamer decodes video in the unit tests
+          sudo apt-get install -y gstreamer1.0-plugins-base gstreamer1.0-plugins-good gstreamer1.0-libav xvfb libgl1-mesa-dri
+
+      - uses: krdlab/setup-haxe@v2
+        with:
+          haxe-version: ${{ env.HAXE_VERSION }}
+
+      - name: Set HAXEPATH
+        run: |
+          echo "HAXEPATH=$HAXE_STD_PATH/.." >> $GITHUB_ENV
+
+      - name: Install Haxe dependencies
+        run: |
+          haxelib install native-desktop 1.1.0 --quiet
+          haxelib install native-ipc 1.0.0 --quiet
+          haxelib install wsproto 1.0.0 --quiet
+          haxelib install crossbyte 1.0.1 --quiet
+          haxelib --global update haxelib --quiet
+          haxelib install StageWebView 1.0.1 --quiet
+          haxelib git libhxcpp https://github.com/openfl/libhxcpp --quiet
+          haxelib run libhxcpp setup
+          haxe --cwd "$(haxelib libpath libhxcpp)/tools/hxcpp" compile.hxml
+          haxelib install format --quiet
+          haxelib install hxp --quiet
+          haxelib install utest --quiet
+
+      - name: Run tools tests
+        working-directory: tests/tools
+        # Parses project files from Lime's own source, so needs no native library
+        run: haxe test.hxml
+
+      # CrossByte, which serves lime test html5, needs Haxe 4.3 to build the tools
+      - uses: ./.github/actions/rebuild-lime-tools
+        with:
+          haxe-version: ${{ env.HAXE_VERSION }}
+
+      - name: Set up Lime
+        run: |
+          haxelib run lime setup -alias -y -nocffi
+
+      - name: Rebuild Lime (Linux)
+        run: |
+          lime rebuild linux -64 -release -nocolor -verbose -nocffi -DHXCPP_DEBUG_LINK
+
+      - uses: actions/setup-python@v6
+        id: tls-python
+        with:
+          python-version: '3.12'
+
+      - name: Run unit tests
+        working-directory: tests/unit
+        # A deadlock hangs the tests rather than failing them
+        timeout-minutes: 30
+        env:
+      - name: Run the C++ unit tests under gdb
+        working-directory: tests/unit
+        timeout-minutes: 40
+        env:
+          LIME_TEST_PYTHON: ${{ steps.tls-python.outputs.python-path }}
+          ALSOFT_DRIVERS: "null"
+        run: |
+          lime build linux -release -verbose -nocolor -DHXCPP_DEBUG_LINK -DHXCPP_STACK_TRACE -DHXCPP_STACK_LINE
+          cd bin/linux/bin
+          xvfb-run -a gdb -batch -ex "set pagination off" -ex "handle SIGPIPE nostop noprint" -ex "handle SIG32 nostop noprint" -ex "handle SIG33 nostop noprint" -ex run -ex "info threads" -ex "thread apply all bt 40" --args ./TestMain || true
