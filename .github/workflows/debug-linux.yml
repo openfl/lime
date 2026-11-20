@@ -69,11 +69,6 @@ jobs:
         with:
           python-version: '3.12'
 
-      - name: Run unit tests
-        working-directory: tests/unit
-        # A deadlock hangs the tests rather than failing them
-        timeout-minutes: 30
-        env:
       - name: Run the C++ unit tests under gdb
         working-directory: tests/unit
         timeout-minutes: 40
