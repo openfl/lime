@@ -21,6 +21,7 @@ class ToolsTestMain
 		runner.addCase(new HTML5OutputTest());
 		runner.addCase(new AndroidOutputTest());
 		runner.addCase(new WindowsOutputTest());
+		runner.addCase(new AppleOutputTest());
 
 		// Each test is named as it starts, so a run that stops (the tools exit on errors) shows where
 		runner.onTestStart.add(function(handler)
