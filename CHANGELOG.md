@@ -16,6 +16,7 @@ Changelog
 - Added SDL_sound decoding and streaming, including inline stream playback, streams with unknown length, and loop counts.
 - Added `AudioBuffer.fromFileStream()`, `AudioBuffer.fromFilesStream()`, `AudioBuffer.fromBytesStream()`, `AudioBuffer.loadFromFileStream()`, and `AudioBuffer.loadFromFilesStream()`, which stream through SDL_sound, or Ogg Vorbis without it.
 - Added `Assets.getAudioBufferStream()` and `Assets.loadAudioBufferStream()` for streamed sound assets.
+- Added `AudioBuffer.readSamples()`, which reads PCM from any position of a decoded buffer, and of a streamed one on native targets.
 - Added recovery of OpenAL Soft audio after its output device changes or is disconnected.
 - Added `AudioSource.playTogether()`, which starts several sources in the same mixer update on native targets, for tracks that must stay aligned.
 - Added `Window.alwaysOnTop` and transparent window support.
