@@ -84,7 +84,7 @@ class Window
 		Supported where `DragData.isSupported` is `true`: Windows, macOS and
 		Linux on X11, and HTML5. Setting it elsewhere leaves it `false`.
 	**/
-	public var dragTarget(get, set):Bool;
+	public var dropTarget(get, set):Bool;
 
 	/**
 		The action a drop on the window takes. Listeners of `onDragEnter` and
@@ -191,7 +191,7 @@ class Window
 
 	/**
 		Dispatched as a drag enters the window, with its data and the position
-		in the window, while `dragTarget` is on. Set `dropAction` to accept it.
+		in the window, while `dropTarget` is on. Set `dropAction` to accept it.
 		The data can only be read while the listener runs.
 	**/
 	public var onDragEnter(default, null) = new Event<DragData->Float->Float->Void>();
@@ -389,7 +389,7 @@ class Window
 				"cursor": {get: p.get_cursor, set: p.set_cursor},
 				"display": {get: p.get_display},
 				"displayMode": {get: p.get_displayMode, set: p.set_displayMode},
-				"dragTarget": {get: p.get_dragTarget, set: p.set_dragTarget},
+				"dropTarget": {get: p.get_dropTarget, set: p.set_dropTarget},
 				"frameRate": {get: p.get_frameRate, set: p.set_frameRate},
 				"fullscreen": {get: p.get_fullscreen, set: p.set_fullscreen},
 				"height": {get: p.get_height, set: p.set_height},
@@ -2748,10 +2748,10 @@ class Window
 		@return The action the drop took, or `NONE` when the drag was canceled,
 		refused, or could not start.
 	**/
-	public function startDrag(data:DragData, image:Image = null, offsetX:Int = 0, offsetY:Int = 0, actions:DropAction = COPY):Future<DropAction>
+	public function doDragDrop(data:DragData, image:Image = null, offsetX:Int = 0, offsetY:Int = 0, actions:DropAction = COPY):Future<DropAction>
 	{
 		if (data == null || data.__items == null) return Future.withValue(DropAction.NONE);
-		return __backend.startDrag(data, image, offsetX, offsetY, actions);
+		return __backend.doDragDrop(data, image, offsetX, offsetY, actions);
 	}
 
 	public function move(x:Int, y:Int):Void
@@ -3044,14 +3044,14 @@ class Window
 		return value;
 	}
 
-	@:noCompletion private function get_dragTarget():Bool
+	@:noCompletion private function get_dropTarget():Bool
 	{
-		return __backend.getDragTarget();
+		return __backend.getDropTarget();
 	}
 
-	@:noCompletion private function set_dragTarget(value:Bool):Bool
+	@:noCompletion private function set_dropTarget(value:Bool):Bool
 	{
-		return __backend.setDragTarget(value);
+		return __backend.setDropTarget(value);
 	}
 
 	@:noCompletion private function get_keyboardGrab():Bool

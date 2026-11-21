@@ -580,7 +580,7 @@ class FlashWindow
 		return false;
 	}
 
-	public function getDragTarget():Bool
+	public function getDropTarget():Bool
 	{
 		return false;
 	}
@@ -657,7 +657,7 @@ class FlashWindow
 		return false;
 	}
 
-	public function setDragTarget(value:Bool):Bool
+	public function setDropTarget(value:Bool):Bool
 	{
 		return false;
 	}
@@ -667,7 +667,7 @@ class FlashWindow
 		return false;
 	}
 
-	public function startDrag(data:DragData, image:Image, offsetX:Int, offsetY:Int, actions:DropAction):Future<DropAction>
+	public function doDragDrop(data:DragData, image:Image, offsetX:Int, offsetY:Int, actions:DropAction):Future<DropAction>
 	{
 		return Future.withValue(DropAction.NONE);
 	}

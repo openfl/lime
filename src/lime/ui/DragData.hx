@@ -16,7 +16,7 @@ import lime.utils.UInt8Array;
 	can only be read while that listener runs, as the systems only lend it
 	for the event, so copy what you need before returning. Data to drag out
 	of a window is made with `new DragData()` and `setData`, and passed to
-	`Window.startDrag`.
+	`Window.doDragDrop`.
 
 	Availability: Windows, macOS and Linux on X11, through native-desktop,
 	and HTML5. On HTML5 a page sees the names of files dragged in, not where
@@ -49,7 +49,7 @@ class DragData
 	#end
 
 	/**
-		Makes data to drag out of a window with `Window.startDrag`.
+		Makes data to drag out of a window with `Window.doDragDrop`.
 	**/
 	public function new()
 	{
@@ -116,7 +116,7 @@ class DragData
 	}
 
 	/**
-		Puts `data` in `format`, for a drag out with `Window.startDrag`.
+		Puts `data` in `format`, for a drag out with `Window.doDragDrop`.
 		Returns `false` for the data of a drag over a window, which cannot be
 		changed.
 	**/

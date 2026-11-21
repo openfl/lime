@@ -4,7 +4,7 @@ package lime.ui;
 	What a drop does with the data dragged, as chosen by the drop target
 	from the actions the drag's source allows.
 
-	The values are flags, so a source passes several to `Window.startDrag`
+	The values are flags, so a source passes several to `Window.doDragDrop`
 	as `COPY | MOVE`. A target chooses one, in `Window.dropAction`.
 **/
 #if (haxe_ver >= 4.0) enum #else @:enum #end abstract DropAction(Int) from Int to Int
