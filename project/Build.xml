@@ -365,6 +365,8 @@
 		<file name="src/math/Rectangle.cpp" />
 		<file name="src/math/Vector2.cpp" />
 		<file name="src/media/AudioBuffer.cpp" />
+		<file name="src/media/AudioInputPermission.cpp" unless="mac || ios" />
+		<file name="src/media/AudioInputPermission.mm" if="mac || ios" />
 		<file name="src/media/containers/WAV.cpp" />
 		<file name="src/media/video/AVFVideoBackend.mm" if="mac || ios" />
 		<file name="src/media/video/GStreamerVideoBackend.cpp" if="linux" />
@@ -372,6 +374,11 @@
 		<file name="src/media/video/MFVideoBackend.cpp" if="windows" unless="winrt" />
 		<file name="src/media/video/VideoDecoder.cpp" />
 		<file name="src/media/video/VideoDecoderBindings.cpp" />
+		<file name="src/media/VoiceCapture.cpp" />
+		<file name="src/media/VoiceCaptureAndroid.cpp" if="android" />
+		<file name="src/media/VoiceCaptureApple.mm" if="mac || ios" />
+		<file name="src/media/VoiceCaptureBindings.cpp" />
+		<file name="src/media/VoiceCaptureWindows.cpp" if="windows" unless="winrt" />
 		<file name="src/net/LocalSocket.cpp" />
 		<file name="src/net/LocalSocketBindings.cpp" />
 		<file name="src/net/LocalSocketEvent.cpp" />

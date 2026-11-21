@@ -373,6 +373,10 @@ class NativeCFFI
 
 	@:cffi private static function lime_system_get_device_orientation():Int;
 
+	@:cffi private static function lime_audio_input_get_permission_status():Int;
+
+	@:cffi private static function lime_audio_input_request_permission():Void;
+
 	@:cffi private static function lime_system_get_platform_label():Dynamic;
 
 	@:cffi private static function lime_system_get_platform_name():Dynamic;
@@ -428,6 +432,23 @@ class NativeCFFI
 	@:cffi private static function lime_video_decoder_seek(handle:Dynamic, time:Float, accurate:Bool):Bool;
 
 	@:cffi private static function lime_video_decoder_set_drop_late_frames(handle:Dynamic, value:Bool):Void;
+
+	@:cffi private static function lime_voice_capture_close(handle:CFFIPointer):Void;
+
+	@:cffi private static function lime_voice_capture_get_available(handle:CFFIPointer):Int;
+
+	@:cffi private static function lime_voice_capture_get_processing(handle:CFFIPointer):Int;
+
+	@:cffi private static function lime_voice_capture_is_connected(handle:CFFIPointer):Bool;
+
+	@:cffi private static function lime_voice_capture_open(deviceName:String, sampleRate:Int, channels:Int, bitsPerSample:Int, bufferFrames:Int,
+		processing:Int):CFFIPointer;
+
+	@:cffi private static function lime_voice_capture_read(handle:CFFIPointer, buffer:Dynamic, frames:Int):Int;
+
+	@:cffi private static function lime_voice_capture_start(handle:CFFIPointer):Bool;
+
+	@:cffi private static function lime_voice_capture_stop(handle:CFFIPointer):Void;
 
 	@:cffi private static function lime_window_alert(handle:Dynamic, message:String, title:String):Void;
 
@@ -1171,6 +1192,10 @@ class NativeCFFI
 	private static var lime_system_get_num_displays = new cpp.Callable<Void->Int>(cpp.Prime._loadPrime("lime", "lime_system_get_num_displays", "i", false));
 	private static var lime_system_get_device_orientation = new cpp.Callable<Void->Int>(cpp.Prime._loadPrime("lime", "lime_system_get_device_orientation",
 		"i", false));
+	private static var lime_audio_input_get_permission_status = new cpp.Callable<Void->Int>(cpp.Prime._loadPrime("lime",
+		"lime_audio_input_get_permission_status", "i", false));
+	private static var lime_audio_input_request_permission = new cpp.Callable<Void->cpp.Void>(cpp.Prime._loadPrime("lime",
+		"lime_audio_input_request_permission", "v", false));
 	private static var lime_system_get_platform_label = new cpp.Callable<Void->cpp.Object>(cpp.Prime._loadPrime("lime", "lime_system_get_platform_label", "o",
 		false));
 	private static var lime_system_get_platform_name = new cpp.Callable<Void->cpp.Object>(cpp.Prime._loadPrime("lime", "lime_system_get_platform_name", "o",
@@ -1218,6 +1243,22 @@ class NativeCFFI
 		"odbb", false));
 	private static var lime_video_decoder_set_drop_late_frames = new cpp.Callable<cpp.Object->Bool->cpp.Void>(cpp.Prime._loadPrime("lime",
 		"lime_video_decoder_set_drop_late_frames", "obv", false));
+	private static var lime_voice_capture_close = new cpp.Callable<cpp.Object->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_voice_capture_close", "ov",
+		false));
+	private static var lime_voice_capture_get_available = new cpp.Callable<cpp.Object->Int>(cpp.Prime._loadPrime("lime",
+		"lime_voice_capture_get_available", "oi", false));
+	private static var lime_voice_capture_get_processing = new cpp.Callable<cpp.Object->Int>(cpp.Prime._loadPrime("lime",
+		"lime_voice_capture_get_processing", "oi", false));
+	private static var lime_voice_capture_is_connected = new cpp.Callable<cpp.Object->Bool>(cpp.Prime._loadPrime("lime",
+		"lime_voice_capture_is_connected", "ob", false));
+	private static var lime_voice_capture_open = new cpp.Callable<String->Int->Int->Int->Int->Int->cpp.Object>(cpp.Prime._loadPrime("lime",
+		"lime_voice_capture_open", "siiiiio", false));
+	private static var lime_voice_capture_read = new cpp.Callable<cpp.Object->cpp.Object->Int->Int>(cpp.Prime._loadPrime("lime",
+		"lime_voice_capture_read", "ooii", false));
+	private static var lime_voice_capture_start = new cpp.Callable<cpp.Object->Bool>(cpp.Prime._loadPrime("lime", "lime_voice_capture_start", "ob",
+		false));
+	private static var lime_voice_capture_stop = new cpp.Callable<cpp.Object->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_voice_capture_stop", "ov",
+		false));
 	private static var lime_window_alert = new cpp.Callable<cpp.Object->String->String->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_window_alert", "ossv",
 		false));
 	private static var lime_window_close = new cpp.Callable<cpp.Object->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_window_close", "ov", false));
@@ -1720,6 +1761,8 @@ class NativeCFFI
 	private static var lime_system_get_ios_tablet = CFFI.load("lime", "lime_system_get_ios_tablet", 0);
 	private static var lime_system_get_num_displays = CFFI.load("lime", "lime_system_get_num_displays", 0);
 	private static var lime_system_get_device_orientation = CFFI.load("lime", "lime_system_get_device_orientation", 0);
+	private static var lime_audio_input_get_permission_status = CFFI.load("lime", "lime_audio_input_get_permission_status", 0);
+	private static var lime_audio_input_request_permission = CFFI.load("lime", "lime_audio_input_request_permission", 0);
 	private static var lime_system_get_platform_label = CFFI.load("lime", "lime_system_get_platform_label", 0);
 	private static var lime_system_get_platform_name = CFFI.load("lime", "lime_system_get_platform_name", 0);
 	private static var lime_system_get_platform_version = CFFI.load("lime", "lime_system_get_platform_version", 0);
@@ -1748,6 +1791,14 @@ class NativeCFFI
 	private static var lime_video_decoder_read_frame = CFFI.load("lime", "lime_video_decoder_read_frame", 5);
 	private static var lime_video_decoder_seek = CFFI.load("lime", "lime_video_decoder_seek", 3);
 	private static var lime_video_decoder_set_drop_late_frames = CFFI.load("lime", "lime_video_decoder_set_drop_late_frames", 2);
+	private static var lime_voice_capture_close = CFFI.load("lime", "lime_voice_capture_close", 1);
+	private static var lime_voice_capture_get_available = CFFI.load("lime", "lime_voice_capture_get_available", 1);
+	private static var lime_voice_capture_get_processing = CFFI.load("lime", "lime_voice_capture_get_processing", 1);
+	private static var lime_voice_capture_is_connected = CFFI.load("lime", "lime_voice_capture_is_connected", 1);
+	private static var lime_voice_capture_open = CFFI.load("lime", "lime_voice_capture_open", -1);
+	private static var lime_voice_capture_read = CFFI.load("lime", "lime_voice_capture_read", 3);
+	private static var lime_voice_capture_start = CFFI.load("lime", "lime_voice_capture_start", 1);
+	private static var lime_voice_capture_stop = CFFI.load("lime", "lime_voice_capture_stop", 1);
 	private static var lime_window_alert = CFFI.load("lime", "lime_window_alert", 3);
 	private static var lime_window_close = CFFI.load("lime", "lime_window_close", 1);
 	private static var lime_window_context_flip = CFFI.load("lime", "lime_window_context_flip", 1);
@@ -2605,6 +2656,13 @@ class NativeCFFI
 		return 0;
 	}
 
+	@:hlNative("lime", "hl_audio_input_get_permission_status") private static function lime_audio_input_get_permission_status():Int
+	{
+		return 0;
+	}
+
+	@:hlNative("lime", "hl_audio_input_request_permission") private static function lime_audio_input_request_permission():Void {}
+
 	@:hlNative("lime", "hl_system_get_platform_label") private static function lime_system_get_platform_label():hl.Bytes
 	{
 		return null;
@@ -2722,6 +2780,41 @@ class NativeCFFI
 
 	@:hlNative("lime", "hl_video_decoder_set_drop_late_frames") private static function lime_video_decoder_set_drop_late_frames(handle:CFFIPointer,
 		value:Bool):Void {}
+
+	@:hlNative("lime", "hl_voice_capture_close") private static function lime_voice_capture_close(handle:CFFIPointer):Void {}
+
+	@:hlNative("lime", "hl_voice_capture_get_available") private static function lime_voice_capture_get_available(handle:CFFIPointer):Int
+	{
+		return 0;
+	}
+
+	@:hlNative("lime", "hl_voice_capture_get_processing") private static function lime_voice_capture_get_processing(handle:CFFIPointer):Int
+	{
+		return 0;
+	}
+
+	@:hlNative("lime", "hl_voice_capture_is_connected") private static function lime_voice_capture_is_connected(handle:CFFIPointer):Bool
+	{
+		return false;
+	}
+
+	@:hlNative("lime", "hl_voice_capture_open") private static function lime_voice_capture_open(deviceName:String, sampleRate:Int, channels:Int,
+		bitsPerSample:Int, bufferFrames:Int, processing:Int):CFFIPointer
+	{
+		return null;
+	}
+
+	@:hlNative("lime", "hl_voice_capture_read") private static function lime_voice_capture_read(handle:CFFIPointer, buffer:Bytes, frames:Int):Int
+	{
+		return 0;
+	}
+
+	@:hlNative("lime", "hl_voice_capture_start") private static function lime_voice_capture_start(handle:CFFIPointer):Bool
+	{
+		return false;
+	}
+
+	@:hlNative("lime", "hl_voice_capture_stop") private static function lime_voice_capture_stop(handle:CFFIPointer):Void {}
 
 	@:hlNative("lime", "hl_window_alert") private static function lime_window_alert(handle:CFFIPointer, message:String, title:String):Void {}
 
