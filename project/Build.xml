@@ -365,6 +365,12 @@
 		<file name="src/math/Rectangle.cpp" />
 		<file name="src/math/Vector2.cpp" />
 		<file name="src/media/AudioBuffer.cpp" />
+		<file name="src/media/CameraCapture.cpp" />
+		<file name="src/media/CameraCaptureAndroid.cpp" if="android" />
+		<file name="src/media/CameraCaptureApple.mm" if="mac || ios" />
+		<file name="src/media/CameraCaptureBindings.cpp" />
+		<file name="src/media/CameraCaptureGStreamer.cpp" if="linux" />
+		<file name="src/media/CameraCaptureWindows.cpp" if="windows" unless="winrt" />
 		<file name="src/media/AudioInputPermission.cpp" unless="mac || ios" />
 		<file name="src/media/AudioInputPermission.mm" if="mac || ios" />
 		<file name="src/media/containers/WAV.cpp" />

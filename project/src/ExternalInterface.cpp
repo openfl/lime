@@ -15339,6 +15339,7 @@ extern "C" int lime_sdl_sound_register_prims ();
 extern "C" int lime_sdl_sound_register_prims () { return 0; }
 #endif
 
+extern "C" int lime_camera_capture_register_prims ();
 extern "C" int lime_local_socket_register_prims ();
 extern "C" int lime_network_interface_register_prims ();
 extern "C" int lime_video_register_prims ();
@@ -15355,6 +15356,7 @@ extern "C" int lime_vorbis_register_prims () { return 0; }
 extern "C" int lime_register_prims () {
 
 	lime_cairo_register_prims ();
+	lime_camera_capture_register_prims ();
 	lime_curl_register_prims ();
 	lime_harfbuzz_register_prims ();
 	lime_local_socket_register_prims ();

@@ -334,6 +334,11 @@ class IOSPlatform extends PlatformTarget
 		context.IOS_LINKER_FLAGS = ["-stdlib=libc++"].concat(project.config.getArrayString("ios.linker-flags"));
 		context.IOS_NON_EXEMPT_ENCRYPTION = project.config.getBool("ios.non-exempt-encryption", false);
 
+		if (project.config.exists("ios.camera-usage-description"))
+		{
+			context.IOS_CAMERA_USAGE_DESCRIPTION = StringTools.htmlEscape(project.config.getString("ios.camera-usage-description"), true);
+		}
+
 		if (project.config.exists("ios.microphone-usage-description"))
 		{
 			// Info.plist is XML, so a description with & or < would break it

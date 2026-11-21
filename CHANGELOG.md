@@ -17,6 +17,7 @@ Changelog
 - Added a privacy manifest to iOS applications, which App Store Connect requires, declaring the required reason APIs Lime uses, and `<config:ios privacy-accessed-api="TYPE REASON..." />` for an application's own.
 - Added `AudioInput.permissionStatus`, `AudioInput.requestPermission()` and `AudioInput.onPermission`, with the `PermissionStatus` type, on HTML5, Android, iOS, macOS and Flash. HTML5 now reports a refused microphone instead of leaving `running` false.
 - Added `AudioInput.echoCancellation`, `noiseSuppression` and `autoGain`, through the platform's voice processing on HTML5, Windows, macOS, iOS, Android and Flash, each reading whether it was applied once the input is running.
+- Added `CameraInput`, `CameraInputDevice` and `CameraPosition`, capturing camera frames into `VideoFrame` on Windows, macOS, iOS, Android, Linux and HTML5, with the `camera-usage-description` config for iOS and macOS.
 - Added SDL_sound decoding and streaming, including inline stream playback, streams with unknown length, and loop counts.
 - Added `AudioBuffer.fromFileStream()`, `AudioBuffer.fromFilesStream()`, `AudioBuffer.fromBytesStream()`, `AudioBuffer.loadFromFileStream()`, and `AudioBuffer.loadFromFilesStream()`, which stream through SDL_sound, or Ogg Vorbis without it.
 - Added `Assets.getAudioBufferStream()` and `Assets.loadAudioBufferStream()` for streamed sound assets.
