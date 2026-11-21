@@ -60,7 +60,7 @@ class NativeWindow
 	**/
 	public static var rendering:Window;
 
-	// Drags out that end after startDrag returns, as on macOS and X11, by ID
+	// Drags out that end after doDragDrop returns, as on macOS and X11, by ID
 	private static var dragPromises:Map<Int, Promise<DropAction>> = new Map();
 	private static var nextDragID:Int = 1;
 
@@ -69,7 +69,7 @@ class NativeWindow
 	private var closing:Bool;
 	private var cursor:MouseCursor;
 	private var displayMode:DisplayMode;
-	private var dragTarget:Bool = false;
+	private var dropTarget:Bool = false;
 	private var frameRate:Float;
 	private var menuItems:Array<MenuItem>;
 	private var mouseLock:Bool;
@@ -276,7 +276,7 @@ class NativeWindow
 				{
 					#if (!macro && lime_cffi)
 					// The system keeps a drop target registered until it is given back
-					if (dragTarget) setDragTarget(false);
+					if (dropTarget) setDropTarget(false);
 					NativeCFFI.lime_window_close(handle);
 					#end
 
@@ -405,9 +405,9 @@ class NativeWindow
 		return false;
 	}
 
-	public function getDragTarget():Bool
+	public function getDropTarget():Bool
 	{
-		return dragTarget;
+		return dropTarget;
 	}
 
 	public function getKeyboardGrab():Bool
@@ -790,7 +790,7 @@ class NativeWindow
 		return displayMode;
 	}
 
-	public function startDrag(data:DragData, image:Image, offsetX:Int, offsetY:Int, actions:DropAction):Future<DropAction>
+	public function doDragDrop(data:DragData, image:Image, offsetX:Int, offsetY:Int, actions:DropAction):Future<DropAction>
 	{
 		#if (!macro && lime_cffi)
 		if (handle != null)
@@ -826,15 +826,15 @@ class NativeWindow
 		return Future.withValue(DropAction.NONE);
 	}
 
-	public function setDragTarget(value:Bool):Bool
+	public function setDropTarget(value:Bool):Bool
 	{
 		#if (!macro && lime_cffi)
-		if (handle != null && value != dragTarget && NativeCFFI.lime_window_set_drag_target(handle, value))
+		if (handle != null && value != dropTarget && NativeCFFI.lime_window_set_drag_target(handle, value))
 		{
-			dragTarget = value;
+			dropTarget = value;
 		}
 		#end
-		return dragTarget;
+		return dropTarget;
 	}
 
 	public function setKeyboardGrab(value:Bool):Bool

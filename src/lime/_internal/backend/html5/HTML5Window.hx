@@ -74,7 +74,7 @@ class HTML5Window
 	private var cursor:MouseCursor;
 	private var dragDepth:Int = 0;
 	private var dragOut:{data:DragData, image:Image, offsetX:Int, offsetY:Int, actions:DropAction, promise:Promise<DropAction>, started:Bool};
-	private var dragTarget:Bool = false;
+	private var dropTarget:Bool = false;
 	private var currentTouches = new Map<Int, Touch>();
 	private var isFullscreen:Bool;
 	private var menus:HTML5Menu;
@@ -487,9 +487,9 @@ class HTML5Window
 		return false;
 	}
 
-	public function getDragTarget():Bool
+	public function getDropTarget():Bool
 	{
-		return dragTarget;
+		return dropTarget;
 	}
 
 	public function getKeyboardGrab():Bool
@@ -602,7 +602,7 @@ class HTML5Window
 					parent.onMouseUp.dispatch(position[0], position[1], 0);
 				}
 
-			case "dragenter" if (dragTarget):
+			case "dragenter" if (dropTarget):
 				dragDepth++;
 
 				// Entering the element's children is entering it again
@@ -618,7 +618,7 @@ class HTML5Window
 
 				return acceptDrag(event);
 
-			case "dragleave" if (dragTarget):
+			case "dragleave" if (dropTarget):
 				dragDepth--;
 
 				if (dragDepth <= 0)
@@ -627,12 +627,12 @@ class HTML5Window
 					parent.onDragLeave.dispatch();
 				}
 
-			case "dragover" if (dragTarget):
+			case "dragover" if (dropTarget):
 				var position = getWindowPosition(event.clientX, event.clientY);
 				parent.onDragOver.dispatch(position[0], position[1]);
 				return acceptDrag(event);
 
-			case "drop" if (dragTarget):
+			case "drop" if (dropTarget):
 				dragDepth = 0;
 				if (event.dataTransfer == null) return true;
 
@@ -765,7 +765,7 @@ class HTML5Window
 		];
 	}
 
-	// The drag startDrag asked for, now that the browser starts it
+	// The drag doDragDrop asked for, now that the browser starts it
 	private function startDragOut(event:DragEvent):Void
 	{
 		dragOut.started = true;
@@ -1591,11 +1591,11 @@ class HTML5Window
 		return false;
 	}
 
-	public function setDragTarget(value:Bool):Bool
+	public function setDropTarget(value:Bool):Bool
 	{
-		dragTarget = value;
+		dropTarget = value;
 		dragDepth = 0;
-		return dragTarget;
+		return dropTarget;
 	}
 
 	public function setKeyboardGrab(value:Bool):Bool
@@ -1883,7 +1883,7 @@ class HTML5Window
 	}
 
 	// The browser starts a drag as the mouse moves with the button down on a draggable element
-	public function startDrag(data:DragData, image:Image, offsetX:Int, offsetY:Int, actions:DropAction):Future<DropAction>
+	public function doDragDrop(data:DragData, image:Image, offsetX:Int, offsetY:Int, actions:DropAction):Future<DropAction>
 	{
 		if (parent.element == null) return Future.withValue(DropAction.NONE);
 		if (dragOut != null) finishDragOut(NONE);
