@@ -577,6 +577,99 @@ class OpenGLTest extends Test
 	}
 	#end
 
+	public function testPolygonModeDrawsLinesAndPointsOnDesktopOpenGL():Void
+	{
+		var window = getMainWindow();
+		if (window == null) return;
+
+		var gl = window.context.gl;
+		makeCurrent(window);
+		clearErrors(gl);
+
+		Assert.equals(0x1B00, gl.POINT);
+		Assert.equals(0x1B01, gl.LINE);
+		Assert.equals(0x1B02, gl.FILL);
+		Assert.equals(0x0B40, gl.POLYGON_MODE);
+
+		if (window.context.type != OPENGL)
+		{
+			// utest takes a warning as a failure, so the test passes, saying why
+			trace("The context is " + window.context.type + ", which has no polygon mode, so wireframes were not tested");
+			Assert.pass();
+			return;
+		}
+
+		// GL is the first window's context
+		if (lime.graphics.opengl.GL.context == gl) Assert.isTrue(lime.graphics.opengl.GL.supportsPolygonMode, "GL does not support polygonMode on OpenGL");
+
+		// A triangle over most of a 9x9 target, so its middle is not on an edge
+		var size = 9;
+		var texture = gl.createTexture();
+		gl.bindTexture(gl.TEXTURE_2D, texture);
+		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+		gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, size, size, 0, gl.RGBA, gl.UNSIGNED_BYTE, 0);
+		gl.bindTexture(gl.TEXTURE_2D, null);
+		var framebuffer = gl.createFramebuffer();
+		gl.bindFramebuffer(gl.FRAMEBUFFER, framebuffer);
+		gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, texture, 0);
+		gl.viewport(0, 0, size, size);
+
+		var program = createProgram(gl, "attribute vec2 position; void main () { gl_Position = vec4 (position, 0.0, 1.0); }",
+			"void main () { gl_FragColor = vec4 (1.0, 1.0, 1.0, 1.0); }");
+		var buffer = gl.createBuffer();
+		gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
+		gl.bufferData(gl.ARRAY_BUFFER, 24, new Float32Array([-0.9, -0.9, 0.9, -0.9, 0.0, 0.9]), gl.STATIC_DRAW);
+		var position = gl.getAttribLocation(program, "position");
+		gl.useProgram(program);
+		gl.enableVertexAttribArray(position);
+		gl.vertexAttribPointer(position, 2, gl.FLOAT, false, 0, 0);
+
+		var pixels = new UInt8Array(size * size * 4);
+		var draw = function(mode:Int):{middle:Int, lit:Int}
+		{
+			gl.clearColor(0, 0, 0, 1);
+			gl.clear(gl.COLOR_BUFFER_BIT);
+			gl.polygonMode(gl.FRONT_AND_BACK, mode);
+			gl.drawArrays(gl.TRIANGLES, 0, 3);
+			gl.readPixels(0, 0, size, size, gl.RGBA, gl.UNSIGNED_BYTE, pixels);
+
+			var lit = 0;
+			for (i in 0...size * size)
+			{
+				if (pixels[i * 4] > 127) lit++;
+			}
+
+			return {middle: pixels[((size >> 1) * size + (size >> 1)) * 4], lit: lit};
+		};
+
+		var filled = draw(gl.FILL);
+		var lines = draw(gl.LINE);
+		var points = draw(gl.POINT);
+		var error = gl.getError();
+
+		// Put back, as other drawing in the context expects
+		gl.polygonMode(gl.FRONT_AND_BACK, gl.FILL);
+		var restored = draw(gl.FILL);
+
+		gl.disableVertexAttribArray(position);
+		gl.useProgram(null);
+		gl.bindBuffer(gl.ARRAY_BUFFER, null);
+		gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+		gl.deleteBuffer(buffer);
+		gl.deleteFramebuffer(framebuffer);
+		gl.deleteTexture(texture);
+		gl.deleteProgram(program);
+		clearErrors(gl);
+
+		Assert.equals(gl.NO_ERROR, error, "polygonMode set GL error " + error);
+		Assert.equals(255, filled.middle, "a filled triangle left its middle empty");
+		Assert.equals(0, lines.middle, "a triangle drawn as lines filled its middle");
+		Assert.isTrue(lines.lit > 0 && lines.lit < filled.lit, lines.lit + " pixels were drawn as lines, and " + filled.lit + " filled");
+		Assert.equals(0, points.middle, "a triangle drawn as points filled its middle");
+		Assert.isTrue(points.lit > 0 && points.lit < lines.lit, points.lit + " pixels were drawn as points, and " + lines.lit + " as lines");
+		Assert.equals(filled.lit, restored.lit, "the triangle was not filled again");
+	}
+
 	#if software_gl
 	public function testAForcedSoftwareContextDraws():Void
 	{
@@ -859,6 +952,15 @@ class OpenGLTest extends Test
 	private static function makeCurrent(window:Window):Void
 	{
 		@:privateAccess lime._internal.backend.native.NativeCFFI.lime_window_context_make_current(window.__backend.handle);
+	}
+	#elseif (js && html5)
+	public function testWebGLHasNoPolygonMode():Void
+	{
+		Assert.isFalse(lime.graphics.opengl.GL.supportsPolygonMode);
+
+		// Does nothing, rather than failing
+		lime.graphics.opengl.GL.polygonMode(lime.graphics.opengl.GL.FRONT_AND_BACK, lime.graphics.opengl.GL.LINE);
+		Assert.equals(0x1B01, lime.graphics.opengl.GL.LINE);
 	}
 	#end
 }

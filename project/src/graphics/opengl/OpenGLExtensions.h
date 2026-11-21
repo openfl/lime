@@ -373,6 +373,9 @@ OGL_EXT(glPixelStorei,void, (GLenum pname, GLint param));
 OGL_EXT(glPointSize,void, (GLfloat size));
 //OGL_EXT(glPointSizex,void, (GLfixed size));
 OGL_EXT(glPolygonOffset,void, (GLfloat factor, GLfloat units));
+#if !defined(LIME_GLES)
+OGL_EXT(glPolygonMode,void, (GLenum face, GLenum mode));
+#endif
 //OGL_EXT(glPolygonOffsetx,void, (GLfixed factor, GLfixed units));
 OGL_EXT(glPopMatrix,void, (void));
 OGL_EXT(glPushMatrix,void, (void));
