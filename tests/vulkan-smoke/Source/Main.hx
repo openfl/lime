@@ -63,6 +63,11 @@ class Main extends Application
 	private var device:VKDevice;
 	private var fence:VKFence;
 	private var finished:Bool;
+	private var pacingBugRate:Float;
+	private var pacingFrames:Int;
+	private var pacingMeasureStart:Float = -1;
+	private var pacingRefreshRate:Float;
+	private var pacingStart:Float = -1;
 	private var framebuffers:Array<VKFramebuffer> = [];
 	private var imageAvailable:VKSemaphore;
 	private var imageViews:Array<VKImageView> = [];
@@ -151,8 +156,69 @@ class Main extends Application
 			return;
 		}
 
+		if (!checkPacing())
+		{
+			return;
+		}
+
 		finished = true;
 		Timer.delay(complete, 50);
+	}
+
+	// With vsync on and the frame rate above the refresh rate, each frame waits on the present, as it
+	// does on the swap with OpenGL, and frames come once per refresh. Presents weren't counted as swaps,
+	// so each frame was timed a whole number of milliseconds after the last, 17 ms at 60 Hz. Returns
+	// false while it measures.
+	private function checkPacing():Bool
+	{
+		var now = Timer.stamp();
+
+		if (pacingStart < 0)
+		{
+			pacingRefreshRate = window.display != null && window.display.currentMode != null ? window.display.currentMode.refreshRate : 0;
+			pacingBugRate = pacingRefreshRate > 0 ? 1000 / Math.ceil(1000 / pacingRefreshRate) : 0;
+
+			// A software device, such as CI's lavapipe, doesn't wait for a display's refresh
+			if (physicalDevice.deviceType == VK.PHYSICAL_DEVICE_TYPE_CPU)
+			{
+				trace("The Vulkan device draws in software, so frame pacing was not measured");
+				return true;
+			}
+
+			if (pacingRefreshRate <= 0 || pacingRefreshRate - pacingBugRate < 0.5)
+			{
+				trace("At a refresh rate of " + pacingRefreshRate + " Hz the frame timing can't tell, so frame pacing was not measured");
+				return true;
+			}
+
+			window.frameRate = pacingRefreshRate * 4;
+			pacingStart = now;
+			return false;
+		}
+
+		// Measured for three seconds once the loop has settled
+		if (now - pacingStart < 0.5) return false;
+
+		if (pacingMeasureStart < 0)
+		{
+			pacingMeasureStart = now;
+			return false;
+		}
+
+		pacingFrames++;
+		if (now - pacingMeasureStart < 3) return false;
+
+		var rate = pacingFrames / (now - pacingMeasureStart);
+		window.frameRate = 60;
+
+		if (rate < (pacingRefreshRate + pacingBugRate) / 2)
+		{
+			fail("With vsync on, " + Math.round(rate * 10) / 10 + " frames a second came at a refresh rate of " + pacingRefreshRate + " Hz");
+			return false;
+		}
+
+		trace("With vsync on, " + Math.round(rate * 10) / 10 + " frames a second came at a refresh rate of " + pacingRefreshRate + " Hz");
+		return true;
 	}
 
 	private function createRenderer(context:VulkanRenderContext):Void
