@@ -40,6 +40,7 @@ namespace lime {
 			virtual void Init ();
 			virtual int Quit ();
 			virtual void SetMainLoop (int profile, double frameRate, int timePrecision, int busyWait, int uncapMode);
+			virtual void SetBackgroundFrameRate (double frameRate);
 			virtual void SetFrameRate (double frameRate);
 			virtual void SetIdleEvents (bool enabled);
 			virtual bool SetMenu (const unsigned char* data, int length);
@@ -61,6 +62,7 @@ namespace lime {
 
 			void AdvanceNextUpdate ();
 			void ApplyMainLoopSettings ();
+			void UpdateWindowsHidden (bool apply);
 			void CalibrateSleepGuard (bool force = false);
 			bool CalibrateSleepGuardBefore (double remaining);
 			void DispatchFrame (double now, bool renderFrame = true);
@@ -186,7 +188,11 @@ namespace lime {
 			mutable Uint32 clockLastTicks;
 			mutable Uint64 clockElapsedTicks;
 			bool realVSyncActive;
+			// Every window is minimised or hidden
+			bool windowsHidden;
 			int requestedBusyWaitMode;
+			// The most frames a second while every window is minimised or hidden, or 0 for no limit
+			double requestedBackgroundFrameRate;
 			double requestedFrameRate;
 			int requestedProfile;
 			int requestedTimePrecisionMode;

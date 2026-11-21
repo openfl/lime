@@ -47,6 +47,123 @@ class ApplicationTest extends Test
 		});
 	}
 
+	// While every window is minimised, frames come at backgroundFrameRate, 30 by default,
+	// however fast the application asks for them
+	@:timeout(15000)
+	public function testAMinimisedApplicationUpdatesAtItsBackgroundFrameRate(async:Async):Void
+	{
+		countMinimisedUpdates(null, function(count)
+		{
+			if (count < 0)
+			{
+				async.done();
+				return;
+			}
+
+			Assert.isTrue(count >= 10 && count <= 40, "a minimised application asking for 120 frames a second updated " + count + " times in a second");
+			async.done();
+		});
+	}
+
+	@:timeout(15000)
+	public function testABackgroundFrameRateOfItsOwnIsKept(async:Async):Void
+	{
+		countMinimisedUpdates(withBackgroundFrameRate(10), function(count)
+		{
+			if (count >= 0) Assert.isTrue(count >= 4 && count <= 14, "with a background frame rate of 10, a minimised application updated " + count + " times in a second");
+			async.done();
+		});
+	}
+
+	@:timeout(15000)
+	public function testABackgroundFrameRateOf0KeepsTheFullRate(async:Async):Void
+	{
+		countMinimisedUpdates(withBackgroundFrameRate(0), function(count)
+		{
+			if (count >= 0) Assert.isTrue(count >= 80, "with a background frame rate of 0, a minimised application asking for 120 frames a second updated " + count + " times in a second");
+			async.done();
+		});
+	}
+
+	private static function withBackgroundFrameRate(rate:Float):lime.app.FrameOptions
+	{
+		var options = Application.current.frameOptions;
+		options.backgroundFrameRate = rate;
+		return options;
+	}
+
+	// Minimises every window, asks for 120 frames a second with options, and gives
+	// how many updates came in the second after, or -1 where windows can't be
+	// minimised here. Everything is put back before done is called.
+	private function countMinimisedUpdates(options:lime.app.FrameOptions, done:Int->Void):Void
+	{
+		var application = Application.current;
+		var backend = @:privateAccess application.__backend;
+		var windows = [for (window in application.windows) if (!window.hidden && !window.minimized) window];
+
+		if (windows.length == 0)
+		{
+			trace("There is no window to minimise here, so the background frame rate was not tested");
+			Assert.pass();
+			done(-1);
+			return;
+		}
+
+		var restore = function()
+		{
+			for (window in windows) window.minimized = false;
+			backend.configureFrameTiming(application.frameProfile, @:privateAccess application.__frameRate, application.frameOptions);
+		};
+
+		backend.configureFrameTiming(application.frameProfile, 120, options != null ? options : application.frameOptions);
+		for (window in windows) window.minimized = true;
+
+		var start = Timer.stamp();
+		var wait:Void->Void = null;
+
+		wait = function()
+		{
+			var minimised = true;
+			for (window in windows) if (!window.minimized) minimised = false;
+
+			if (!minimised)
+			{
+				if (Timer.stamp() - start > 3)
+				{
+					restore();
+					trace("Windows could not be minimised here, so the background frame rate was not tested");
+					Assert.pass();
+					done(-1);
+				}
+				else
+				{
+					Timer.delay(wait, 50);
+				}
+
+				return;
+			}
+
+			// Counted once the change has settled
+			Timer.delay(function()
+			{
+				var count = 0;
+				var listener = function(_:Int) count++;
+				application.onUpdate.add(listener);
+
+				Timer.delay(function()
+				{
+					application.onUpdate.remove(listener);
+					restore();
+
+					// The tests go on once the windows are back
+					Timer.delay(function() done(count), 200);
+				}, 1000);
+			}, 300);
+		};
+
+		Timer.delay(wait, 50);
+	}
+
 	private function restoreIdleTime():Void
 	{
 		if (!idleTimeChanged) return;
