@@ -1,9 +1,11 @@
 package lime._internal.backend.html5;
 
 import haxe.io.Bytes;
+import haxe.Timer;
 import js.Browser;
 import lime.media.AudioInput;
 import lime.media.AudioInputDevice;
+import lime.system.PermissionStatus;
 
 private typedef AudioInputData =
 {
@@ -18,6 +20,9 @@ class HTML5AudioInput
 
 	private static var cachedDevices:Array<AudioInputDevice>;
 	private static var enumeratingDevices:Bool;
+	private static var permissionQueried:Bool;
+	private static var permissionRequests:Int = 0;
+	private static var permissionState:PermissionStatus = UNDETERMINED;
 
 	private var audioContext:Dynamic;
 	private var buffers:Array<AudioInputData>;
@@ -53,10 +58,52 @@ class HTML5AudioInput
 		return defaultDevice != null ? [defaultDevice] : [];
 	}
 
+	public static function getPermissionStatus():PermissionStatus
+	{
+		queryPermission();
+		return permissionState;
+	}
+
 	public static function isSupported():Bool
 	{
 		var navigator:Dynamic = Browser.navigator;
 		return navigator != null && navigator.mediaDevices != null && navigator.mediaDevices.getUserMedia != null;
+	}
+
+	public static function requestPermission():Void
+	{
+		if (!isSupported())
+		{
+			// Without a secure context there is no getUserMedia to ask with
+			Timer.delay(AudioInput.onPermission.dispatch.bind(PermissionStatus.DENIED), 0);
+			return;
+		}
+
+		queryPermission();
+		permissionRequests++;
+
+		var navigator:Dynamic = Browser.navigator;
+		var promise:Dynamic = navigator.mediaDevices.getUserMedia({audio: true});
+
+		promise.then(function(stream)
+		{
+			// Browsers only ask when a page opens the microphone, so it is closed again at once
+			stopMediaStream(stream);
+			permissionRequests--;
+			permissionState = GRANTED;
+			refreshDevices();
+			AudioInput.onPermission.dispatch(PermissionStatus.GRANTED);
+		}, function(error)
+		{
+			permissionRequests--;
+
+			if (isPermissionError(error))
+			{
+				permissionState = DENIED;
+			}
+
+			AudioInput.onPermission.dispatch(PermissionStatus.DENIED);
+		});
 	}
 
 	public function new(parent:AudioInput)
@@ -183,8 +230,14 @@ class HTML5AudioInput
 		var navigator:Dynamic = Browser.navigator;
 		var promise:Dynamic = navigator.mediaDevices.getUserMedia(constraints);
 
+		queryPermission();
+		permissionRequests++;
+
 		promise.then(function(stream)
 		{
+			permissionRequests--;
+			setPermissionState(GRANTED, true);
+
 			if (disposed || !starting)
 			{
 				stopMediaStream(stream);
@@ -194,8 +247,14 @@ class HTML5AudioInput
 			open(stream);
 		}, function(error)
 		{
+			permissionRequests--;
 			starting = false;
 			parent.running = false;
+
+			if (isPermissionError(error))
+			{
+				setPermissionState(DENIED, true);
+			}
 		});
 
 		return false;
@@ -376,6 +435,81 @@ class HTML5AudioInput
 		refreshDevices();
 	}
 
+	private static function isPermissionError(error:Dynamic):Bool
+	{
+		var name:String = error != null ? error.name : null;
+
+		// PermissionDeniedError is what older Chrome versions used
+		return name == "NotAllowedError" || name == "SecurityError" || name == "PermissionDeniedError";
+	}
+
+	private static function queryPermission():Void
+	{
+		if (permissionQueried)
+		{
+			return;
+		}
+
+		permissionQueried = true;
+
+		var navigator:Dynamic = Browser.navigator;
+
+		if (navigator == null || navigator.permissions == null || navigator.permissions.query == null)
+		{
+			return;
+		}
+
+		try
+		{
+			var promise:Dynamic = navigator.permissions.query({name: "microphone"});
+
+			promise.then(function(status:Dynamic)
+			{
+				// Firefox answers "prompt" again after a refusal for this visit only,
+				// so the first answer does not replace what a request learned
+				if (permissionState == UNDETERMINED)
+				{
+					permissionState = toPermissionStatus(status.state);
+				}
+
+				status.onchange = function(event)
+				{
+					// A pending request dispatches the answer itself
+					setPermissionState(toPermissionStatus(status.state), permissionRequests == 0);
+				};
+			}, function(error) {});
+		}
+		catch (e:Dynamic)
+		{
+			// Some browsers throw for a permission name they do not know
+		}
+	}
+
+	private static function setPermissionState(status:PermissionStatus, dispatch:Bool):Void
+	{
+		if (status == permissionState)
+		{
+			return;
+		}
+
+		permissionState = status;
+
+		if (dispatch && status != UNDETERMINED)
+		{
+			AudioInput.onPermission.dispatch(status);
+		}
+	}
+
+	private static function toPermissionStatus(state:String):PermissionStatus
+	{
+		return switch (state)
+		{
+			case "granted": GRANTED;
+			case "denied": DENIED;
+			default: UNDETERMINED;
+		}
+	}
+
 	private static function refreshDevices():Void
 	{
 		if (enumeratingDevices || !isSupported())
@@ -434,7 +568,7 @@ class HTML5AudioInput
 		}
 	}
 
-	private function stopMediaStream(stream:Dynamic):Void
+	private static function stopMediaStream(stream:Dynamic):Void
 	{
 		if (stream == null || stream.getTracks == null)
 		{

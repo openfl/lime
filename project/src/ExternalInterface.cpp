@@ -29,6 +29,7 @@
 #include <media/containers/OGG.h>
 #include <media/containers/WAV.h>
 #include <media/AudioBuffer.h>
+#include <media/AudioInputPermission.h>
 #include <system/CFFIPointer.h>
 #include <system/Clipboard.h>
 #include <system/ClipboardEvent.h>
@@ -4626,6 +4627,34 @@ namespace lime {
 	HL_PRIM int HL_NAME(hl_system_get_device_orientation) () {
 
 		return System::GetDeviceOrientation();
+
+	}
+
+
+	int lime_audio_input_get_permission_status () {
+
+		return AudioInputPermission::GetStatus ();
+
+	}
+
+
+	HL_PRIM int HL_NAME(hl_audio_input_get_permission_status) () {
+
+		return AudioInputPermission::GetStatus ();
+
+	}
+
+
+	void lime_audio_input_request_permission () {
+
+		AudioInputPermission::Request ();
+
+	}
+
+
+	HL_PRIM void HL_NAME(hl_audio_input_request_permission) () {
+
+		AudioInputPermission::Request ();
 
 	}
 
@@ -14376,6 +14405,8 @@ namespace lime {
 	DEFINE_PRIME0 (lime_system_get_ios_tablet);
 	DEFINE_PRIME0 (lime_system_get_num_displays);
 	DEFINE_PRIME0 (lime_system_get_device_orientation);
+	DEFINE_PRIME0 (lime_audio_input_get_permission_status);
+	DEFINE_PRIME0v (lime_audio_input_request_permission);
 	DEFINE_PRIME0 (lime_system_get_platform_label);
 	DEFINE_PRIME0 (lime_system_get_platform_name);
 	DEFINE_PRIME0 (lime_system_get_platform_version);
@@ -14737,6 +14768,8 @@ namespace lime {
 	DEFINE_HL_PRIM (_BOOL, hl_system_get_ios_tablet, _NO_ARG);
 	DEFINE_HL_PRIM (_I32, hl_system_get_num_displays, _NO_ARG);
 	DEFINE_HL_PRIM (_I32, hl_system_get_device_orientation, _NO_ARG);
+	DEFINE_HL_PRIM (_I32, hl_audio_input_get_permission_status, _NO_ARG);
+	DEFINE_HL_PRIM (_VOID, hl_audio_input_request_permission, _NO_ARG);
 	DEFINE_HL_PRIM (_BYTES, hl_system_get_platform_label, _NO_ARG);
 	DEFINE_HL_PRIM (_BYTES, hl_system_get_platform_name, _NO_ARG);
 	DEFINE_HL_PRIM (_BYTES, hl_system_get_platform_version, _NO_ARG);
@@ -14965,6 +14998,7 @@ extern "C" int lime_sdl_sound_register_prims ();
 extern "C" int lime_sdl_sound_register_prims () { return 0; }
 #endif
 
+extern "C" int lime_camera_capture_register_prims ();
 extern "C" int lime_local_socket_register_prims ();
 extern "C" int lime_video_register_prims ();
 extern "C" int lime_web_view_register_prims ();
@@ -14979,6 +15013,7 @@ extern "C" int lime_vorbis_register_prims () { return 0; }
 extern "C" int lime_register_prims () {
 
 	lime_cairo_register_prims ();
+	lime_camera_capture_register_prims ();
 	lime_curl_register_prims ();
 	lime_harfbuzz_register_prims ();
 	lime_local_socket_register_prims ();
