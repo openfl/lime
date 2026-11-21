@@ -1,10 +1,14 @@
 package lime._internal.backend.flash;
 
+import flash.events.Event;
 import flash.events.SampleDataEvent;
+import flash.events.StatusEvent;
 import flash.media.Microphone;
 import haxe.io.Bytes;
+import haxe.Timer;
 import lime.media.AudioInput;
 import lime.media.AudioInputDevice;
+import lime.system.PermissionStatus;
 
 private typedef AudioInputData =
 {
@@ -16,6 +20,10 @@ private typedef AudioInputData =
 class FlashAudioInput
 {
 	private static inline var MAX_QUEUED_MS = 10000;
+
+	private static var permissionDenied:Bool;
+	private static var permissionMicrophone:Microphone;
+	private static var permissionRequests:Int = 0;
 
 	private var buffers:Array<AudioInputData>;
 	private var frameSize:Int;
@@ -59,9 +67,74 @@ class FlashAudioInput
 		return devices;
 	}
 
+	public static function getPermissionStatus():PermissionStatus
+	{
+		if (!isSupported())
+		{
+			return UNDETERMINED;
+		}
+
+		var status = getAIRPermissionStatus();
+
+		if (status != null)
+		{
+			return status == "granted" ? GRANTED : (status == "denied" ? DENIED : UNDETERMINED);
+		}
+
+		// Flash Player keeps a microphone muted until the user allows it in its dialog
+		var microphone = Microphone.getMicrophone();
+
+		if (microphone != null && !microphone.muted)
+		{
+			return GRANTED;
+		}
+
+		return permissionDenied ? DENIED : UNDETERMINED;
+	}
+
 	public static function isSupported():Bool
 	{
 		return Microphone.isSupported;
+	}
+
+	public static function requestPermission():Void
+	{
+		var microphone = isSupported() ? Microphone.getMicrophone() : null;
+
+		if (microphone == null)
+		{
+			Timer.delay(AudioInput.onPermission.dispatch.bind(false), 0);
+			return;
+		}
+
+		if (getAIRPermissionStatus() != null)
+		{
+			// AIR 24 and later ask with requestPermission() and answer with a PermissionEvent,
+			// which answers every request made meanwhile
+			if (permissionRequests++ > 0) return;
+			microphone.addEventListener("permissionStatus", microphone_onPermissionStatus);
+			untyped microphone.requestPermission();
+			return;
+		}
+
+		if (!microphone.muted)
+		{
+			Timer.delay(AudioInput.onPermission.dispatch.bind(true), 0);
+			return;
+		}
+
+		// One dialog answers every request made while it is shown
+		permissionRequests++;
+
+		if (permissionMicrophone != null)
+		{
+			return;
+		}
+
+		// Flash Player shows its dialog when a microphone is listened to, and answers with a StatusEvent
+		permissionMicrophone = microphone;
+		microphone.addEventListener(StatusEvent.STATUS, microphone_onStatus);
+		microphone.addEventListener(SampleDataEvent.SAMPLE_DATA, microphone_onPermissionSampleData);
 	}
 
 	public function new(parent:AudioInput)
@@ -286,6 +359,58 @@ class FlashAudioInput
 		buffers.push({bytes: bytes, offset: 0});
 		queuedBytes += bytes.length;
 		trimQueue();
+	}
+
+	private static function getAIRPermissionStatus():String
+	{
+		try
+		{
+			if (Reflect.hasField(Microphone, "permissionStatus"))
+			{
+				return Reflect.field(Microphone, "permissionStatus");
+			}
+		}
+		catch (e:Dynamic) {}
+
+		return null;
+	}
+
+	private static function microphone_onPermissionSampleData(event:SampleDataEvent):Void {}
+
+	private static function microphone_onPermissionStatus(event:Event):Void
+	{
+		event.target.removeEventListener("permissionStatus", microphone_onPermissionStatus);
+
+		var granted = (untyped event.status) == "granted";
+		var requests = permissionRequests;
+		permissionRequests = 0;
+
+		for (i in 0...requests)
+		{
+			AudioInput.onPermission.dispatch(granted);
+		}
+	}
+
+	private static function microphone_onStatus(event:StatusEvent):Void
+	{
+		if (event.code != "Microphone.Muted" && event.code != "Microphone.Unmuted")
+		{
+			return;
+		}
+
+		permissionMicrophone.removeEventListener(StatusEvent.STATUS, microphone_onStatus);
+		permissionMicrophone.removeEventListener(SampleDataEvent.SAMPLE_DATA, microphone_onPermissionSampleData);
+		permissionMicrophone = null;
+
+		permissionDenied = event.code == "Microphone.Muted";
+
+		var requests = permissionRequests;
+		permissionRequests = 0;
+
+		for (i in 0...requests)
+		{
+			AudioInput.onPermission.dispatch(!permissionDenied);
+		}
 	}
 
 	private function trimQueue():Void

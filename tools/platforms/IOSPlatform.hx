@@ -336,7 +336,8 @@ class IOSPlatform extends PlatformTarget
 
 		if (project.config.exists("ios.microphone-usage-description"))
 		{
-			context.IOS_MICROPHONE_USAGE_DESCRIPTION = project.config.getString("ios.microphone-usage-description");
+			// Info.plist is XML, so a description with & or < would break it
+			context.IOS_MICROPHONE_USAGE_DESCRIPTION = StringTools.htmlEscape(project.config.getString("ios.microphone-usage-description"), true);
 		}
 
 		// ProMotion iPhones run Core Animation above 60 Hz only with this key, which iPads
