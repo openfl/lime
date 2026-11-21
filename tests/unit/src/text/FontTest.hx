@@ -275,5 +275,77 @@ class FontTest extends Test
 			Assert.isTrue(empty > 0, "glyph " + glyph + " covers its whole box");
 		}
 	}
+
+	public function testAFontsOwnBitmapsAreRenderedAsTheyAre():Void
+	{
+		// A BDF font has only 1-bit bitmaps, which FreeType gives as they are,
+		// where it renders an outline as LCD. They were read as LCD, a third as
+		// wide, and past the end of FreeType's bitmap.
+		var rows = ["18", "24", "42", "42", "7E", "42", "42", "00"];
+		var bdf = [
+			"STARTFONT 2.1",
+			"FONT -lime-test-medium-r-normal--8-80-72-72-c-80-iso10646-1",
+			"SIZE 8 72 72",
+			"FONTBOUNDINGBOX 8 8 0 0",
+			"STARTPROPERTIES 3",
+			"FAMILY_NAME \"Lime Bitmap Test\"",
+			"FONT_ASCENT 8",
+			"FONT_DESCENT 0",
+			"ENDPROPERTIES",
+			"CHARS 1",
+			"STARTCHAR A",
+			"ENCODING 65",
+			"SWIDTH 500 0",
+			"DWIDTH 8 0",
+			"BBX 8 8 0 0",
+			"BITMAP"
+		].concat(rows).concat(["ENDCHAR", "ENDFONT", ""]).join("\n");
+
+		var expected = [];
+		for (row in rows)
+		{
+			var bits = Std.parseInt("0x" + row);
+			expected.push([for (x in 0...8) (bits & (0x80 >> x)) != 0 ? "#" : "."].join(""));
+		}
+
+		var font = Font.fromBytes(lime.utils.Bytes.ofString(bdf));
+		Assert.notNull(font, "the BDF font did not open");
+		if (font == null) return;
+
+		var glyph = font.getGlyph("A");
+
+		// Twice, as the bytes past the bitmap changed from one render to the next
+		for (i in 0...2)
+		{
+			var image = font.renderGlyph(glyph, 8, 72);
+			Assert.equals(expected.join("\n"), describeAlpha(image), "renderGlyph()");
+		}
+
+		var images = font.renderGlyphs([glyph], 8);
+		Assert.equals(expected.join("\n"), describeAlpha(images != null ? images.get(glyph) : null), "renderGlyphs()");
+	}
+
+	/** Each pixel as # where it is covered and . where it isn't, a line a row **/
+	private static function describeAlpha(image:lime.graphics.Image):String
+	{
+		if (image == null) return "null";
+
+		// renderGlyph() gives RGBA images of their own, renderGlyphs() 8-bit
+		// coverage within one buffer
+		var buffer = image.buffer;
+		var lines = [];
+		for (y in 0...image.height)
+		{
+			var line = "";
+			for (x in 0...image.width)
+			{
+				var pixel = (image.offsetY + y) * buffer.width + image.offsetX + x;
+				var coverage = buffer.bitsPerPixel == 8 ? buffer.data[pixel] : buffer.data[pixel * 4 + 3];
+				line += coverage > 127 ? "#" : ".";
+			}
+			lines.push(line);
+		}
+		return lines.join("\n");
+	}
 	#end
 }

@@ -1383,9 +1383,28 @@ namespace lime {
 			{
 				FT_Bitmap bitmap = ((FT_Face)face)->glyph->bitmap;
 
+				// An outline is rendered as LCD, three bytes a pixel. A font's
+				// embedded bitmap, which FreeType loads instead where the font has
+				// one at this size, is left as it is: 1-bit, 8-bit grey or BGRA.
 				int height = bitmap.rows;
-				int width = bitmap.width / 3; //Due to each pixel now has 3 components (R, G, B)
+				int width;
 				int pitch = bitmap.pitch;
+
+				switch (bitmap.pixel_mode)
+				{
+					case FT_PIXEL_MODE_LCD:
+						width = bitmap.width / 3;
+						break;
+
+					case FT_PIXEL_MODE_MONO:
+					case FT_PIXEL_MODE_GRAY:
+					case FT_PIXEL_MODE_BGRA:
+						width = bitmap.width;
+						break;
+
+					default:
+						return 0;
+				}
 
 				if (width == 0 || height == 0)
 					return 0;
@@ -1411,15 +1430,40 @@ namespace lime {
 
 				unsigned char *position = &data->data;
 
-				//Copy the bitmap data row by row, copying each RGB triplet and adding padding for 32-bit alignment
+				//Copy the bitmap data row by row, as RGBA, the alpha of LCD pixels being the mean of their three components
 				for (int i = 0; i < height; i++)
 				{
+					// A negative pitch has the bottom row first
+					const unsigned char *row = pitch >= 0 ? bitmap.buffer + i * pitch : bitmap.buffer + (height - 1 - i) * -pitch;
+
 					for (int j = 0; j < width; j++)
 					{
-						unsigned char r = bitmap.buffer[i * pitch + j * 3 + 0];
-						unsigned char g = bitmap.buffer[i * pitch + j * 3 + 1];
-						unsigned char b = bitmap.buffer[i * pitch + j * 3 + 2];
-						unsigned char a = (r + g + b) / 3;
+						unsigned char r, g, b, a;
+
+						switch (bitmap.pixel_mode)
+						{
+							case FT_PIXEL_MODE_LCD:
+								r = row[j * 3 + 0];
+								g = row[j * 3 + 1];
+								b = row[j * 3 + 2];
+								a = (r + g + b) / 3;
+								break;
+
+							case FT_PIXEL_MODE_MONO:
+								r = g = b = a = (row[j >> 3] & (0x80 >> (j & 7))) ? 255 : 0;
+								break;
+
+							case FT_PIXEL_MODE_GRAY:
+								r = g = b = a = row[j];
+								break;
+
+							default: // FT_PIXEL_MODE_BGRA
+								b = row[j * 4 + 0];
+								g = row[j * 4 + 1];
+								r = row[j * 4 + 2];
+								a = row[j * 4 + 3];
+								break;
+						}
 
 						//Red
 						position[(i * width + j) * 4 + 0] = r;
