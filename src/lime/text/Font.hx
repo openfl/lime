@@ -271,7 +271,7 @@ class Font
 		#if hl
 		if (data != null)
 		{
-			data.family_name = @:privateAccess String.fromUCS2(data.family_name);
+			data.family_name = data.family_name != null ? @:privateAccess String.fromUTF8(data.family_name) : null;
 			data.style_name = @:privateAccess String.fromUTF8(data.style_name);
 		}
 		#end
