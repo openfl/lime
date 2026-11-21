@@ -208,9 +208,8 @@ namespace lime {
 
 			}
 
-			// AVAssetReader only reads local files, so other URLs fail straight
-			// away rather than after loading over the network
-			return url && [url isFileURL] ? url : nil;
+			// Other URLs are downloaded by Open, since AVAssetReader only reads local files
+			return url;
 
 		}
 
@@ -471,6 +470,7 @@ namespace lime {
 
 			AVURLAsset* asset;
 			double assetDuration;
+			NSURL* downloadedURL;
 			int audioChannels;
 			AVAssetReaderTrackOutput* audioOutput;
 			double audioPosition;
@@ -508,6 +508,7 @@ namespace lime {
 
 		asset = nil;
 		assetDuration = 0;
+		downloadedURL = nil;
 		audioChannels = 0;
 		audioOutput = nil;
 		audioPosition = 0;
@@ -581,6 +582,14 @@ namespace lime {
 			videoTrack = nil;
 			LIME_RELEASE (asset);
 			asset = nil;
+
+			if (downloadedURL) {
+
+				[[NSFileManager defaultManager] removeItemAtURL:downloadedURL error:NULL];
+				LIME_RELEASE (downloadedURL);
+				downloadedURL = nil;
+
+			}
 
 		}
 
@@ -1008,6 +1017,52 @@ namespace lime {
 	#pragma clang diagnostic push
 	#pragma clang diagnostic ignored "-Wdeprecated-declarations"
 
+	// AVAssetReader only reads local files, so a URL is downloaded to a
+	// temporary file first, on the thread that opens it. This returns the file,
+	// retained, or nil.
+	static NSURL* DownloadURL (NSURL* url) {
+
+		NSString* extension = [[url path] pathExtension];
+		if ([extension length] == 0) extension = @"mp4";
+
+		NSString* name = [NSString stringWithFormat:@"lime-video-%@.%@", [[NSUUID UUID] UUIDString], extension];
+		NSURL* destination = [NSURL fileURLWithPath:[NSTemporaryDirectory () stringByAppendingPathComponent:name]];
+
+		NSURLSessionConfiguration* configuration = [NSURLSessionConfiguration ephemeralSessionConfiguration];
+		configuration.timeoutIntervalForRequest = 30;
+		NSURLSession* session = [NSURLSession sessionWithConfiguration:configuration];
+
+		__block NSURL* result = nil;
+		dispatch_semaphore_t done = dispatch_semaphore_create (0);
+
+		// The handler runs on the session's own queue, so waiting here does not hold it up
+		NSURLSessionDownloadTask* task = [session downloadTaskWithURL:url completionHandler:^(NSURL* location, NSURLResponse* response, NSError* error) {
+
+			NSInteger status = [response isKindOfClass:[NSHTTPURLResponse class]] ? [(NSHTTPURLResponse*)response statusCode] : 200;
+
+			if (!error && location && status >= 200 && status < 300 && [[NSFileManager defaultManager] moveItemAtURL:location toURL:destination error:NULL]) {
+
+				result = LIME_RETAIN (destination);
+
+			}
+
+			dispatch_semaphore_signal (done);
+
+		}];
+
+		[task resume];
+		dispatch_semaphore_wait (done, DISPATCH_TIME_FOREVER);
+		[session finishTasksAndInvalidate];
+
+		#if !__has_feature(objc_arc)
+		dispatch_release (done);
+		#endif
+
+		return result;
+
+	}
+
+
 	bool AVFVideoBackend::Open (const char* path, bool hardwareDecoding, VideoStreamInfo* info) {
 
 		Close ();
@@ -1020,6 +1075,14 @@ namespace lime {
 
 			NSURL* url = GetURL (path);
 			if (!url) return false;
+
+			if (![url isFileURL]) {
+
+				downloadedURL = DownloadURL (url);
+				if (!downloadedURL) return false;
+				url = downloadedURL;
+
+			}
 
 			// Precise timing makes the duration and the readers' time ranges exact for formats such as MP3
 			asset = [[AVURLAsset alloc] initWithURL:url options:@{ AVURLAssetPreferPreciseDurationAndTimingKey: @YES }];

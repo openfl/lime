@@ -34,6 +34,7 @@ import lime.utils.UInt8Array;
 @:fileXml('tags="haxe,release"')
 @:noDebug
 #end
+@:access(lime.media.VideoDecoder)
 @:access(lime.media.VideoSource)
 @:access(lime.system.System)
 class NativeVideoSource
@@ -397,6 +398,21 @@ class NativeVideoSource
 		return true;
 	}
 
+	public function openBytes(bytes:Bytes, format:VideoFrameFormat):Bool
+	{
+		close();
+
+		var decoder = new VideoDecoder();
+
+		if (!decoder.openBytes(bytes, format))
+		{
+			return false;
+		}
+
+		attach(decoder);
+		return true;
+	}
+
 	public function pause():Void
 	{
 		lockAudio();
@@ -610,7 +626,7 @@ class NativeVideoSource
 
 		this.decoder = decoder;
 		decoder.dropLateFrames = dropLateFrames;
-		bytesTotal = getFileSize(decoder.source);
+		bytesTotal = getFileSize(decoder.__temporaryPath != null ? decoder.__temporaryPath : decoder.source);
 		buffering = false;
 		waitingStamp = -1;
 
@@ -1277,6 +1293,11 @@ class NativeVideoSource
 		return !hasFrame && decoder.hasVideo && !decoder.videoComplete;
 	}
 
+	@:noCompletion private function getLoopPath():String
+	{
+		return decoder.__temporaryPath != null ? decoder.__temporaryPath : parent.source;
+	}
+
 	@:noCompletion private function openLoop():Void
 	{
 		// The next loop opens ahead of the end, so its sound and frames follow on
@@ -1288,13 +1309,13 @@ class NativeVideoSource
 		// Opening reads the file or waits for a server, so it happens on a thread
 		// of its own, which hands the decoder over under the source's lock
 		loopRequestsMutex.acquire();
-		loopRequests.push({format: decoder.format, hardwareDecoding: decoder.hardwareDecoding, path: parent.source, source: this, token: token});
+		loopRequests.push({format: decoder.format, hardwareDecoding: decoder.hardwareDecoding, path: getLoopPath(), source: this, token: token});
 		startLoopThread();
 		loopRequestsMutex.release();
 		#else
 		var next = new VideoDecoder();
 		next.hardwareDecoding = decoder.hardwareDecoding;
-		finishLoop(token, next.open(parent.source, decoder.format) ? next : null);
+		finishLoop(token, next.open(getLoopPath(), decoder.format) ? next : null);
 		#end
 	}
 
@@ -1422,6 +1443,11 @@ class NativeVideoSource
 		loopDecoder = null;
 		loopOpening = false;
 		loops--;
+
+		// A video from bytes loops on the same temporary file, which the decoder
+		// playing it deletes when it closes
+		decoder.__temporaryPath = previous.__temporaryPath;
+		previous.__temporaryPath = null;
 
 		if (audioDecoder == previous)
 		{
@@ -1629,7 +1655,7 @@ class NativeVideoSource
 			var videoDone = !decoder.hasVideo || (decoder.videoComplete && time >= frameEndTime)
 				|| (decoder.duration > 0 && time - loopOffset >= decoder.duration + frameDuration);
 
-			if (loops > 0 && loopDecoder == null && !loopOpening && decoder.duration > 0 && parent.source != null
+			if (loops > 0 && loopDecoder == null && !loopOpening && decoder.duration > 0 && getLoopPath() != null
 				&& time - loopOffset > decoder.duration - LOOP_OPEN_SECONDS)
 			{
 				openLoop();
