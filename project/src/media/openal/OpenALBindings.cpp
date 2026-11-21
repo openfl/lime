@@ -2446,6 +2446,28 @@ namespace lime {
 	}
 
 
+	// An integer property without a box, for Lime's own polling: AL_BUFFER, the
+	// one object getSourcei gives, isn't asked for here
+	int lime_al_get_sourcei_int (value source, int param) {
+
+		ALuint id = (ALuint)(uintptr_t)val_data (source);
+		ALint data = 0;
+		alGetSourcei (id, param, &data);
+		return data;
+
+	}
+
+
+	HL_PRIM int HL_NAME(hl_al_get_sourcei_int) (HL_CFFIPointer* source, int param) {
+
+		ALuint id = (ALuint)(uintptr_t)source->ptr;
+		ALint data = 0;
+		alGetSourcei (id, param, &data);
+		return data;
+
+	}
+
+
 	value lime_al_get_sourceiv (value source, int param, int count) {
 
 		ALuint id = (ALuint)(uintptr_t)val_data (source);
@@ -3916,6 +3938,7 @@ namespace lime {
 	DEFINE_PRIME2 (lime_al_get_sourcef);
 	DEFINE_PRIME3 (lime_al_get_sourcefv);
 	DEFINE_PRIME2 (lime_al_get_sourcei);
+	DEFINE_PRIME2 (lime_al_get_sourcei_int);
 	DEFINE_PRIME3 (lime_al_get_sourceiv);
 	DEFINE_PRIME1 (lime_al_get_string);
 	DEFINE_PRIME1 (lime_al_is_aux);
@@ -4048,6 +4071,7 @@ namespace lime {
 	DEFINE_HL_PRIM (_F32, hl_al_get_sourcef, _TCFFIPOINTER _I32);
 	DEFINE_HL_PRIM (_ARR, hl_al_get_sourcefv, _TCFFIPOINTER _I32 _I32);
 	DEFINE_HL_PRIM (_DYN, hl_al_get_sourcei, _TCFFIPOINTER _I32);
+	DEFINE_HL_PRIM (_I32, hl_al_get_sourcei_int, _TCFFIPOINTER _I32);
 	DEFINE_HL_PRIM (_ARR, hl_al_get_sourceiv, _TCFFIPOINTER _I32 _I32);
 	DEFINE_HL_PRIM (_BYTES, hl_al_get_string, _I32);
 	DEFINE_HL_PRIM (_BOOL, hl_al_is_aux, _TCFFIPOINTER);
