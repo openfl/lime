@@ -13,6 +13,7 @@ Changelog
 - Added configurable application frame timing with `FrameProfile`, `FrameOptions`, `VSyncMode`, busy-wait, time precision, and uncap controls.
 - Added `AudioInput` and audio input device APIs with native OpenAL, HTML5, and Flash backends.
 - Added `<config:ios microphone-usage-description="..." />` and `<config:mac microphone-usage-description="..." />` for applications that use the microphone.
+- Added `AudioInput.permissionStatus`, `AudioInput.requestPermission()` and `AudioInput.onPermission`, with the `PermissionStatus` type, on HTML5, Android, iOS, macOS and Flash. HTML5 now reports a refused microphone instead of leaving `running` false.
 - Added SDL_sound decoding and streaming, including inline stream playback, streams with unknown length, and loop counts.
 - Added `AudioBuffer.fromFileStream()`, `AudioBuffer.fromFilesStream()`, `AudioBuffer.fromBytesStream()`, `AudioBuffer.loadFromFileStream()`, and `AudioBuffer.loadFromFilesStream()`, which stream through SDL_sound, or Ogg Vorbis without it.
 - Added `Assets.getAudioBufferStream()` and `Assets.loadAudioBufferStream()` for streamed sound assets.
