@@ -16,6 +16,10 @@ namespace lime {
 	bool Clipboard::GetImage (std::vector<unsigned char>* pixels, int* width, int* height) { return false; }
 	bool Clipboard::HasFormat (int format) { return false; }
 	bool Clipboard::SetItems (const unsigned char* data, int length) { return false; }
+	bool Clipboard::HasDesktopText () { return false; }
+	bool Clipboard::SetDesktopText (const char* text) { return false; }
+
+
 	bool System::MoveToTrash (const char* path) { return false; }
 
 
