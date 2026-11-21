@@ -45,6 +45,9 @@ namespace lime {
 			static bool SeekStream (SDLSoundStream *stream, int ms);
 			static void CloseStream (SDLSoundStream *stream);
 
+			// Waits for calls under way, refuses later ones, then quits SDL_sound
+			static void Quit ();
+
 
 	};
 

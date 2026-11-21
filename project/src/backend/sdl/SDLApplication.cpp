@@ -1842,7 +1842,8 @@ namespace lime
 #endif
 
 #ifdef LIME_SDL_SOUND
-		Sound_Quit ();
+		// Not under a stream being refilled on another thread
+		SDLSound::Quit ();
 #endif
 
 		SDL_QuitSubSystem(initFlags);
