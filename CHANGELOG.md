@@ -81,6 +81,7 @@ Changelog
 - Added `AL.getSourcedvSOFT()` for OpenAL Soft's source latency extension.
 - Added `ALC.getStringList()` to list every audio output and input device.
 - Added `ALC.isExtensionPresent()`.
+- Added `AL.deleteAux()`, `AL.deleteEffect()` and `AL.deleteFilter()` to free the effect slots, effects and filters that `AL.createAux()`, `AL.createEffect()` and `AL.createFilter()` make.
 - Added window icons on Linux.
 - Added the `-noupdate` flag to `lime build` and `lime test` to skip the update step.
 - Added the `-arm64` flag to build HashLink/C applications for Apple Silicon on macOS, with binaries from `lime rebuild hl -arm64`. HashLink's JIT does not run on Apple Silicon yet.
@@ -157,6 +158,7 @@ Changelog
 - Fixed a crash opening compressed assets as files on Android.
 - Fixed OpenAL bindings returning uninitialized values, and `AL.sourceUnqueueBuffers()` returning buffers it didn't unqueue.
 - Fixed OpenAL objects deadlocking the collector when finalized, leaking buffers collected before their sources, and deleting the objects of a replacement device.
+- Fixed `AL.isFilter()` telling whether a source had the filter's name instead of whether it was a filter.
 - Fixed exceptions thrown in event listeners losing their original call site.
 - Fixed `Event` skipping a listener, or calling one again, when a listener adds or removes listeners while it runs.
 - Fixed constructing `Bytes` with no arguments on HashLink.
