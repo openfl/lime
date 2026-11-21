@@ -20,6 +20,7 @@ class ToolsTestMain
 		runner.addCase(new TemplateContextTest());
 		runner.addCase(new HTML5OutputTest());
 		runner.addCase(new AndroidOutputTest());
+		runner.addCase(new IOSOutputTest());
 		runner.addCase(new WindowsOutputTest());
 
 		// Each test is named as it starts, so a run that stops (the tools exit on errors) shows where
