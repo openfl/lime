@@ -211,12 +211,12 @@ namespace lime {
 		renderPass (VK_NULL_HANDLE),
 		commandPool (VK_NULL_HANDLE),
 		imageAvailableSemaphore (VK_NULL_HANDLE),
-		renderFinishedSemaphore (VK_NULL_HANDLE),
 		inFlightFence (VK_NULL_HANDLE),
 		overlayBuffer (VK_NULL_HANDLE),
 		overlayBufferMemory (VK_NULL_HANDLE),
 		portabilityEnumerationSupported (false),
 		portabilitySubsetSupported (false),
+		imageAvailableStale (false),
 		swapchainDirty (false),
 		overlayBufferCapacity (0),
 		overlayMappedData (0),
@@ -244,6 +244,9 @@ namespace lime {
 		Destroy ();
 		lastError.clear ();
 		info.clear ();
+
+		const char* fault = SDL_getenv ("LIME_VULKAN_RENDERER_FAULT");
+		faultStep = fault ? fault : "";
 
 		if (!window) {
 
@@ -312,13 +315,6 @@ namespace lime {
 
 		}
 
-		if (device && vkDestroySemaphore && renderFinishedSemaphore) {
-
-			vkDestroySemaphore (device, renderFinishedSemaphore, 0);
-			renderFinishedSemaphore = VK_NULL_HANDLE;
-
-		}
-
 		if (device && vkDestroySemaphore && imageAvailableSemaphore) {
 
 			vkDestroySemaphore (device, imageAvailableSemaphore, 0);
@@ -358,6 +354,7 @@ namespace lime {
 		deviceExtensions.clear ();
 		portabilityEnumerationSupported = false;
 		portabilitySubsetSupported = false;
+		imageAvailableStale = false;
 		swapchainDirty = false;
 		swapchainFormat = VK_FORMAT_UNDEFINED;
 		swapchainPresentMode = VK_PRESENT_MODE_FIFO_KHR;
@@ -384,6 +381,14 @@ namespace lime {
 				return false;
 
 			}
+
+		}
+
+		// A render that failed after acquiring an image left the semaphore to be signalled with nothing
+		// waiting on it. Recreating the swapchain waited for the device, so it is replaced now.
+		if (imageAvailableStale && !ReplaceImageAvailableSemaphore ()) {
+
+			return false;
 
 		}
 
@@ -417,24 +422,37 @@ namespace lime {
 
 		}
 
-		result = vkResetFences (device, 1, &inFlightFence);
+		// The fence is reset just before the submit that signals it again, so a render that fails
+		// before then leaves it signalled, and the next one doesn't wait on it forever
+		result = Fault ("reset") ? VK_ERROR_OUT_OF_HOST_MEMORY : vkResetCommandPool (device, commandPool, 0);
 		if (result != VK_SUCCESS) {
 
-			SetError (std::string ("vkResetFences failed: ") + VulkanResultToString (result));
+			SetError (std::string ("vkResetCommandPool failed: ") + VulkanResultToString (result));
+			DropAcquiredImage ();
 			return false;
 
 		}
 
-		result = vkResetCommandPool (device, commandPool, 0);
-		if (result != VK_SUCCESS) {
+		if (Fault ("record")) {
 
-			SetError (std::string ("vkResetCommandPool failed: ") + VulkanResultToString (result));
+			SetError (std::string ("vkEndCommandBuffer failed: ") + VulkanResultToString (VK_ERROR_OUT_OF_HOST_MEMORY));
+			DropAcquiredImage ();
 			return false;
 
 		}
 
 		if (!RecordCommandBuffer (imageIndex, red, green, blue, alpha)) {
 
+			DropAcquiredImage ();
+			return false;
+
+		}
+
+		result = vkResetFences (device, 1, &inFlightFence);
+		if (result != VK_SUCCESS) {
+
+			SetError (std::string ("vkResetFences failed: ") + VulkanResultToString (result));
+			DropAcquiredImage ();
 			return false;
 
 		}
@@ -449,12 +467,16 @@ namespace lime {
 		submitInfo.commandBufferCount = 1;
 		submitInfo.pCommandBuffers = &commandBuffers[imageIndex];
 		submitInfo.signalSemaphoreCount = 1;
-		submitInfo.pSignalSemaphores = &renderFinishedSemaphore;
+		submitInfo.pSignalSemaphores = &renderFinishedSemaphores[imageIndex];
 
-		result = vkQueueSubmit (queue, 1, &submitInfo, inFlightFence);
+		result = Fault ("submit") ? VK_ERROR_OUT_OF_DEVICE_MEMORY : vkQueueSubmit (queue, 1, &submitInfo, inFlightFence);
 		if (result != VK_SUCCESS) {
 
 			SetError (std::string ("vkQueueSubmit failed: ") + VulkanResultToString (result));
+
+			// Nothing will signal the fence that was reset for this submit, so it is made again, signalled
+			ReplaceFence ();
+			DropAcquiredImage ();
 			return false;
 
 		}
@@ -463,7 +485,7 @@ namespace lime {
 		memset (&presentInfo, 0, sizeof (presentInfo));
 		presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
 		presentInfo.waitSemaphoreCount = 1;
-		presentInfo.pWaitSemaphores = &renderFinishedSemaphore;
+		presentInfo.pWaitSemaphores = &renderFinishedSemaphores[imageIndex];
 		presentInfo.swapchainCount = 1;
 		presentInfo.pSwapchains = &swapchain;
 		presentInfo.pImageIndices = &imageIndex;
@@ -879,6 +901,31 @@ namespace lime {
 	}
 
 
+	bool VulkanRenderer::CreateRenderFinishedSemaphores () {
+
+		VkSemaphoreCreateInfo semaphoreInfo;
+		memset (&semaphoreInfo, 0, sizeof (semaphoreInfo));
+		semaphoreInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
+
+		renderFinishedSemaphores.resize (swapchainImages.size (), VK_NULL_HANDLE);
+
+		for (size_t i = 0; i < renderFinishedSemaphores.size (); ++i) {
+
+			VkResult result = vkCreateSemaphore (device, &semaphoreInfo, 0, &renderFinishedSemaphores[i]);
+			if (result != VK_SUCCESS) {
+
+				SetError (std::string ("vkCreateSemaphore failed: ") + VulkanResultToString (result));
+				return false;
+
+			}
+
+		}
+
+		return true;
+
+	}
+
+
 	bool VulkanRenderer::CreateRenderPass () {
 
 		VkAttachmentDescription colorAttachment;
@@ -1122,6 +1169,7 @@ namespace lime {
 		if (!CreateCommandPool ()) return false;
 		if (!CreateFramebuffers ()) return false;
 		if (!CreateCommandBuffers ()) return false;
+		if (!CreateRenderFinishedSemaphores ()) return false;
 		return true;
 
 	}
@@ -1139,14 +1187,6 @@ namespace lime {
 		fenceInfo.flags = VK_FENCE_CREATE_SIGNALED_BIT;
 
 		VkResult result = vkCreateSemaphore (device, &semaphoreInfo, 0, &imageAvailableSemaphore);
-		if (result != VK_SUCCESS) {
-
-			SetError (std::string ("vkCreateSemaphore failed: ") + VulkanResultToString (result));
-			return false;
-
-		}
-
-		result = vkCreateSemaphore (device, &semaphoreInfo, 0, &renderFinishedSemaphore);
 		if (result != VK_SUCCESS) {
 
 			SetError (std::string ("vkCreateSemaphore failed: ") + VulkanResultToString (result));
@@ -1206,6 +1246,18 @@ namespace lime {
 
 		commandBuffers.clear ();
 
+		for (size_t i = 0; i < renderFinishedSemaphores.size (); ++i) {
+
+			if (renderFinishedSemaphores[i] && device && vkDestroySemaphore) {
+
+				vkDestroySemaphore (device, renderFinishedSemaphores[i], 0);
+
+			}
+
+		}
+
+		renderFinishedSemaphores.clear ();
+
 		if (device && vkDestroyCommandPool && commandPool) {
 
 			vkDestroyCommandPool (device, commandPool, 0);
@@ -1251,6 +1303,25 @@ namespace lime {
 			swapchain = VK_NULL_HANDLE;
 
 		}
+
+	}
+
+
+	void VulkanRenderer::DropAcquiredImage () {
+
+		// The image acquired for a render that failed is never presented, and its semaphore is signalled
+		// with nothing waiting on it, so both are made again before the next render
+		imageAvailableStale = true;
+		swapchainDirty = true;
+
+	}
+
+
+	bool VulkanRenderer::Fault (const char* step) {
+
+		if (faultStep.empty () || faultStep != step) return false;
+		faultStep.clear ();
+		return true;
 
 	}
 
@@ -1735,6 +1806,67 @@ namespace lime {
 
 		swapchainDirty = (swapchain == VK_NULL_HANDLE || swapchainExtent.width == 0 || swapchainExtent.height == 0);
 		lastError.clear ();
+		return true;
+
+	}
+
+
+	bool VulkanRenderer::ReplaceFence () {
+
+		if (inFlightFence) {
+
+			vkDestroyFence (device, inFlightFence, 0);
+			inFlightFence = VK_NULL_HANDLE;
+
+		}
+
+		VkFenceCreateInfo fenceInfo;
+		memset (&fenceInfo, 0, sizeof (fenceInfo));
+		fenceInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
+		fenceInfo.flags = VK_FENCE_CREATE_SIGNALED_BIT;
+
+		VkResult result = vkCreateFence (device, &fenceInfo, 0, &inFlightFence);
+		if (result != VK_SUCCESS) {
+
+			SetError (std::string ("vkCreateFence failed: ") + VulkanResultToString (result));
+			return false;
+
+		}
+
+		return true;
+
+	}
+
+
+	bool VulkanRenderer::ReplaceImageAvailableSemaphore () {
+
+		if (vkDeviceWaitIdle (device) != VK_SUCCESS) {
+
+			SetError ("vkDeviceWaitIdle failed while replacing a semaphore");
+			return false;
+
+		}
+
+		if (imageAvailableSemaphore) {
+
+			vkDestroySemaphore (device, imageAvailableSemaphore, 0);
+			imageAvailableSemaphore = VK_NULL_HANDLE;
+
+		}
+
+		VkSemaphoreCreateInfo semaphoreInfo;
+		memset (&semaphoreInfo, 0, sizeof (semaphoreInfo));
+		semaphoreInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
+
+		VkResult result = vkCreateSemaphore (device, &semaphoreInfo, 0, &imageAvailableSemaphore);
+		if (result != VK_SUCCESS) {
+
+			SetError (std::string ("vkCreateSemaphore failed: ") + VulkanResultToString (result));
+			return false;
+
+		}
+
+		imageAvailableStale = false;
 		return true;
 
 	}
