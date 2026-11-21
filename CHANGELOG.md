@@ -19,6 +19,8 @@ Changelog
 - Added recovery of OpenAL Soft audio after its output device changes or is disconnected.
 - Added `AudioSource.playTogether()`, which starts several sources in the same mixer update on native targets, for tracks that must stay aligned.
 - Added `Window.alwaysOnTop` and transparent window support.
+- Added `Window.onDropStart`, `onDropText` and `onDropEnd`, so files dropped together can be handled as one group, and text drops on macOS, Linux and HTML5.
+- Added drag and drop in and out of windows: `Window.dropTarget`, `onDragEnter`, `onDragOver`, `onDragLeave`, `onDrop`, `dropAction` and `doDragDrop()`, with `DragData` in the clipboard's formats and `DropAction`, on Windows, macOS, Linux on X11 and HTML5.
 - Added `Window.nativeHandle`, the system's own window and display, for native code that works with them directly.
 - Added input event timestamps without changing listener signatures.
 - Added `Promise.completeAsync()`.
@@ -53,6 +55,7 @@ Changelog
 - Added `Menu`, `MenuItem`, `TrayIcon`, and `DockIcon` for native menu bars, context menus, system tray icons, and the macOS Dock, through the new native-desktop dependency.
 - Added the default macOS menu bar to `Application.menu`, which starts as a copy of it whose About, Hide, Services, Quit, and Window items keep working when items are added.
 - Added menu bars and context menus on HTML5, drawn in the page, for `Window.menu`, `Application.menu`, and `Menu.popup()`.
+- Added `Clipboard.hasFormat()`, `getData()`, `setData()` and `clear()`, with `ClipboardFormat`, for HTML, rich text, URLs, file lists and images on Windows, macOS and Linux with GTK, and text, HTML and images on HTML5.
 - Added `LocalServer` and `LocalSocket` for connections between processes of the same user, through the new native-ipc dependency.
 - Added `WebView`, a web page in a window on Windows, Linux, macOS, iOS, Android, AIR and in browsers, through the new StageWebView dependency. The `no-webview` define leaves the webview engine out of native and Android applications.
 - Added `WebSocket` and `WebSocketServer` for `ws://` and `wss://` clients and servers, through the new wsproto dependency, which CrossByte's WebSocket also runs on. Native targets need Haxe 4 for them.

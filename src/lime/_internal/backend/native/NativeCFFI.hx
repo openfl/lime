@@ -122,6 +122,16 @@ class NativeCFFI
 
 	@:cffi private static function lime_clipboard_set_text(text:String):Void;
 
+	@:cffi private static function lime_clipboard_get_files():Dynamic;
+
+	@:cffi private static function lime_clipboard_get_format_text(format:Int):Dynamic;
+
+	@:cffi private static function lime_clipboard_get_image(data:Dynamic):Dynamic;
+
+	@:cffi private static function lime_clipboard_has_format(format:Int):Bool;
+
+	@:cffi private static function lime_clipboard_set_items(data:Dynamic):Bool;
+
 	@:cffi private static function lime_data_pointer_offset(dataPointer:DataPointer, offset:Int):Float;
 
 	@:cffi private static function lime_deflate_compress(data:Dynamic, bytes:Dynamic):Dynamic;
@@ -135,6 +145,18 @@ class NativeCFFI
 	@:cffi private static function lime_dock_icon_set_icon(buffer:Dynamic):Void;
 
 	@:cffi private static function lime_dock_icon_set_menu(data:Dynamic):Bool;
+
+	@:cffi private static function lime_drag_data_get_files():Dynamic;
+
+	@:cffi private static function lime_drag_data_get_format_text(format:Int):Dynamic;
+
+	@:cffi private static function lime_drag_data_get_image(data:Dynamic):Dynamic;
+
+	@:cffi private static function lime_drag_data_has_format(format:Int):Bool;
+
+	@:cffi private static function lime_drag_drop_is_supported():Bool;
+
+	@:cffi private static function lime_drag_event_manager_register(callback:Dynamic, eventObject:Dynamic):Void;
 
 	@:cffi private static function lime_drop_event_manager_register(callback:Dynamic, eventObject:Dynamic):Void;
 
@@ -432,6 +454,10 @@ class NativeCFFI
 	@:cffi private static function lime_window_alert(handle:Dynamic, message:String, title:String):Void;
 
 	@:cffi private static function lime_window_close(handle:Dynamic):Void;
+
+	@:cffi private static function lime_window_set_drag_target(handle:Dynamic, enabled:Bool):Bool;
+
+	@:cffi private static function lime_window_start_drag(handle:Dynamic, items:Dynamic, image:Dynamic, offsetX:Int, offsetY:Int, actions:Int, id:Int):Int;
 
 	@:cffi private static function lime_window_context_flip(handle:Dynamic):Void;
 
@@ -965,6 +991,12 @@ class NativeCFFI
 		"lime_clipboard_event_manager_register", "oov", false));
 	private static var lime_clipboard_get_text = new cpp.Callable<Void->cpp.Object>(cpp.Prime._loadPrime("lime", "lime_clipboard_get_text", "o", false));
 	private static var lime_clipboard_set_text = new cpp.Callable<String->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_clipboard_set_text", "sv", false));
+	private static var lime_clipboard_get_files = new cpp.Callable<Void->cpp.Object>(cpp.Prime._loadPrime("lime", "lime_clipboard_get_files", "o", false));
+	private static var lime_clipboard_get_format_text = new cpp.Callable<Int->cpp.Object>(cpp.Prime._loadPrime("lime", "lime_clipboard_get_format_text", "io",
+		false));
+	private static var lime_clipboard_get_image = new cpp.Callable<cpp.Object->cpp.Object>(cpp.Prime._loadPrime("lime", "lime_clipboard_get_image", "oo", false));
+	private static var lime_clipboard_has_format = new cpp.Callable<Int->Bool>(cpp.Prime._loadPrime("lime", "lime_clipboard_has_format", "ib", false));
+	private static var lime_clipboard_set_items = new cpp.Callable<cpp.Object->Bool>(cpp.Prime._loadPrime("lime", "lime_clipboard_set_items", "ob", false));
 	private static var lime_data_pointer_offset = new cpp.Callable<lime.utils.DataPointer->Int->Float>(cpp.Prime._loadPrime("lime",
 		"lime_data_pointer_offset", "did", false));
 	private static var lime_deflate_compress = new cpp.Callable<cpp.Object->cpp.Object->cpp.Object>(cpp.Prime._loadPrime("lime", "lime_deflate_compress",
@@ -975,6 +1007,14 @@ class NativeCFFI
 	private static var lime_dock_icon_is_supported = new cpp.Callable<Void->Bool>(cpp.Prime._loadPrime("lime", "lime_dock_icon_is_supported", "b", false));
 	private static var lime_dock_icon_set_icon = new cpp.Callable<cpp.Object->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_dock_icon_set_icon", "ov", false));
 	private static var lime_dock_icon_set_menu = new cpp.Callable<cpp.Object->Bool>(cpp.Prime._loadPrime("lime", "lime_dock_icon_set_menu", "ob", false));
+	private static var lime_drag_data_get_files = new cpp.Callable<Void->cpp.Object>(cpp.Prime._loadPrime("lime", "lime_drag_data_get_files", "o", false));
+	private static var lime_drag_data_get_format_text = new cpp.Callable<Int->cpp.Object>(cpp.Prime._loadPrime("lime", "lime_drag_data_get_format_text", "io",
+		false));
+	private static var lime_drag_data_get_image = new cpp.Callable<cpp.Object->cpp.Object>(cpp.Prime._loadPrime("lime", "lime_drag_data_get_image", "oo", false));
+	private static var lime_drag_data_has_format = new cpp.Callable<Int->Bool>(cpp.Prime._loadPrime("lime", "lime_drag_data_has_format", "ib", false));
+	private static var lime_drag_drop_is_supported = new cpp.Callable<Void->Bool>(cpp.Prime._loadPrime("lime", "lime_drag_drop_is_supported", "b", false));
+	private static var lime_drag_event_manager_register = new cpp.Callable<cpp.Object->cpp.Object->cpp.Void>(cpp.Prime._loadPrime("lime",
+		"lime_drag_event_manager_register", "oov", false));
 	private static var lime_drop_event_manager_register = new cpp.Callable<cpp.Object->cpp.Object->cpp.Void>(cpp.Prime._loadPrime("lime",
 		"lime_drop_event_manager_register", "oov", false));
 	private static var lime_file_dialog_open_directory = new cpp.Callable<String->String->String->cpp.Object>(cpp.Prime._loadPrime("lime",
@@ -1221,6 +1261,10 @@ class NativeCFFI
 	private static var lime_window_alert = new cpp.Callable<cpp.Object->String->String->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_window_alert", "ossv",
 		false));
 	private static var lime_window_close = new cpp.Callable<cpp.Object->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_window_close", "ov", false));
+	private static var lime_window_set_drag_target = new cpp.Callable<cpp.Object->Bool->Bool>(cpp.Prime._loadPrime("lime", "lime_window_set_drag_target", "obb",
+		false));
+	private static var lime_window_start_drag = new cpp.Callable<cpp.Object->cpp.Object->cpp.Object->Int->Int->Int->Int->Int>(cpp.Prime._loadPrime("lime",
+		"lime_window_start_drag", "oooiiiii", false));
 	private static var lime_window_context_flip = new cpp.Callable<cpp.Object->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_window_context_flip", "ov", false));
 	private static var lime_window_context_lock = new cpp.Callable<cpp.Object->cpp.Object>(cpp.Prime._loadPrime("lime", "lime_window_context_lock", "oo",
 		false));
@@ -1596,6 +1640,11 @@ class NativeCFFI
 	private static var lime_clipboard_event_manager_register = CFFI.load("lime", "lime_clipboard_event_manager_register", 2);
 	private static var lime_clipboard_get_text = CFFI.load("lime", "lime_clipboard_get_text", 0);
 	private static var lime_clipboard_set_text = CFFI.load("lime", "lime_clipboard_set_text", 1);
+	private static var lime_clipboard_get_files = CFFI.load("lime", "lime_clipboard_get_files", 0);
+	private static var lime_clipboard_get_format_text = CFFI.load("lime", "lime_clipboard_get_format_text", 1);
+	private static var lime_clipboard_get_image = CFFI.load("lime", "lime_clipboard_get_image", 1);
+	private static var lime_clipboard_has_format = CFFI.load("lime", "lime_clipboard_has_format", 1);
+	private static var lime_clipboard_set_items = CFFI.load("lime", "lime_clipboard_set_items", 1);
 	private static var lime_data_pointer_offset = CFFI.load("lime", "lime_data_pointer_offset", 2);
 	private static var lime_deflate_compress = CFFI.load("lime", "lime_deflate_compress", 2);
 	private static var lime_deflate_decompress = CFFI.load("lime", "lime_deflate_decompress", 2);
@@ -1603,6 +1652,12 @@ class NativeCFFI
 	private static var lime_dock_icon_is_supported = CFFI.load("lime", "lime_dock_icon_is_supported", 0);
 	private static var lime_dock_icon_set_icon = CFFI.load("lime", "lime_dock_icon_set_icon", 1);
 	private static var lime_dock_icon_set_menu = CFFI.load("lime", "lime_dock_icon_set_menu", 1);
+	private static var lime_drag_data_get_files = CFFI.load("lime", "lime_drag_data_get_files", 0);
+	private static var lime_drag_data_get_format_text = CFFI.load("lime", "lime_drag_data_get_format_text", 1);
+	private static var lime_drag_data_get_image = CFFI.load("lime", "lime_drag_data_get_image", 1);
+	private static var lime_drag_data_has_format = CFFI.load("lime", "lime_drag_data_has_format", 1);
+	private static var lime_drag_drop_is_supported = CFFI.load("lime", "lime_drag_drop_is_supported", 0);
+	private static var lime_drag_event_manager_register = CFFI.load("lime", "lime_drag_event_manager_register", 2);
 	private static var lime_drop_event_manager_register = CFFI.load("lime", "lime_drop_event_manager_register", 2);
 	private static var lime_file_dialog_open_directory = CFFI.load("lime", "lime_file_dialog_open_directory", 3);
 	private static var lime_file_dialog_open_file = CFFI.load("lime", "lime_file_dialog_open_file", 3);
@@ -1750,6 +1805,8 @@ class NativeCFFI
 	private static var lime_video_decoder_set_drop_late_frames = CFFI.load("lime", "lime_video_decoder_set_drop_late_frames", 2);
 	private static var lime_window_alert = CFFI.load("lime", "lime_window_alert", 3);
 	private static var lime_window_close = CFFI.load("lime", "lime_window_close", 1);
+	private static var lime_window_set_drag_target = CFFI.load("lime", "lime_window_set_drag_target", 2);
+	private static var lime_window_start_drag = CFFI.load("lime", "lime_window_start_drag", -1);
 	private static var lime_window_context_flip = CFFI.load("lime", "lime_window_context_flip", 1);
 	private static var lime_window_context_lock = CFFI.load("lime", "lime_window_context_lock", 1);
 	private static var lime_window_context_make_current = CFFI.load("lime", "lime_window_context_make_current", 1);
@@ -2076,6 +2133,31 @@ class NativeCFFI
 
 	@:hlNative("lime", "hl_clipboard_set_text") private static function lime_clipboard_set_text(text:String):Void {}
 
+	@:hlNative("lime", "hl_clipboard_get_files") private static function lime_clipboard_get_files():hl.Bytes
+	{
+		return null;
+	}
+
+	@:hlNative("lime", "hl_clipboard_get_format_text") private static function lime_clipboard_get_format_text(format:Int):hl.Bytes
+	{
+		return null;
+	}
+
+	@:hlNative("lime", "hl_clipboard_get_image") private static function lime_clipboard_get_image(data:Bytes):Bytes
+	{
+		return null;
+	}
+
+	@:hlNative("lime", "hl_clipboard_has_format") private static function lime_clipboard_has_format(format:Int):Bool
+	{
+		return false;
+	}
+
+	@:hlNative("lime", "hl_clipboard_set_items") private static function lime_clipboard_set_items(data:Bytes):Bool
+	{
+		return false;
+	}
+
 	@:hlNative("lime", "hl_data_pointer_offset") private static function lime_data_pointer_offset(dataPointer:DataPointer, offset:Int):Float
 	{
 		return 0;
@@ -2104,6 +2186,34 @@ class NativeCFFI
 	{
 		return false;
 	}
+
+	@:hlNative("lime", "hl_drag_data_get_files") private static function lime_drag_data_get_files():hl.Bytes
+	{
+		return null;
+	}
+
+	@:hlNative("lime", "hl_drag_data_get_format_text") private static function lime_drag_data_get_format_text(format:Int):hl.Bytes
+	{
+		return null;
+	}
+
+	@:hlNative("lime", "hl_drag_data_get_image") private static function lime_drag_data_get_image(data:Bytes):Bytes
+	{
+		return null;
+	}
+
+	@:hlNative("lime", "hl_drag_data_has_format") private static function lime_drag_data_has_format(format:Int):Bool
+	{
+		return false;
+	}
+
+	@:hlNative("lime", "hl_drag_drop_is_supported") private static function lime_drag_drop_is_supported():Bool
+	{
+		return false;
+	}
+
+	@:hlNative("lime", "hl_drag_event_manager_register") private static function lime_drag_event_manager_register(callback:Void->Void,
+		eventObject:DragEventInfo):Void {}
 
 	@:hlNative("lime", "hl_drop_event_manager_register") private static function lime_drop_event_manager_register(callback:Void->Void,
 		eventObject:DropEventInfo):Void {}
@@ -2726,6 +2836,17 @@ class NativeCFFI
 	@:hlNative("lime", "hl_window_alert") private static function lime_window_alert(handle:CFFIPointer, message:String, title:String):Void {}
 
 	@:hlNative("lime", "hl_window_close") private static function lime_window_close(handle:CFFIPointer):Void {}
+
+	@:hlNative("lime", "hl_window_set_drag_target") private static function lime_window_set_drag_target(handle:CFFIPointer, enabled:Bool):Bool
+	{
+		return false;
+	}
+
+	@:hlNative("lime", "hl_window_start_drag") private static function lime_window_start_drag(handle:CFFIPointer, items:Bytes, image:Bytes, offsetX:Int,
+			offsetY:Int, actions:Int, id:Int):Int
+	{
+		return 0;
+	}
 
 	@:hlNative("lime", "hl_window_context_flip") private static function lime_window_context_flip(handle:CFFIPointer):Void {}
 

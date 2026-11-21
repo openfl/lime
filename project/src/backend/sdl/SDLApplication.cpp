@@ -270,6 +270,9 @@ namespace lime
 		WindowEvent windowEvent;
 
 		SDL_EventState(SDL_DROPFILE, SDL_ENABLE);
+		SDL_EventState(SDL_DROPTEXT, SDL_ENABLE);
+		SDL_EventState(SDL_DROPBEGIN, SDL_ENABLE);
+		SDL_EventState(SDL_DROPCOMPLETE, SDL_ENABLE);
 		SDLJoystick::Init();
 #if defined(HX_WINDOWS) && !defined(HX_WINRT)
 		SDL_AtomicSet(&s_nativeModalLoopDepth, 0);
@@ -949,6 +952,9 @@ namespace lime
 			break;
 
 		case SDL_DROPFILE:
+		case SDL_DROPTEXT:
+		case SDL_DROPBEGIN:
+		case SDL_DROPCOMPLETE:
 
 			ProcessDropEvent(event);
 			break;
@@ -1174,12 +1180,28 @@ namespace lime
 		if (DropEvent::callback)
 		{
 
-			dropEvent.type = DROP_FILE;
+			switch (event->type)
+			{
+			case SDL_DROPTEXT:
+				dropEvent.type = DROP_TEXT;
+				break;
+			case SDL_DROPBEGIN:
+				dropEvent.type = DROP_BEGIN;
+				break;
+			case SDL_DROPCOMPLETE:
+				dropEvent.type = DROP_COMPLETE;
+				break;
+			default:
+				dropEvent.type = DROP_FILE;
+				break;
+			}
+
 			dropEvent.file = (vbyte *)event->drop.file;
 			dropEvent.windowID = event->drop.windowID;
 
 			DropEvent::Dispatch(&dropEvent);
-			SDL_free(dropEvent.file);
+			if (event->drop.file) SDL_free(event->drop.file);
+			dropEvent.file = NULL;
 		}
 	}
 

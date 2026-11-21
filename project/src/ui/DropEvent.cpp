@@ -40,7 +40,8 @@ namespace lime {
 
 				value object = (value)DropEvent::eventObject->Get ();
 
-				alloc_field (object, id_file, alloc_string ((const char*)event->file));
+				// Begin and complete events carry no file or text
+				alloc_field (object, id_file, alloc_string (event->file ? (const char*)event->file : ""));
 				alloc_field (object, id_type, alloc_int (event->type));
 				alloc_field (object, id_windowID, alloc_int (event->windowID));
 
@@ -48,9 +49,13 @@ namespace lime {
 
 				DropEvent* eventObject = (DropEvent*)DropEvent::eventObject->Get ();
 
-				int length = strlen ((const char*)event->file);
+				const char* text = event->file ? (const char*)event->file : "";
+				int length = strlen (text);
 				char* file = (char*)malloc (length + 1);
-				strcpy (file, (const char*)event->file);
+				strcpy (file, text);
+
+				// The previous copy was read in its own dispatch
+				if (eventObject->file) free (eventObject->file);
 				eventObject->file = (vbyte*)file;
 				eventObject->type = event->type;
 				eventObject->windowID = event->windowID;
