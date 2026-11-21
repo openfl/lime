@@ -134,8 +134,8 @@ class Main extends Application
 			return;
 		}
 
-		window.dragTarget = true;
-		if (!window.dragTarget || !untyped __cpp__('IntegrationDropTarget()')) fail("The window did not become a drop target");
+		window.dropTarget = true;
+		if (!window.dropTarget || !untyped __cpp__('IntegrationDropTarget()')) fail("The window did not become a drop target");
 
 		var accept:DropAction = COPY;
 		var allowed:DropAction = COPY | MOVE;
@@ -203,12 +203,12 @@ class Main extends Application
 			var data = new DragData();
 			data.setData(TEXT, "out");
 			var result:Null<DropAction> = null;
-			window.startDrag(data, null, 0, 0, COPY).onComplete(action -> result = action);
+			window.doDragDrop(data, null, 0, 0, COPY).onComplete(action -> result = action);
 			if (result != DropAction.NONE) fail("A drag out without a held button gave " + result);
 		}
 
-		window.dragTarget = false;
-		if (window.dragTarget || untyped __cpp__('IntegrationDropTarget()')) fail("The window stayed a drop target");
+		window.dropTarget = false;
+		if (window.dropTarget || untyped __cpp__('IntegrationDropTarget()')) fail("The window stayed a drop target");
 
 		Sys.println("ok: drag and drop forwarding, drop actions, file and text drops, and drop target registration");
 		#end

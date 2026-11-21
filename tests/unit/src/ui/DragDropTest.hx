@@ -11,8 +11,8 @@ import utest.Async;
 import utest.Test;
 
 /**
-	`Window.dragTarget`, `onDragEnter`, `onDragOver`, `onDragLeave`, `onDrop`,
-	`dropAction` and `startDrag`, with `DragData` and `DropAction`.
+	`Window.dropTarget`, `onDragEnter`, `onDragOver`, `onDragLeave`, `onDrop`,
+	`dropAction` and `doDragDrop`, with `DragData` and `DropAction`.
 
 	On native targets the drag events are handed to the application as
 	native-desktop's handler hands them over, and the action the listeners
@@ -102,7 +102,7 @@ class DragDropTest extends Test
 		window.onDropFile.removeAll();
 		window.onDropText.removeAll();
 		window.onDropEnd.removeAll();
-		window.dragTarget = false;
+		window.dropTarget = false;
 		window.dropAction = NONE;
 	}
 
@@ -232,8 +232,8 @@ class DragDropTest extends Test
 		var window = open();
 		if (window == null) return;
 
-		Assert.equals(DropAction.NONE, value(window.startDrag(null)));
-		Assert.equals(DropAction.NONE, value(window.startDrag(DragData.__fromSystem(COPY))));
+		Assert.equals(DropAction.NONE, value(window.doDragDrop(null)));
+		Assert.equals(DropAction.NONE, value(window.doDragDrop(DragData.__fromSystem(COPY))));
 	}
 
 	public function testTheWindowBecomesADropTargetWhereSupported():Void
@@ -241,11 +241,11 @@ class DragDropTest extends Test
 		var window = open();
 		if (window == null) return;
 
-		Assert.isFalse(window.dragTarget);
-		window.dragTarget = true;
-		Assert.equals(DragData.isSupported, window.dragTarget);
-		window.dragTarget = false;
-		Assert.isFalse(window.dragTarget);
+		Assert.isFalse(window.dropTarget);
+		window.dropTarget = true;
+		Assert.equals(DragData.isSupported, window.dropTarget);
+		window.dropTarget = false;
+		Assert.isFalse(window.dropTarget);
 	}
 
 	#if (cpp && windows)
@@ -279,7 +279,7 @@ class DragDropTest extends Test
 			return;
 		}
 
-		window.dragTarget = true;
+		window.dropTarget = true;
 		var hwnd = window.nativeHandle.window;
 		Assert.isTrue(WindowsDragSource.isTarget(hwnd));
 
@@ -324,7 +324,7 @@ class DragDropTest extends Test
 		Assert.equals(0, WindowsDragSource.drag(hwnd, text, null, 10, 20, 3));
 		Assert.equals("enter 3 true false|over|leave", heard.join("|"));
 
-		window.dragTarget = false;
+		window.dropTarget = false;
 		Assert.isFalse(WindowsDragSource.isTarget(hwnd));
 	}
 	#end
@@ -438,7 +438,7 @@ class DragDropTest extends Test
 			dispatch("dragenter", transfer);
 			Assert.equals("", heard.join("|"), "drags reached a window that is not a target");
 
-			window.dragTarget = true;
+			window.dropTarget = true;
 			Assert.isFalse(dispatch("dragenter", transfer), "an accepted drag was not let through");
 			// Entering a child of the element is not a second drag
 			dispatch("dragenter", transfer);
@@ -451,7 +451,7 @@ class DragDropTest extends Test
 			Assert.isTrue(dispatch("dragenter", transfer), "a refused drag was let through");
 			dispatch("dragleave", transfer);
 
-			window.dragTarget = false;
+			window.dropTarget = false;
 			window.onDragEnter.removeAll();
 			window.onDragOver.removeAll();
 			window.onDragLeave.removeAll();
