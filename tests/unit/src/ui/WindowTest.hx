@@ -309,6 +309,94 @@ class WindowTest extends Test
 		}, 1);
 	}
 
+	// A frame drawn while the window is resized used to run inside SDL's event watch, with SDL's
+	// event lock held, so a thread pushing an event waited for the frame to end. native-ipc's
+	// threads push one to wake the application when a local socket's message is queued, and
+	// closing that socket joins its thread, so closing it in such a frame waited forever.
+	@:timeout(10000)
+	public function testClosingALocalSocketInAFrameDrawnWhileResizedReturns(async:Async):Void
+	{
+		var name = "lime-test-resize-" + Std.random(0x3FFFFFFF);
+		var server = new lime.net.LocalServer();
+		var taken:lime.net.LocalSocket = null;
+		server.onConnect.add(function(socket) taken = socket);
+		Assert.isTrue(server.listen(name), "the server did not listen: " + server.error);
+
+		var client = new lime.net.LocalSocket();
+		client.connect(name, 3000);
+
+		var window = Application.current.createWindow({width: 64, height: 64, hidden: true, resizable: true, title: "WindowTest"});
+		if (window == null)
+		{
+			canCreateWindows();
+			client.close();
+			server.close();
+			async.done();
+			return;
+		}
+
+		// The application's loop dispatches the connection, then the window is resized
+		var deadline = Timer.stamp() + 5;
+		var resize:Void->Void = null;
+		var wait:Void->Void = null;
+		wait = function()
+		{
+			if (taken != null && client.connected)
+			{
+				resize();
+			}
+			else if (Timer.stamp() > deadline)
+			{
+				Assert.fail("the local socket did not connect");
+				client.close();
+				server.close();
+				window.close();
+				async.done();
+			}
+			else
+			{
+				Timer.delay(wait, 10);
+			}
+		};
+
+		resize = function()
+		{
+			var application = Application.current;
+			var backend = @:privateAccess application.__backend;
+			// Frames a second apart: none is due while the window is resized, so only resizing draws one
+			backend.configureFrameTiming(application.frameProfile, 1, application.frameOptions);
+
+			var resizing = false;
+			var closed = false;
+			window.onRender.add(function(_)
+			{
+				if (!resizing || closed) return;
+
+				// The taken end's thread queues the message and wakes the application, then is joined
+				client.send(haxe.io.Bytes.ofString("wake"));
+				Sys.sleep(0.2);
+				taken.close();
+				closed = true;
+			});
+
+			var hwnd = window.nativeHandle.window;
+			resizing = true;
+			sendWindowMessage(hwnd, 0x0231 /* WM_ENTERSIZEMOVE */);
+			resizeWindow(hwnd, 360, 260);
+			sendWindowMessage(hwnd, 0x0232 /* WM_EXITSIZEMOVE */);
+			resizing = false;
+			backend.configureFrameTiming(application.frameProfile, @:privateAccess application.__frameRate, application.frameOptions);
+
+			Assert.isTrue(closed, "no frame was drawn while the window was resized");
+			client.close();
+			server.close();
+			window.close();
+			async.done();
+		};
+
+		Timer.delay(wait, 1);
+	}
+
 	@:timeout(5000)
 	public function testASizeOnlyProposedWhileResizedIsNotLaidOut(async:Async):Void
 	{

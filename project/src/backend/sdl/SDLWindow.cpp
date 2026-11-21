@@ -281,7 +281,12 @@ namespace lime {
 			ClearResizeEventProperties (hwnd);
 		}
 
-		return DefSubclassProc (hwnd, message, wParam, lParam);
+		LRESULT result = DefSubclassProc (hwnd, message, wParam, lParam);
+
+		// A frame the window's events asked for while the application waits or Windows resizes it, drawn
+		// now that SDL has queued them and let go of its event lock
+		SDLApplication::RunPendingModalFrame ();
+		return result;
 
 	}
 

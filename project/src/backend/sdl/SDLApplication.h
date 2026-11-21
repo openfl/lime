@@ -53,6 +53,7 @@ namespace lime {
 #if defined(HX_WINDOWS) && !defined(HX_WINRT)
 			static void EnterNativeModalLoop ();
 			static void ExitNativeModalLoop ();
+			static void RunPendingModalFrame ();
 			void SetModalCallbacks (ValuePointer* update, ValuePointer* render, ValuePointer* window, ValuePointer* rethrow);
 			void DeferModalException ();
 #endif
@@ -213,6 +214,8 @@ namespace lime {
 			bool modalWatchInstalled;
 			ValuePointer* modalCallbacks[4];
 			bool modalExceptionPending;
+			SDL_Event modalFrameEvent;
+			bool modalFramePending;
 			std::exception_ptr modalNativeException;
 			Uint32 mainThreadID;
 			std::map<Uint32, std::pair<int, int>> dispatchedWindowSizes;
