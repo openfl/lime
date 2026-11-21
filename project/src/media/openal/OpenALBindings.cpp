@@ -2624,7 +2624,7 @@ namespace lime {
 
 		#ifdef LIME_OPENALSOFT
 		ALuint id = (ALuint)(uintptr_t)val_data (filter);
-		return alIsSource (id);
+		return alIsFilter (id);
 		#else
 		return false;
 		#endif
@@ -2636,7 +2636,7 @@ namespace lime {
 
 		#ifdef LIME_OPENALSOFT
 		ALuint id = (ALuint)(uintptr_t)filter->ptr;
-		return alIsSource (id);
+		return alIsFilter (id);
 		#else
 		return false;
 		#endif
