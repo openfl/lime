@@ -337,11 +337,10 @@ namespace lime {
 
 			bool Open (const char* id, int requestedWidth, int requestedHeight, double requestedFrameRate) {
 
+				// Only a camera the device monitor lists is opened. autovideosrc is not
+				// a fallback: with no camera it gives GStreamer's test pattern, and the
+				// plugins that would give it a real camera list that camera here.
 				GstElement* source = ListDevices (NULL, id ? id : "");
-
-				// Without a device monitor, as with neither PipeWire nor Video4Linux
-				// plugins listing cameras, GStreamer picks a source itself
-				if (!source && (!id || !id[0])) source = gst.gst_element_factory_make ("autovideosrc", NULL);
 				if (!source) return false;
 
 				GstElement* convert = gst.gst_element_factory_make ("videoconvert", NULL);
