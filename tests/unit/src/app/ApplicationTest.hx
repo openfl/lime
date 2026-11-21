@@ -94,7 +94,10 @@ class ApplicationTest extends Test
 
 	// Minimises every window, asks for 120 frames a second with options, and gives
 	// how many updates came in the second after, or -1 where windows can't be
-	// minimised here. Everything is put back before done is called.
+	// minimised here. Everything is put back before done is called. A window is
+	// minimised once its onMinimize comes: the minimized property says so as
+	// soon as it is set, even where nothing minimises it, as on X11 without a
+	// window manager.
 	private function countMinimisedUpdates(options:lime.app.FrameOptions, done:Int->Void):Void
 	{
 		var application = Application.current;
@@ -109,8 +112,13 @@ class ApplicationTest extends Test
 			return;
 		}
 
+		var minimisedWindows = 0;
+		var onMinimize = function() minimisedWindows++;
+		for (window in windows) window.onMinimize.add(onMinimize);
+
 		var restore = function()
 		{
+			for (window in windows) window.onMinimize.remove(onMinimize);
 			for (window in windows) window.minimized = false;
 			backend.configureFrameTiming(application.frameProfile, @:privateAccess application.__frameRate, application.frameOptions);
 		};
@@ -123,10 +131,7 @@ class ApplicationTest extends Test
 
 		wait = function()
 		{
-			var minimised = true;
-			for (window in windows) if (!window.minimized) minimised = false;
-
-			if (!minimised)
+			if (minimisedWindows < windows.length)
 			{
 				if (Timer.stamp() - start > 3)
 				{
