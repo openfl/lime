@@ -33,7 +33,7 @@ class FlashCameraInput
 
 	public static function requestPermission():Void
 	{
-		haxe.Timer.delay(CameraInput.onPermission.dispatch.bind(false), 0);
+		haxe.Timer.delay(CameraInput.onPermission.dispatch.bind(PermissionStatus.DENIED), 0);
 	}
 
 	public function new(parent:CameraInput)

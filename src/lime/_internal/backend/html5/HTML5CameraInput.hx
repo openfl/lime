@@ -57,7 +57,7 @@ class HTML5CameraInput
 		if (!isSupported())
 		{
 			// Without a secure context there is no getUserMedia to ask with
-			Timer.delay(CameraInput.onPermission.dispatch.bind(false), 0);
+			Timer.delay(CameraInput.onPermission.dispatch.bind(PermissionStatus.DENIED), 0);
 			return;
 		}
 
@@ -74,12 +74,12 @@ class HTML5CameraInput
 			permissionRequests--;
 			permissionState = GRANTED;
 			refreshDevices();
-			CameraInput.onPermission.dispatch(true);
+			CameraInput.onPermission.dispatch(PermissionStatus.GRANTED);
 		}, function(error)
 		{
 			permissionRequests--;
 			if (isPermissionError(error)) permissionState = DENIED;
-			CameraInput.onPermission.dispatch(false);
+			CameraInput.onPermission.dispatch(PermissionStatus.DENIED);
 		});
 	}
 
@@ -334,7 +334,7 @@ class HTML5CameraInput
 
 		if (dispatch && status != UNDETERMINED)
 		{
-			CameraInput.onPermission.dispatch(status == GRANTED);
+			CameraInput.onPermission.dispatch(status);
 		}
 	}
 

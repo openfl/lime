@@ -64,11 +64,11 @@ class CameraInput
 	public static var isSupported(get, never):Bool;
 
 	/**
-		Dispatched on the main thread with `true` when the camera is allowed and
-		`false` when it is refused, once for each call to `requestPermission`,
+		Dispatched on the main thread with `GRANTED` when the camera is allowed
+		and `DENIED` when it is refused, once for each call to `requestPermission`,
 		and on HTML5 also when the browser prompt from `start` is answered.
 	**/
-	public static var onPermission(default, null) = new Event<Bool->Void>();
+	public static var onPermission(default, null) = new Event<PermissionStatus->Void>();
 
 	/**
 		Whether the user has allowed the application to use the camera.

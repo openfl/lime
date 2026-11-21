@@ -262,7 +262,7 @@ class NativeCameraInput
 
 		for (i in 0...requests)
 		{
-			CameraInput.onPermission.dispatch(status == GRANTED);
+			CameraInput.onPermission.dispatch(status);
 		}
 	}
 
