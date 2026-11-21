@@ -6,6 +6,7 @@
 #include <system/ValuePointer.h>
 #include <utils/Bytes.h>
 #include <string.h>
+#include <algorithm>
 #include <map>
 #include <vector>
 
@@ -109,6 +110,18 @@ namespace lime {
 		}
 
 	}
+
+
+	// For libcurl's callbacks, which read the handle maps. They run inside
+	// curl_easy_perform or curl_multi_perform, where the thread is already
+	// blocking for the collector, and the mutex is recursive, so the lock
+	// curl_multi_perform holds around them is taken again.
+	struct CURL_MapLock {
+
+		CURL_MapLock () { curl_gc_mutex.Lock (); }
+		~CURL_MapLock () { curl_gc_mutex.Unlock (); }
+
+	};
 
 
 	// libcurl only points at POSTFIELDS, which have to last until the
@@ -1584,6 +1597,7 @@ namespace lime {
 
 	static size_t header_callback (void *ptr, size_t size, size_t nmemb, void *userp) {
 
+		CURL_MapLock lock;
 		std::vector<char*>* values = headerValues[userp];
 
 		if (size * nmemb > 0) {
@@ -1608,6 +1622,7 @@ namespace lime {
 
 		}
 
+		CURL_MapLock lock;
 		char* buffer = writeBuffers[userp];
 		int writeSize = (size * nmemb);
 
@@ -1645,6 +1660,7 @@ namespace lime {
 	}
 
 	static int seek_callback (void *userp, curl_off_t offset, int origin) {
+		CURL_MapLock lock;
 		if (origin == SEEK_SET)  {
 			readBytesPosition[userp] = offset;
 			return CURL_SEEKFUNC_OK;
@@ -1654,6 +1670,7 @@ namespace lime {
 
 	static size_t read_callback (void *buffer, size_t size, size_t nmemb, void *userp) {
 
+		CURL_MapLock lock;
 		Bytes* bytes = readBytes[userp];
 		int position = readBytesPosition[userp];
 		int length = size * nmemb;
@@ -1676,6 +1693,7 @@ namespace lime {
 
 	static int progress_callback (void *userp, double dltotal, double dlnow, double ultotal, double ulnow) {
 
+		CURL_MapLock lock;
 		CURL_Progress* progress = progressValues[userp];
 
 		progress->dltotal = dltotal;
@@ -1690,6 +1708,7 @@ namespace lime {
 
 	static int xferinfo_callback (void *userp, curl_off_t dltotal, curl_off_t dlnow, curl_off_t ultotal, curl_off_t ulnow) {
 
+		CURL_MapLock lock;
 		CURL_XferInfo* xferInfo = xferInfoValues[userp];
 
 		xferInfo->dltotal = dltotal;
@@ -2816,16 +2835,71 @@ namespace lime {
 	}
 
 
+	static int curl_multi_running_handles (void* multi_handle) {
+
+		lock_curl_gc ();
+		std::map<void*, int>::iterator it = curlMultiRunningHandles.find (multi_handle);
+		int running = it != curlMultiRunningHandles.end () ? it->second : 0;
+		curl_gc_mutex.Unlock ();
+		return running;
+
+	}
+
+
+	// The multi handle's easy handles, looked up under the lock, which its
+	// callers then let go to flush each one
+	static std::vector<void*> curl_multi_handles_copy (void* multi_handle) {
+
+		std::vector<void*> handles;
+		std::map<void*, std::vector<void*>* >::iterator it = curlMultiHandles.find (multi_handle);
+		if (it != curlMultiHandles.end ()) handles = *it->second;
+		return handles;
+
+	}
+
+
+	// Whether an easy handle is still in the multi handle, as a callback run
+	// while flushing may have removed it. Called with the lock held.
+	static bool curl_multi_has_handle (void* multi_handle, void* curl_handle) {
+
+		std::map<void*, std::vector<void*>* >::iterator it = curlMultiHandles.find (multi_handle);
+		if (it == curlMultiHandles.end ()) return false;
+		return std::find (it->second->begin (), it->second->end (), curl_handle) != it->second->end ();
+
+	}
+
+
+	// The CURL object of the easy handle a message is for, or NULL
+	static void* curl_multi_message_object (CURL* curl) {
+
+		lock_curl_gc ();
+
+		void* object = NULL;
+		std::map<CURL*, void*>::iterator handle = curlObjects.find (curl);
+
+		if (handle != curlObjects.end ()) {
+
+			std::map<void*, ValuePointer*>::iterator found = curlMultiObjects.find (handle->second);
+			if (found != curlMultiObjects.end ()) object = (void*)found->second->Get ();
+
+		}
+
+		curl_gc_mutex.Unlock ();
+		return object;
+
+	}
+
+
 	int lime_curl_multi_get_running_handles (value multi_handle) {
 
-		return curlMultiRunningHandles[multi_handle];
+		return curl_multi_running_handles (multi_handle);
 
 	}
 
 
 	HL_PRIM int HL_NAME(hl_curl_multi_get_running_handles) (HL_CFFIPointer* multi_handle) {
 
-		return curlMultiRunningHandles[multi_handle];
+		return curl_multi_running_handles (multi_handle);
 
 	}
 
@@ -2841,20 +2915,10 @@ namespace lime {
 			const field id_curl = val_id ("curl");
 			const field id_result = val_id ("result");
 
-			CURL* curl = msg->easy_handle;
+			// The handle maps change under the lock on other threads
+			value object = (value)curl_multi_message_object (msg->easy_handle);
 			value result = alloc_empty_object ();
-
-			if (curlObjects.find (curl) != curlObjects.end ()) {
-
-				value handle = (value)curlObjects[curl];
-				alloc_field (result, id_curl, (value)curlMultiObjects[handle]->Get ());
-
-			} else {
-
-				// TODO?
-				alloc_field (result, id_curl, alloc_null ());
-
-			}
+			alloc_field (result, id_curl, object ? object : alloc_null ());
 
 			alloc_field (result, id_result, alloc_int (msg->data.result));
 			return result;
@@ -2879,19 +2943,8 @@ namespace lime {
 			const int id_curl = hl_hash_utf8 ("curl");
 			const int id_result = hl_hash_utf8 ("result");
 
-			CURL* curl = msg->easy_handle;
-
-			if (curlObjects.find (curl) != curlObjects.end ()) {
-
-				HL_CFFIPointer* handle = (HL_CFFIPointer*)curlObjects[curl];
-				hl_dyn_setp (result, id_curl, &hlt_dyn, (vdynamic*)curlMultiObjects[handle]->Get ());
-
-			} else {
-
-				// TODO?
-				hl_dyn_setp (result, id_curl, &hlt_dyn, NULL);
-
-			}
+			// The handle maps change under the lock on other threads
+			hl_dyn_setp (result, id_curl, &hlt_dyn, (vdynamic*)curl_multi_message_object (msg->easy_handle));
 
 			hl_dyn_seti (result, id_result, &hlt_i32, msg->data.result);
 			return result;
@@ -2921,9 +2974,13 @@ namespace lime {
 
 		lock_curl_gc ();
 
-		std::vector<void*>* handles = curlMultiHandles[multi_handle];
+		// The lock is let go for each flush, whose callbacks may add or remove
+		// handles, so the handles are walked from a copy
+		std::vector<void*> handles = curl_multi_handles_copy (multi_handle);
 
-		for (std::vector<void*>::iterator it = handles->begin (); it != handles->end (); ++it) {
+		for (std::vector<void*>::iterator it = handles.begin (); it != handles.end (); ++it) {
+
+			if (!curl_multi_has_handle (multi_handle, *it)) continue;
 
 			curl_gc_mutex.Unlock ();
 			lime_curl_easy_flush ((value)*it);
@@ -2931,7 +2988,11 @@ namespace lime {
 
 		}
 
-		curlMultiRunningHandles[multi_handle] = runningHandles;
+		if (curlMultiValid.find (multi_handle) != curlMultiValid.end ()) {
+
+			curlMultiRunningHandles[multi_handle] = runningHandles;
+
+		}
 
 		curl_gc_mutex.Unlock ();
 
@@ -2954,9 +3015,12 @@ namespace lime {
 
 		lock_curl_gc ();
 
-		std::vector<void*>* handles = curlMultiHandles[multi_handle];
+		// See lime_curl_multi_perform
+		std::vector<void*> handles = curl_multi_handles_copy (multi_handle);
 
-		for (std::vector<void*>::iterator it = handles->begin (); it != handles->end (); ++it) {
+		for (std::vector<void*>::iterator it = handles.begin (); it != handles.end (); ++it) {
+
+			if (!curl_multi_has_handle (multi_handle, *it)) continue;
 
 			curl_gc_mutex.Unlock ();
 			lime_hl_curl_easy_flush ((HL_CFFIPointer*)*it);
@@ -2964,7 +3028,11 @@ namespace lime {
 
 		}
 
-		curlMultiRunningHandles[multi_handle] = runningHandles;
+		if (curlMultiValid.find (multi_handle) != curlMultiValid.end ()) {
+
+			curlMultiRunningHandles[multi_handle] = runningHandles;
+
+		}
 
 		curl_gc_mutex.Unlock ();
 
