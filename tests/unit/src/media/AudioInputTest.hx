@@ -16,7 +16,7 @@ import utest.Test;
 **/
 class AudioInputTest extends Test
 {
-	private var permissionListener:Bool->Void;
+	private var permissionListener:PermissionStatus->Void;
 
 	#if (js && html5)
 	private var input:AudioInput;
@@ -106,10 +106,10 @@ class AudioInputTest extends Test
 		var requesting = false;
 		var answeredDuringRequest = false;
 
-		permissionListener = function(granted:Bool)
+		permissionListener = function(status:PermissionStatus)
 		{
 			if (requesting) answeredDuringRequest = true;
-			answers.push(granted);
+			answers.push(status);
 		};
 		AudioInput.onPermission.add(permissionListener);
 
@@ -125,7 +125,7 @@ class AudioInputTest extends Test
 		// Long enough for the answers to come, and for any extra ones to show up
 		Timer.delay(function()
 		{
-			Assert.same([true, true], answers);
+			Assert.same([PermissionStatus.GRANTED, PermissionStatus.GRANTED], answers);
 			Assert.equals(PermissionStatus.GRANTED, AudioInput.permissionStatus);
 			async.done();
 		}, 1000);
@@ -142,7 +142,7 @@ class AudioInputTest extends Test
 			return;
 		}
 
-		expectAnswers([false], async, function()
+		expectAnswers([PermissionStatus.DENIED], async, function()
 		{
 			Assert.equals(PermissionStatus.DENIED, AudioInput.permissionStatus);
 		});
@@ -159,7 +159,7 @@ class AudioInputTest extends Test
 			return;
 		}
 
-		expectAnswers([false], async, function()
+		expectAnswers([PermissionStatus.DENIED], async, function()
 		{
 			Assert.equals(PermissionStatus.DENIED, AudioInput.permissionStatus);
 			Assert.isFalse(input.running);
@@ -178,7 +178,7 @@ class AudioInputTest extends Test
 			return;
 		}
 
-		expectAnswers([false], async, function()
+		expectAnswers([PermissionStatus.DENIED], async, function()
 		{
 			Assert.equals(PermissionStatus.UNDETERMINED, AudioInput.permissionStatus);
 		});
@@ -195,7 +195,7 @@ class AudioInputTest extends Test
 			return;
 		}
 
-		expectAnswers([true], async, function()
+		expectAnswers([PermissionStatus.GRANTED], async, function()
 		{
 			Assert.equals(PermissionStatus.GRANTED, AudioInput.permissionStatus);
 		});
@@ -242,13 +242,13 @@ class AudioInputTest extends Test
 		return true;
 	}
 
-	private function expectAnswers(expected:Array<Bool>, async:Async, check:Void->Void):Void
+	private function expectAnswers(expected:Array<PermissionStatus>, async:Async, check:Void->Void):Void
 	{
 		var answers = [];
 
-		permissionListener = function(granted:Bool)
+		permissionListener = function(status:PermissionStatus)
 		{
-			answers.push(granted);
+			answers.push(status);
 		};
 		AudioInput.onPermission.add(permissionListener);
 

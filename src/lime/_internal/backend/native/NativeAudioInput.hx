@@ -470,7 +470,7 @@ class NativeAudioInput
 
 		for (i in 0...requests)
 		{
-			AudioInput.onPermission.dispatch(status == GRANTED);
+			AudioInput.onPermission.dispatch(status);
 		}
 	}
 

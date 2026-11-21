@@ -70,14 +70,14 @@ class AudioInput
 	public static var isSupported(get, never):Bool;
 
 	/**
-		Dispatched on the main thread with `true` when the microphone is allowed
-		and `false` when it is refused. It is dispatched once for each call to
+		Dispatched on the main thread with `GRANTED` when the microphone is
+		allowed and `DENIED` when it is refused. It is dispatched once for each call to
 		`requestPermission`, when the user answers or at once if they already
 		have, and also when the status changes another way: on HTML5 when the
 		browser prompt from `start` is answered, or when the user changes the
 		site's setting.
 	**/
-	public static var onPermission(default, null) = new Event<Bool->Void>();
+	public static var onPermission(default, null) = new Event<PermissionStatus->Void>();
 
 	/**
 		Whether the user has allowed the application to use the microphone.
@@ -194,7 +194,7 @@ class AudioInput
 		On HTML5 this opens the microphone briefly, since browsers only ask when
 		a page opens it, and needs a secure context. On Android it shows the
 		`RECORD_AUDIO` dialog, which needs the permission in project.xml; once
-		the user refuses twice, Android stops asking and the answer is `false`.
+		the user refuses twice, Android stops asking and the answer is `DENIED`.
 	**/
 	public static function requestPermission():Void
 	{

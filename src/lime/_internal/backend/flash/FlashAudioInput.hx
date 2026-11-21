@@ -108,7 +108,7 @@ class FlashAudioInput
 
 		if (microphone == null)
 		{
-			Timer.delay(AudioInput.onPermission.dispatch.bind(false), 0);
+			Timer.delay(AudioInput.onPermission.dispatch.bind(PermissionStatus.DENIED), 0);
 			return;
 		}
 
@@ -124,7 +124,7 @@ class FlashAudioInput
 
 		if (!microphone.muted)
 		{
-			Timer.delay(AudioInput.onPermission.dispatch.bind(true), 0);
+			Timer.delay(AudioInput.onPermission.dispatch.bind(PermissionStatus.GRANTED), 0);
 			return;
 		}
 
@@ -434,7 +434,7 @@ class FlashAudioInput
 
 		for (i in 0...requests)
 		{
-			AudioInput.onPermission.dispatch(granted);
+			AudioInput.onPermission.dispatch(granted ? PermissionStatus.GRANTED : PermissionStatus.DENIED);
 		}
 	}
 
@@ -456,7 +456,7 @@ class FlashAudioInput
 
 		for (i in 0...requests)
 		{
-			AudioInput.onPermission.dispatch(!permissionDenied);
+			AudioInput.onPermission.dispatch(permissionDenied ? PermissionStatus.DENIED : PermissionStatus.GRANTED);
 		}
 	}
 
