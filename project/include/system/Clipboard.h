@@ -27,6 +27,12 @@ namespace lime {
 			static bool HasFormat (int format);
 			static bool SetItems (const unsigned char* data, int length);
 
+			// Whether text goes through native-desktop's clipboard as well, as on Linux with GTK, where
+			// SDL's X11 clipboard and GTK's are two owners in one process that don't answer each other
+			// while either waits for the clipboard. SetDesktopText replaces the clipboard with the text.
+			static bool HasDesktopText ();
+			static bool SetDesktopText (const char* text);
+
 
 	};
 

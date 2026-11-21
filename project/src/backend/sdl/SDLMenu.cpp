@@ -332,6 +332,30 @@ namespace lime {
 	bool Clipboard::HasFormat (int format) { return native_desktop::Clipboard::HasFormat (format); }
 
 
+	bool Clipboard::HasDesktopText () {
+
+		// SDL reads the X11 clipboard by asking its owner and waiting for the answer, but GTK only
+		// answers from its own events, which aren't run while SDL waits. SDL then gives up after a
+		// second and takes the clipboard with empty text, and GTK waiting on SDL times out the same way.
+		#if defined(HX_LINUX) && !defined(HX_ANDROID)
+		return native_desktop::Clipboard::IsSupported ();
+		#else
+		return false;
+		#endif
+
+	}
+
+
+	bool Clipboard::SetDesktopText (const char* text) {
+
+		std::vector<native_desktop::ClipboardItem> items (1);
+		items[0].format = native_desktop::CLIPBOARD_TEXT;
+		items[0].text = text ? text : "";
+		return native_desktop::Clipboard::SetItems (items);
+
+	}
+
+
 	static bool ReadInt (const unsigned char* data, int length, int* position, int* value) {
 
 		if (*position + 4 > length) return false;
@@ -358,6 +382,9 @@ namespace lime {
 		int position = 0;
 		int count;
 		if (!data || !ReadInt (data, length, &position, &count) || count < 0) return false;
+
+		// GTK takes no empty list of targets, so emptying the clipboard there is setting empty text
+		if (count == 0 && HasDesktopText ()) return false;
 
 		std::vector<native_desktop::ClipboardItem> items (count);
 
@@ -399,6 +426,8 @@ namespace lime {
 	bool Clipboard::GetImage (std::vector<unsigned char>* pixels, int* width, int* height) { return false; }
 	bool Clipboard::HasFormat (int format) { return false; }
 	bool Clipboard::SetItems (const unsigned char* data, int length) { return false; }
+	bool Clipboard::HasDesktopText () { return false; }
+	bool Clipboard::SetDesktopText (const char* text) { return false; }
 	#endif
 
 
