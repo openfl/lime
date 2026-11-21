@@ -32,19 +32,25 @@ jobs:
           echo "HAXEPATH=$HAXE_STD_PATH/.." >> $GITHUB_ENV
 
       - name: Install Haxe dependencies
+        uses: ./.github/actions/install-haxelib-libraries
+        with:
+          libraries: |
+            native-desktop 1.1.0
+            native-ipc 1.0.0
+            wsproto 1.0.0
+            crossbyte 1.0.1
+            haxelib 4.2.0
+            StageWebView 1.0.1
+            format 3.8.0
+            hxp 1.3.1
+            utest 1.13.2
+
+      - name: Install Haxe dependencies from git
+        shell: bash
         run: |
-          haxelib install native-desktop 1.1.0 --quiet
-          haxelib install native-ipc 1.0.0 --quiet
-          haxelib install wsproto 1.0.0 --quiet
-          haxelib install crossbyte 1.0.1 --quiet
-          haxelib --global update haxelib --quiet
-          haxelib install StageWebView 1.0.1 --quiet
           haxelib git libhxcpp https://github.com/openfl/libhxcpp --quiet
           haxelib run libhxcpp setup
           haxe --cwd "$(haxelib libpath libhxcpp)/tools/hxcpp" compile.hxml
-          haxelib install format --quiet
-          haxelib install hxp --quiet
-          haxelib install utest --quiet
 
       - name: Run tools tests
         working-directory: tests/tools
@@ -233,19 +239,25 @@ jobs:
           echo "HAXEPATH=$HAXE_STD_PATH/.." >> $GITHUB_ENV
 
       - name: Install Haxe dependencies
+        uses: ./.github/actions/install-haxelib-libraries
+        with:
+          libraries: |
+            native-desktop 1.1.0
+            native-ipc 1.0.0
+            wsproto 1.0.0
+            crossbyte 1.0.1
+            haxelib 4.2.0
+            StageWebView 1.0.1
+            format 3.8.0
+            hxp 1.3.1
+            utest 1.13.2
+
+      - name: Install Haxe dependencies from git
+        shell: bash
         run: |
-          haxelib install native-desktop 1.1.0 --quiet
-          haxelib install native-ipc 1.0.0 --quiet
-          haxelib install wsproto 1.0.0 --quiet
-          haxelib install crossbyte 1.0.1 --quiet
-          haxelib --global update haxelib --quiet
-          haxelib install StageWebView 1.0.1 --quiet
           haxelib git libhxcpp https://github.com/openfl/libhxcpp --quiet
           haxelib run libhxcpp setup
           haxe --cwd "$(haxelib libpath libhxcpp)/tools/hxcpp" compile.hxml
-          haxelib install format --quiet
-          haxelib install hxp --quiet
-          haxelib install utest --quiet
 
       - name: Rebuild Lime tools
         run: |
@@ -363,19 +375,25 @@ jobs:
           echo "HAXEPATH=$HAXE_STD_PATH/.." >> $GITHUB_ENV
 
       - name: Install Haxe dependencies
+        uses: ./.github/actions/install-haxelib-libraries
+        with:
+          libraries: |
+            native-desktop 1.1.0
+            native-ipc 1.0.0
+            wsproto 1.0.0
+            crossbyte 1.0.1
+            haxelib 4.2.0
+            StageWebView 1.0.1
+            format 3.8.0
+            hxp 1.3.1
+            utest 1.13.2
+
+      - name: Install Haxe dependencies from git
+        shell: bash
         run: |
-          haxelib install native-desktop 1.1.0 --quiet
-          haxelib install native-ipc 1.0.0 --quiet
-          haxelib install wsproto 1.0.0 --quiet
-          haxelib install crossbyte 1.0.1 --quiet
-          haxelib --global update haxelib --quiet
-          haxelib install StageWebView 1.0.1 --quiet
           haxelib git libhxcpp https://github.com/openfl/libhxcpp --quiet
           haxelib run libhxcpp setup
           haxe --cwd "$(haxelib libpath libhxcpp)/tools/hxcpp" compile.hxml
-          haxelib install format --quiet
-          haxelib install hxp --quiet
-          haxelib install utest --quiet
 
       # CrossByte, which serves lime test html5, needs Haxe 4.3 to build the tools
       - uses: ./.github/actions/rebuild-lime-tools
@@ -421,18 +439,24 @@ jobs:
           echo "HAXEPATH=$HAXE_STD_PATH/.." >> $GITHUB_ENV
 
       - name: Install Haxe dependencies
+        uses: ./.github/actions/install-haxelib-libraries
+        with:
+          libraries: |
+            native-desktop 1.1.0
+            native-ipc 1.0.0
+            StageWebView 1.0.1
+            wsproto 1.0.0
+            crossbyte 1.0.1
+            format 3.8.0
+            hxp 1.3.1
+            utest 1.13.2
+
+      - name: Install Haxe dependencies from git
+        shell: bash
         run: |
-          haxelib install native-desktop 1.1.0 --quiet
-          haxelib install native-ipc 1.0.0 --quiet
-          haxelib install StageWebView 1.0.1 --quiet
-          haxelib install wsproto 1.0.0 --quiet
-          haxelib install crossbyte 1.0.1 --quiet
           haxelib git libhxcpp https://github.com/openfl/libhxcpp --quiet
           haxelib run libhxcpp setup
           haxe --cwd "$(haxelib libpath libhxcpp)/tools/hxcpp" compile.hxml
-          haxelib install format --quiet
-          haxelib install hxp --quiet
-          haxelib install utest --quiet
 
       - name: Rebuild Lime tools
         run: |
@@ -565,18 +589,24 @@ jobs:
           done
 
       - name: Install Haxe dependencies
+        uses: ./.github/actions/install-haxelib-libraries
+        with:
+          libraries: |
+            native-desktop 1.1.0
+            native-ipc 1.0.0
+            StageWebView 1.0.1
+            wsproto 1.0.0
+            crossbyte 1.0.1
+            format 3.8.0
+            hxp 1.3.1
+            utest 1.13.2
+
+      - name: Install Haxe dependencies from git
+        shell: bash
         run: |
-          haxelib install native-desktop 1.1.0 --quiet
-          haxelib install native-ipc 1.0.0 --quiet
-          haxelib install StageWebView 1.0.1 --quiet
-          haxelib install wsproto 1.0.0 --quiet
-          haxelib install crossbyte 1.0.1 --quiet
           haxelib git libhxcpp https://github.com/openfl/libhxcpp --quiet
           haxelib run libhxcpp setup
           haxe --cwd "$(haxelib libpath libhxcpp)/tools/hxcpp" compile.hxml
-          haxelib install format --quiet
-          haxelib install hxp --quiet
-          haxelib install utest --quiet
 
       # CrossByte, which serves lime test html5, needs Haxe 4.3 to build the tools
       - uses: ./.github/actions/rebuild-lime-tools
@@ -680,19 +710,25 @@ jobs:
           echo "HAXEPATH=$Env:HAXE_STD_PATH\.." >> $Env:GITHUB_ENV
 
       - name: Install Haxe dependencies
+        uses: ./.github/actions/install-haxelib-libraries
+        with:
+          libraries: |
+            native-desktop 1.1.0
+            native-ipc 1.0.0
+            StageWebView 1.0.1
+            wsproto 1.0.0
+            crossbyte 1.0.1
+            lime-mesa 1.0.0
+            format 3.8.0
+            hxp 1.3.1
+            utest 1.13.2
+
+      - name: Install Haxe dependencies from git
+        shell: bash
         run: |
-          haxelib install native-desktop 1.1.0 --quiet
-          haxelib install native-ipc 1.0.0 --quiet
-          haxelib install StageWebView 1.0.1 --quiet
-          haxelib install wsproto 1.0.0 --quiet
-          haxelib install crossbyte 1.0.1 --quiet
-          haxelib install lime-mesa 1.0.0 --quiet
           haxelib git libhxcpp https://github.com/openfl/libhxcpp --quiet
           haxelib run libhxcpp setup
           haxe --cwd "$(haxelib libpath libhxcpp)/tools/hxcpp" compile.hxml
-          haxelib install format --quiet
-          haxelib install hxp --quiet
-          haxelib install utest --quiet
 
       # CrossByte, which serves lime test html5, needs Haxe 4.3 to build the tools
       - uses: ./.github/actions/rebuild-lime-tools
@@ -873,16 +909,22 @@ jobs:
           echo "HAXEPATH=$HAXE_STD_PATH/.." >> $GITHUB_ENV
 
       - name: Install Haxe dependencies
+        uses: ./.github/actions/install-haxelib-libraries
+        with:
+          libraries: |
+            native-desktop 1.1.0
+            native-ipc 1.0.0
+            StageWebView 1.0.1
+            wsproto 1.0.0
+            format 3.8.0
+            hxp 1.3.1
+
+      - name: Install Haxe dependencies from git
+        shell: bash
         run: |
-          haxelib install native-desktop 1.1.0 --quiet
-          haxelib install native-ipc 1.0.0 --quiet
-          haxelib install StageWebView 1.0.1 --quiet
-          haxelib install wsproto 1.0.0 --quiet
           haxelib git libhxcpp https://github.com/openfl/libhxcpp --quiet
           haxelib run libhxcpp setup
           haxe --cwd "$(haxelib libpath libhxcpp)/tools/hxcpp" compile.hxml
-          haxelib install format --quiet
-          haxelib install hxp --quiet
 
       - name: Prepare Lime
         run: |
@@ -958,16 +1000,22 @@ jobs:
           echo "HAXEPATH=$HAXE_STD_PATH/.." >> $GITHUB_ENV
 
       - name: Install Haxe dependencies
+        uses: ./.github/actions/install-haxelib-libraries
+        with:
+          libraries: |
+            native-desktop 1.1.0
+            native-ipc 1.0.0
+            StageWebView 1.0.1
+            wsproto 1.0.0
+            format 3.8.0
+            hxp 1.3.1
+
+      - name: Install Haxe dependencies from git
+        shell: bash
         run: |
-          haxelib install native-desktop 1.1.0 --quiet
-          haxelib install native-ipc 1.0.0 --quiet
-          haxelib install StageWebView 1.0.1 --quiet
-          haxelib install wsproto 1.0.0 --quiet
           haxelib git libhxcpp https://github.com/openfl/libhxcpp --quiet
           haxelib run libhxcpp setup
           haxe --cwd "$(haxelib libpath libhxcpp)/tools/hxcpp" compile.hxml
-          haxelib install format --quiet
-          haxelib install hxp --quiet
 
       - name: Prepare Lime
         run: |
@@ -1047,16 +1095,22 @@ jobs:
           echo "HAXEPATH=$HAXE_STD_PATH/.." >> $GITHUB_ENV
 
       - name: Install Haxe dependencies
+        uses: ./.github/actions/install-haxelib-libraries
+        with:
+          libraries: |
+            native-desktop 1.1.0
+            native-ipc 1.0.0
+            StageWebView 1.0.1
+            wsproto 1.0.0
+            format 3.8.0
+            hxp 1.3.1
+
+      - name: Install Haxe dependencies from git
+        shell: bash
         run: |
-          haxelib install native-desktop 1.1.0 --quiet
-          haxelib install native-ipc 1.0.0 --quiet
-          haxelib install StageWebView 1.0.1 --quiet
-          haxelib install wsproto 1.0.0 --quiet
           haxelib git libhxcpp https://github.com/openfl/libhxcpp --quiet
           haxelib run libhxcpp setup
           haxe --cwd "$(haxelib libpath libhxcpp)/tools/hxcpp" compile.hxml
-          haxelib install format --quiet
-          haxelib install hxp --quiet
 
       - name: Prepare Lime
         run: |
@@ -1121,19 +1175,25 @@ jobs:
           echo "HAXEPATH=$HAXE_STD_PATH/.." >> $GITHUB_ENV
 
       - name: Install Haxe dependencies
+        uses: ./.github/actions/install-haxelib-libraries
+        with:
+          libraries: |
+            native-desktop 1.1.0
+            native-ipc 1.0.0
+            StageWebView 1.0.1
+            wsproto 1.0.0
+            crossbyte 1.0.1
+            format 3.8.0
+            hxp 1.3.1
+            svg 1.2.0
+            openfl 9.5.2
+
+      - name: Install Haxe dependencies from git
+        shell: bash
         run: |
-          haxelib install native-desktop 1.1.0 --quiet
-          haxelib install native-ipc 1.0.0 --quiet
-          haxelib install StageWebView 1.0.1 --quiet
-          haxelib install wsproto 1.0.0 --quiet
-          haxelib install crossbyte 1.0.1 --quiet
           haxelib git libhxcpp https://github.com/openfl/libhxcpp --quiet
           haxelib run libhxcpp setup
           haxe --cwd "$(haxelib libpath libhxcpp)/tools/hxcpp" compile.hxml
-          haxelib install format --quiet
-          haxelib install hxp --quiet
-          haxelib install svg --quiet
-          haxelib install openfl --quiet
 
       # CrossByte, which serves lime test html5, needs Haxe 4.3 to build the tools
       - uses: ./.github/actions/rebuild-lime-tools
@@ -1254,12 +1314,18 @@ jobs:
           echo "HAXEPATH=$HAXE_STD_PATH/.." >> $GITHUB_ENV
 
       - name: Install Haxe dependencies
+        uses: ./.github/actions/install-haxelib-libraries
+        with:
+          libraries: |
+            native-desktop 1.1.0
+            native-ipc 1.0.0
+            StageWebView 1.0.1
+            wsproto 1.0.0
+            dox 1.6.0
+
+      - name: Use this checkout as lime
+        shell: bash
         run: |
-          haxelib install native-desktop 1.1.0 --quiet
-          haxelib install native-ipc 1.0.0 --quiet
-          haxelib install StageWebView 1.0.1 --quiet
-          haxelib install wsproto 1.0.0 --quiet
-          haxelib install dox --quiet
           haxelib dev lime ${{ github.workspace }}
 
       - name: Build docs
@@ -1288,13 +1354,19 @@ jobs:
           echo "HAXEPATH=$HAXE_STD_PATH/.." >> $GITHUB_ENV
 
       - name: Install Haxe dependencies
+        uses: ./.github/actions/install-haxelib-libraries
+        with:
+          libraries: |
+            native-desktop 1.1.0
+            native-ipc 1.0.0
+            StageWebView 1.0.1
+            wsproto 1.0.0
+            format 3.8.0
+            hxp 1.3.1
+
+      - name: Install Haxe dependencies from git
+        shell: bash
         run: |
-          haxelib install native-desktop 1.1.0 --quiet
-          haxelib install native-ipc 1.0.0 --quiet
-          haxelib install StageWebView 1.0.1 --quiet
-          haxelib install wsproto 1.0.0 --quiet
-          haxelib install format --quiet
-          haxelib install hxp --quiet
           haxelib git lime-samples https://github.com/openfl/lime-samples --quiet
 
       - name: Prepare Lime
@@ -1347,15 +1419,21 @@ jobs:
           echo "HAXEPATH=$Env:HAXE_STD_PATH\.." >> $Env:GITHUB_ENV
 
       - name: Install Haxe dependencies
+        uses: ./.github/actions/install-haxelib-libraries
+        with:
+          libraries: |
+            native-desktop 1.1.0
+            native-ipc 1.0.0
+            StageWebView 1.0.1
+            wsproto 1.0.0
+            format 3.8.0
+            hxp 1.3.1
+
+      - name: Install Haxe dependencies from git
+        shell: bash
         run: |
-          haxelib install native-desktop 1.1.0 --quiet
-          haxelib install native-ipc 1.0.0 --quiet
-          haxelib install StageWebView 1.0.1 --quiet
-          haxelib install wsproto 1.0.0 --quiet
           haxelib git libhxcpp https://github.com/openfl/libhxcpp --quiet
           haxelib run libhxcpp setup
-          haxelib install format --quiet
-          haxelib install hxp --quiet
           haxelib git lime-samples https://github.com/openfl/lime-samples --quiet
 
       - name: Prepare Lime
@@ -1405,12 +1483,24 @@ jobs:
         run: |
           echo "HAXEPATH=$HAXE_STD_PATH/.." >> $GITHUB_ENV
 
+      # Only for the action that installs the libraries
+      - uses: actions/checkout@v6
+        with:
+          sparse-checkout: .github/actions/
+          sparse-checkout-cone-mode: false
+
       - name: Install Haxe dependencies
+        uses: ./.github/actions/install-haxelib-libraries
+        with:
+          libraries: |
+            native-desktop 1.1.0
+            native-ipc 1.0.0
+            StageWebView 1.0.1
+            wsproto 1.0.0
+
+      - name: Install Haxe dependencies from git
+        shell: bash
         run: |
-          haxelib install native-desktop 1.1.0 --quiet
-          haxelib install native-ipc 1.0.0 --quiet
-          haxelib install StageWebView 1.0.1 --quiet
-          haxelib install wsproto 1.0.0 --quiet
           haxelib git lime-samples https://github.com/openfl/lime-samples --quiet
 
       - uses: actions/download-artifact@v8
@@ -1464,12 +1554,24 @@ jobs:
         run: |
           echo "HAXEPATH=$HAXE_STD_PATH/.." >> $GITHUB_ENV
 
+      # Only for the action that installs the libraries
+      - uses: actions/checkout@v6
+        with:
+          sparse-checkout: .github/actions/
+          sparse-checkout-cone-mode: false
+
       - name: Install Haxe dependencies
+        uses: ./.github/actions/install-haxelib-libraries
+        with:
+          libraries: |
+            native-desktop 1.1.0
+            native-ipc 1.0.0
+            StageWebView 1.0.1
+            wsproto 1.0.0
+
+      - name: Install Haxe dependencies from git
+        shell: bash
         run: |
-          haxelib install native-desktop 1.1.0 --quiet
-          haxelib install native-ipc 1.0.0 --quiet
-          haxelib install StageWebView 1.0.1 --quiet
-          haxelib install wsproto 1.0.0 --quiet
           haxelib git lime-samples https://github.com/openfl/lime-samples --quiet
 
       - uses: actions/download-artifact@v8
@@ -1521,12 +1623,18 @@ jobs:
           echo "HAXEPATH=$HAXE_STD_PATH/.." >> $GITHUB_ENV
 
       - name: Install Haxe dependencies
+        uses: ./.github/actions/install-haxelib-libraries
+        with:
+          libraries: |
+            native-desktop 1.1.0
+            native-ipc 1.0.0
+            StageWebView 1.0.1
+            wsproto 1.0.0
+            genes 0.4.14
+
+      - name: Install Haxe dependencies from git
+        shell: bash
         run: |
-          haxelib install native-desktop 1.1.0 --quiet
-          haxelib install native-ipc 1.0.0 --quiet
-          haxelib install StageWebView 1.0.1 --quiet
-          haxelib install wsproto 1.0.0 --quiet
-          haxelib install genes --quiet
           haxelib git lime-samples https://github.com/openfl/lime-samples --quiet
 
       - uses: actions/download-artifact@v8
@@ -1605,12 +1713,24 @@ jobs:
         run: |
           echo "HAXEPATH=$HAXE_STD_PATH/.." >> $GITHUB_ENV
 
+      # Only for the action that installs the libraries
+      - uses: actions/checkout@v6
+        with:
+          sparse-checkout: .github/actions/
+          sparse-checkout-cone-mode: false
+
       - name: Install Haxe dependencies
+        uses: ./.github/actions/install-haxelib-libraries
+        with:
+          libraries: |
+            native-desktop 1.1.0
+            native-ipc 1.0.0
+            StageWebView 1.0.1
+            wsproto 1.0.0
+
+      - name: Install Haxe dependencies from git
+        shell: bash
         run: |
-          haxelib install native-desktop 1.1.0 --quiet
-          haxelib install native-ipc 1.0.0 --quiet
-          haxelib install StageWebView 1.0.1 --quiet
-          haxelib install wsproto 1.0.0 --quiet
           haxelib git lime-samples https://github.com/openfl/lime-samples --quiet
 
       - uses: actions/download-artifact@v8
