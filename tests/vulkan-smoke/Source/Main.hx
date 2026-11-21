@@ -809,11 +809,58 @@ class Main extends Application
 	{
 		disposeRenderer();
 
+		if (!checkRendererRecovers())
+		{
+			return;
+		}
+
 		if (window != null)
 		{
 			window.close();
 		}
 		System.exit(0);
+	}
+
+	// VKRenderer, made to fail one step of a render, renders again afterwards. A render that failed
+	// after resetting its fence used to leave it unsignalled, and the next render waited on it forever,
+	// which the job's timeout catches.
+	private function checkRendererRecovers():Bool
+	{
+		for (step in ["reset", "record", "submit"])
+		{
+			Sys.putEnv("LIME_VULKAN_RENDERER_FAULT", step);
+			var renderer = window.context.vulkan.createRenderer("Lime Vulkan Smoke");
+			Sys.putEnv("LIME_VULKAN_RENDERER_FAULT", "");
+
+			if (renderer == null || !renderer.isValid)
+			{
+				fail("VKRenderer was not created: " + (renderer != null ? renderer.lastError : "null"));
+				return false;
+			}
+
+			if (renderer.render(0, 0, 0))
+			{
+				renderer.dispose();
+				fail("VKRenderer rendered although its " + step + " step was made to fail");
+				return false;
+			}
+
+			for (i in 0...3)
+			{
+				if (!renderer.render(0, 0, 0))
+				{
+					var error = renderer.lastError;
+					renderer.dispose();
+					fail("VKRenderer did not render again after its " + step + " step failed: " + error);
+					return false;
+				}
+			}
+
+			renderer.dispose();
+			trace("VKRenderer rendered again after its " + step + " step failed");
+		}
+
+		return true;
 	}
 
 	private function disposeRenderer():Void
