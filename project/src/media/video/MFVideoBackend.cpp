@@ -51,6 +51,7 @@
 #endif
 
 #include <media/VideoDecoder.h>
+#include "../../graphics/opengl/OpenGLShareGroups.h"
 
 
 #ifdef LIME_VIDEO_MEDIA_FOUNDATION
@@ -1382,6 +1383,7 @@ namespace lime {
 			HANDLE interopDevice;
 			void* interopContext;
 			bool interopFailed;
+			int interopGroup;
 			LONGLONG lastFrameTime;
 			IMF2DBuffer* locked2D;
 			IMFMediaBuffer* lockedBuffer;
@@ -1447,6 +1449,7 @@ namespace lime {
 		interopContext = NULL;
 		interopDevice = NULL;
 		interopFailed = false;
+		interopGroup = 0;
 		interrupted = false;
 		lastFrameTime = -1;
 		locked2D = NULL;
@@ -1501,6 +1504,7 @@ namespace lime {
 	struct MFOrphan {
 
 		void* context;
+		int group;
 		ID3D11Device* device;
 		HANDLE interopDevice;
 		std::vector<HANDLE> interops;
@@ -1533,9 +1537,17 @@ namespace lime {
 		for (size_t i = 0; i < list.size (); i++) {
 
 			MFOrphan& orphan = list[i];
+			bool current = orphan.interopDevice && OpenGLShareGroups::Shares (orphan.context, orphan.group, context);
 
-			// Objects from a context that is no longer current are left with it
-			bool current = orphan.interopDevice && orphan.context == context;
+			// Kept for a context of their group while one is left. Once none
+			// is, the GL objects went with them, and only DirectX's are released.
+			if (!current && orphan.interopDevice && OpenGLShareGroups::Exists (orphan.group)) {
+
+				std::lock_guard<std::mutex> lock (*orphanMutex);
+				orphans->push_back (orphan);
+				continue;
+
+			}
 
 			for (size_t j = 0; j < orphan.interops.size (); j++) {
 
@@ -1573,6 +1585,7 @@ namespace lime {
 		#ifdef LIME_VIDEO_WGL_INTEROP
 		MFOrphan orphan;
 		orphan.context = interopContext;
+		orphan.group = interopGroup;
 		orphan.device = NULL;
 		orphan.interopDevice = interopDevice;
 		#endif
@@ -1616,6 +1629,7 @@ namespace lime {
 		interopContext = NULL;
 		interopDevice = NULL;
 		interopFailed = false;
+		interopGroup = 0;
 
 		UnlockVideo ();
 		ReleaseReader (&videoReader, network);
@@ -3311,12 +3325,27 @@ namespace lime {
 		MFOutputTexture& output = outputs[((MFTextureFrame*)frame)->index];
 		HGLRC glContext = wglGetCurrentContext ();
 
-		if (interopDevice && glContext != interopContext) {
+		if (interopDevice && !OpenGLShareGroups::Shares (interopContext, interopGroup, glContext)) {
 
-			// Another context is current, such as another window's, where the
-			// textures shared with the first one do not exist, so they are shared
-			// again and the first context keeps its own until it is deleted
+			// Every window's context shares the textures, but in one that does
+			// not they are shared with OpenGL again, and the first context's are
+			// released where it is current, while it lasts
+			MFOrphan orphan;
+			orphan.context = interopContext;
+			orphan.group = interopGroup;
+			orphan.device = NULL;
+			orphan.interopDevice = interopDevice;
+
 			for (int i = 0; i < OUTPUT_TEXTURES; i++) {
+
+				if (outputs[i].interop) {
+
+					orphan.interops.push_back (outputs[i].interop);
+					orphan.glTextures.push_back (outputs[i].glTexture);
+					orphan.locked.push_back (outputs[i].locked);
+					orphan.textures.push_back (NULL);
+
+				}
 
 				outputs[i].glTexture = 0;
 				outputs[i].interop = NULL;
@@ -3324,8 +3353,24 @@ namespace lime {
 
 			}
 
+			if (OpenGLShareGroups::Exists (orphan.group)) {
+
+				if (device) {
+
+					device->AddRef ();
+					orphan.device = device;
+
+				}
+
+				std::lock_guard<std::mutex> lock (*orphanMutex);
+				orphans->push_back (orphan);
+
+			}
+
+			interopContext = NULL;
 			interopDevice = NULL;
 			interopFailed = false;
+			interopGroup = 0;
 
 		}
 
@@ -3344,6 +3389,7 @@ namespace lime {
 
 				interopDevice = _wglDXOpenDeviceNV (device);
 				interopContext = glContext;
+				interopGroup = OpenGLShareGroups::Get (glContext);
 
 			}
 
@@ -3450,7 +3496,7 @@ namespace lime {
 	void MFVideoBackend::ReleaseTextures () {
 
 		#ifdef LIME_VIDEO_WGL_INTEROP
-		bool current = interopDevice && wglGetCurrentContext () == interopContext;
+		bool current = interopDevice && OpenGLShareGroups::Shares (interopContext, interopGroup, wglGetCurrentContext ());
 
 		for (int i = 0; i < OUTPUT_TEXTURES; i++) {
 
@@ -3473,7 +3519,7 @@ namespace lime {
 		}
 
 		// Objects from a context that is no longer current are left with it
-		if (interopDevice && wglGetCurrentContext () == interopContext) {
+		if (current) {
 
 			_wglDXCloseDeviceNV (interopDevice);
 
@@ -3481,6 +3527,7 @@ namespace lime {
 
 		interopContext = NULL;
 		interopDevice = NULL;
+		interopGroup = 0;
 		#endif
 
 		interopFailed = false;
@@ -3571,7 +3618,7 @@ namespace lime {
 
 		#ifdef LIME_VIDEO_WGL_INTEROP
 		MFOutputTexture& output = outputs[((MFTextureFrame*)frame)->index];
-		if (interopDevice && output.interop && output.locked && wglGetCurrentContext () == interopContext)
+		if (interopDevice && output.interop && output.locked && OpenGLShareGroups::Shares (interopContext, interopGroup, wglGetCurrentContext ()))
 			_wglDXUnlockObjectsNV (interopDevice, 1, &output.interop);
 		output.locked = false;
 		#endif
