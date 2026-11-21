@@ -153,7 +153,7 @@ class ScriptedServer
 		while (!stopped)
 		{
 			// Waits briefly, so stopping is seen
-			if (Socket.select([listener], [], [], 0.05).read.length == 0) continue;
+			if (!readable(listener)) continue;
 
 			try
 			{
@@ -181,7 +181,7 @@ class ScriptedServer
 
 		while (!stopped)
 		{
-			if (Socket.select([connection], [], [], 0.05).read.length == 0) continue;
+			if (!readable(connection)) continue;
 
 			try
 			{
@@ -199,7 +199,24 @@ class ScriptedServer
 		}
 	}
 
-	private function pause(seconds:Float):Void
+	// Whether a socket has something to read within 50 ms. On HashLink on Windows,
+	// select can fail with "Error while waiting on socket"; that ended the
+	// thread, and the connection it held closed early, so it is waited out
+	// and tried again.
+	private static function readable(socket:Socket):Bool
+	{
+		try
+		{
+			return Socket.select([socket], [], [], 0.05).read.length > 0;
+		}
+		catch (e:Dynamic)
+		{
+			Sys.sleep(0.05);
+			return false;
+		}
+	}
+
+		private function pause(seconds:Float):Void
 	{
 		var end = haxe.Timer.stamp() + seconds;
 		while (!stopped && haxe.Timer.stamp() < end)
