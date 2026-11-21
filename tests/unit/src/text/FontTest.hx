@@ -317,8 +317,8 @@ class FontTest extends Test
 		// Twice, as the bytes past the bitmap changed from one render to the next
 		for (i in 0...2)
 		{
-			var image = font.renderGlyph(glyph, 8, 72);
-			Assert.equals(expected.join("\n"), describeAlpha(image), "renderGlyph()");
+			var image = font.renderGlyphWithLoadFlags(glyph, 8, 72);
+			Assert.equals(expected.join("\n"), describeAlpha(image), "renderGlyphWithLoadFlags()");
 		}
 
 		var images = font.renderGlyphs([glyph], 8);
@@ -347,5 +347,63 @@ class FontTest extends Test
 		}
 		return lines.join("\n");
 	}
+
+	// Lime 8.3 subclasses override renderGlyph(glyph, fontSize) and decompose(),
+	// as OverridingFont does, so a parameter added to either would stop them
+	// compiling
+	public function testRenderGlyphRendersAt96DPIAsBefore():Void
+	{
+		var font = new OverridingFont();
+		@:privateAccess font.__fromFile(PATH);
+		var glyph = font.getGlyphs("H")[0];
+
+		var image = font.renderGlyph(glyph, 32);
+		var at96 = font.renderGlyphWithLoadFlags(glyph, 32, 96);
+		Assert.notNull(image);
+		Assert.notNull(at96);
+		if (image == null || at96 == null) return;
+
+		Assert.equals(1, font.rendered);
+		Assert.equals(at96.width + "x" + at96.height, image.width + "x" + image.height);
+		Assert.isTrue(at96.buffer.data.toBytes().compare(image.buffer.data.toBytes()) == 0, "renderGlyph() and renderGlyphWithLoadFlags() at 96 DPI differ");
+	}
+
+	public function testDecomposeUnhintedGivesTheSameGlyphs():Void
+	{
+		var font = new OverridingFont();
+		@:privateAccess font.__fromFile(PATH);
+
+		var hinted = font.decompose();
+		var unhinted = font.decomposeUnhinted();
+		Assert.notNull(hinted);
+		Assert.notNull(unhinted);
+		if (hinted == null || unhinted == null) return;
+
+		Assert.equals(1, font.decomposed);
+		Assert.equals(hinted.family_name, unhinted.family_name);
+		Assert.equals(hinted.num_glyphs, unhinted.num_glyphs);
+		Assert.equals(hinted.glyphs.length, unhinted.glyphs.length);
+		Assert.isTrue(unhinted.glyphs.length > 0);
+	}
 	#end
 }
+
+#if (lime_cffi && !macro)
+private class OverridingFont extends Font
+{
+	public var decomposed:Int = 0;
+	public var rendered:Int = 0;
+
+	override public function decompose():lime.text.Font.NativeFontData
+	{
+		decomposed++;
+		return super.decompose();
+	}
+
+	override public function renderGlyph(glyph:lime.text.Glyph, fontSize:Int):lime.graphics.Image
+	{
+		rendered++;
+		return super.renderGlyph(glyph, fontSize);
+	}
+}
+#end
