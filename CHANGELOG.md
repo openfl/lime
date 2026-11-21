@@ -160,6 +160,7 @@ Changelog
 - Fixed exceptions thrown in event listeners losing their original call site.
 - Fixed `Event` skipping a listener, or calling one again, when a listener adds or removes listeners while it runs.
 - Fixed constructing `Bytes` with no arguments on HashLink.
+- Fixed `Bytes.compress()` and `Bytes.decompress()` with LZMA on HTML5, and `Bytes.decompress()` on HTML5 accepting truncated ZLIB, GZIP and DEFLATE data, ZLIB data as GZIP and GZIP as ZLIB, and reading only the first member of a GZIP file.
 - Fixed `FileDialog` wildcard filters.
 - Fixed the Windows icon resource not being rebuilt when the icon changes.
 - Fixed template assets failing to copy when their destination directory doesn't exist.
