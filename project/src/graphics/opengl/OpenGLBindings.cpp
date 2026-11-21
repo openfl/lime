@@ -4126,6 +4126,27 @@ namespace lime {
 	}
 
 
+	// Desktop OpenGL only; OpenGL ES and WebGL draw polygons filled
+	void lime_gl_polygon_mode (int face, int mode) {
+
+		#ifndef LIME_GLES
+		// Loaded at run time on desktop, as other functions OpenGL ES lacks
+		if (glPolygonMode) glPolygonMode (face, mode);
+		#endif
+
+	}
+
+
+	HL_PRIM void HL_NAME(hl_gl_polygon_mode) (int face, int mode) {
+
+		#ifndef LIME_GLES
+		// Loaded at run time on desktop, as other functions OpenGL ES lacks
+		if (glPolygonMode) glPolygonMode (face, mode);
+		#endif
+
+	}
+
+
 	void lime_gl_link_program (int program) {
 
 		glLinkProgram (program);
@@ -6010,6 +6031,7 @@ namespace lime {
 	DEFINE_PRIME1 (lime_gl_is_transform_feedback);
 	DEFINE_PRIME1 (lime_gl_is_vertex_array);
 	DEFINE_PRIME1v (lime_gl_line_width);
+	DEFINE_PRIME2v (lime_gl_polygon_mode);
 	DEFINE_PRIME1v (lime_gl_link_program);
 	DEFINE_PRIME4 (lime_gl_map_buffer_range);
 	DEFINE_PRIME1v (lime_gl_object_deregister);
@@ -6288,6 +6310,7 @@ namespace lime {
 	DEFINE_HL_PRIM (_BOOL, hl_gl_is_transform_feedback, _I32);
 	DEFINE_HL_PRIM (_BOOL, hl_gl_is_vertex_array, _I32);
 	DEFINE_HL_PRIM (_VOID, hl_gl_line_width, _F32);
+	DEFINE_HL_PRIM (_VOID, hl_gl_polygon_mode, _I32 _I32);
 	DEFINE_HL_PRIM (_VOID, hl_gl_link_program, _I32);
 	DEFINE_HL_PRIM (_F64, hl_gl_map_buffer_range, _I32 _F64 _I32 _I32);
 	DEFINE_HL_PRIM (_VOID, hl_gl_object_deregister, _TGLOBJECT);

@@ -6329,6 +6329,8 @@ class NativeCFFI
 
 	@:cffi private static function lime_gl_line_width(width:Float32):Void;
 
+	@:cffi private static function lime_gl_polygon_mode(face:Int, mode:Int):Void;
+
 	@:cffi private static function lime_gl_link_program(program:Int):Void;
 
 	@:cffi private static function lime_gl_map_buffer_range(target:Int, offset:DataPointer, length:Int, access:Int):DataPointer;
@@ -6794,6 +6796,7 @@ class NativeCFFI
 	private static var lime_gl_is_transform_feedback = new cpp.Callable<Int->Bool>(cpp.Prime._loadPrime("lime", "lime_gl_is_transform_feedback", "ib", false));
 	private static var lime_gl_is_vertex_array = new cpp.Callable<Int->Bool>(cpp.Prime._loadPrime("lime", "lime_gl_is_vertex_array", "ib", false));
 	private static var lime_gl_line_width = new cpp.Callable<cpp.Float32->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_gl_line_width", "fv", false));
+	private static var lime_gl_polygon_mode = new cpp.Callable<Int->Int->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_gl_polygon_mode", "iiv", false));
 	private static var lime_gl_link_program = new cpp.Callable<Int->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_gl_link_program", "iv", false));
 	private static var lime_gl_map_buffer_range = new cpp.Callable<Int->lime.utils.DataPointer->Int->Int->lime.utils.DataPointer>(cpp.Prime._loadPrime("lime",
 		"lime_gl_map_buffer_range", "idiid", false));
@@ -7138,6 +7141,7 @@ class NativeCFFI
 	private static var lime_gl_is_transform_feedback = CFFI.load("lime", "lime_gl_is_transform_feedback", 1);
 	private static var lime_gl_is_vertex_array = CFFI.load("lime", "lime_gl_is_vertex_array", 1);
 	private static var lime_gl_line_width = CFFI.load("lime", "lime_gl_line_width", 1);
+	private static var lime_gl_polygon_mode = CFFI.load("lime", "lime_gl_polygon_mode", 2);
 	private static var lime_gl_link_program = CFFI.load("lime", "lime_gl_link_program", 1);
 	private static var lime_gl_map_buffer_range = CFFI.load("lime", "lime_gl_map_buffer_range", 4);
 	private static var lime_gl_object_deregister:Dynamic->Void = CFFI.load("lime", "lime_gl_object_deregister", 1);
@@ -7827,6 +7831,8 @@ class NativeCFFI
 	}
 
 	@:hlNative("lime", "hl_gl_line_width") private static function lime_gl_line_width(width:hl.F32):Void {}
+
+	@:hlNative("lime", "hl_gl_polygon_mode") private static function lime_gl_polygon_mode(face:Int, mode:Int):Void {}
 
 	@:hlNative("lime", "hl_gl_link_program") private static function lime_gl_link_program(program:Int):Void {}
 

@@ -37,6 +37,7 @@ Changelog
 - Added AIR options for Android App Bundles, Android Studio output, and shared runtime deployment.
 - Added VAO support on macOS.
 - Added `GL.copyImageSubData()` for desktop OpenGL 4.3 and `ARB_copy_image`.
+- Added `GL.polygonMode()`, for wireframes on desktop OpenGL, with `GL.supportsPolygonMode` and the `POINT`, `LINE`, `FILL` and `POLYGON_MODE` constants.
 - Added support for libhxcpp's incremental collector. With `HXCPP_GC_INCREMENTAL`, native C++ builds use it and advance a collection in the time left before a frame, unless `no-idle-gc` is defined.
 - Windows builds tell hxcpp where the application runs (`HXCPP_PGO_RUN_DIR`), so libhxcpp's profile-guided optimisation (`HXCPP_PGO`) works on the application in its own folder.
 - Added `VideoSource` and `VideoDecoder` for native video playback, with Media Foundation, AVFoundation, MediaCodec, and GStreamer backends.
