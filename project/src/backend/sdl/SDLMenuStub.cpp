@@ -6,6 +6,10 @@
 namespace lime {
 
 
+	bool SDLMenu::DragWindow (SDL_Window* window, int edges) { return false; }
+	bool SDLMenu::OrderWindow (SDL_Window* window, SDL_Window* other, int mode) { return false; }
+
+
 	TrayIcon* CreateTrayIcon () {
 
 		return new SDLTrayIcon ();

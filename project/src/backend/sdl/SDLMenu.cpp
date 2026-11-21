@@ -321,6 +321,36 @@ namespace lime {
 	}
 
 
+	bool SDLMenu::DragWindow (SDL_Window* window, int edges) {
+
+		#ifdef NATIVE_DESKTOP_WINDOW_CONTROL
+		native_desktop::Window desktopWindow;
+		if (!GetDesktopWindow (window, &desktopWindow)) return false;
+		return edges == 0 ? native_desktop::WindowControl::StartMove (&desktopWindow) : native_desktop::WindowControl::StartResize (&desktopWindow, edges);
+		#else
+		return false;
+		#endif
+
+	}
+
+
+	bool SDLMenu::OrderWindow (SDL_Window* window, SDL_Window* other, int mode) {
+
+		#ifdef NATIVE_DESKTOP_WINDOW_CONTROL
+		native_desktop::Window desktopWindow;
+		if (!GetDesktopWindow (window, &desktopWindow)) return false;
+		if (mode == 0) return native_desktop::WindowControl::OrderToBack (&desktopWindow);
+
+		native_desktop::Window otherWindow;
+		if (!other || !GetDesktopWindow (other, &otherWindow)) return false;
+		return mode == 1 ? native_desktop::WindowControl::OrderAbove (&desktopWindow, &otherWindow) : native_desktop::WindowControl::OrderBelow (&desktopWindow, &otherWindow);
+		#else
+		return false;
+		#endif
+
+	}
+
+
 	void DockIcon::Bounce (bool critical) {
 
 		native_desktop::DockIcon::Bounce (critical);

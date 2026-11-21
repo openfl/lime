@@ -73,6 +73,7 @@ class TestMain extends Application
 		runner.addCase(new ui.MenuTest());
 		runner.addCase(new ui.WebViewTest());
 		runner.addCase(new ui.WindowEventTest());
+		runner.addCase(new ui.WindowOrderTest());
 		runner.addCase(new ui.WindowTest());
 		runner.addCase(new utils.ArrayBufferTest());
 		runner.addCase(new utils.AssetBundleTest());

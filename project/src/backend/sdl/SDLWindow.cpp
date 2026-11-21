@@ -1450,6 +1450,27 @@ namespace lime {
 	}
 
 
+	bool SDLWindow::OrderRelative (Window* other, bool above) {
+
+		return other && SDLMenu::OrderWindow (sdlWindow, ((SDLWindow*)other)->sdlWindow, above ? 1 : 2);
+
+	}
+
+
+	bool SDLWindow::OrderToBack () {
+
+		return SDLMenu::OrderWindow (sdlWindow, NULL, 0);
+
+	}
+
+
+	bool SDLWindow::StartMoveResize (int edges) {
+
+		return SDLMenu::DragWindow (sdlWindow, edges);
+
+	}
+
+
 	void* SDLWindow::GetContext () {
 
 		if (useVulkan) {
