@@ -73,7 +73,11 @@ namespace lime {
 				break;
 
 			case native_desktop::MENU_EVENT_TRAY_ICON:
+				#ifdef NATIVE_DESKTOP_TRAY_ICON_MOUSE_EVENTS
+				SDLMenu::PushTrayIconEvent (event.target, event.code, event.value, event.x, event.y);
+				#else
 				SDLMenu::PushTrayIconEvent (event.target, event.code, event.value);
+				#endif
 				break;
 
 			case native_desktop::MENU_EVENT_DOCK_SELECTION:
@@ -260,12 +264,15 @@ namespace lime {
 	}
 
 
-	bool SDLMenu::GetTrayIconEvent (SDL_Event* event, int* id, int* type, int* item) {
+	// A tray icon event carries the screen position as 16 bits beside the kind and the type
+	bool SDLMenu::GetTrayIconEvent (SDL_Event* event, int* id, int* type, int* item, int* x, int* y) {
 
-		if (!menuEventType || event->type != menuEventType || (intptr_t)event->user.data1 != MENU_EVENT_TRAY_ICON) return false;
+		if (!menuEventType || event->type != menuEventType || ((intptr_t)event->user.data1 & 0xFF) != MENU_EVENT_TRAY_ICON) return false;
 		*id = event->user.windowID;
-		*type = event->user.code;
+		*type = event->user.code & 0xFF;
 		*item = (int)(intptr_t)event->user.data2;
+		*x = (Sint16)(((intptr_t)event->user.data1 >> 8) & 0xFFFF);
+		*y = (Sint16)((event->user.code >> 8) & 0xFFFF);
 		return true;
 
 	}
@@ -483,9 +490,9 @@ namespace lime {
 	}
 
 
-	void SDLMenu::PushTrayIconEvent (int trayIconID, int type, int itemID) {
+	void SDLMenu::PushTrayIconEvent (int trayIconID, int type, int itemID, int x, int y) {
 
-		PushEvent (MENU_EVENT_TRAY_ICON, (Uint32)trayIconID, type, itemID);
+		PushEvent (MENU_EVENT_TRAY_ICON | ((x & 0xFFFF) << 8), (Uint32)trayIconID, (type & 0xFF) | ((y & 0xFFFF) << 8), itemID);
 
 	}
 
