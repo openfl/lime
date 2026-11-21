@@ -418,6 +418,21 @@ class HTML5Window
 		parent.context = context;
 	}
 
+	public function orderRelative(other:Window, above:Bool):Bool
+	{
+		return false;
+	}
+
+	public function orderToBack():Bool
+	{
+		return false;
+	}
+
+	public function startDrag(edges:Int):Bool
+	{
+		return false;
+	}
+
 	public function focus():Void {}
 
 	private function focusTextInput():Void

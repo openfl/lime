@@ -29,6 +29,9 @@ namespace lime {
 			bool TestContextReplacement (bool create);
 			#endif
 			virtual void Focus ();
+			virtual bool OrderRelative (Window* other, bool above);
+			virtual bool OrderToBack ();
+			virtual bool StartDrag (int edges);
 			virtual void* GetContext ();
 			virtual const char* GetContextType ();
 			// virtual Cursor GetCursor ();
