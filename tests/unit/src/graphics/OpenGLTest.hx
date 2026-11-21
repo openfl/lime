@@ -7,6 +7,7 @@ import lime.graphics.opengl.GLBuffer;
 import lime.graphics.opengl.GLFramebuffer;
 import lime.graphics.opengl.GLProgram;
 import lime.graphics.opengl.GLTexture;
+import lime.graphics.opengl.GLTransformFeedback;
 import lime.ui.Window;
 import lime.utils.ArrayBuffer;
 import lime.utils.ArrayBufferView;
@@ -576,6 +577,110 @@ class OpenGLTest extends Test
 		Assert.isTrue(collections > 0, "the other threads did not collect");
 	}
 	#end
+
+	// A GLTransformFeedback dropped without deleteTransformFeedback() is deleted at the next clear()
+	public function testCollectedTransformFeedbacksAreDeleted():Void
+	{
+		var main = getMainWindow();
+		if (main == null) return;
+
+		var gl = main.context.gl;
+		makeCurrent(main);
+
+		var names = makeTransformFeedbacks(gl, 32);
+
+		if (names == null)
+		{
+			trace("There are no transform feedbacks here, so collecting them was not tested");
+			Assert.pass();
+			return;
+		}
+
+		collect();
+		collect();
+		gl.clear(gl.COLOR_BUFFER_BIT);
+
+		var left = [];
+
+		for (name in names)
+		{
+			var transformFeedback:GLTransformFeedback = @:privateAccess new lime.graphics.opengl.GL.GLObject(name);
+			if (gl.isTransformFeedback(transformFeedback)) left.push(transformFeedback);
+		}
+
+		// The collector scans the stack conservatively, so it may keep the odd one
+		Assert.isTrue(left.length < names.length / 2, left.length + " of " + names.length + " collected transform feedbacks were not deleted");
+
+		for (transformFeedback in left) gl.deleteTransformFeedback(transformFeedback);
+		clearErrors(gl);
+	}
+
+	// Made here, so that nothing on the caller's stack keeps them
+	private static function makeTransformFeedbacks(gl:OpenGLRenderContext, count:Int):Array<Int>
+	{
+		var names = [];
+
+		for (i in 0...count)
+		{
+			var transformFeedback = gl.createTransformFeedback();
+			if (transformFeedback == null) return null;
+
+			// A name becomes a transform feedback once it is bound
+			gl.bindTransformFeedback(gl.TRANSFORM_FEEDBACK, transformFeedback);
+			gl.bindTransformFeedback(gl.TRANSFORM_FEEDBACK, null);
+			var object:lime.graphics.opengl.GL.GLObject = transformFeedback;
+			names.push(@:privateAccess object.id);
+		}
+
+		clearErrors(gl);
+		return names;
+	}
+
+	// A sync's address can be given to the next one, which collecting the first must not delete
+	public function testCollectingADeletedSyncLeavesTheSyncsMadeAfterIt():Void
+	{
+		var main = getMainWindow();
+		if (main == null) return;
+
+		var gl = main.context.gl;
+		makeCurrent(main);
+
+		if (!makeAndDeleteSyncs(gl, 32))
+		{
+			trace("There are no syncs here, so collecting them was not tested");
+			Assert.pass();
+			return;
+		}
+
+		var syncs = [for (i in 0...32) gl.fenceSync(gl.SYNC_GPU_COMMANDS_COMPLETE, 0)];
+
+		collect();
+		collect();
+		gl.clear(gl.COLOR_BUFFER_BIT);
+
+		var deleted = 0;
+
+		for (sync in syncs)
+		{
+			if (!gl.isSync(sync)) deleted++;
+			gl.deleteSync(sync);
+		}
+
+		Assert.equals(0, deleted, "collecting deleted syncs deleted syncs that were still in use");
+		clearErrors(gl);
+	}
+
+	private static function makeAndDeleteSyncs(gl:OpenGLRenderContext, count:Int):Bool
+	{
+		for (i in 0...count)
+		{
+			var sync = gl.fenceSync(gl.SYNC_GPU_COMMANDS_COMPLETE, 0);
+			if (sync == null) return false;
+			gl.deleteSync(sync);
+		}
+
+		return true;
+	}
 
 	#if software_gl
 	public function testAForcedSoftwareContextDraws():Void

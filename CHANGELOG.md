@@ -107,6 +107,7 @@ Changelog
 - Fixed Android architecture parsing for `x86_64` and `x86_32`.
 - Fixed 64-bit Android libraries built with NDK r27 or older and hxcpp 4.3.2 not being aligned for devices with 16 KB pages.
 - Fixed `VideoDecoder` leaking a texture each time a `TEXTURE` video was read with another window's context current.
+- Fixed collected `GLSync` and `GLTransformFeedback` objects never being deleted.
 - Fixed `::ANDROID_INSTALL_LOCATION::` in Android manifest templates copied from Lime 8.3 and earlier.
 - Fixed HTML5 gamepad connect and disconnect events.
 - Fixed `projectFilePath` for HXP projects.
