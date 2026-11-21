@@ -5,9 +5,12 @@
 #include <system/Clipboard.h>
 #include <system/System.h>
 #include <ui/DockIcon.h>
+#include <ui/DragDrop.h>
+#include <ui/DragEvent.h>
 #include <native_desktop/Desktop.h>
 #include <stdint.h>
 #include <cstring>
+#include <map>
 
 #if defined(HX_LINUX) && !defined(HX_ANDROID) && !defined(SDL_VIDEO_DRIVER_X11)
 #define SDL_VIDEO_DRIVER_X11 1
@@ -66,6 +69,9 @@ namespace lime {
 	#endif
 
 
+	static void FinishDrag (int id, int action);
+
+
 	static void ForwardDesktopEvent (const native_desktop::Event& event, void*) {
 
 		switch (event.kind) {
@@ -92,9 +98,20 @@ namespace lime {
 				break;
 			#endif
 
+			#ifdef NATIVE_DESKTOP_DRAG_DROP
+			case native_desktop::DRAG_EVENT_COMPLETE:
+				FinishDrag ((int)event.target, event.value);
+				break;
+			#endif
+
 		}
 
 	}
+
+
+	#ifdef NATIVE_DESKTOP_DRAG_DROP
+	static int DesktopDragHandler (const native_desktop::DragEvent& event, native_desktop::DragData* data, void*);
+	#endif
 
 
 	static void ConfigureDesktop () {
@@ -103,6 +120,9 @@ namespace lime {
 		// native-desktop 1.1.0 has no open events, and onOpen and onClose are not dispatched with it
 		#ifdef NATIVE_DESKTOP_MENU_OPEN_EVENTS
 		native_desktop::Menu::SetOpenHandler (HandleDesktopOpen, NULL);
+		#endif
+		#ifdef NATIVE_DESKTOP_DRAG_DROP
+		native_desktop::DragDrop::SetHandler (DesktopDragHandler, NULL);
 		#endif
 		native_desktop::Menu::SetKeyNameProvider (SDL_GetKeyName);
 
@@ -373,6 +393,11 @@ namespace lime {
 		#endif
 		#endif
 
+		// X11 drags talk to other applications on native-desktop's own connection
+		#ifdef NATIVE_DESKTOP_DRAG_DROP
+		native_desktop::DragDrop::Update ();
+		#endif
+
 	}
 
 
@@ -434,13 +459,16 @@ namespace lime {
 	}
 
 
-	bool Clipboard::SetItems (const unsigned char* data, int length) {
+	// Little-endian Int32 values: count, then for each item its format and either length and UTF-8 text, a
+	// count of files each with length and UTF-8 path, or width, height and the pixels
+	static bool ParseDesktopItems (const unsigned char* data, int length, std::vector<native_desktop::ClipboardItem>* result) {
 
 		int position = 0;
 		int count;
 		if (!data || !ReadInt (data, length, &position, &count) || count < 0) return false;
 
-		std::vector<native_desktop::ClipboardItem> items (count);
+		std::vector<native_desktop::ClipboardItem>& items = *result;
+		items.resize (count);
 
 		for (int i = 0; i < count; i++) {
 
@@ -471,7 +499,15 @@ namespace lime {
 
 		}
 
-		return native_desktop::Clipboard::SetItems (items);
+		return true;
+
+	}
+
+
+	bool Clipboard::SetItems (const unsigned char* data, int length) {
+
+		std::vector<native_desktop::ClipboardItem> items;
+		return ParseDesktopItems (data, length, &items) && native_desktop::Clipboard::SetItems (items);
 
 	}
 	#else
@@ -519,6 +555,160 @@ namespace lime {
 		#endif
 
 	}
+
+
+	#ifdef NATIVE_DESKTOP_DRAG_DROP
+	// What is dragged over a window, while its event is dispatched
+	static native_desktop::DragData* currentDragData = NULL;
+
+	// The windows drags out started from, by drag ID, for the mouse up their drag took
+	static std::map<int, Uint32> dragWindows;
+
+
+	static int DesktopDragHandler (const native_desktop::DragEvent& event, native_desktop::DragData* data, void*) {
+
+		DragEvent dragEvent;
+		dragEvent.action = 0;
+		dragEvent.allowedActions = event.allowedActions;
+		dragEvent.type = event.type;
+		dragEvent.windowID = event.window;
+		dragEvent.x = event.x;
+		dragEvent.y = event.y;
+
+		#ifdef LIME_SDL_MENU_WIN32
+		// Windows gives client pixels, and SDL's window coordinates are scaled where it scales for DPI
+		SDL_Window* window = SDL_GetWindowFromID (event.window);
+
+		if (window) {
+
+			int width, height, pixelWidth, pixelHeight;
+			SDL_GetWindowSize (window, &width, &height);
+			SDL_GetWindowSizeInPixels (window, &pixelWidth, &pixelHeight);
+
+			if (pixelWidth > 0 && pixelHeight > 0) {
+
+				dragEvent.x = event.x * (double)width / pixelWidth;
+				dragEvent.y = event.y * (double)height / pixelHeight;
+
+			}
+
+		}
+		#endif
+
+		native_desktop::DragData* previous = currentDragData;
+		currentDragData = data;
+		DragEvent::Dispatch (&dragEvent);
+		currentDragData = previous;
+
+		return dragEvent.action;
+
+	}
+
+
+	static void FinishDrag (int id, int action) {
+
+		DragEvent dragEvent;
+		dragEvent.action = action;
+		dragEvent.type = DRAG_COMPLETE;
+		dragEvent.windowID = id;
+		DragEvent::Dispatch (&dragEvent);
+
+		std::map<int, Uint32>::iterator found = dragWindows.find (id);
+		if (found == dragWindows.end ()) return;
+
+		Uint32 windowID = found->second;
+		dragWindows.erase (found);
+
+		#ifndef LIME_SDL_MENU_WIN32
+		// macOS and X11 take the button's release for the drag, so SDL never hears it. Windows' SDL finds it
+		// on the next mouse move.
+		SDL_Window* window = SDL_GetWindowFromID (windowID);
+		if (!window) return;
+
+		int x = 0, y = 0;
+		SDL_GetMouseState (&x, &y);
+
+		SDL_Event release;
+		SDL_zero (release);
+		release.type = SDL_MOUSEBUTTONUP;
+		release.button.windowID = windowID;
+		release.button.button = SDL_BUTTON_LEFT;
+		release.button.state = SDL_RELEASED;
+		release.button.clicks = 1;
+		release.button.x = x;
+		release.button.y = y;
+		release.button.timestamp = SDL_GetTicks ();
+		SDL_PushEvent (&release);
+		#else
+		(void)windowID;
+		#endif
+
+	}
+
+
+	bool DragDrop::IsSupported () {
+
+		return native_desktop::DragDrop::IsSupported ();
+
+	}
+
+
+	bool DragDrop::SetTarget (Window* window, bool enabled) {
+
+		// Drags reach Lime through the handler this sets, which an application without menus has not set yet
+		ConfigureDesktop ();
+
+		native_desktop::Window native;
+		if (!window || !GetDesktopWindow (((SDLWindow*)window)->sdlWindow, &native)) return false;
+		return native_desktop::DragDrop::SetTarget (&native, enabled);
+
+	}
+
+
+	int DragDrop::StartDrag (Window* window, const unsigned char* items, int itemsLength, const unsigned char* image, int imageLength, int offsetX, int offsetY, int actions, int id) {
+
+		// Its completion comes as an event, through the sink this sets
+		ConfigureDesktop ();
+
+		native_desktop::Window native;
+		std::vector<native_desktop::ClipboardItem> parsed;
+		if (!window || !GetDesktopWindow (((SDLWindow*)window)->sdlWindow, &native) || !ParseDesktopItems (items, itemsLength, &parsed)) return 0;
+
+		native_desktop::Image picture;
+		int position = 0, width = 0, height = 0;
+
+		if (image && ReadInt (image, imageLength, &position, &width) && ReadInt (image, imageLength, &position, &height) && width > 0 && height > 0 && (size_t)imageLength >= 8 + (size_t)width * height * 4) {
+
+			picture.data = image + 8;
+			picture.length = (size_t)width * height * 4;
+			picture.width = width;
+			picture.height = height;
+			picture.stride = width * 4;
+
+		}
+
+		dragWindows[id] = native.id;
+		int result = native_desktop::DragDrop::StartDrag (&native, parsed, picture.Valid () ? &picture : NULL, offsetX, offsetY, actions, id);
+		if (result >= 0) dragWindows.erase (id);
+		return result;
+
+	}
+
+
+	bool DragDrop::GetFiles (std::vector<std::string>* files) { return currentDragData && currentDragData->GetFiles (files); }
+	bool DragDrop::GetFormatText (int format, std::string* text) { return currentDragData && currentDragData->GetText (format, text); }
+	bool DragDrop::GetImage (std::vector<unsigned char>* pixels, int* width, int* height) { return currentDragData && currentDragData->GetImage (pixels, width, height); }
+	bool DragDrop::HasFormat (int format) { return currentDragData && currentDragData->HasFormat (format); }
+	#else
+	static void FinishDrag (int id, int action) {}
+	bool DragDrop::IsSupported () { return false; }
+	bool DragDrop::SetTarget (Window* window, bool enabled) { return false; }
+	int DragDrop::StartDrag (Window* window, const unsigned char* items, int itemsLength, const unsigned char* image, int imageLength, int offsetX, int offsetY, int actions, int id) { return 0; }
+	bool DragDrop::GetFiles (std::vector<std::string>* files) { return false; }
+	bool DragDrop::GetFormatText (int format, std::string* text) { return false; }
+	bool DragDrop::GetImage (std::vector<unsigned char>* pixels, int* width, int* height) { return false; }
+	bool DragDrop::HasFormat (int format) { return false; }
+	#endif
 
 
 	void DockIcon::Bounce (bool critical) {

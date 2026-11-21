@@ -82,7 +82,7 @@ class Clipboard
 		__items = new Map();
 
 		#if (lime_cffi && !macro)
-		if (!NativeCFFI.lime_clipboard_set_items(__encodeItems()))
+		if (!NativeCFFI.lime_clipboard_set_items(__encodeItems(__items)))
 		{
 			NativeCFFI.lime_clipboard_set_text("");
 		}
@@ -159,7 +159,7 @@ class Clipboard
 		__items.set(format, data);
 
 		#if (lime_cffi && !macro)
-		var result = NativeCFFI.lime_clipboard_set_items(__encodeItems());
+		var result = NativeCFFI.lime_clipboard_set_items(__encodeItems(__items));
 
 		// Where only text is supported, as on mobile
 		if (!result && format == TEXT) NativeCFFI.lime_clipboard_set_text(data);
@@ -178,19 +178,20 @@ class Clipboard
 		return result || format == TEXT;
 	}
 
-	// Little-endian Int32 values: count, then for each item its format and its data, as lime::Clipboard::SetItems reads them
-	@:noCompletion private static function __encodeItems():Bytes
+	// Little-endian Int32 values: count, then for each item its format and its data, as lime::Clipboard::SetItems and
+	// lime::DragDrop::StartDrag read them
+	@:noCompletion private static function __encodeItems(items:Map<Int, Dynamic>):Bytes
 	{
 		var output = new haxe.io.BytesOutput();
 		output.bigEndian = false;
 
 		var count = 0;
-		for (format in __items.keys()) count++;
+		for (format in items.keys()) count++;
 		output.writeInt32(count);
 
-		for (format in __items.keys())
+		for (format in items.keys())
 		{
-			var data:Dynamic = __items.get(format);
+			var data:Dynamic = items.get(format);
 			output.writeInt32(format);
 
 			switch ((format : ClipboardFormat))
