@@ -242,7 +242,9 @@ namespace lime
 		clockLastTicks = SDL_GetTicks();
 		clockElapsedTicks = 0;
 		realVSyncActive = false;
+		requestedBackgroundFrameRate = 30.0;
 		requestedBusyWaitMode = MAIN_LOOP_BUSY_WAIT_AUTO;
+		windowsHidden = false;
 		requestedFrameRate = 60.0;
 		requestedProfile = MAIN_LOOP_PROFILE_BALANCED;
 		requestedTimePrecisionMode = MAIN_LOOP_TIME_PRECISION_AUTO;
@@ -370,6 +372,20 @@ namespace lime
 
 		framePeriod = 1000.0 / effectiveFrameRate;
 
+		// While every window is minimised or hidden, nothing shows the frames, so they are
+		// timed at no more than the background frame rate, whatever the profile
+		bool backgroundLimited = windowsHidden && requestedBackgroundFrameRate > 0.0;
+
+		if (backgroundLimited)
+		{
+			double backgroundPeriod = 1000.0 / requestedBackgroundFrameRate;
+			schedulerUnthrottled = false;
+			swapPaced = false;
+			useDisplayDrivenFallback = false;
+			if (framePeriod < backgroundPeriod)
+				framePeriod = backgroundPeriod;
+		}
+
 		switch (requestedTimePrecisionMode)
 		{
 			case MAIN_LOOP_TIME_PRECISION_MILLISECOND:
@@ -400,6 +416,9 @@ namespace lime
 				allowBusyWait = (requestedProfile != MAIN_LOOP_PROFILE_LOW_ENERGY);
 				break;
 		}
+
+		if (backgroundLimited)
+			allowBusyWait = false;
 
 		busyWaitOnly = allowBusyWait && (activeUncapMode == MAIN_LOOP_UNCAP_HARD || (framePeriod > 0.0 && framePeriod <= 2.0));
 
@@ -1041,6 +1060,12 @@ namespace lime
 			case SDL_WINDOWEVENT_RESTORED:
 
 				ProcessWindowEvent(event);
+
+				// The frame rate drops while every window is minimised or hidden
+				if (event->window.event == SDL_WINDOWEVENT_SHOWN || event->window.event == SDL_WINDOWEVENT_HIDDEN ||
+					event->window.event == SDL_WINDOWEVENT_MINIMIZED || event->window.event == SDL_WINDOWEVENT_RESTORED ||
+					event->window.event == SDL_WINDOWEVENT_MAXIMIZED)
+					UpdateWindowsHidden(true);
 				break;
 
 			case SDL_WINDOWEVENT_DISPLAY_CHANGED:
@@ -1842,6 +1867,7 @@ namespace lime
 		{
 			windows.push_back (window);
 			window->SetVSyncMode (requestedVSyncMode);
+			UpdateWindowsHidden (false);
 			RefreshVSyncState ();
 		}
 
@@ -1857,7 +1883,45 @@ namespace lime
 		if (window) dispatchedWindowSizes.erase(window->GetID());
 #endif
 		windows.erase (std::remove (windows.begin (), windows.end (), window), windows.end ());
+		UpdateWindowsHidden (false);
 		RefreshVSyncState ();
+	}
+
+	void SDLApplication::UpdateWindowsHidden(bool apply)
+	{
+
+		// An application without windows isn't limited, as it may draw nothing on purpose
+		int shown = 0;
+		int counted = 0;
+
+		for (std::vector<SDLWindow*>::const_iterator iter = windows.begin (); iter != windows.end (); ++iter)
+		{
+			if (!*iter || !(*iter)->sdlWindow)
+				continue;
+
+			counted++;
+			if (!(SDL_GetWindowFlags ((*iter)->sdlWindow) & (SDL_WINDOW_MINIMIZED | SDL_WINDOW_HIDDEN)))
+				shown++;
+		}
+
+		bool hidden = (counted > 0 && shown == 0);
+
+		if (hidden != windowsHidden)
+		{
+			windowsHidden = hidden;
+			if (apply) ApplyMainLoopSettings ();
+		}
+	}
+
+	void SDLApplication::SetBackgroundFrameRate(double frameRate)
+	{
+
+		double rate = (frameRate > 0.0) ? frameRate : 0.0;
+		if (rate == requestedBackgroundFrameRate)
+			return;
+
+		requestedBackgroundFrameRate = rate;
+		if (windowsHidden) ApplyMainLoopSettings ();
 	}
 
 	void SDLApplication::SetIdleEvents(bool enabled)
