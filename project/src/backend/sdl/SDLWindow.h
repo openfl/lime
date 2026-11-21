@@ -31,7 +31,7 @@ namespace lime {
 			virtual void Focus ();
 			virtual bool OrderRelative (Window* other, bool above);
 			virtual bool OrderToBack ();
-			virtual bool StartDrag (int edges);
+			virtual bool StartMoveResize (int edges);
 			virtual void* GetContext ();
 			virtual const char* GetContextType ();
 			// virtual Cursor GetCursor ();

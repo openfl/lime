@@ -450,7 +450,7 @@ class NativeCFFI
 
 	@:cffi private static function lime_window_order_to_back(handle:Dynamic):Bool;
 
-	@:cffi private static function lime_window_start_drag(handle:Dynamic, edges:Int):Bool;
+	@:cffi private static function lime_window_start_move_resize(handle:Dynamic, edges:Int):Bool;
 
 	@:cffi private static function lime_window_get_context(handle:Dynamic):Float;
 
@@ -1241,7 +1241,7 @@ class NativeCFFI
 	private static var lime_window_order_relative = new cpp.Callable<cpp.Object->cpp.Object->Bool->Bool>(cpp.Prime._loadPrime("lime",
 		"lime_window_order_relative", "oobb", false));
 	private static var lime_window_order_to_back = new cpp.Callable<cpp.Object->Bool>(cpp.Prime._loadPrime("lime", "lime_window_order_to_back", "ob", false));
-	private static var lime_window_start_drag = new cpp.Callable<cpp.Object->Int->Bool>(cpp.Prime._loadPrime("lime", "lime_window_start_drag", "oib", false));
+	private static var lime_window_start_move_resize = new cpp.Callable<cpp.Object->Int->Bool>(cpp.Prime._loadPrime("lime", "lime_window_start_move_resize", "oib", false));
 	private static var lime_window_get_context = new cpp.Callable<cpp.Object->Float>(cpp.Prime._loadPrime("lime", "lime_window_get_context", "od", false));
 	private static var lime_window_get_context_type = new cpp.Callable<cpp.Object->cpp.Object>(cpp.Prime._loadPrime("lime", "lime_window_get_context_type",
 		"oo", false));
@@ -1769,7 +1769,7 @@ class NativeCFFI
 	private static var lime_window_focus = CFFI.load("lime", "lime_window_focus", 1);
 	private static var lime_window_order_relative = CFFI.load("lime", "lime_window_order_relative", 3);
 	private static var lime_window_order_to_back = CFFI.load("lime", "lime_window_order_to_back", 1);
-	private static var lime_window_start_drag = CFFI.load("lime", "lime_window_start_drag", 2);
+	private static var lime_window_start_move_resize = CFFI.load("lime", "lime_window_start_move_resize", 2);
 	private static var lime_window_get_context = CFFI.load("lime", "lime_window_get_context", 1);
 	private static var lime_window_get_context_type = CFFI.load("lime", "lime_window_get_context_type", 1);
 	private static var lime_window_create_vulkan_surface = CFFI.load("lime", "lime_window_create_vulkan_surface", 3);
@@ -2769,7 +2769,7 @@ class NativeCFFI
 		return false;
 	}
 
-	@:hlNative("lime", "hl_window_start_drag") private static function lime_window_start_drag(handle:CFFIPointer, edges:Int):Bool
+	@:hlNative("lime", "hl_window_start_move_resize") private static function lime_window_start_move_resize(handle:CFFIPointer, edges:Int):Bool
 	{
 		return false;
 	}

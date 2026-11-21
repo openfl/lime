@@ -1464,7 +1464,7 @@ namespace lime {
 	}
 
 
-	bool SDLWindow::StartDrag (int edges) {
+	bool SDLWindow::StartMoveResize (int edges) {
 
 		return SDLMenu::DragWindow (sdlWindow, edges);
 
