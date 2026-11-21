@@ -190,9 +190,54 @@ public class GameActivity extends SDLActivity {
 	::end::
 
 
+	::if (ANDROID_TARGET_SDK_VERSION >= 35)::
+	// From API 35, Android 15 draws an application edge to edge, under the status and
+	// navigation bars, and Android 16 doesn't let it opt out. SDL's layout is padded by
+	// the bars, so a window that isn't fullscreen stays clear of them as it was before.
+	// Fullscreen hides the bars, whose insets are then 0. A cutout is kept clear too,
+	// unless the project asked to draw into it, as Android 15 takes the default mode as
+	// "always".
+	@android.annotation.TargetApi(30) private void keepClearOfSystemBars () {
+
+		if (mLayout == null) return;
+
+		mLayout.setOnApplyWindowInsetsListener (new View.OnApplyWindowInsetsListener () {
+
+			@Override public WindowInsets onApplyWindowInsets (View view, WindowInsets insets) {
+
+				int types = WindowInsets.Type.systemBars ();
+				int cutoutMode = getWindow ().getAttributes ().layoutInDisplayCutoutMode;
+
+				if (cutoutMode == WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_DEFAULT || cutoutMode == WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_NEVER) {
+
+					types |= WindowInsets.Type.displayCutout ();
+
+				}
+
+				android.graphics.Insets bars = insets.getInsets (types);
+				view.setPadding (bars.left, bars.top, bars.right, bars.bottom);
+				return insets;
+
+			}
+
+		});
+
+		mLayout.requestApplyInsets ();
+
+	}
+	::end::
+
+
 	protected void onCreate (Bundle state) {
 
 		super.onCreate (state);
+		::if (ANDROID_TARGET_SDK_VERSION >= 35)::
+		if (Build.VERSION.SDK_INT >= 35) {
+
+			keepClearOfSystemBars ();
+
+		}
+		::end::
 
 		orientationListener = new OrientationEventListener(this) {
 

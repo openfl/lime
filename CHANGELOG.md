@@ -73,6 +73,7 @@ Changelog
 - Changed Windows to show input methods' own composition and candidate windows.
 - Changed `FrameProfile.UNCAPPED` to uncap the frame loop.
 - Changed the default Android target SDK to 36, which Google Play requires, with Android Gradle plugin 8.9.1 and Gradle 8.11.1. On Android 16, the back gesture and back key still reach the application as `APP_CONTROL_BACK`, and an Android application is a game by default (`android:appCategory="game"`), so it keeps its orientation on large screens.
+- Fixed Android windows that aren't fullscreen drawing under the status and navigation bars on Android 15 and later, which draw applications that target API 35 or later edge to edge.
 - Changed native HTTP requests to look up names on a thread of their own on every platform.
 - Changed native HTTPS requests to check the server's certificate, against the system's trusted certificates (Mozilla's on iOS and tvOS). Set `HTTPRequest.verifyCertificates` to `false`, or define `lime-insecure-https`, for servers with self-signed certificates.
 - Changed static builds to use Lime's own mbedTLS rather than the one bundled with hxcpp.
