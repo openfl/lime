@@ -93,6 +93,8 @@ namespace lime {
 			}
 			virtual bool GetVulkanInstanceExtensions (unsigned int* count, const char** names) { return false; }
 			virtual void* GetVulkanInstanceProcAddr () { return 0; }
+			// Counts a Vulkan present as a swap, so vsync paces the frame loop as it does swaps
+			virtual void NoteVulkanPresent () {}
 
 			Application* currentApplication;
 			int flags;
