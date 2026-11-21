@@ -494,7 +494,7 @@ class NativeCFFI
 
 	@:cffi private static function lime_web_view_evaluate_java_script(handle:Dynamic, script:String, token:Int):Void;
 
-	@:cffi private static function lime_web_view_focus(handle:Dynamic):Void;
+	@:cffi private static function lime_web_view_focus(handle:Dynamic, direction:Int):Void;
 
 	@:cffi private static function lime_web_view_get_can_go_back(handle:Dynamic):Bool;
 
@@ -1281,7 +1281,7 @@ class NativeCFFI
 	private static var lime_web_view_close = new cpp.Callable<cpp.Object->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_web_view_close", "ov", false));
 	private static var lime_web_view_create = new cpp.Callable<cpp.Object->Int->Int->Int->Int->Int->String->cpp.Object>(cpp.Prime._loadPrime("lime", "lime_web_view_create", "oiiiiiso", false));
 	private static var lime_web_view_evaluate_java_script = new cpp.Callable<cpp.Object->String->Int->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_web_view_evaluate_java_script", "osiv", false));
-	private static var lime_web_view_focus = new cpp.Callable<cpp.Object->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_web_view_focus", "ov", false));
+	private static var lime_web_view_focus = new cpp.Callable<cpp.Object->Int->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_web_view_focus", "oiv", false));
 	private static var lime_web_view_get_can_go_back = new cpp.Callable<cpp.Object->Bool>(cpp.Prime._loadPrime("lime", "lime_web_view_get_can_go_back", "ob", false));
 	private static var lime_web_view_get_can_go_forward = new cpp.Callable<cpp.Object->Bool>(cpp.Prime._loadPrime("lime", "lime_web_view_get_can_go_forward", "ob", false));
 	private static var lime_web_view_get_id = new cpp.Callable<cpp.Object->Int>(cpp.Prime._loadPrime("lime", "lime_web_view_get_id", "oi", false));
@@ -1810,7 +1810,7 @@ class NativeCFFI
 	private static var lime_web_view_close = CFFI.load("lime", "lime_web_view_close", 1);
 	private static var lime_web_view_create = CFFI.load("lime", "lime_web_view_create", -1);
 	private static var lime_web_view_evaluate_java_script = CFFI.load("lime", "lime_web_view_evaluate_java_script", 3);
-	private static var lime_web_view_focus = CFFI.load("lime", "lime_web_view_focus", 1);
+	private static var lime_web_view_focus = CFFI.load("lime", "lime_web_view_focus", 2);
 	private static var lime_web_view_get_can_go_back = CFFI.load("lime", "lime_web_view_get_can_go_back", 1);
 	private static var lime_web_view_get_can_go_forward = CFFI.load("lime", "lime_web_view_get_can_go_forward", 1);
 	private static var lime_web_view_get_id = CFFI.load("lime", "lime_web_view_get_id", 1);
@@ -2883,7 +2883,7 @@ class NativeCFFI
 
 	@:hlNative("lime", "hl_web_view_evaluate_java_script") private static function lime_web_view_evaluate_java_script(handle:CFFIPointer, script:String, token:Int):Void {}
 
-	@:hlNative("lime", "hl_web_view_focus") private static function lime_web_view_focus(handle:CFFIPointer):Void {}
+	@:hlNative("lime", "hl_web_view_focus") private static function lime_web_view_focus(handle:CFFIPointer, direction:Int):Void {}
 
 	@:hlNative("lime", "hl_web_view_get_can_go_back") private static function lime_web_view_get_can_go_back(handle:CFFIPointer):Bool
 	{
