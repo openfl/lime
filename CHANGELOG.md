@@ -38,6 +38,8 @@ Changelog
 - Added `VideoSource` playback on HTML5 through the browser's `<video>` element.
 - Added `VideoSource.loadFromFile()`, and `VideoDecoder.videoUnsupported` and `VideoDecoder.audioUnsupported` for streams of codecs that cannot be decoded.
 - Added `VideoSource.rate`, to play videos at 0.25 to 4 times normal speed.
+- Added `VideoSource.onReady`, `onSeek` and `onBuffering`, and `VideoSource.frameRate`, `bytesLoaded` and `bytesTotal`.
+- Added `VideoSource.fromBytes()`, `VideoSource.openBytes()`, `VideoDecoder.fromBytes()` and `VideoDecoder.openBytes()`. Embedded video assets now play, and URLs play on macOS and iOS, downloaded before they open.
 - Added the Vorbis sound of Matroska and WebM videos on Windows, which Media Foundation has no decoder for, read with libwebm and decoded with libvorbis.
 - Added `Window.flash()`, `Window.mouseRect`, and `Window.keyboardGrab`.
 - Added `Window.preciseMouseWheel` for smooth scrolling on touchpads and smooth wheels.

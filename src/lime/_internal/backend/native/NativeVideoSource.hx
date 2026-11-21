@@ -34,6 +34,7 @@ import lime.utils.UInt8Array;
 @:fileXml('tags="haxe,release"')
 @:noDebug
 #end
+@:access(lime.media.VideoDecoder)
 @:access(lime.media.VideoSource)
 @:access(lime.system.System)
 class NativeVideoSource
@@ -55,6 +56,8 @@ class NativeVideoSource
 	private static inline var AUDIO_RETRY_SECONDS:Float = 1.0;
 	private static inline var AUDIO_STEER_RATE:Float = 0.1;
 	private static inline var AUDIO_STEER_SECONDS:Float = 0.5;
+	// A wait for a frame shorter than this, as for each frame after seeking, is not reported as buffering
+	private static inline var BUFFERING_SECONDS:Float = 0.1;
 	// A looping video opens its next loop this long before the end
 	private static inline var LOOP_OPEN_SECONDS:Float = 2.0;
 	private static inline var LOOP_POLL_SECONDS:Float = 0.05;
@@ -114,6 +117,8 @@ class NativeVideoSource
 		that what is left of the queue can be panned again. Null for mono.
 	**/
 	private var bufferSounds:Array<QueuedSound>;
+	private var buffering:Bool = false;
+	private var bytesTotal:Float = 0;
 	private var buffers:Array<ALBuffer>;
 	private var bytesPerSecond:Float;
 	private var clockMode:VideoClockMode;
@@ -143,6 +148,8 @@ class NativeVideoSource
 	private var playing:Bool;
 	private var retiredDecoder:VideoDecoder;
 	private var timer:Timer;
+	private var readStamp:Float = -1;
+	private var waitingStamp:Float = -1;
 
 	public function new(parent:VideoSource)
 	{
@@ -198,6 +205,17 @@ class NativeVideoSource
 		close();
 	}
 
+	public function getBytesLoaded():Float
+	{
+		// A local file can be read at any point, so all of it counts as loaded
+		return bytesTotal;
+	}
+
+	public function getBytesTotal():Float
+	{
+		return bytesTotal;
+	}
+
 	public function getClockMode():VideoClockMode
 	{
 		return clockMode;
@@ -229,6 +247,11 @@ class NativeVideoSource
 	public function getDropLateFrames():Bool
 	{
 		return dropLateFrames;
+	}
+
+	public function getFrameRate():Float
+	{
+		return decoder != null ? decoder.frameRate : 0;
 	}
 
 	public function getGain():Float
@@ -375,11 +398,27 @@ class NativeVideoSource
 		return true;
 	}
 
+	public function openBytes(bytes:Bytes, format:VideoFrameFormat):Bool
+	{
+		close();
+
+		var decoder = new VideoDecoder();
+
+		if (!decoder.openBytes(bytes, format))
+		{
+			return false;
+		}
+
+		attach(decoder);
+		return true;
+	}
+
 	public function pause():Void
 	{
 		lockAudio();
 		pauseUnlocked();
 		unlockAudio();
+		checkBuffering(false);
 	}
 
 	@:noCompletion private function pauseUnlocked():Void
@@ -437,6 +476,7 @@ class NativeVideoSource
 	{
 		if (decoder == null || frame == null) return false;
 
+		readStamp = getStamp();
 		update();
 
 		// Updating can complete playback, and the handler can dispose of the source
@@ -479,9 +519,15 @@ class NativeVideoSource
 
 	public function setCurrentTime(value:Int):Int
 	{
-		if (decoder != null)
+		if (decoder != null && seek(value / 1000))
 		{
-			seek(value / 1000);
+			// After the call, as on HTML5, where the browser seeks in the background
+			var seeked = decoder;
+
+			Timer.delay(function()
+			{
+				if (decoder == seeked) parent.onSeek.dispatch();
+			}, 0);
 		}
 
 		return value;
@@ -580,6 +626,16 @@ class NativeVideoSource
 
 		this.decoder = decoder;
 		decoder.dropLateFrames = dropLateFrames;
+		bytesTotal = getFileSize(decoder.__temporaryPath != null ? decoder.__temporaryPath : decoder.source);
+		buffering = false;
+		waitingStamp = -1;
+
+		// Dispatched later, so listeners added after opening hear it, and not for
+		// a video closed or replaced before then
+		Timer.delay(function()
+		{
+			if (this.decoder == decoder) parent.onReady.dispatch();
+		}, 0);
 
 		audioDecoder = decoder;
 		audioOffset = 0;
@@ -1237,6 +1293,11 @@ class NativeVideoSource
 		return !hasFrame && decoder.hasVideo && !decoder.videoComplete;
 	}
 
+	@:noCompletion private function getLoopPath():String
+	{
+		return decoder.__temporaryPath != null ? decoder.__temporaryPath : parent.source;
+	}
+
 	@:noCompletion private function openLoop():Void
 	{
 		// The next loop opens ahead of the end, so its sound and frames follow on
@@ -1248,13 +1309,13 @@ class NativeVideoSource
 		// Opening reads the file or waits for a server, so it happens on a thread
 		// of its own, which hands the decoder over under the source's lock
 		loopRequestsMutex.acquire();
-		loopRequests.push({format: decoder.format, hardwareDecoding: decoder.hardwareDecoding, path: parent.source, source: this, token: token});
+		loopRequests.push({format: decoder.format, hardwareDecoding: decoder.hardwareDecoding, path: getLoopPath(), source: this, token: token});
 		startLoopThread();
 		loopRequestsMutex.release();
 		#else
 		var next = new VideoDecoder();
 		next.hardwareDecoding = decoder.hardwareDecoding;
-		finishLoop(token, next.open(parent.source, decoder.format) ? next : null);
+		finishLoop(token, next.open(getLoopPath(), decoder.format) ? next : null);
 		#end
 	}
 
@@ -1383,6 +1444,11 @@ class NativeVideoSource
 		loopOpening = false;
 		loops--;
 
+		// A video from bytes loops on the same temporary file, which the decoder
+		// playing it deletes when it closes
+		decoder.__temporaryPath = previous.__temporaryPath;
+		previous.__temporaryPath = null;
+
 		if (audioDecoder == previous)
 		{
 			audioDecoder = decoder;
@@ -1428,7 +1494,78 @@ class NativeVideoSource
 	{
 		lockAudio();
 		updateUnlocked();
+		// Only worked out for a video something listens to
+		var waiting = (buffering || parent.onBuffering.__listeners.length > 0) && isWaitingForData();
 		unlockAudio();
+		checkBuffering(waiting);
+	}
+
+	// Called with the audio locked, as the audio thread fills its queue
+	@:noCompletion private function isWaitingForData():Bool
+	{
+		if (decoder == null || !playing || failed || completed) return false;
+
+		// The first frame, after opening or seeking, holds the clock
+		if (isWaitingForFrame()) return true;
+
+		// So does sound that has run out before its end, unless the clock runs on its own
+		if (handle != null && !audioStalled && clockMode != MONOTONIC && bufferTimes.length == 0 && audioDecoder != null
+			&& !audioDecoder.audioComplete) return true;
+
+		// Without that, the picture falls behind while frames are read: the frame shown has ended,
+		// a frame's time ago in case its duration was not known, and the next one has not come
+		// The clock is only read here, as reading it through getTime moves it on
+		var interval = decoder.frameRate > 0 ? 1 / decoder.frameRate : 0.05;
+		var time = clockTime + (getStamp() - clockStamp) * playbackRate;
+		return hasFrame && decoder.hasVideo && !decoder.videoComplete && readStamp >= 0 && getStamp() - readStamp < 0.5
+			&& time > frameEndTime + interval;
+	}
+
+	@:noCompletion private function checkBuffering(waiting:Bool):Void
+	{
+
+		if (!waiting)
+		{
+			waitingStamp = -1;
+		}
+		else if (waitingStamp < 0)
+		{
+			waitingStamp = getStamp();
+		}
+
+		var nowBuffering = waiting && getStamp() - waitingStamp >= BUFFERING_SECONDS;
+
+		if (nowBuffering != buffering)
+		{
+			buffering = nowBuffering;
+			parent.onBuffering.dispatch(buffering);
+		}
+	}
+
+	@:noCompletion private static function getFileSize(path:String):Float
+	{
+		// The size of a URL, or of a file packed in an Android application, is not known
+		if (path == null || path.indexOf("://") > -1) return 0;
+
+		#if sys
+		try
+		{
+			// An asset ID is read from the asset's path, as VideoDecoder opens it
+			if (!sys.FileSystem.exists(path) && lime.utils.Assets.exists(path))
+			{
+				var assetPath = lime.utils.Assets.getPath(path);
+				if (assetPath != null) path = assetPath;
+			}
+
+			if (sys.FileSystem.exists(path) && !sys.FileSystem.isDirectory(path))
+			{
+				return sys.FileSystem.stat(path).size;
+			}
+		}
+		catch (e:Dynamic) {}
+		#end
+
+		return 0;
 	}
 
 	@:noCompletion private function updateUnlocked():Void
@@ -1518,7 +1655,7 @@ class NativeVideoSource
 			var videoDone = !decoder.hasVideo || (decoder.videoComplete && time >= frameEndTime)
 				|| (decoder.duration > 0 && time - loopOffset >= decoder.duration + frameDuration);
 
-			if (loops > 0 && loopDecoder == null && !loopOpening && decoder.duration > 0 && parent.source != null
+			if (loops > 0 && loopDecoder == null && !loopOpening && decoder.duration > 0 && getLoopPath() != null
 				&& time - loopOffset > decoder.duration - LOOP_OPEN_SECONDS)
 			{
 				openLoop();
