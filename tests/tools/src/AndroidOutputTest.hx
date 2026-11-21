@@ -434,6 +434,28 @@ class AndroidOutputTest extends Test
 		Assert.equals(-1, activity.indexOf("OnBackInvoked"));
 	}
 
+	// From API 35, Android 15 draws an application edge to edge, under the status and navigation
+	// bars, and Android 16 doesn't let it opt out. A window that isn't fullscreen is kept clear of
+	// them, as it was. The insets API is only in API 30 and later.
+	public function testAWindowIsKeptClearOfTheSystemBarsFromAPI35():Void
+	{
+		output.update('<project>
+			<app main="Main" file="MyApplication" />
+		</project>');
+
+		var activity = output.read("bin/app/src/main/java/org/haxe/lime/GameActivity.java");
+		Assert.isTrue(activity.indexOf("keepClearOfSystemBars ();") > -1, "the activity doesn't keep its window clear of the system bars");
+		Assert.isTrue(activity.indexOf("WindowInsets.Type.systemBars ()") > -1);
+
+		output.update('<project>
+			<app main="Main" file="MyApplication" />
+			<config:android target-sdk-version="34" />
+		</project>');
+
+		activity = output.read("bin/app/src/main/java/org/haxe/lime/GameActivity.java");
+		Assert.equals(-1, activity.indexOf("keepClearOfSystemBars"));
+	}
+
 	// The template asks whether the plugin is 4.0 or later, and 7.1 or later; version 10 is both
 	public function testGradlePluginVersionsCompareAsVersions():Void
 	{
