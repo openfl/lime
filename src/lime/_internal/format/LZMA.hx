@@ -37,6 +37,10 @@ class LZMA
 		var data = untyped #if haxe4 js.Syntax.code #else __js__ #end ("LZMA.compress")(@:privateAccess bytes.b, 5);
 		return __jsBytes(data);
 		#elseif flash
+		// Flash compresses nothing to nothing. An .lzma stream of nothing is its header, as Flash writes it, with
+		// a size of 0, and the range coder's first five bytes.
+		if (bytes.length == 0) return __bytes([0x5D, 0x00, 0x00, 0x10, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00]);
+
 		var byteArray:ByteArray = cast bytes.getData();
 
 		var data = new ByteArray();
@@ -82,6 +86,13 @@ class LZMA
 		if (sizeKnown && data.length != bytes.getInt32(5)) return null;
 		return __jsBytes(data);
 		#elseif flash
+		// Shorter than the header, which Flash gives back as it is
+		if (bytes.length < 13) return null;
+
+		// Flash only reads a stream that holds the exact size it decompresses to, so a stream from a tool that
+		// leaves it unknown, or one too large for Flash to hold, is read in Haxe
+		if (bytes.getInt32(9) != 0) return LZMADecoder.decode(bytes);
+
 		var byteArray:ByteArray = cast bytes.getData();
 
 		var data = new ByteArray();
@@ -93,4 +104,13 @@ class LZMA
 		return null;
 		#end
 	}
+
+	#if flash
+	private static function __bytes(values:Array<Int>):Bytes
+	{
+		var bytes = Bytes.alloc(values.length);
+		for (i in 0...values.length) bytes.set(i, values[i]);
+		return bytes;
+	}
+	#end
 }

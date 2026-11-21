@@ -72,23 +72,65 @@ class GZip
 	}
 
 	#if flash
-	// Reads one gzip member, giving null for anything that isn't one or whose
-	// CRC-32 or size doesn't match what it inflates to (RFC 1952)
+	// Reads the gzip members one after another, giving null for anything that isn't one or whose CRC-32 or size
+	// doesn't match what it inflates to (RFC 1952). Flash doesn't say where a member's deflate stream ends, so
+	// each place it could, the end of the data or another member's header, is tried against the trailer.
 	private static function __flashDecompress(bytes:Bytes):Bytes
 	{
+		var output = new haxe.io.BytesBuffer();
+		var position = 0;
+
+		do
+		{
+			var start = __flashMemberStart(bytes, position);
+			if (start < 0) return null;
+
+			var next = -1;
+			var trailer = start;
+
+			while (trailer + 8 <= bytes.length)
+			{
+				var end = trailer + 8;
+
+				if (end == bytes.length || (end + 3 <= bytes.length && bytes.get(end) == 0x1F && bytes.get(end + 1) == 0x8B && bytes.get(end + 2) == 8))
+				{
+					var inflated = __flashInflate(bytes, start, trailer);
+
+					if (inflated != null)
+					{
+						output.add(inflated);
+						next = end;
+						break;
+					}
+				}
+
+				trailer++;
+			}
+
+			if (next < 0) return null;
+			position = next;
+		}
+		while (position < bytes.length);
+
+		return output.getBytes();
+	}
+
+	// Where the deflate stream of the member at position starts, past its header, or -1
+	private static function __flashMemberStart(bytes:Bytes, position:Int):Int
+	{
 		var length = bytes.length;
-		if (length < 18 || bytes.get(0) != 0x1F || bytes.get(1) != 0x8B || bytes.get(2) != 8) return null;
+		if (length - position < 18 || bytes.get(position) != 0x1F || bytes.get(position + 1) != 0x8B || bytes.get(position + 2) != 8) return -1;
 
-		var flags = bytes.get(3);
-		if (flags & 0xE0 != 0) return null;
+		var flags = bytes.get(position + 3);
+		if (flags & 0xE0 != 0) return -1;
 
-		var position = 10;
+		position += 10;
 		var end = length - 8;
 
 		// FEXTRA, FNAME, FCOMMENT and FHCRC, in that order
 		if (flags & 4 != 0)
 		{
-			if (position + 2 > end) return null;
+			if (position + 2 > end) return -1;
 			position += 2 + (bytes.get(position) | (bytes.get(position + 1) << 8));
 		}
 
@@ -106,20 +148,24 @@ class GZip
 		}
 
 		if (flags & 2 != 0) position += 2;
-		if (position > end) return null;
+		return position > end ? -1 : position;
+	}
 
+	// The member's data when the deflate stream from start to trailer inflates to what the trailer says, or null
+	private static function __flashInflate(bytes:Bytes, start:Int, trailer:Int):Bytes
+	{
 		var inflated:Bytes = null;
 
 		try
 		{
-			inflated = Deflate.decompress(bytes.sub(position, end - position));
+			inflated = Deflate.decompress(bytes.sub(start, trailer - start));
 		}
 		catch (e:Dynamic)
 		{
 			return null;
 		}
 
-		if (inflated == null || bytes.getInt32(end) != Crc32.make(inflated) || bytes.getInt32(end + 4) != inflated.length) return null;
+		if (inflated == null || bytes.getInt32(trailer) != Crc32.make(inflated) || bytes.getInt32(trailer + 4) != inflated.length) return null;
 
 		return inflated;
 	}

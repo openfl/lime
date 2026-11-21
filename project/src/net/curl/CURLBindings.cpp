@@ -42,6 +42,7 @@ namespace lime {
 	std::map<void*, bool> curlMultiValid;
 	std::map<CURL*, void*> curlObjects;
 	std::map<void*, bool> curlValid;
+	std::map<void*, char*> errorBuffers;
 	std::map<void*, ValuePointer*> headerCallbacks;
 	std::map<void*, curl_slist*> headerSLists;
 	std::map<void*, std::vector<char*>* > headerValues;
@@ -158,6 +159,78 @@ namespace lime {
 	}
 
 
+	void release_error_buffer (void* handle) {
+
+		if (errorBuffers.find (handle) != errorBuffers.end ()) {
+
+			free (errorBuffers[handle]);
+			errorBuffers.erase (handle);
+
+		}
+
+	}
+
+
+	// libcurl writes up to CURL_ERROR_SIZE bytes to ERRORBUFFER whenever a
+	// transfer fails, which may be later and on the transfer thread, so the
+	// handle owns that buffer rather than pointing at a string's
+	CURLcode set_error_buffer (void* handle, CURL* curl, bool enable) {
+
+		CURLcode code;
+
+		lock_curl_gc ();
+
+		if (enable) {
+
+			bool owned = errorBuffers.find (handle) != errorBuffers.end ();
+			char* buffer = owned ? errorBuffers[handle] : (char*)calloc (CURL_ERROR_SIZE, 1);
+
+			code = curl_easy_setopt (curl, CURLOPT_ERRORBUFFER, buffer);
+
+			if (code == CURLE_OK) {
+
+				errorBuffers[handle] = buffer;
+
+			} else if (!owned) {
+
+				free (buffer);
+
+			}
+
+		} else {
+
+			code = curl_easy_setopt (curl, CURLOPT_ERRORBUFFER, (char*)NULL);
+			release_error_buffer (handle);
+
+		}
+
+		curl_gc_mutex.Unlock ();
+
+		return code;
+
+	}
+
+
+	// Whether a setopt parameter turns the error buffer on: anything but
+	// null or false, so a string, as the option once took, still does
+	bool error_buffer_enabled (value parameter) {
+
+		if (val_is_null (parameter)) return false;
+		if (val_is_bool (parameter)) return val_bool (parameter);
+		return true;
+
+	}
+
+
+	bool hl_error_buffer_enabled (vdynamic* parameter) {
+
+		if (!parameter) return false;
+		if (parameter->t->kind == HBOOL) return parameter->v.b;
+		return true;
+
+	}
+
+
 	void release_curl (value handle, CURL* curl) {
 
 		if (curlMultiReferences.find (handle) != curlMultiReferences.end ()) {
@@ -205,8 +278,9 @@ namespace lime {
 
 		}
 
-		// After curl_easy_cleanup, which is the last that may read them
+		// After curl_easy_cleanup, which is the last that may use them
 		release_post_fields (handle);
+		release_error_buffer (handle);
 
 		ValuePointer* callback;
 		Bytes* bytes;
@@ -330,8 +404,9 @@ namespace lime {
 
 		}
 
-		// After curl_easy_cleanup, which is the last that may read them
+		// After curl_easy_cleanup, which is the last that may use them
 		release_post_fields (handle);
+		release_error_buffer (handle);
 
 		ValuePointer* callback;
 		Bytes* bytes;
@@ -643,6 +718,15 @@ namespace lime {
 			memcpy (copy, postFields[handle], size);
 			postFields[duphandle] = copy;
 			curl_easy_setopt (dup, CURLOPT_POSTFIELDS, copy);
+
+		}
+
+		if (errorBuffers.find (handle) != errorBuffers.end ()) {
+
+			// Or the clone writes its errors to the original's buffer
+			char* buffer = (char*)calloc (CURL_ERROR_SIZE, 1);
+			errorBuffers[duphandle] = buffer;
+			curl_easy_setopt (dup, CURLOPT_ERRORBUFFER, buffer);
 
 		}
 
@@ -1553,6 +1637,11 @@ namespace lime {
 		curl_easy_reset ((CURL*)val_data(curl));
 		CURL_SetCertificates ((CURL*)val_data(curl));
 
+		// The reset handle no longer has an error buffer
+		lock_curl_gc ();
+		release_error_buffer (curl);
+		curl_gc_mutex.Unlock ();
+
 	}
 
 
@@ -1560,6 +1649,10 @@ namespace lime {
 
 		curl_easy_reset ((CURL*)curl->ptr);
 		CURL_SetCertificates ((CURL*)curl->ptr);
+
+		lock_curl_gc ();
+		release_error_buffer (curl);
+		curl_gc_mutex.Unlock ();
 
 	}
 
@@ -1840,6 +1933,10 @@ namespace lime {
 				break;
 
 			case CURLOPT_ERRORBUFFER:
+
+				code = set_error_buffer (handle, easy_handle, error_buffer_enabled (parameter));
+				break;
+
 			case CURLOPT_URL:
 			case CURLOPT_PROXY:
 			case CURLOPT_NOPROXY:
@@ -2282,6 +2379,10 @@ namespace lime {
 				break;
 
 			case CURLOPT_ERRORBUFFER:
+
+				code = set_error_buffer (handle, easy_handle, hl_error_buffer_enabled (parameter));
+				break;
+
 			case CURLOPT_URL:
 			case CURLOPT_PROXY:
 			case CURLOPT_NOPROXY:
@@ -2583,6 +2684,46 @@ namespace lime {
 		}
 
 		return code;
+
+	}
+
+
+	// A copy of the handle's error buffer, so it can be read while the
+	// transfer thread may write to it. False if it has none.
+	bool copy_error_buffer (void* handle, char* copy) {
+
+		bool found = false;
+
+		lock_curl_gc ();
+
+		if (errorBuffers.find (handle) != errorBuffers.end ()) {
+
+			memcpy (copy, errorBuffers[handle], CURL_ERROR_SIZE);
+			copy[CURL_ERROR_SIZE - 1] = '\0';
+			found = true;
+
+		}
+
+		curl_gc_mutex.Unlock ();
+
+		return found;
+
+	}
+
+
+	value lime_curl_easy_errorbuffer (value handle) {
+
+		char copy[CURL_ERROR_SIZE];
+		return copy_error_buffer (handle, copy) ? alloc_string (copy) : alloc_null ();
+
+	}
+
+
+	HL_PRIM vbyte* HL_NAME(hl_curl_easy_errorbuffer) (HL_CFFIPointer* handle) {
+
+		char copy[CURL_ERROR_SIZE];
+		if (!copy_error_buffer (handle, copy)) return NULL;
+		return hl_copy_bytes ((const vbyte*)copy, (int)strlen (copy) + 1);
 
 	}
 
@@ -3298,6 +3439,7 @@ namespace lime {
 
 	DEFINE_PRIME1v (lime_curl_easy_cleanup);
 	DEFINE_PRIME1 (lime_curl_easy_duphandle);
+	DEFINE_PRIME1 (lime_curl_easy_errorbuffer);
 	DEFINE_PRIME3 (lime_curl_easy_escape);
 	DEFINE_PRIME2 (lime_curl_easy_getinfo);
 	DEFINE_PRIME0 (lime_curl_easy_init);
@@ -3333,6 +3475,7 @@ namespace lime {
 
 	DEFINE_HL_PRIM (_VOID, hl_curl_easy_cleanup, _TCFFIPOINTER);
 	DEFINE_HL_PRIM (_TCFFIPOINTER, hl_curl_easy_duphandle, _TCFFIPOINTER);
+	DEFINE_HL_PRIM (_BYTES, hl_curl_easy_errorbuffer, _TCFFIPOINTER);
 	DEFINE_HL_PRIM (_BYTES, hl_curl_easy_escape, _TCFFIPOINTER _STRING _I32);
 	DEFINE_HL_PRIM (_DYN, hl_curl_easy_getinfo, _TCFFIPOINTER _I32);
 	DEFINE_HL_PRIM (_TCFFIPOINTER, hl_curl_easy_init, _NO_ARG);

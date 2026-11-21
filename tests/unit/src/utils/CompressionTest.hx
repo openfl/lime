@@ -308,6 +308,42 @@ class CompressionTest extends Test
 		assertDecompresses(Bytes.ofString(FOX), GZIP_FOX_TWO_MEMBERS, GZIP);
 	}
 
+	public function testTheHaxeLZMADecoderReadsStreamsOfEitherSize():Void
+	{
+		// Flash reads the .lzma streams it can't itself with this, so it is checked on every target
+		var decode = lime._internal.format.LZMADecoder.decode;
+
+		Assert.equals(0, decode(Base64.decode(LZMA_EMPTY)).length, "empty, size unknown");
+		Assert.equals(FOX, decode(Base64.decode(LZMA_FOX)).toString(), "the fox, size unknown");
+
+		var zeros = decode(Base64.decode(LZMA_ZEROS));
+		Assert.notNull(zeros, "2 MiB of zeros");
+		if (zeros != null)
+		{
+			Assert.equals(ZEROS_LENGTH, zeros.length);
+			var expected = Bytes.alloc(ZEROS_LENGTH);
+			expected.fill(0, ZEROS_LENGTH, 0);
+			Assert.equals(0, expected.compare(zeros), "2 MiB of zeros");
+		}
+
+		// The fox with its size in the header: its end marker is still read
+		var sized = Base64.decode(LZMA_FOX);
+		sized.setInt32(5, FOX.length);
+		sized.setInt32(9, 0);
+		Assert.equals(FOX, decode(sized).toString(), "the fox, size given");
+
+		// A wrong size is not the stream's
+		sized.setInt32(5, FOX.length + 1);
+		Assert.isNull(decode(sized), "the fox, a size too large");
+		sized.setInt32(5, FOX.length - 1);
+		Assert.isNull(decode(sized), "the fox, a size too small");
+
+		var fox = Base64.decode(LZMA_FOX);
+		Assert.isNull(decode(fox.sub(0, 12)), "shorter than the header");
+		Assert.isNull(decode(fox.sub(0, fox.length - 6)), "truncated");
+		Assert.isNull(decode(Bytes.ofString(FOX + FOX)), "text");
+	}
+
 	public function testLZMAStreamsFromOtherToolsDecompress():Void
 	{
 		assertDecompresses(Bytes.alloc(0), LZMA_EMPTY, LZMA, "empty");
