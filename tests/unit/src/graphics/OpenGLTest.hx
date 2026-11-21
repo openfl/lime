@@ -578,6 +578,102 @@ class OpenGLTest extends Test
 	}
 	#end
 
+	// Framebuffers aren't shared between contexts, so each window's have names of their own, which
+	// in two new contexts are usually the same numbers
+	public function testACollectedFramebufferIsDeletedInTheContextThatMadeIt():Void
+	{
+		var main = getMainWindow();
+		if (main == null) return;
+
+		var gl = main.context.gl;
+		var first = createWindow();
+		var other = createWindow();
+		if (first == null || first.context == null || other == null || other.context == null) return;
+
+		makeCurrent(first);
+		var kept = makeFramebuffer(gl);
+
+		makeCurrent(other);
+		var names = makeFramebuffers(gl, 8);
+
+		// Collected, then cleared with the first window's context current
+		makeCurrent(first);
+		collect();
+		collect();
+		gl.clear(gl.COLOR_BUFFER_BIT);
+		Assert.isTrue(gl.isFramebuffer(kept), "another window's collected framebuffer deleted this window's of the same name");
+
+		// and with the other window's
+		makeCurrent(other);
+		gl.clear(gl.COLOR_BUFFER_BIT);
+		var left = [for (name in names) if (gl.isFramebuffer(framebufferNamed(name))) name];
+		Assert.isTrue(left.length < names.length / 2, left.length + " of " + names.length + " collected framebuffers were not deleted in the context that made them");
+		for (name in left) gl.deleteFramebuffer(framebufferNamed(name));
+
+		makeCurrent(first);
+		gl.deleteFramebuffer(kept);
+		clearErrors(gl);
+		makeCurrent(main);
+	}
+
+	public function testABoundFramebufferIsFoundInTheCurrentContext():Void
+	{
+		var main = getMainWindow();
+		if (main == null) return;
+
+		var gl = main.context.gl;
+		var first = createWindow();
+		var other = createWindow();
+		if (first == null || first.context == null || other == null || other.context == null) return;
+
+		makeCurrent(first);
+		var mine = makeFramebuffer(gl);
+		gl.bindFramebuffer(gl.FRAMEBUFFER, mine);
+
+		makeCurrent(other);
+		var theirs = makeFramebuffer(gl);
+
+		makeCurrent(first);
+		var bound:GLFramebuffer = gl.getParameter(gl.FRAMEBUFFER_BINDING);
+		gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+		Assert.isTrue(bound == mine, "this window's bound framebuffer was found as another window's");
+		gl.deleteFramebuffer(mine);
+		clearErrors(gl);
+
+		makeCurrent(other);
+		gl.deleteFramebuffer(theirs);
+		clearErrors(gl);
+		makeCurrent(main);
+	}
+
+	private static function makeFramebuffer(gl:OpenGLRenderContext):GLFramebuffer
+	{
+		// A name becomes a framebuffer once it is bound
+		var framebuffer = gl.createFramebuffer();
+		gl.bindFramebuffer(gl.FRAMEBUFFER, framebuffer);
+		gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+		return framebuffer;
+	}
+
+	// Made here, so that nothing on the caller's stack keeps them
+	private static function makeFramebuffers(gl:OpenGLRenderContext, count:Int):Array<Int>
+	{
+		var names = [];
+
+		for (i in 0...count)
+		{
+			var object:lime.graphics.opengl.GL.GLObject = makeFramebuffer(gl);
+			names.push(@:privateAccess object.id);
+		}
+
+		return names;
+	}
+
+	private static function framebufferNamed(name:Int):GLFramebuffer
+	{
+		return @:privateAccess new lime.graphics.opengl.GL.GLObject(name);
+	}
+
 	// A GLTransformFeedback dropped without deleteTransformFeedback() is deleted at the next clear()
 	public function testCollectedTransformFeedbacksAreDeleted():Void
 	{
