@@ -1,9 +1,13 @@
 #include "SDLMenu.h"
 #include "SDLTrayIcon.h"
+#include <system/System.h>
 #include <ui/DockIcon.h>
 
 
 namespace lime {
+
+
+	bool System::GetStorageVolumes (std::string* volumes) { return false; }
 
 
 	TrayIcon* CreateTrayIcon () {
