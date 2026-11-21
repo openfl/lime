@@ -179,6 +179,7 @@ class NativeApplication
 		NativeCFFI.lime_key_event_manager_register(handleKeyEvent, keyEventInfo);
 		NativeCFFI.lime_local_socket_event_manager_register(handleLocalSocketEvent, localSocketEventInfo);
 		NativeCFFI.lime_menu_event_manager_register(handleMenuEvent, menuEventInfo);
+		NativeMenu.init();
 		NativeCFFI.lime_mouse_event_manager_register(handleMouseEvent, mouseEventInfo);
 		NativeCFFI.lime_render_event_manager_register(handleRenderEvent, renderEventInfo);
 
@@ -266,7 +267,7 @@ class NativeApplication
 
 		if (menu != null)
 		{
-			var items = [];
+			var items = NativeMenu.newItems(NativeMenu.SOURCE_APPLICATION, 0, menu);
 			var data = NativeMenu.encode(menu, items);
 			menuItems = NativeCFFI.lime_application_set_menu(handle, data) ? items : null;
 		}
@@ -275,6 +276,8 @@ class NativeApplication
 			NativeCFFI.lime_application_set_menu(handle, null);
 			menuItems = null;
 		}
+
+		NativeMenu.setInstalled(NativeMenu.SOURCE_APPLICATION, 0, menuItems != null ? menu : null, menuItems);
 		#end
 	}
 
@@ -596,6 +599,18 @@ class NativeApplication
 		{
 			case MENU_DOCK_SELECT:
 				NativeDockIcon.handleMenuSelect(menuEventInfo.id);
+
+			case MENU_CLOSE_WINDOW:
+				NativeMenu.handleClose(NativeMenu.SOURCE_WINDOW, menuEventInfo.windowID, menuEventInfo.id);
+
+			case MENU_CLOSE_TRAY_ICON:
+				NativeMenu.handleClose(NativeMenu.SOURCE_TRAY_ICON, menuEventInfo.windowID, menuEventInfo.id);
+
+			case MENU_CLOSE_APPLICATION:
+				NativeMenu.handleClose(NativeMenu.SOURCE_APPLICATION, menuEventInfo.windowID, menuEventInfo.id);
+
+			case MENU_CLOSE_DOCK:
+				NativeMenu.handleClose(NativeMenu.SOURCE_DOCK, menuEventInfo.windowID, menuEventInfo.id);
 
 			case MENU_SELECT:
 				if (menuEventInfo.windowID == 0)
@@ -1196,6 +1211,10 @@ class NativeApplication
 {
 	var MENU_SELECT = 0;
 	var MENU_DOCK_SELECT = 1;
+	var MENU_CLOSE_WINDOW = 2;
+	var MENU_CLOSE_TRAY_ICON = 3;
+	var MENU_CLOSE_APPLICATION = 4;
+	var MENU_CLOSE_DOCK = 5;
 }
 
 @:keep /*private*/ class MouseEventInfo
