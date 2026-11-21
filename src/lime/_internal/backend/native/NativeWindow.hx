@@ -317,7 +317,7 @@ class NativeWindow
 		return false;
 	}
 
-	public function startDrag(edges:Int):Bool
+	public function startMoveResize(edges:Int):Bool
 	{
 		#if (!macro && lime_cffi)
 		if (handle != null) return NativeCFFI.lime_window_start_drag(handle, edges);
