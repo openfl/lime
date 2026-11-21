@@ -14,6 +14,7 @@ Changelog
 - Added `AudioInput` and audio input device APIs with native OpenAL, HTML5, and Flash backends.
 - Added `<config:ios microphone-usage-description="..." />` and `<config:mac microphone-usage-description="..." />` for applications that use the microphone.
 - Added `CADisableMinimumFrameDurationOnPhone` to the iOS Info.plist when a window asks for more than 60 frames a second, so ProMotion iPhones reach it, and `<config:ios high-frame-rate="true|false" />` to decide.
+- Added a privacy manifest to iOS applications, which App Store Connect requires, declaring the required reason APIs Lime uses, and `<config:ios privacy-accessed-api="TYPE REASON..." />` for an application's own.
 - Added SDL_sound decoding and streaming, including inline stream playback, streams with unknown length, and loop counts.
 - Added `AudioBuffer.fromFileStream()`, `AudioBuffer.fromFilesStream()`, `AudioBuffer.fromBytesStream()`, `AudioBuffer.loadFromFileStream()`, and `AudioBuffer.loadFromFilesStream()`, which stream through SDL_sound, or Ogg Vorbis without it.
 - Added `Assets.getAudioBufferStream()` and `Assets.loadAudioBufferStream()` for streamed sound assets.
