@@ -57,12 +57,7 @@ class Deflate
 		return @:privateAccess new Bytes(data.length, data.b);
 		#end
 		#elseif js
-		#if commonjs
-		var data = untyped #if haxe4 js.Syntax.code #else __js__ #end ("require (\"pako\").inflateRaw")(bytes.getData());
-		#else
-		var data = untyped #if haxe4 js.Syntax.code #else __js__ #end ("pako.inflateRaw")(bytes.getData());
-		#end
-		return Bytes.ofData(data);
+		return PakoInflate.inflate(bytes, PakoInflate.DEFLATE);
 		#elseif flash
 		// Flash inflates nothing to nothing, but a stream has at least its final block
 		if (bytes.length == 0) return null;

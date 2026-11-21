@@ -69,6 +69,15 @@ class CompressionTest extends Test
 		assertRoundTrips(everyByte());
 	}
 
+	public function testDataThatReadsAsUTF8RoundTrips():Void
+	{
+		// UTF-8 text, and overlong forms of "A" and of U+0000 that a decoder could read as text and re-encode shorter
+		assertRoundTrips(Bytes.ofString("héllo €"));
+		assertRoundTrips(bytesOf([0xC1, 0x81]));
+		assertRoundTrips(bytesOf([0x41, 0xC0, 0x80, 0x41]));
+		assertRoundTrips(bytesOf([0xE0, 0x81, 0x81]));
+	}
+
 	public function testHighlyCompressibleDataRoundTripsSmaller():Void
 	{
 		var data = repeated("abc", 1024 * 1024);
@@ -653,6 +662,16 @@ class CompressionTest extends Test
 		for (i in 0...bytes.length)
 		{
 			bytes.set(i, i & 0xFF);
+		}
+		return bytes;
+	}
+
+	private static function bytesOf(values:Array<Int>):Bytes
+	{
+		var bytes = Bytes.alloc(values.length);
+		for (i in 0...values.length)
+		{
+			bytes.set(i, values[i]);
 		}
 		return bytes;
 	}
