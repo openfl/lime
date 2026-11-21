@@ -1,9 +1,17 @@
 #include "SDLMenu.h"
 #include "SDLTrayIcon.h"
+#include <system/Clipboard.h>
 #include <ui/DockIcon.h>
 
 
 namespace lime {
+
+
+	bool Clipboard::GetFiles (std::vector<std::string>* files) { return false; }
+	bool Clipboard::GetFormatText (int format, std::string* text) { return false; }
+	bool Clipboard::GetImage (std::vector<unsigned char>* pixels, int* width, int* height) { return false; }
+	bool Clipboard::HasFormat (int format) { return false; }
+	bool Clipboard::SetItems (const unsigned char* data, int length) { return false; }
 
 
 	TrayIcon* CreateTrayIcon () {

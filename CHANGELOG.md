@@ -65,6 +65,7 @@ Changelog
 - Added menu bars and context menus on HTML5, drawn in the page, for `Window.menu`, `Application.menu`, and `Menu.popup()`.
 - Added `Menu.onOpen`, dispatched before a menu is shown so its items can still change, and `Menu.onClose`, including for context menus closed without a selection.
 - Added `TrayIcon.onMouseDown`, `onMouseUp` and `onDoubleClick`, and the pointer's screen position on `TrayIcon.onClick` and `onRightClick`, on Windows and macOS.
+- Added `Clipboard.hasFormat()`, `getData()`, `setData()` and `clear()`, with `ClipboardFormat`, for HTML, rich text, URLs, file lists and images on Windows, macOS and Linux with GTK, and text, HTML and images on HTML5.
 - Added `LocalServer` and `LocalSocket` for connections between processes of the same user, through the new native-ipc dependency.
 - Added `LocalServer` and `LocalSocket` on HTML5, between pages of the same origin, with `BroadcastChannel`.
 - Added `WebView`, a web page in a window on Windows, Linux, macOS, iOS, Android, AIR and in browsers, through the new StageWebView dependency. The `no-webview` define leaves the webview engine out of native and Android applications.

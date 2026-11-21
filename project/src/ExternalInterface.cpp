@@ -1999,6 +1999,127 @@ namespace lime {
 	}
 
 
+	// File paths, one to a line, as paths have no line breaks on the systems with these formats
+	static std::string JoinClipboardFiles (const std::vector<std::string>& files) {
+
+		std::string result;
+
+		for (size_t i = 0; i < files.size (); i++) {
+
+			if (i > 0) result += "\n";
+			result += files[i];
+
+		}
+
+		return result;
+
+	}
+
+
+	value lime_clipboard_get_files () {
+
+		std::vector<std::string> files;
+		if (!Clipboard::GetFiles (&files)) return alloc_null ();
+		return alloc_string (JoinClipboardFiles (files).c_str ());
+
+	}
+
+
+	HL_PRIM vbyte* HL_NAME(hl_clipboard_get_files) () {
+
+		std::vector<std::string> files;
+		if (!Clipboard::GetFiles (&files)) return NULL;
+
+		std::string text = JoinClipboardFiles (files);
+		vbyte* result = hl_alloc_bytes ((int)text.size () + 1);
+		memcpy (result, text.c_str (), text.size () + 1);
+		return result;
+
+	}
+
+
+	value lime_clipboard_get_format_text (int format) {
+
+		std::string text;
+		if (!Clipboard::GetFormatText (format, &text)) return alloc_null ();
+		return alloc_string_len (text.c_str (), (int)text.size ());
+
+	}
+
+
+	HL_PRIM vbyte* HL_NAME(hl_clipboard_get_format_text) (int format) {
+
+		std::string text;
+		if (!Clipboard::GetFormatText (format, &text)) return NULL;
+
+		vbyte* result = hl_alloc_bytes ((int)text.size () + 1);
+		memcpy (result, text.c_str (), text.size () + 1);
+		return result;
+
+	}
+
+
+	// The width and height as two Int32 values, then the pixels
+	value lime_clipboard_get_image (value data) {
+
+		std::vector<unsigned char> pixels;
+		int width = 0, height = 0;
+		if (!Clipboard::GetImage (&pixels, &width, &height)) return alloc_null ();
+
+		Bytes bytes (data);
+		bytes.Resize ((int)pixels.size () + 8);
+		memcpy (bytes.b, &width, 4);
+		memcpy (bytes.b + 4, &height, 4);
+		if (!pixels.empty ()) memcpy (bytes.b + 8, &pixels[0], pixels.size ());
+		return bytes.Value (data);
+
+	}
+
+
+	HL_PRIM Bytes* HL_NAME(hl_clipboard_get_image) (Bytes* data) {
+
+		std::vector<unsigned char> pixels;
+		int width = 0, height = 0;
+		if (!data || !Clipboard::GetImage (&pixels, &width, &height)) return NULL;
+
+		data->Resize ((int)pixels.size () + 8);
+		memcpy (data->b, &width, 4);
+		memcpy (data->b + 4, &height, 4);
+		if (!pixels.empty ()) memcpy (data->b + 8, &pixels[0], pixels.size ());
+		return data;
+
+	}
+
+
+	bool lime_clipboard_has_format (int format) {
+
+		return Clipboard::HasFormat (format);
+
+	}
+
+
+	HL_PRIM bool HL_NAME(hl_clipboard_has_format) (int format) {
+
+		return Clipboard::HasFormat (format);
+
+	}
+
+
+	bool lime_clipboard_set_items (value data) {
+
+		Bytes bytes (data);
+		return Clipboard::SetItems (bytes.b, bytes.length);
+
+	}
+
+
+	HL_PRIM bool HL_NAME(hl_clipboard_set_items) (Bytes* data) {
+
+		return data && Clipboard::SetItems (data->b, data->length);
+
+	}
+
+
 	void lime_clipboard_set_text (HxString text) {
 
 		Clipboard::SetText (hxs_utf8 (text, nullptr));
@@ -14401,6 +14522,11 @@ namespace lime {
 	DEFINE_PRIME1 (lime_cffi_set_finalizer);
 	DEFINE_PRIME2v (lime_clipboard_event_manager_register);
 	DEFINE_PRIME0 (lime_clipboard_get_text);
+	DEFINE_PRIME0 (lime_clipboard_get_files);
+	DEFINE_PRIME1 (lime_clipboard_get_format_text);
+	DEFINE_PRIME1 (lime_clipboard_get_image);
+	DEFINE_PRIME1 (lime_clipboard_has_format);
+	DEFINE_PRIME1 (lime_clipboard_set_items);
 	DEFINE_PRIME1v (lime_clipboard_set_text);
 	DEFINE_PRIME2 (lime_data_pointer_offset);
 	DEFINE_PRIME2 (lime_deflate_compress);
@@ -14771,6 +14897,11 @@ namespace lime {
 	DEFINE_HL_PRIM (_VOID, hl_clipboard_event_manager_register, _FUN(_VOID, _NO_ARG) _TCLIPBOARD_EVENT);
 	DEFINE_HL_PRIM (_BYTES, hl_clipboard_get_text, _NO_ARG);
 	DEFINE_HL_PRIM (_VOID, hl_clipboard_set_text, _STRING);
+	DEFINE_HL_PRIM (_BYTES, hl_clipboard_get_files, _NO_ARG);
+	DEFINE_HL_PRIM (_BYTES, hl_clipboard_get_format_text, _I32);
+	DEFINE_HL_PRIM (_TBYTES, hl_clipboard_get_image, _TBYTES);
+	DEFINE_HL_PRIM (_BOOL, hl_clipboard_has_format, _I32);
+	DEFINE_HL_PRIM (_BOOL, hl_clipboard_set_items, _TBYTES);
 	DEFINE_HL_PRIM (_F64, hl_data_pointer_offset, _F64 _I32);
 	DEFINE_HL_PRIM (_TBYTES, hl_deflate_compress, _TBYTES _TBYTES);
 	DEFINE_HL_PRIM (_TBYTES, hl_deflate_decompress, _TBYTES _TBYTES);
