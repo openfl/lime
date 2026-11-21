@@ -2633,7 +2633,7 @@ class GL
 	{
 		#if lime_opengl
 		// The context knows its type, which native targets do not copy to GL.type
-		return context != null && context.type == OPENGL;
+		return context != null && context.type == RenderContextType.OPENGL;
 		#else
 		return false;
 		#end
