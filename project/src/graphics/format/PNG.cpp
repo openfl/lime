@@ -1,7 +1,6 @@
 extern "C" {
 
 	#include <png.h>
-	#include <pngstruct.h>
 	#define PNG_SIG_SIZE 8
 
 }
@@ -43,7 +42,7 @@ namespace lime {
 
 	static void user_error_fn (png_structp png_ptr, png_const_charp error_msg) {
 
-		longjmp (png_ptr->jmp_buf_local, 1);
+		png_longjmp (png_ptr, 1);
 
 	}
 
