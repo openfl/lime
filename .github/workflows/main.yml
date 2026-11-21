@@ -33,12 +33,12 @@ jobs:
 
       - name: Install Haxe dependencies
         run: |
-          haxelib install native-desktop 1.1.0 --quiet
+          haxelib install native-desktop 1.2.0 --quiet
           haxelib install native-ipc 1.0.0 --quiet
           haxelib install wsproto 1.0.0 --quiet
           haxelib install crossbyte 1.0.1 --quiet
           haxelib --global update haxelib --quiet
-          haxelib install StageWebView 1.0.1 --quiet
+          haxelib install StageWebView 1.1.0 --quiet
           haxelib git libhxcpp https://github.com/openfl/libhxcpp --quiet
           haxelib run libhxcpp setup
           haxe --cwd "$(haxelib libpath libhxcpp)/tools/hxcpp" compile.hxml
@@ -234,12 +234,12 @@ jobs:
 
       - name: Install Haxe dependencies
         run: |
-          haxelib install native-desktop 1.1.0 --quiet
+          haxelib install native-desktop 1.2.0 --quiet
           haxelib install native-ipc 1.0.0 --quiet
           haxelib install wsproto 1.0.0 --quiet
           haxelib install crossbyte 1.0.1 --quiet
           haxelib --global update haxelib --quiet
-          haxelib install StageWebView 1.0.1 --quiet
+          haxelib install StageWebView 1.1.0 --quiet
           haxelib git libhxcpp https://github.com/openfl/libhxcpp --quiet
           haxelib run libhxcpp setup
           haxe --cwd "$(haxelib libpath libhxcpp)/tools/hxcpp" compile.hxml
@@ -364,12 +364,12 @@ jobs:
 
       - name: Install Haxe dependencies
         run: |
-          haxelib install native-desktop 1.1.0 --quiet
+          haxelib install native-desktop 1.2.0 --quiet
           haxelib install native-ipc 1.0.0 --quiet
           haxelib install wsproto 1.0.0 --quiet
           haxelib install crossbyte 1.0.1 --quiet
           haxelib --global update haxelib --quiet
-          haxelib install StageWebView 1.0.1 --quiet
+          haxelib install StageWebView 1.1.0 --quiet
           haxelib git libhxcpp https://github.com/openfl/libhxcpp --quiet
           haxelib run libhxcpp setup
           haxe --cwd "$(haxelib libpath libhxcpp)/tools/hxcpp" compile.hxml
@@ -422,9 +422,9 @@ jobs:
 
       - name: Install Haxe dependencies
         run: |
-          haxelib install native-desktop 1.1.0 --quiet
+          haxelib install native-desktop 1.2.0 --quiet
           haxelib install native-ipc 1.0.0 --quiet
-          haxelib install StageWebView 1.0.1 --quiet
+          haxelib install StageWebView 1.1.0 --quiet
           haxelib install wsproto 1.0.0 --quiet
           haxelib install crossbyte 1.0.1 --quiet
           haxelib git libhxcpp https://github.com/openfl/libhxcpp --quiet
@@ -566,9 +566,9 @@ jobs:
 
       - name: Install Haxe dependencies
         run: |
-          haxelib install native-desktop 1.1.0 --quiet
+          haxelib install native-desktop 1.2.0 --quiet
           haxelib install native-ipc 1.0.0 --quiet
-          haxelib install StageWebView 1.0.1 --quiet
+          haxelib install StageWebView 1.1.0 --quiet
           haxelib install wsproto 1.0.0 --quiet
           haxelib install crossbyte 1.0.1 --quiet
           haxelib git libhxcpp https://github.com/openfl/libhxcpp --quiet
@@ -681,9 +681,9 @@ jobs:
 
       - name: Install Haxe dependencies
         run: |
-          haxelib install native-desktop 1.1.0 --quiet
+          haxelib install native-desktop 1.2.0 --quiet
           haxelib install native-ipc 1.0.0 --quiet
-          haxelib install StageWebView 1.0.1 --quiet
+          haxelib install StageWebView 1.1.0 --quiet
           haxelib install wsproto 1.0.0 --quiet
           haxelib install crossbyte 1.0.1 --quiet
           haxelib install lime-mesa 1.0.0 --quiet
@@ -874,9 +874,9 @@ jobs:
 
       - name: Install Haxe dependencies
         run: |
-          haxelib install native-desktop 1.1.0 --quiet
+          haxelib install native-desktop 1.2.0 --quiet
           haxelib install native-ipc 1.0.0 --quiet
-          haxelib install StageWebView 1.0.1 --quiet
+          haxelib install StageWebView 1.1.0 --quiet
           haxelib install wsproto 1.0.0 --quiet
           haxelib git libhxcpp https://github.com/openfl/libhxcpp --quiet
           haxelib run libhxcpp setup
@@ -959,9 +959,9 @@ jobs:
 
       - name: Install Haxe dependencies
         run: |
-          haxelib install native-desktop 1.1.0 --quiet
+          haxelib install native-desktop 1.2.0 --quiet
           haxelib install native-ipc 1.0.0 --quiet
-          haxelib install StageWebView 1.0.1 --quiet
+          haxelib install StageWebView 1.1.0 --quiet
           haxelib install wsproto 1.0.0 --quiet
           haxelib git libhxcpp https://github.com/openfl/libhxcpp --quiet
           haxelib run libhxcpp setup
@@ -1065,9 +1065,9 @@ jobs:
 
       - name: Install Haxe dependencies
         run: |
-          haxelib install native-desktop 1.1.0 --quiet
+          haxelib install native-desktop 1.2.0 --quiet
           haxelib install native-ipc 1.0.0 --quiet
-          haxelib install StageWebView 1.0.1 --quiet
+          haxelib install StageWebView 1.1.0 --quiet
           haxelib install wsproto 1.0.0 --quiet
           haxelib git libhxcpp https://github.com/openfl/libhxcpp --quiet
           haxelib run libhxcpp setup
@@ -1139,9 +1139,9 @@ jobs:
 
       - name: Install Haxe dependencies
         run: |
-          haxelib install native-desktop 1.1.0 --quiet
+          haxelib install native-desktop 1.2.0 --quiet
           haxelib install native-ipc 1.0.0 --quiet
-          haxelib install StageWebView 1.0.1 --quiet
+          haxelib install StageWebView 1.1.0 --quiet
           haxelib install wsproto 1.0.0 --quiet
           haxelib install crossbyte 1.0.1 --quiet
           haxelib git libhxcpp https://github.com/openfl/libhxcpp --quiet
@@ -1272,9 +1272,9 @@ jobs:
 
       - name: Install Haxe dependencies
         run: |
-          haxelib install native-desktop 1.1.0 --quiet
+          haxelib install native-desktop 1.2.0 --quiet
           haxelib install native-ipc 1.0.0 --quiet
-          haxelib install StageWebView 1.0.1 --quiet
+          haxelib install StageWebView 1.1.0 --quiet
           haxelib install wsproto 1.0.0 --quiet
           haxelib install dox --quiet
           haxelib dev lime ${{ github.workspace }}
@@ -1306,9 +1306,9 @@ jobs:
 
       - name: Install Haxe dependencies
         run: |
-          haxelib install native-desktop 1.1.0 --quiet
+          haxelib install native-desktop 1.2.0 --quiet
           haxelib install native-ipc 1.0.0 --quiet
-          haxelib install StageWebView 1.0.1 --quiet
+          haxelib install StageWebView 1.1.0 --quiet
           haxelib install wsproto 1.0.0 --quiet
           haxelib install format --quiet
           haxelib install hxp --quiet
@@ -1365,9 +1365,9 @@ jobs:
 
       - name: Install Haxe dependencies
         run: |
-          haxelib install native-desktop 1.1.0 --quiet
+          haxelib install native-desktop 1.2.0 --quiet
           haxelib install native-ipc 1.0.0 --quiet
-          haxelib install StageWebView 1.0.1 --quiet
+          haxelib install StageWebView 1.1.0 --quiet
           haxelib install wsproto 1.0.0 --quiet
           haxelib git libhxcpp https://github.com/openfl/libhxcpp --quiet
           haxelib run libhxcpp setup
@@ -1424,9 +1424,9 @@ jobs:
 
       - name: Install Haxe dependencies
         run: |
-          haxelib install native-desktop 1.1.0 --quiet
+          haxelib install native-desktop 1.2.0 --quiet
           haxelib install native-ipc 1.0.0 --quiet
-          haxelib install StageWebView 1.0.1 --quiet
+          haxelib install StageWebView 1.1.0 --quiet
           haxelib install wsproto 1.0.0 --quiet
           haxelib git lime-samples https://github.com/openfl/lime-samples --quiet
 
@@ -1483,9 +1483,9 @@ jobs:
 
       - name: Install Haxe dependencies
         run: |
-          haxelib install native-desktop 1.1.0 --quiet
+          haxelib install native-desktop 1.2.0 --quiet
           haxelib install native-ipc 1.0.0 --quiet
-          haxelib install StageWebView 1.0.1 --quiet
+          haxelib install StageWebView 1.1.0 --quiet
           haxelib install wsproto 1.0.0 --quiet
           haxelib git lime-samples https://github.com/openfl/lime-samples --quiet
 
@@ -1539,9 +1539,9 @@ jobs:
 
       - name: Install Haxe dependencies
         run: |
-          haxelib install native-desktop 1.1.0 --quiet
+          haxelib install native-desktop 1.2.0 --quiet
           haxelib install native-ipc 1.0.0 --quiet
-          haxelib install StageWebView 1.0.1 --quiet
+          haxelib install StageWebView 1.1.0 --quiet
           haxelib install wsproto 1.0.0 --quiet
           haxelib install genes --quiet
           haxelib git lime-samples https://github.com/openfl/lime-samples --quiet
@@ -1624,9 +1624,9 @@ jobs:
 
       - name: Install Haxe dependencies
         run: |
-          haxelib install native-desktop 1.1.0 --quiet
+          haxelib install native-desktop 1.2.0 --quiet
           haxelib install native-ipc 1.0.0 --quiet
-          haxelib install StageWebView 1.0.1 --quiet
+          haxelib install StageWebView 1.1.0 --quiet
           haxelib install wsproto 1.0.0 --quiet
           haxelib git lime-samples https://github.com/openfl/lime-samples --quiet
 
