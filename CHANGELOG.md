@@ -104,6 +104,7 @@ Changelog
 - Fixed perspective camera matrix calculation.
 - Fixed Tizen `appinfo.json` templating.
 - Fixed Android architecture parsing for `x86_64` and `x86_32`.
+- Fixed `VideoDecoder` leaking a texture each time a `TEXTURE` video was read with another window's context current.
 - Fixed `::ANDROID_INSTALL_LOCATION::` in Android manifest templates copied from Lime 8.3 and earlier.
 - Fixed HTML5 gamepad connect and disconnect events.
 - Fixed `projectFilePath` for HXP projects.
