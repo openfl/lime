@@ -2725,7 +2725,7 @@ class Window
 	**/
 	public function startMove():Bool
 	{
-		return __backend.startDrag(0);
+		return __backend.startMoveResize(0);
 	}
 
 	/**
@@ -2738,7 +2738,7 @@ class Window
 	**/
 	public function startResize(edge:WindowEdge):Bool
 	{
-		return edge != 0 && __backend.startDrag(edge);
+		return edge != 0 && __backend.startMoveResize(edge);
 	}
 
 	public function move(x:Int, y:Int):Void

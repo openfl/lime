@@ -428,7 +428,7 @@ class HTML5Window
 		return false;
 	}
 
-	public function startDrag(edges:Int):Bool
+	public function startMoveResize(edges:Int):Bool
 	{
 		return false;
 	}

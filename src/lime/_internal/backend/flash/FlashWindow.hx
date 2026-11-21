@@ -303,7 +303,7 @@ class FlashWindow
 		return false;
 	}
 
-	public function startDrag(edges:Int):Bool
+	public function startMoveResize(edges:Int):Bool
 	{
 		return false;
 	}
