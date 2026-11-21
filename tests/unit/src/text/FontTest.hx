@@ -381,9 +381,9 @@ class FontTest extends Test
 
 		Assert.equals(1, font.decomposed);
 		Assert.equals(hinted.family_name, unhinted.family_name);
+		// HashLink gives glyphs as a native array, not an Array, so they are counted by num_glyphs
 		Assert.equals(hinted.num_glyphs, unhinted.num_glyphs);
-		Assert.equals(hinted.glyphs.length, unhinted.glyphs.length);
-		Assert.isTrue(unhinted.glyphs.length > 0);
+		Assert.isTrue(unhinted.num_glyphs > 0);
 	}
 	#end
 }
