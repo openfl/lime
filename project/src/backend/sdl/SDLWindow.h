@@ -82,6 +82,7 @@ namespace lime {
 			virtual void GetVulkanDrawableSize (int* width, int* height);
 			virtual bool GetVulkanInstanceExtensions (unsigned int* count, const char** names);
 			virtual void* GetVulkanInstanceProcAddr ();
+			virtual void NoteVulkanPresent ();
 			SDL_Renderer* sdlRenderer;
 			SDL_Texture* sdlTexture;
 			SDL_Window* sdlWindow;

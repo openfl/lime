@@ -1178,6 +1178,13 @@ namespace lime {
 	}
 
 
+	void SDLWindow::NoteVulkanPresent () {
+
+		if (useVulkan) SDLApplication::NoteContextFlip ();
+
+	}
+
+
 	void SDLWindow::ContextFlip () {
 
 		if (useVulkan) {

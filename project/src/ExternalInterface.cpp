@@ -8602,6 +8602,8 @@ namespace lime {
 		VkResult result = vkQueuePresentKHR (queue, &presentInfo);
 		if (result == VK_SUCCESS || result == VK_SUBOPTIMAL_KHR) {
 
+			// A swap for the frame loop, which waits for the next frame as it does after a swap otherwise
+			if (targetWindow) targetWindow->NoteVulkanPresent ();
 			lastVKError.clear ();
 
 		} else {
@@ -8646,6 +8648,8 @@ namespace lime {
 		VkResult result = vkQueuePresentKHR (queue, &presentInfo);
 		if (result == VK_SUCCESS || result == VK_SUBOPTIMAL_KHR) {
 
+			// A swap for the frame loop, which waits for the next frame as it does after a swap otherwise
+			if (targetWindow) targetWindow->NoteVulkanPresent ();
 			lastVKError.clear ();
 
 		} else {
