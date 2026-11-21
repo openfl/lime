@@ -139,6 +139,7 @@ Changelog
 - Fixed HashLink/C builds on macOS with newer Xcode versions.
 - Fixed WebAssembly builds with newer Emscripten versions.
 - Fixed loading an `HTTPRequest` again using a curl handle that had been freed, so the load never reached the server, or changed another request.
+- Fixed `CURLOption.ERRORBUFFER` handing libcurl a string to write errors to, which corrupted memory when a transfer failed. The handle now has a buffer of its own, read with `CURL.getErrorBuffer()`.
 - Fixed a `VorbisFile` opened from bytes reading them after they were collected.
 - Fixed a small memory leak for each `VorbisFile`.
 - Fixed `Font` glyph lookups for characters beyond U+FFFF, such as emoji, and for UTF-8 led by the bytes 0xE0, 0xED, and 0xF0, such as Devanagari and Thai.
