@@ -776,6 +776,8 @@ class OpenGLTest extends Test
 		}
 
 		return true;
+	}
+
 	public function testPolygonModeDrawsLinesAndPointsOnDesktopOpenGL():Void
 	{
 		var window = getMainWindow();
