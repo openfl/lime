@@ -59,6 +59,7 @@ Changelog
 - Added `AL.getSourcedvSOFT()` for OpenAL Soft's source latency extension.
 - Added `ALC.getStringList()` to list every audio output and input device.
 - Added `ALC.isExtensionPresent()`.
+- Added `ALC.reopenDevice()` and `ALC.eventIsSupported()` for OpenAL Soft's reopen-device and system-event extensions.
 - Added window icons on Linux.
 - Added the `-noupdate` flag to `lime build` and `lime test` to skip the update step.
 - Added the `-arm64` flag to build HashLink/C applications for Apple Silicon on macOS, with binaries from `lime rebuild hl -arm64`. HashLink's JIT does not run on Apple Silicon yet.
@@ -68,6 +69,7 @@ Changelog
 - Changed native audio loading to decode through SDL_sound first, then Lime's own WAV and Ogg Vorbis decoders.
 - Changed asset copying and embedding to behave consistently across targets.
 - Changed OpenAL Soft HRTF to be disabled by default.
+- Changed OpenAL output device recovery with OpenAL Soft to move the device to the new output in place, holding every sound through the loss and carrying on from where it was, and to follow the system's default output as it changes where OpenAL Soft reports that.
 - Changed `allowHighDPI` on Windows to draw at each display's own resolution, rather than stretched from 96 DPI.
 - Changed `Window.alert()` to also request attention on macOS and Linux.
 - Changed Windows to show input methods' own composition and candidate windows.
@@ -93,6 +95,7 @@ Changelog
 - Updated pixman and platform config for LLVM assembly fixes, ARM NEON, Android NDKs, and Apple platforms.
 - Updated MojoAL and gamepad mappings.
 - Updated SDL submodule to version 2.32.10.
+- Updated OpenAL Soft submodule to version 1.25.2. Building Lime's native libraries from source now needs a C++20 compiler (GCC 12 or later on Linux), Android NDK r26 or later, and an hxcpp with the `cxx_standard` attribute, such as libhxcpp or hxcpp 4.3.135 and later.
 - Updated mbedTLS to 3.6.7 and curl to 8.23.0, adding TLS 1.3 to native HTTP requests.
 - Updated the bundled CA certificates to Mozilla's 2026-10-20 list, which drops three eMudhra roots.
 - Updated HashLink to 1.16.
