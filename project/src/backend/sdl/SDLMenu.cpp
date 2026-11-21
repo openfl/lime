@@ -3,6 +3,7 @@
 #include "SDLTrayIcon.h"
 #include "SDLWindow.h"
 #include <system/Clipboard.h>
+#include <system/System.h>
 #include <ui/DockIcon.h>
 #include <native_desktop/Desktop.h>
 #include <stdint.h>
@@ -480,6 +481,18 @@ namespace lime {
 	bool Clipboard::HasFormat (int format) { return false; }
 	bool Clipboard::SetItems (const unsigned char* data, int length) { return false; }
 	#endif
+
+
+	// System's, as native-desktop is only in desktop builds
+	bool System::MoveToTrash (const char* path) {
+
+		#ifdef NATIVE_DESKTOP_TRASH
+		return native_desktop::Trash::MoveToTrash (path);
+		#else
+		return false;
+		#endif
+
+	}
 
 
 	void DockIcon::Bounce (bool critical) {

@@ -5064,6 +5064,22 @@ namespace lime {
 	}
 
 
+	bool lime_system_move_to_trash (HxString path) {
+
+		// hxcpp keeps strings with characters beyond ASCII as UTF-16, which hxs_utf8 converts
+		return System::MoveToTrash (hxs_utf8 (path, nullptr));
+
+	}
+
+
+	HL_PRIM bool HL_NAME(hl_system_move_to_trash) (hl_vstring* path) {
+
+		// HashLink strings are UTF-16
+		return path && System::MoveToTrash ((const char*)hl_to_utf8 ((const uchar*)path->bytes));
+
+	}
+
+
 	void lime_system_open_file (HxString path) {
 
 		#ifdef IPHONE
@@ -14696,6 +14712,7 @@ namespace lime {
 	DEFINE_PRIME1 (lime_system_get_windows_console_mode);
 	DEFINE_PRIME1 (lime_system_get_free_space);
 	DEFINE_PRIME1 (lime_system_is_symbolic_link);
+	DEFINE_PRIME1 (lime_system_move_to_trash);
 	DEFINE_PRIME1v (lime_system_open_file);
 	DEFINE_PRIME2v (lime_system_open_url);
 	DEFINE_PRIME1 (lime_system_set_allow_screen_timeout);
@@ -15073,6 +15090,7 @@ namespace lime {
 	DEFINE_HL_PRIM (_I32, hl_system_get_windows_console_mode, _I32);
 	DEFINE_HL_PRIM (_F64, hl_system_get_free_space, _STRING);
 	DEFINE_HL_PRIM (_BOOL, hl_system_is_symbolic_link, _STRING);
+	DEFINE_HL_PRIM (_BOOL, hl_system_move_to_trash, _STRING);
 	DEFINE_HL_PRIM (_VOID, hl_system_open_file, _STRING);
 	DEFINE_HL_PRIM (_VOID, hl_system_open_url, _STRING _STRING);
 	DEFINE_HL_PRIM (_BOOL, hl_system_set_allow_screen_timeout, _BOOL);

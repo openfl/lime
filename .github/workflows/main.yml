@@ -104,6 +104,8 @@ jobs:
           ALSOFT_DRIVERS: "null"
           # The clipboard tests replace what the clipboard holds, so they only run here
           LIME_TEST_CLIPBOARD: "1"
+          # The trash tests move files to the user's trash, so they only run here
+          LIME_TEST_TRASH: "1"
         run: |
           python -m unittest discover -s fixtures
           # The test app exits when its first window cannot be made, so it needs a display
@@ -280,6 +282,8 @@ jobs:
           ALSOFT_DRIVERS: "null"
           # The clipboard tests replace what the clipboard holds, so they only run here
           LIME_TEST_CLIPBOARD: "1"
+          # The trash tests move files to the user's trash, so they only run here
+          LIME_TEST_TRASH: "1"
         run: |
           python -m unittest discover -s fixtures
           # The test app exits when its first window cannot be made, so it needs a display
@@ -482,6 +486,8 @@ jobs:
           ALSOFT_DRIVERS: "null"
           # The clipboard tests replace what the clipboard holds, so they only run here
           LIME_TEST_CLIPBOARD: "1"
+          # The trash tests move files to the user's trash, so they only run here
+          LIME_TEST_TRASH: "1"
         run: |
           python -m unittest discover -s fixtures
           lime test neko -release -verbose -nocolor
@@ -631,6 +637,8 @@ jobs:
           ALSOFT_DRIVERS: "null"
           # The clipboard tests replace what the clipboard holds, so they only run here
           LIME_TEST_CLIPBOARD: "1"
+          # The trash tests move files to the user's trash, so they only run here
+          LIME_TEST_TRASH: "1"
         run: |
           python -m unittest discover -s fixtures
           lime test neko -release -verbose -nocolor
@@ -762,6 +770,8 @@ jobs:
           ALSOFT_DRIVERS: "null"
           # The clipboard tests replace what the clipboard holds, so they only run here
           LIME_TEST_CLIPBOARD: "1"
+          # The trash tests move files to the user's trash, so they only run here
+          LIME_TEST_TRASH: "1"
         run: |
           python -m unittest discover -s fixtures
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }

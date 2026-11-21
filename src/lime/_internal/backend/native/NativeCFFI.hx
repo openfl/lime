@@ -409,6 +409,8 @@ class NativeCFFI
 
 	@:cffi private static function lime_system_is_symbolic_link(path:String):Bool;
 
+	@:cffi private static function lime_system_move_to_trash(path:String):Bool;
+
 	@:cffi private static function lime_system_open_file(path:String):Void;
 
 	@:cffi private static function lime_system_open_url(url:String, target:String):Void;
@@ -1231,6 +1233,7 @@ class NativeCFFI
 	private static var lime_system_get_free_space = new cpp.Callable<String->Float>(cpp.Prime._loadPrime("lime", "lime_system_get_free_space", "sd", false));
 	private static var lime_system_is_symbolic_link = new cpp.Callable<String->Bool>(cpp.Prime._loadPrime("lime", "lime_system_is_symbolic_link", "sb",
 		false));
+	private static var lime_system_move_to_trash = new cpp.Callable<String->Bool>(cpp.Prime._loadPrime("lime", "lime_system_move_to_trash", "sb", false));
 	private static var lime_system_open_file = new cpp.Callable<String->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_system_open_file", "sv", false));
 	private static var lime_system_open_url = new cpp.Callable<String->String->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_system_open_url", "ssv", false));
 	private static var lime_text_event_manager_register = new cpp.Callable<cpp.Object->cpp.Object->cpp.Void>(cpp.Prime._loadPrime("lime",
@@ -1793,6 +1796,7 @@ class NativeCFFI
 	private static var lime_system_get_timer = CFFI.load("lime", "lime_system_get_timer", 0);
 	private static var lime_system_get_free_space = CFFI.load("lime", "lime_system_get_free_space", 1);
 	private static var lime_system_is_symbolic_link = CFFI.load("lime", "lime_system_is_symbolic_link", 1);
+	private static var lime_system_move_to_trash = CFFI.load("lime", "lime_system_move_to_trash", 1);
 	private static var lime_system_open_file = CFFI.load("lime", "lime_system_open_file", 1);
 	private static var lime_system_open_url = CFFI.load("lime", "lime_system_open_url", 2);
 	private static var lime_text_event_manager_register = CFFI.load("lime", "lime_text_event_manager_register", 2);
@@ -2752,6 +2756,11 @@ class NativeCFFI
 	}
 
 	@:hlNative("lime", "hl_system_is_symbolic_link") private static function lime_system_is_symbolic_link(path:String):Bool
+	{
+		return false;
+	}
+
+	@:hlNative("lime", "hl_system_move_to_trash") private static function lime_system_move_to_trash(path:String):Bool
 	{
 		return false;
 	}

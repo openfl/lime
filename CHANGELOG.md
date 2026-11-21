@@ -30,6 +30,7 @@ Changelog
 - Added the platform's input time to mouse and touch event timestamps on native targets, as key and gamepad events already had.
 - Added `Promise.completeAsync()`.
 - Added `System.getFreeSpace()` and `System.isSymbolicLink()` on native targets.
+- Added `System.moveToTrash()` and `System.moveToTrashAsync()` on Windows, macOS and Linux.
 - Added explicit font rendering flags, DPI-aware glyph rendering, unhinted font decomposition, and HarfBuzz FT font change notifications.
 - Added `Font.isBold` and `Font.isItalic`.
 - Added `Font.setVariation()` to set the axes of variable fonts.
