@@ -4,6 +4,10 @@ import flash.events.Event;
 import flash.events.SampleDataEvent;
 import flash.events.StatusEvent;
 import flash.media.Microphone;
+#if flash10_2
+import flash.media.MicrophoneEnhancedMode;
+import flash.media.MicrophoneEnhancedOptions;
+#end
 import haxe.io.Bytes;
 import haxe.Timer;
 import lime.media.AudioInput;
@@ -29,6 +33,7 @@ class FlashAudioInput
 	private var frameSize:Int;
 	private var microphone:Microphone;
 	private var parent:AudioInput;
+	private var processing:Int;
 	private var queuedBytes:Int;
 
 	public static function getDefaultDevice():AudioInputDevice
@@ -234,15 +239,51 @@ class FlashAudioInput
 			}
 		}
 
-		microphone = Microphone.getMicrophone(index);
+		var requested = parent.__processing;
+		processing = 0;
+		microphone = null;
+
+		#if flash10_2
+		// The enhanced microphone cancels echo in full duplex, and its automatic gain
+		// comes with that mode
+		if ((requested & 1) != 0)
+		{
+			microphone = Microphone.getEnhancedMicrophone(index);
+
+			if (microphone != null)
+			{
+				var options = new MicrophoneEnhancedOptions();
+				options.mode = MicrophoneEnhancedMode.FULL_DUPLEX;
+				options.autoGain = (requested & 4) != 0;
+				microphone.enhancedOptions = options;
+				processing = requested & (1 | 4);
+			}
+		}
+		#end
+
+		if (microphone == null)
+		{
+			microphone = Microphone.getMicrophone(index);
+		}
 
 		if (microphone == null)
 		{
 			return false;
 		}
 
-		microphone.rate = getMicrophoneRate(parent.sampleRate);
+		// The enhanced microphone only captures at 16 kHz
+		if (processing == 0)
+		{
+			microphone.rate = getMicrophoneRate(parent.sampleRate);
+		}
+
 		parent.sampleRate = getSampleRate(microphone.rate);
+
+		#if flash10_1
+		// Flash suppresses noise by 30 dB unless it is told not to
+		microphone.noiseSuppressionLevel = (requested & 2) != 0 ? -30 : 0;
+		if ((requested & 2) != 0) processing |= 2;
+		#end
 
 		microphone.setLoopBack(false);
 		microphone.setSilenceLevel(0, -1);
@@ -288,6 +329,11 @@ class FlashAudioInput
 		return position;
 	}
 
+	public function getProcessing():Int
+	{
+		return processing;
+	}
+
 	private function getFrameSize():Int
 	{
 		return Std.int((parent.channels * parent.bitsPerSample) / 8);
@@ -322,6 +368,7 @@ class FlashAudioInput
 		{
 			case 44: 44100;
 			case 22: 22050;
+			case 16: 16000;
 			case 11: 11025;
 			case 8: 8000;
 			default: 5512;
