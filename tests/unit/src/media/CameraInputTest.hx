@@ -24,7 +24,7 @@ import utest.Test;
 class CameraInputTest extends Test
 {
 	private var input:CameraInput;
-	private var permissionListener:Bool->Void;
+	private var permissionListener:PermissionStatus->Void;
 
 	#if (js && html5)
 	private var canvasTimer:Timer;
@@ -197,8 +197,8 @@ class CameraInputTest extends Test
 		Assert.isFalse(input.running);
 		Assert.equals(1, errors.length, "onError was not dispatched");
 
-		permissionListener = function(granted) {
-			Assert.isFalse(granted);
+		permissionListener = function(status) {
+			Assert.equals(PermissionStatus.DENIED, status);
 			async.done();
 		};
 		CameraInput.onPermission.add(permissionListener);
@@ -300,10 +300,10 @@ class CameraInputTest extends Test
 		var requesting = false;
 		var answeredDuringRequest = false;
 
-		permissionListener = function(granted:Bool)
+		permissionListener = function(status:PermissionStatus)
 		{
 			if (requesting) answeredDuringRequest = true;
-			answers.push(granted);
+			answers.push(status);
 		};
 		CameraInput.onPermission.add(permissionListener);
 
@@ -317,8 +317,8 @@ class CameraInputTest extends Test
 
 		Timer.delay(function()
 		{
-			var granted = CameraInput.permissionStatus == GRANTED;
-			Assert.same([granted, granted], answers);
+			var answer = CameraInput.permissionStatus == GRANTED ? PermissionStatus.GRANTED : PermissionStatus.DENIED;
+			Assert.same([answer, answer], answers);
 			async.done();
 		}, 1000);
 	}
@@ -673,7 +673,7 @@ class CameraInputTest extends Test
 
 		var errors = [];
 		var answers = [];
-		permissionListener = function(granted) answers.push(granted);
+		permissionListener = function(status) answers.push(status);
 		CameraInput.onPermission.add(permissionListener);
 
 		input = new CameraInput();
@@ -685,7 +685,7 @@ class CameraInputTest extends Test
 			Assert.isFalse(input.running);
 			Assert.equals(1, errors.length, "onError was not dispatched once");
 			Assert.equals(PermissionStatus.DENIED, CameraInput.permissionStatus);
-			Assert.same([false], answers);
+			Assert.same([PermissionStatus.DENIED], answers);
 			async.done();
 		}, 500);
 	}
