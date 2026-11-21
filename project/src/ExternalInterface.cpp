@@ -5729,16 +5729,16 @@ namespace lime {
 	}
 
 
-	bool lime_window_start_drag (value window, int edges) {
+	bool lime_window_start_move_resize (value window, int edges) {
 
-		return ((Window*)val_data (window))->StartDrag (edges);
+		return ((Window*)val_data (window))->StartMoveResize (edges);
 
 	}
 
 
-	HL_PRIM bool HL_NAME(hl_window_start_drag) (HL_CFFIPointer* window, int edges) {
+	HL_PRIM bool HL_NAME(hl_window_start_move_resize) (HL_CFFIPointer* window, int edges) {
 
-		return ((Window*)window->ptr)->StartDrag (edges);
+		return ((Window*)window->ptr)->StartMoveResize (edges);
 
 	}
 
@@ -14934,7 +14934,7 @@ namespace lime {
 	DEFINE_PRIME1v (lime_window_focus);
 	DEFINE_PRIME3 (lime_window_order_relative);
 	DEFINE_PRIME1 (lime_window_order_to_back);
-	DEFINE_PRIME2 (lime_window_start_drag);
+	DEFINE_PRIME2 (lime_window_start_move_resize);
 	DEFINE_PRIME1 (lime_window_get_context);
 	DEFINE_PRIME1 (lime_window_get_context_type);
 	DEFINE_PRIME3 (lime_window_create_vulkan_surface);
@@ -15321,7 +15321,7 @@ namespace lime {
 	DEFINE_HL_PRIM (_VOID, hl_window_focus, _TCFFIPOINTER);
 	DEFINE_HL_PRIM (_BOOL, hl_window_order_relative, _TCFFIPOINTER _TCFFIPOINTER _BOOL);
 	DEFINE_HL_PRIM (_BOOL, hl_window_order_to_back, _TCFFIPOINTER);
-	DEFINE_HL_PRIM (_BOOL, hl_window_start_drag, _TCFFIPOINTER _I32);
+	DEFINE_HL_PRIM (_BOOL, hl_window_start_move_resize, _TCFFIPOINTER _I32);
 	DEFINE_HL_PRIM (_F64, hl_window_get_context, _TCFFIPOINTER);
 	DEFINE_HL_PRIM (_BYTES, hl_window_get_context_type, _TCFFIPOINTER);
 	DEFINE_HL_PRIM (_BYTES, hl_window_get_creation_error, _NO_ARG);
