@@ -75,7 +75,7 @@ class HTML5AudioInput
 		if (!isSupported())
 		{
 			// Without a secure context there is no getUserMedia to ask with
-			Timer.delay(AudioInput.onPermission.dispatch.bind(false), 0);
+			Timer.delay(AudioInput.onPermission.dispatch.bind(PermissionStatus.DENIED), 0);
 			return;
 		}
 
@@ -92,7 +92,7 @@ class HTML5AudioInput
 			permissionRequests--;
 			permissionState = GRANTED;
 			refreshDevices();
-			AudioInput.onPermission.dispatch(true);
+			AudioInput.onPermission.dispatch(PermissionStatus.GRANTED);
 		}, function(error)
 		{
 			permissionRequests--;
@@ -102,7 +102,7 @@ class HTML5AudioInput
 				permissionState = DENIED;
 			}
 
-			AudioInput.onPermission.dispatch(false);
+			AudioInput.onPermission.dispatch(PermissionStatus.DENIED);
 		});
 	}
 
@@ -496,7 +496,7 @@ class HTML5AudioInput
 
 		if (dispatch && status != UNDETERMINED)
 		{
-			AudioInput.onPermission.dispatch(status == GRANTED);
+			AudioInput.onPermission.dispatch(status);
 		}
 	}
 
