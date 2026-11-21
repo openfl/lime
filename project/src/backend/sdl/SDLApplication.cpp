@@ -24,6 +24,19 @@
 #ifndef CREATE_WAITABLE_TIMER_HIGH_RESOLUTION
 #define CREATE_WAITABLE_TIMER_HIGH_RESOLUTION 0x00000002
 #endif
+
+// Looked up at run time: MinGW's headers declare CreateWaitableTimerExW only
+// when _WIN32_WINNT says Vista or later
+typedef HANDLE (WINAPI *CreateWaitableTimerExWFunc) (LPSECURITY_ATTRIBUTES, LPCWSTR, DWORD, DWORD);
+
+static HANDLE CreateHighResolutionTimer ()
+{
+	HMODULE kernel32 = GetModuleHandleW (L"kernel32.dll");
+	if (!kernel32) return NULL;
+	CreateWaitableTimerExWFunc create = (CreateWaitableTimerExWFunc)GetProcAddress (kernel32, "CreateWaitableTimerExW");
+	if (!create) return NULL;
+	return create (NULL, NULL, CREATE_WAITABLE_TIMER_HIGH_RESOLUTION, TIMER_ALL_ACCESS);
+}
 #elif !defined(HX_WINDOWS)
 #include <time.h>
 #endif
@@ -147,7 +160,7 @@ namespace lime
 		mainLoopApplied = false;
 #if defined(HX_WINDOWS) && !defined(HX_WINRT)
 		// Windows 10 1803 and later; without it the remainder of a frame is spun as before
-		frameTimer = CreateWaitableTimerExW(NULL, NULL, CREATE_WAITABLE_TIMER_HIGH_RESOLUTION, TIMER_ALL_ACCESS);
+		frameTimer = CreateHighResolutionTimer ();
 #endif
 		swapPaced = false;
 		swapFallback = false;
