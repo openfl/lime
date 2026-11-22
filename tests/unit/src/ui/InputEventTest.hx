@@ -199,11 +199,11 @@ class InputEventTest extends Test
 		key(KEY_DOWN, window.id, KeyCode.A, KeyModifier.NONE, 1234);
 		key(KEY_UP, window.id, KeyCode.A, KeyModifier.NONE, 1300);
 
-		Assert.equals("1234,1300", times.join(","));
+		Assert.equals(t(1234) + "," + t(1300), times.join(","));
 
 		// The time can still be read once the listeners have returned
-		Assert.equals(1234, window.onKeyDown.timestamp);
-		Assert.equals(1300, window.onKeyUp.timestamp);
+		Assert.equals(t(1234), window.onKeyDown.timestamp);
+		Assert.equals(t(1300), window.onKeyUp.timestamp);
 	}
 
 	public function testAKeyReachesOnlyTheWindowItNames():Void
@@ -537,12 +537,12 @@ class InputEventTest extends Test
 		window.preciseMouseWheel = true;
 		mouse(MOUSE_WHEEL, window.id, 0, 1, 0, 0, 0.5, 0, 1450);
 
-		Assert.equals("down 1234|move 1250|move by 1250|up 1300|wheel 1400|wheel 1450", times.join("|"));
+		Assert.equals("down " + t(1234) + "|move " + t(1250) + "|move by " + t(1250) + "|up " + t(1300) + "|wheel " + t(1400) + "|wheel " + t(1450), times.join("|"));
 
 		// The time can still be read once the listeners have returned
-		Assert.equals(1234, window.onMouseDown.timestamp);
-		Assert.equals(1250, window.onMouseMove.timestamp);
-		Assert.equals(1300, window.onMouseUp.timestamp);
+		Assert.equals(t(1234), window.onMouseDown.timestamp);
+		Assert.equals(t(1250), window.onMouseMove.timestamp);
+		Assert.equals(t(1300), window.onMouseUp.timestamp);
 	}
 
 	public function testTouchEventsCarryTheTimeOfTheInput():Void
@@ -556,8 +556,8 @@ class InputEventTest extends Test
 		touch(TOUCH_MOVE, 0.3, 0.5, 7, 2016);
 		touch(TOUCH_END, 0.3, 0.5, 7, 2040);
 
-		Assert.equals("start 2000|move 2016|end 2040", times.join("|"));
-		Assert.equals(2000, Touch.onStart.timestamp);
+		Assert.equals("start " + t(2000) + "|move " + t(2016) + "|end " + t(2040), times.join("|"));
+		Assert.equals(t(2000), Touch.onStart.timestamp);
 	}
 
 	#if windows
@@ -989,6 +989,13 @@ class InputEventTest extends Test
 		window.onMouseMove.add(function(x:Float, y:Float) heard.push(name + " move"));
 		window.onMouseMoveRelative.add(function(x:Float, y:Float) heard.push(name + " move by"));
 		window.onMouseWheel.add(function(deltaX:Float, deltaY:Float, mode) heard.push(name + " wheel"));
+	}
+
+	// The time an event with this native input time is given, which -Dsimulate_uptime
+	// moves on as it does System.getTimer()
+	private static function t(timestamp:Int):Int
+	{
+		return @:privateAccess lime._internal.backend.native.NativeApplication.__inputTime(timestamp);
 	}
 
 	private static function key(type:Int, windowID:Int, keyCode:KeyCode, modifier:KeyModifier, timestamp:Int = 0):Void
