@@ -619,16 +619,24 @@ class InputEventTest extends Test
 			{
 				for (i in 0...4)
 				{
-					Assert.isTrue(times[i] >= before && times[i] <= dispatched[i],
+					// Compared by the time between them, which stays right where the timer wraps
+					Assert.isTrue(timeBetween(before, times[i]) >= 0 && timeBetween(times[i], dispatched[i]) >= 0,
 						heard[i] + " was timed " + times[i] + ", posted from " + before + " and dispatched at " + dispatched[i]);
 				}
 
 				// Dispatch times would be 100 ms or more after the first move
-				Assert.isTrue(times[3] - times[0] < 50, "the times were " + times.join(", ") + " and the dispatches " + dispatched.join(", "));
+				Assert.isTrue(timeBetween(times[0], times[3]) < 50, "the times were " + times.join(", ") + " and the dispatches " + dispatched.join(", "));
 			}
 
 			async.done();
 		}, 1000);
+	}
+
+	// The milliseconds from one System.getTimer() reading to a later one, as an
+	// Int32 difference, which stays right where the timer wraps past 2^31
+	private static function timeBetween(earlier:Int, later:Int):Int
+	{
+		return (later : haxe.Int32) - (earlier : haxe.Int32);
 	}
 
 	/**
