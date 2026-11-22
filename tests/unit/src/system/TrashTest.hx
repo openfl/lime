@@ -44,7 +44,8 @@ class TrashTest extends Test
 
 		System.moveToTrashAsync(missing).onComplete(function(moved)
 		{
-			Assert.isFalse(moved);
+			// Says what came back, as only macOS HashLink gave something other than false here
+			Assert.isFalse(moved, "moveToTrashAsync completed with " + moved + " (" + Type.typeof(moved) + ")");
 			Assert.isTrue(lime.system.ThreadPool.isMainThread(), "the result came on another thread");
 			async.done();
 		}).onError(function(error)
