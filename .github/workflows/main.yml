@@ -38,7 +38,7 @@ jobs:
         uses: ./.github/actions/install-haxelib-libraries
         with:
           libraries: |
-            native-desktop 1.2.0
+            native-desktop 1.2.1
             native-ipc 1.0.0
             wsproto 1.0.0
             crossbyte 1.0.1
@@ -257,7 +257,7 @@ jobs:
         uses: ./.github/actions/install-haxelib-libraries
         with:
           libraries: |
-            native-desktop 1.2.0
+            native-desktop 1.2.1
             native-ipc 1.0.0
             wsproto 1.0.0
             crossbyte 1.0.1
@@ -403,7 +403,7 @@ jobs:
         uses: ./.github/actions/install-haxelib-libraries
         with:
           libraries: |
-            native-desktop 1.2.0
+            native-desktop 1.2.1
             native-ipc 1.0.0
             wsproto 1.0.0
             crossbyte 1.0.1
@@ -468,7 +468,7 @@ jobs:
         uses: ./.github/actions/install-haxelib-libraries
         with:
           libraries: |
-            native-desktop 1.2.0
+            native-desktop 1.2.1
             native-ipc 1.0.0
             StageWebView 1.1.0
             wsproto 1.0.0
@@ -625,7 +625,7 @@ jobs:
         uses: ./.github/actions/install-haxelib-libraries
         with:
           libraries: |
-            native-desktop 1.2.0
+            native-desktop 1.2.1
             native-ipc 1.0.0
             StageWebView 1.1.0
             wsproto 1.0.0
@@ -754,7 +754,7 @@ jobs:
         uses: ./.github/actions/install-haxelib-libraries
         with:
           libraries: |
-            native-desktop 1.2.0
+            native-desktop 1.2.1
             native-ipc 1.0.0
             StageWebView 1.1.0
             wsproto 1.0.0
@@ -961,7 +961,7 @@ jobs:
         uses: ./.github/actions/install-haxelib-libraries
         with:
           libraries: |
-            native-desktop 1.2.0
+            native-desktop 1.2.1
             native-ipc 1.0.0
             StageWebView 1.1.0
             wsproto 1.0.0
@@ -1053,7 +1053,7 @@ jobs:
         uses: ./.github/actions/install-haxelib-libraries
         with:
           libraries: |
-            native-desktop 1.2.0
+            native-desktop 1.2.1
             native-ipc 1.0.0
             StageWebView 1.1.0
             wsproto 1.0.0
@@ -1166,7 +1166,7 @@ jobs:
         uses: ./.github/actions/install-haxelib-libraries
         with:
           libraries: |
-            native-desktop 1.2.0
+            native-desktop 1.2.1
             native-ipc 1.0.0
             StageWebView 1.1.0
             wsproto 1.0.0
@@ -1247,7 +1247,7 @@ jobs:
         uses: ./.github/actions/install-haxelib-libraries
         with:
           libraries: |
-            native-desktop 1.2.0
+            native-desktop 1.2.1
             native-ipc 1.0.0
             StageWebView 1.1.0
             wsproto 1.0.0
@@ -1386,7 +1386,7 @@ jobs:
         uses: ./.github/actions/install-haxelib-libraries
         with:
           libraries: |
-            native-desktop 1.2.0
+            native-desktop 1.2.1
             native-ipc 1.0.0
             StageWebView 1.1.0
             wsproto 1.0.0
@@ -1426,7 +1426,7 @@ jobs:
         uses: ./.github/actions/install-haxelib-libraries
         with:
           libraries: |
-            native-desktop 1.2.0
+            native-desktop 1.2.1
             native-ipc 1.0.0
             StageWebView 1.1.0
             wsproto 1.0.0
@@ -1491,7 +1491,7 @@ jobs:
         uses: ./.github/actions/install-haxelib-libraries
         with:
           libraries: |
-            native-desktop 1.2.0
+            native-desktop 1.2.1
             native-ipc 1.0.0
             StageWebView 1.1.0
             wsproto 1.0.0
@@ -1562,7 +1562,7 @@ jobs:
         uses: ./.github/actions/install-haxelib-libraries
         with:
           libraries: |
-            native-desktop 1.2.0
+            native-desktop 1.2.1
             native-ipc 1.0.0
             StageWebView 1.1.0
             wsproto 1.0.0
@@ -1633,7 +1633,7 @@ jobs:
         uses: ./.github/actions/install-haxelib-libraries
         with:
           libraries: |
-            native-desktop 1.2.0
+            native-desktop 1.2.1
             native-ipc 1.0.0
             StageWebView 1.1.0
             wsproto 1.0.0
@@ -1695,7 +1695,7 @@ jobs:
         uses: ./.github/actions/install-haxelib-libraries
         with:
           libraries: |
-            native-desktop 1.2.0
+            native-desktop 1.2.1
             native-ipc 1.0.0
             StageWebView 1.1.0
             wsproto 1.0.0
@@ -1792,7 +1792,7 @@ jobs:
         uses: ./.github/actions/install-haxelib-libraries
         with:
           libraries: |
-            native-desktop 1.2.0
+            native-desktop 1.2.1
             native-ipc 1.0.0
             StageWebView 1.1.0
             wsproto 1.0.0
