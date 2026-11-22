@@ -111,8 +111,10 @@ class VideoDecoderTest extends Test
 		decoder.close();
 	}
 
-	// A frame's details came back as an object built for every frame, about ten
-	// allocations a frame. HashLink counts allocations, so it measures it.
+	// A frame's details came back as an object built for every frame, 27
+	// allocations a frame on HashLink, which counts its allocations. It counts
+	// those of every thread, and threads earlier tests left running allocate
+	// too, so the test checks that most frames are read without any.
 	public function testReadingAFrameAllocatesNothing():Void
 	{
 		#if hl
@@ -124,6 +126,7 @@ class VideoDecoderTest extends Test
 		Assert.isTrue(nextFrame(decoder, frame), "no frame was read");
 
 		var frames = 0;
+		var framesWithout = 0;
 		var allocations = 0.0;
 		var start = Timer.stamp();
 
@@ -136,6 +139,7 @@ class VideoDecoderTest extends Test
 			if (read)
 			{
 				allocations += after - before;
+				if (after == before) framesWithout++;
 				frames++;
 			}
 			else
@@ -145,7 +149,7 @@ class VideoDecoderTest extends Test
 		}
 
 		Assert.isTrue(frames > 0, "no frames were read");
-		Assert.isTrue(allocations < frames, "reading " + frames + " frames allocated " + allocations + " times");
+		Assert.isTrue(framesWithout * 2 > frames, "only " + framesWithout + " of " + frames + " frames were read without allocating, with " + allocations + " allocations in all");
 		decoder.close();
 		#else
 		Assert.pass();
