@@ -163,7 +163,15 @@ namespace lime {
 
 				// Full range NV12, which is what cameras give without converting
 				output = [[AVCaptureVideoDataOutput alloc] init];
-				output.videoSettings = @{ (id)kCVPixelBufferPixelFormatTypeKey: @(kCVPixelFormatType_420YpCbCr8BiPlanarFullRange) };
+				// Filled as AVFVideoBackend fills its settings: the toolchain's Objective-C++ rejects a dictionary
+				// literal keyed by a cast, and the key's cast differs with and without ARC
+				NSMutableDictionary* settings = [NSMutableDictionary dictionary];
+				#if __has_feature(objc_arc)
+				[settings setObject:@(kCVPixelFormatType_420YpCbCr8BiPlanarFullRange) forKey:(__bridge NSString*)kCVPixelBufferPixelFormatTypeKey];
+				#else
+				[settings setObject:@(kCVPixelFormatType_420YpCbCr8BiPlanarFullRange) forKey:(NSString*)kCVPixelBufferPixelFormatTypeKey];
+				#endif
+				output.videoSettings = settings;
 				output.alwaysDiscardsLateVideoFrames = YES;
 
 				delegate = [[LimeCameraCaptureDelegate alloc] init];
