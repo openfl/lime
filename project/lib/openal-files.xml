@@ -80,7 +80,8 @@
         <file name="${NATIVE_TOOLKIT_PATH}/openal/alc/events.cpp" />
         <file name="${NATIVE_TOOLKIT_PATH}/openal/alc/panning.cpp" />
         <file name="${NATIVE_TOOLKIT_PATH}/openal/common/alcomplex.cpp" />
-        <file name="${NATIVE_TOOLKIT_PATH}/openal/common/almalloc.cpp" />
+        <!-- Lime's copy, which gives posix_memalign an alignment it takes on macOS before 10.13 -->
+        <file name="${NATIVE_TOOLKIT_PATH}/custom/openal/common/almalloc.cpp" />
         <file name="${NATIVE_TOOLKIT_PATH}/openal/common/alstring.cpp" />
         <file name="${NATIVE_TOOLKIT_PATH}/openal/common/althrd_setname.cpp" />
         <file name="${NATIVE_TOOLKIT_PATH}/openal/common/altypes.cpp" />
