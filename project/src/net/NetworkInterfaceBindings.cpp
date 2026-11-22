@@ -166,7 +166,7 @@ namespace lime {
 			if (record.displayName.empty ()) record.displayName = record.name;
 			record.hardwareAddress = FormatHardwareAddress (adapter->PhysicalAddress, (int)adapter->PhysicalAddressLength);
 			record.active = adapter->OperStatus == IfOperStatusUp;
-			record.mtu = adapter->Mtu == 0xFFFFFFFF ? -1 : (int)adapter->Mtu;
+			record.mtu = (adapter->Mtu == 0xFFFFFFFF || adapter->Mtu == 0) ? -1 : (int)adapter->Mtu;
 
 			for (PIP_ADAPTER_UNICAST_ADDRESS unicast = adapter->FirstUnicastAddress; unicast; unicast = unicast->Next) {
 
@@ -240,7 +240,9 @@ namespace lime {
 					struct ifreq request;
 					memset (&request, 0, sizeof (request));
 					strncpy (request.ifr_name, entry->ifa_name, IFNAMSIZ - 1);
-					if (ioctl (sock, SIOCGIFMTU, &request) == 0) created.mtu = request.ifr_mtu;
+					// macOS gives 0 for interfaces without one, such as its USB controllers (XHC), which
+					// is reported as unknown
+					if (ioctl (sock, SIOCGIFMTU, &request) == 0 && request.ifr_mtu > 0) created.mtu = request.ifr_mtu;
 
 				}
 
