@@ -367,11 +367,18 @@ namespace lime {
 
 					}
 
+					#ifndef HX_WINDOWS
 					if (file->isFile ()) {
 
 						error = FT_New_Face (library, resource->path, faceIndex, &face);
 
-					} else {
+					} else
+					#endif
+					{
+
+						// On Windows, FreeType opens a path with fopen, which reads it in the ANSI
+						// code page: a UTF-8 path with other characters, such as a user name in the
+						// path, does not open. lime::fopen converts it, so read the font through it.
 
 						Bytes data;
 						data.ReadFile (resource->path);
