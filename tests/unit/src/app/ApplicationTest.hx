@@ -83,9 +83,9 @@ class ApplicationTest extends Test
 	{
 		countMinimisedUpdates(withBackgroundFrameRate(0), function(count)
 		{
-			// Well above the default cap of 30, but below 120: macOS slows the timers of
-			// a minimised application, and a minimised Intel runner gave 79
-			if (count >= 0) Assert.isTrue(count >= 50, "with a background frame rate of 0, a minimised application asking for 120 frames a second updated " + count + " times in a second");
+			// Above the default cap of 30, but well below 120: macOS slows a minimised
+			// application on its own, and minimised Intel runners gave 79 and 42
+			if (count >= 0) Assert.isTrue(count >= 36, "with a background frame rate of 0, a minimised application asking for 120 frames a second updated " + count + " times in a second");
 			async.done();
 		});
 	}
