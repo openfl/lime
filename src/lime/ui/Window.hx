@@ -2657,7 +2657,8 @@ class Window
 		whether the system moved it.
 
 		Supported on Windows, macOS and X11. On X11 the window manager decides,
-		and may not do it.
+		and may not do it. On macOS a window that is hidden or minimised is not
+		ordered, nor ordered against one that is, as the system would show it.
 	**/
 	public function orderAbove(window:Window):Bool
 	{
@@ -2679,7 +2680,8 @@ class Window
 		Puts this window behind the application's other windows and those of
 		other applications. Returns whether the system moved it.
 
-		Supported on Windows, macOS and X11.
+		Supported on Windows, macOS and X11. On macOS a window that is hidden or
+		minimised is not ordered, as `orderAbove` describes.
 	**/
 	public function orderToBack():Bool
 	{

@@ -71,6 +71,28 @@ class WindowOrderTest extends Test
 		if (!open()) return;
 
 		var toBack = first.orderToBack();
+
+		#if mac
+		#if (native_desktop >= "1.2.1")
+		// AppKit shows a window to order it, so hidden windows are left alone, and stay hidden
+		Assert.isFalse(toBack, "a hidden window was ordered to the back");
+		Assert.isFalse(first.orderAbove(second), "a hidden window was ordered above another");
+		Assert.isFalse(first.orderBelow(second), "a hidden window was ordered below another");
+		#end
+
+		// Shown, they are stacked as asked, and are hidden again after
+		first.hidden = false;
+		second.hidden = false;
+		var above = first.orderAbove(second);
+		var below = first.orderBelow(second);
+		var back = first.orderToBack();
+		first.hidden = true;
+		second.hidden = true;
+
+		if (!isSupported(back)) return;
+		Assert.isTrue(above, "first.orderAbove(second) was refused for shown windows");
+		Assert.isTrue(below, "first.orderBelow(second) was refused for shown windows");
+		#else
 		if (!isSupported(toBack)) return;
 
 		#if windows
@@ -85,11 +107,8 @@ class WindowOrderTest extends Test
 		Assert.isTrue(second.orderBelow(first));
 		Assert.isTrue(isAbove(first, second), "the first window is not above the second after second.orderBelow(first)");
 		#else
-		// The window manager decides on X11, and may refuse; AppKit always takes it
-		var above = first.orderAbove(second);
-		#if mac
-		Assert.isTrue(above, "first.orderAbove(second) was refused");
-		#else
+		// The window manager decides on X11, and may refuse
+		first.orderAbove(second);
 		Assert.pass();
 		#end
 		#end
