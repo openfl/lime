@@ -119,6 +119,7 @@ Changelog
 - Changed the HTML5, Flash and WebAssembly test server to CrossByte's `HTTPServer`, run by the command-line tools, rather than http-server on a bundled Node.js, which made the haxelib too large to publish. CrossByte was chosen over snake-server because it answers range requests, which audio and video need to seek. The server listens on `127.0.0.1` unless `--host=0.0.0.0` lets other devices reach it. Building the tools now needs Haxe 4.3 or later, as does serving with `-eval`.
 - Changed desktop applications to take a quit request, such as Ctrl+C, SIGTERM or Cmd+Q, as a close request on every window, so `Window.onClose` runs and can cancel it, and `Application.onExit` follows.
 - Changed `-terser` to run terser through the system's `npx`, as `-npx` did, since Lime no longer bundles Node.js. It needs Node.js installed, and says so when it is not.
+- Changed `lime setup` to install libhxcpp, the continuation of hxcpp, in place of hxcpp, and to run its setup, which points the `hxcpp` haxelib at it so the compiler and every library that asks for hxcpp use it. Stock hxcpp, if installed, is left in place, and `haxelib run libhxcpp off` goes back to it. An `hxcpp` set with `haxelib dev` to a folder of your own is left as it is.
 - Updated pixman and platform config for LLVM assembly fixes, ARM NEON, Android NDKs, and Apple platforms.
 - Updated MojoAL and gamepad mappings.
 - Updated SDL submodule to version 2.32.10.
