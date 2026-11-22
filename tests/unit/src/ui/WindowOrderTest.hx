@@ -80,14 +80,14 @@ class WindowOrderTest extends Test
 		Assert.isFalse(first.orderBelow(second), "a hidden window was ordered below another");
 		#end
 
-		// Shown, they are stacked as asked, and are hidden again after
-		first.hidden = false;
-		second.hidden = false;
-		var above = first.orderAbove(second);
-		var below = first.orderBelow(second);
-		var back = first.orderToBack();
-		first.hidden = true;
-		second.hidden = true;
+		// Shown windows are stacked as asked. They are closed after, so none is left on screen
+		var shown = Application.current.createWindow({width: 64, height: 64, title: "WindowOrderTest shown"});
+		var other = Application.current.createWindow({width: 64, height: 64, title: "WindowOrderTest shown other"});
+		var above = shown != null && other != null && shown.orderAbove(other);
+		var below = shown != null && other != null && shown.orderBelow(other);
+		var back = shown != null && shown.orderToBack();
+		if (shown != null) shown.close();
+		if (other != null) other.close();
 
 		if (!isSupported(back)) return;
 		Assert.isTrue(above, "first.orderAbove(second) was refused for shown windows");
