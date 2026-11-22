@@ -15,6 +15,8 @@ class ApplicationTest extends Test
 
 	#if (lime_cffi && !macro)
 	private var idleTimeChanged:Bool = false;
+	// The window events that came while counting, which the failures give
+	private var windowEvents:String = "";
 	private var previousIdleCallback:Void->Void;
 
 	public function teardown():Void
@@ -61,7 +63,7 @@ class ApplicationTest extends Test
 				return;
 			}
 
-			Assert.isTrue(count >= 10 && count <= 40, "a minimised application asking for 120 frames a second updated " + count + " times in a second");
+			Assert.isTrue(count >= 10 && count <= 40, "a minimised application asking for 120 frames a second updated " + count + " times in a second; window events:" + windowEvents);
 			async.done();
 		});
 	}
@@ -71,7 +73,7 @@ class ApplicationTest extends Test
 	{
 		countMinimisedUpdates(withBackgroundFrameRate(10), function(count)
 		{
-			if (count >= 0) Assert.isTrue(count >= 4 && count <= 14, "with a background frame rate of 10, a minimised application updated " + count + " times in a second");
+			if (count >= 0) Assert.isTrue(count >= 4 && count <= 14, "with a background frame rate of 10, a minimised application updated " + count + " times in a second; window events:" + windowEvents);
 			async.done();
 		});
 	}
@@ -119,8 +121,48 @@ class ApplicationTest extends Test
 		var onMinimize = function() minimisedWindows++;
 		for (window in windows) window.onMinimize.add(onMinimize);
 
+		// Each window event until the count ends is noted with its time, for the failures
+		var eventStart = Timer.stamp();
+		var recording = true;
+		windowEvents = "";
+		var note = function(name:String) if (recording) windowEvents += " " + name + "@" + Math.round((Timer.stamp() - eventStart) * 1000);
+		var onShow = function() note("show");
+		var onHide = function() note("hide");
+		var onRestoreEvent = function() note("restore");
+		var onMinimizeEvent = function() note("minimize");
+		var onMaximize = function() note("maximize");
+		var onExpose = function() note("expose");
+		var onFocusIn = function() note("focusIn");
+		var onFocusOut = function() note("focusOut");
+		var onResize = function(w:Int, h:Int) note("resize");
+		for (window in windows)
+		{
+			window.onShow.add(onShow);
+			window.onHide.add(onHide);
+			window.onRestore.add(onRestoreEvent);
+			window.onMinimize.add(onMinimizeEvent);
+			window.onMaximize.add(onMaximize);
+			window.onExpose.add(onExpose);
+			window.onFocusIn.add(onFocusIn);
+			window.onFocusOut.add(onFocusOut);
+			window.onResize.add(onResize);
+		}
+
 		var restore = function()
 		{
+			recording = false;
+			for (window in windows)
+			{
+				window.onShow.remove(onShow);
+				window.onHide.remove(onHide);
+				window.onRestore.remove(onRestoreEvent);
+				window.onMinimize.remove(onMinimizeEvent);
+				window.onMaximize.remove(onMaximize);
+				window.onExpose.remove(onExpose);
+				window.onFocusIn.remove(onFocusIn);
+				window.onFocusOut.remove(onFocusOut);
+				window.onResize.remove(onResize);
+			}
 			for (window in windows) window.onMinimize.remove(onMinimize);
 			for (window in windows) window.minimized = false;
 			backend.configureFrameTiming(application.frameProfile, @:privateAccess application.__frameRate, application.frameOptions);
@@ -157,6 +199,7 @@ class ApplicationTest extends Test
 				var count = 0;
 				var listener = function(_:Int) count++;
 				var countStart = Timer.stamp();
+				note("count");
 				application.onUpdate.add(listener);
 
 				Timer.delay(function()
