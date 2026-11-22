@@ -57,6 +57,9 @@ namespace lime {
 	};
 
 
+	// Only where the system's socket headers are included: not on WebAssembly or WinRT, which list no
+	// interfaces
+	#if defined (LIME_NETWORK_INTERFACES_WINDOWS) || defined (LIME_NETWORK_INTERFACES_POSIX)
 	static std::string FormatHardwareAddress (const unsigned char* data, int length) {
 
 		std::string result;
@@ -116,6 +119,7 @@ namespace lime {
 		return true;
 
 	}
+	#endif
 
 
 	#ifdef LIME_NETWORK_INTERFACES_WINDOWS
