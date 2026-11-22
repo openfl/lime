@@ -185,6 +185,8 @@ class CameraInputTest extends Test
 	}
 
 	#if flash
+	// The answer comes on a timer, which a busy AIR runner can run later than utest's 250 ms default
+	@:timeout(5000)
 	public function testFlashCannotCapture(async:Async):Void
 	{
 		Assert.isFalse(CameraInput.isSupported);
