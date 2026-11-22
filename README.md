@@ -72,7 +72,7 @@ Building from Source
 
         haxelib install format
         haxelib install hxp
-        haxelib install native-desktop 1.2.0
+        haxelib install native-desktop 1.2.1
         haxelib install native-ipc 1.0.0
         haxelib install StageWebView 1.1.0
         haxelib install wsproto 1.0.0

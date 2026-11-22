@@ -33,7 +33,7 @@ jobs:
 
       - name: Install Haxe dependencies
         run: |
-          haxelib install native-desktop 1.2.0 --quiet
+          haxelib install native-desktop 1.2.1 --quiet
           haxelib install native-ipc 1.0.0 --quiet
           haxelib install wsproto 1.0.0 --quiet
           haxelib install crossbyte 1.0.1 --quiet
@@ -234,7 +234,7 @@ jobs:
 
       - name: Install Haxe dependencies
         run: |
-          haxelib install native-desktop 1.2.0 --quiet
+          haxelib install native-desktop 1.2.1 --quiet
           haxelib install native-ipc 1.0.0 --quiet
           haxelib install wsproto 1.0.0 --quiet
           haxelib install crossbyte 1.0.1 --quiet
@@ -364,7 +364,7 @@ jobs:
 
       - name: Install Haxe dependencies
         run: |
-          haxelib install native-desktop 1.2.0 --quiet
+          haxelib install native-desktop 1.2.1 --quiet
           haxelib install native-ipc 1.0.0 --quiet
           haxelib install wsproto 1.0.0 --quiet
           haxelib install crossbyte 1.0.1 --quiet
@@ -422,7 +422,7 @@ jobs:
 
       - name: Install Haxe dependencies
         run: |
-          haxelib install native-desktop 1.2.0 --quiet
+          haxelib install native-desktop 1.2.1 --quiet
           haxelib install native-ipc 1.0.0 --quiet
           haxelib install StageWebView 1.1.0 --quiet
           haxelib install wsproto 1.0.0 --quiet
@@ -566,7 +566,7 @@ jobs:
 
       - name: Install Haxe dependencies
         run: |
-          haxelib install native-desktop 1.2.0 --quiet
+          haxelib install native-desktop 1.2.1 --quiet
           haxelib install native-ipc 1.0.0 --quiet
           haxelib install StageWebView 1.1.0 --quiet
           haxelib install wsproto 1.0.0 --quiet
@@ -681,7 +681,7 @@ jobs:
 
       - name: Install Haxe dependencies
         run: |
-          haxelib install native-desktop 1.2.0 --quiet
+          haxelib install native-desktop 1.2.1 --quiet
           haxelib install native-ipc 1.0.0 --quiet
           haxelib install StageWebView 1.1.0 --quiet
           haxelib install wsproto 1.0.0 --quiet
@@ -874,7 +874,7 @@ jobs:
 
       - name: Install Haxe dependencies
         run: |
-          haxelib install native-desktop 1.2.0 --quiet
+          haxelib install native-desktop 1.2.1 --quiet
           haxelib install native-ipc 1.0.0 --quiet
           haxelib install StageWebView 1.1.0 --quiet
           haxelib install wsproto 1.0.0 --quiet
@@ -959,7 +959,7 @@ jobs:
 
       - name: Install Haxe dependencies
         run: |
-          haxelib install native-desktop 1.2.0 --quiet
+          haxelib install native-desktop 1.2.1 --quiet
           haxelib install native-ipc 1.0.0 --quiet
           haxelib install StageWebView 1.1.0 --quiet
           haxelib install wsproto 1.0.0 --quiet
@@ -1048,7 +1048,7 @@ jobs:
 
       - name: Install Haxe dependencies
         run: |
-          haxelib install native-desktop 1.2.0 --quiet
+          haxelib install native-desktop 1.2.1 --quiet
           haxelib install native-ipc 1.0.0 --quiet
           haxelib install StageWebView 1.1.0 --quiet
           haxelib install wsproto 1.0.0 --quiet
@@ -1122,7 +1122,7 @@ jobs:
 
       - name: Install Haxe dependencies
         run: |
-          haxelib install native-desktop 1.2.0 --quiet
+          haxelib install native-desktop 1.2.1 --quiet
           haxelib install native-ipc 1.0.0 --quiet
           haxelib install StageWebView 1.1.0 --quiet
           haxelib install wsproto 1.0.0 --quiet
@@ -1255,7 +1255,7 @@ jobs:
 
       - name: Install Haxe dependencies
         run: |
-          haxelib install native-desktop 1.2.0 --quiet
+          haxelib install native-desktop 1.2.1 --quiet
           haxelib install native-ipc 1.0.0 --quiet
           haxelib install StageWebView 1.1.0 --quiet
           haxelib install wsproto 1.0.0 --quiet
@@ -1289,7 +1289,7 @@ jobs:
 
       - name: Install Haxe dependencies
         run: |
-          haxelib install native-desktop 1.2.0 --quiet
+          haxelib install native-desktop 1.2.1 --quiet
           haxelib install native-ipc 1.0.0 --quiet
           haxelib install StageWebView 1.1.0 --quiet
           haxelib install wsproto 1.0.0 --quiet
@@ -1348,7 +1348,7 @@ jobs:
 
       - name: Install Haxe dependencies
         run: |
-          haxelib install native-desktop 1.2.0 --quiet
+          haxelib install native-desktop 1.2.1 --quiet
           haxelib install native-ipc 1.0.0 --quiet
           haxelib install StageWebView 1.1.0 --quiet
           haxelib install wsproto 1.0.0 --quiet
@@ -1407,7 +1407,7 @@ jobs:
 
       - name: Install Haxe dependencies
         run: |
-          haxelib install native-desktop 1.2.0 --quiet
+          haxelib install native-desktop 1.2.1 --quiet
           haxelib install native-ipc 1.0.0 --quiet
           haxelib install StageWebView 1.1.0 --quiet
           haxelib install wsproto 1.0.0 --quiet
@@ -1466,7 +1466,7 @@ jobs:
 
       - name: Install Haxe dependencies
         run: |
-          haxelib install native-desktop 1.2.0 --quiet
+          haxelib install native-desktop 1.2.1 --quiet
           haxelib install native-ipc 1.0.0 --quiet
           haxelib install StageWebView 1.1.0 --quiet
           haxelib install wsproto 1.0.0 --quiet
@@ -1522,7 +1522,7 @@ jobs:
 
       - name: Install Haxe dependencies
         run: |
-          haxelib install native-desktop 1.2.0 --quiet
+          haxelib install native-desktop 1.2.1 --quiet
           haxelib install native-ipc 1.0.0 --quiet
           haxelib install StageWebView 1.1.0 --quiet
           haxelib install wsproto 1.0.0 --quiet
@@ -1607,7 +1607,7 @@ jobs:
 
       - name: Install Haxe dependencies
         run: |
-          haxelib install native-desktop 1.2.0 --quiet
+          haxelib install native-desktop 1.2.1 --quiet
           haxelib install native-ipc 1.0.0 --quiet
           haxelib install StageWebView 1.1.0 --quiet
           haxelib install wsproto 1.0.0 --quiet
