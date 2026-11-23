@@ -254,6 +254,8 @@ class NativeApplication
 		#if (!macro && lime_cffi)
 		NativeCFFI.lime_application_set_main_loop(handle, __convertFrameProfile(profile), frameRate, __convertTimePrecision(options.timePrecision),
 			__convertBusyWaitMode(options.busyWait), __convertUncapMode(options.uncapMode));
+		var backgroundFrameRate:Null<Float> = Reflect.hasField(options, "backgroundFrameRate") ? options.backgroundFrameRate : null;
+		NativeCFFI.lime_application_set_background_frame_rate(handle, backgroundFrameRate != null ? backgroundFrameRate : 30);
 		#end
 	}
 
