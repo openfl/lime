@@ -2,7 +2,6 @@ package lime._internal.backend.html5;
 
 import haxe.Timer;
 import js.Browser;
-import js.Syntax;
 import lime.net.LocalServer;
 import lime.net.LocalSocket;
 import lime.net.LocalSocketError;
@@ -71,7 +70,7 @@ class HTML5LocalServer
 		this.name = name;
 		id = HTML5LocalSocket.createID();
 		accepted = new Map();
-		channel = Syntax.code("new BroadcastChannel({0})", HTML5LocalSocket.channelName(name));
+		channel = untyped #if haxe4 js.Syntax.code #else __js__ #end ("new BroadcastChannel({0})", HTML5LocalSocket.channelName(name));
 		channel.onmessage = handleMessage;
 		listening = true;
 
