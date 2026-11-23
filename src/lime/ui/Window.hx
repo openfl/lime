@@ -164,6 +164,31 @@ class Window
 	public var onClose(default, null) = new Event<Void->Void>();
 	public var onDeactivate(default, null) = new Event<Void->Void>();
 	public var onDropFile(default, null) = new Event<String->Void>();
+
+	/**
+		Dispatched after everything dropped on the window at once has been
+		dispatched, so files dropped together can be handled as one group.
+
+		Dispatched on native desktop targets and HTML5.
+	**/
+	public var onDropEnd(default, null) = new Event<Void->Void>();
+
+	/**
+		Dispatched when something is dropped on the window, before the files
+		or text it holds are dispatched with `onDropFile` and `onDropText`.
+
+		Dispatched on native desktop targets and HTML5.
+	**/
+	public var onDropStart(default, null) = new Event<Void->Void>();
+
+	/**
+		Dispatched with text dropped on the window, such as a selection dragged
+		from another application.
+
+		Dispatched on macOS, Linux and HTML5. SDL only takes files dropped on a
+		window on Windows.
+	**/
+	public var onDropText(default, null) = new Event<String->Void>();
 	public var onEnter(default, null) = new Event<Void->Void>();
 	public var onExpose(default, null) = new Event<Void->Void>();
 	public var onFocusIn(default, null) = new Event<Void->Void>();
@@ -2650,6 +2675,72 @@ class Window
 	public function focus():Void
 	{
 		__backend.focus();
+	}
+
+	/**
+		Puts this window just above `window`, without activating it. Returns
+		whether the system moved it.
+
+		Supported on Windows, macOS and X11. On X11 the window manager decides,
+		and may not do it. On macOS a window that is hidden or minimised is not
+		ordered, nor ordered against one that is, as the system would show it.
+	**/
+	public function orderAbove(window:Window):Bool
+	{
+		return window != null && window != this && __backend.orderRelative(window, true);
+	}
+
+	/**
+		Puts this window just below `window`, without activating it. Returns
+		whether the system moved it.
+
+		Supported on Windows, macOS and X11, as `orderAbove` describes.
+	**/
+	public function orderBelow(window:Window):Bool
+	{
+		return window != null && window != this && __backend.orderRelative(window, false);
+	}
+
+	/**
+		Puts this window behind the application's other windows and those of
+		other applications. Returns whether the system moved it.
+
+		Supported on Windows, macOS and X11. On macOS a window that is hidden or
+		minimised is not ordered, as `orderAbove` describes.
+	**/
+	public function orderToBack():Bool
+	{
+		return __backend.orderToBack();
+	}
+
+	/**
+		Moves the window with the pointer until the left button is released, as
+		dragging its title bar does, for a window without one or a custom title
+		bar. Call it from `onMouseDown`, while the button is down; it returns
+		`false` when the button is already up.
+
+		On Windows and macOS this returns once the button is released, and the
+		release is still dispatched. On X11 the window manager moves the window
+		after this returns.
+
+		Supported on Windows, macOS and X11.
+	**/
+	public function startMove():Bool
+	{
+		return __backend.startMoveResize(0);
+	}
+
+	/**
+		Resizes the window from `edge` with the pointer until the left button
+		is released, as dragging that edge or corner does. Call it from
+		`onMouseDown`, as `startMove` describes. macOS keeps the window within
+		its minimum and maximum size.
+
+		Supported on Windows, macOS and X11.
+	**/
+	public function startResize(edge:WindowEdge):Bool
+	{
+		return edge != 0 && __backend.startMoveResize(edge);
 	}
 
 	public function move(x:Int, y:Int):Void

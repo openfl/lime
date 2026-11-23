@@ -64,6 +64,27 @@ class CURL
 		#end
 	}
 
+	/**
+		What libcurl wrote to this handle's error buffer, which
+		`setOption(ERRORBUFFER, true)` turns on: why the last transfer failed,
+		in more detail than `strerror` gives for its code, or `""` if it did not
+		fail. `null` while the error buffer is off, as it is by default and
+		after `reset`. Read it once the transfer is over.
+	**/
+	public function getErrorBuffer():String
+	{
+		#if (lime_cffi && lime_curl && !macro)
+		var result = NativeCFFI.lime_curl_easy_errorbuffer(handle);
+		#if hl
+		return result == null ? null : @:privateAccess String.fromUTF8(result);
+		#else
+		return CFFI.stringValue(result);
+		#end
+		#else
+		return null;
+		#end
+	}
+
 	public static function getDate(date:String, now:Int):Int
 	{
 		#if (lime_cffi && lime_curl && !macro)

@@ -59,6 +59,8 @@
 		</dict>::end::::else::<key>NSAllowsArbitraryLoads</key>
 		<true/>::end::
 	</dict>
+	::if (IOS_HIGH_FRAME_RATE)::<key>CADisableMinimumFrameDurationOnPhone</key>
+	<true/>::end::
 	::if (IOS_CAMERA_USAGE_DESCRIPTION != null)::<key>NSCameraUsageDescription</key>
 	<string>::IOS_CAMERA_USAGE_DESCRIPTION::</string>::end::
 	::if (IOS_MICROPHONE_USAGE_DESCRIPTION != null)::<key>NSMicrophoneUsageDescription</key>

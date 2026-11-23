@@ -1,5 +1,6 @@
 package lime._internal.backend.html5;
 
+import lime.ui.FocusDirection;
 import js.html.Element;
 import js.html.Event;
 import js.html.IFrameElement;
@@ -137,9 +138,35 @@ class HTML5WebView
 		}
 	}
 
-	public function focus():Void
+	public function focus(direction:FocusDirection):Void
 	{
 		if (frame != null) frame.focus();
+
+		// A page of the same origin is entered at its first or last element that takes the focus
+		if (frame != null && direction != NONE)
+		{
+			try
+			{
+				var document:Dynamic = untyped frame.contentDocument;
+				if (document == null) return;
+
+				var selector = "a[href],area[href],button:not([disabled]),input:not([disabled]):not([type=\"hidden\"]),select:not([disabled]),textarea:not([disabled]),iframe,summary,[tabindex]:not([tabindex=\"-1\"]),[contenteditable]:not([contenteditable=\"false\"])";
+				var nodes:Array<Dynamic> = [];
+				var list:Dynamic = document.querySelectorAll(selector);
+
+				for (i in 0...Std.int(list.length))
+				{
+					var rect:Dynamic = list[i].getBoundingClientRect();
+					if (rect.width > 0 || rect.height > 0) nodes.push(list[i]);
+				}
+
+				if (nodes.length > 0) nodes[direction == BOTTOM ? nodes.length - 1 : 0].focus();
+			}
+			catch (e:Dynamic)
+			{
+				// The page is from another origin
+			}
+		}
 	}
 
 	public function getCanGoBack():Bool

@@ -4,6 +4,7 @@ import haxe.io.Bytes;
 import haxe.Timer;
 import lime.media.AudioInput;
 import lime.media.AudioInputDevice;
+import lime.system.CFFIPointer;
 import lime.system.PermissionStatus;
 #if android
 import lime.system.JNI;
@@ -37,6 +38,9 @@ class NativeAudioInput
 	private var handle:#if (!lime_doc_gen || lime_openal) ALDevice #else Dynamic #end;
 	private var parent:AudioInput;
 	private var started:Bool;
+	// The platform's voice processing capture, used instead of OpenAL while
+	// processing is asked for
+	private var voice:CFFIPointer;
 
 	public static function getDefaultDevice():AudioInputDevice
 	{
@@ -132,6 +136,7 @@ class NativeAudioInput
 		}
 
 		stop();
+		closeVoice();
 
 		#if (!lime_doc_gen || lime_openal)
 		if (handle != null)
@@ -144,8 +149,27 @@ class NativeAudioInput
 		disposed = true;
 	}
 
+	public function getProcessing():Int
+	{
+		#if (lime_cffi && !macro)
+		if (voice != null)
+		{
+			return NativeCFFI.lime_voice_capture_get_processing(voice);
+		}
+		#end
+
+		return 0;
+	}
+
 	public function getSamplesAvailable():Int
 	{
+		#if (lime_cffi && !macro)
+		if (voice != null)
+		{
+			return isConnected() ? NativeCFFI.lime_voice_capture_get_available(voice) : 0;
+		}
+		#end
+
 		#if (!lime_doc_gen || lime_openal)
 		if (handle == null || !isConnected())
 		{
@@ -166,7 +190,7 @@ class NativeAudioInput
 	public function read(buffer:Bytes, samples:Int):Int
 	{
 		#if (!lime_doc_gen || lime_openal)
-		if (!started || handle == null || buffer == null || samples <= 0)
+		if (!started || (handle == null && voice == null) || buffer == null || samples <= 0)
 		{
 			return 0;
 		}
@@ -198,6 +222,13 @@ class NativeAudioInput
 			return 0;
 		}
 
+		#if (lime_cffi && !macro)
+		if (voice != null)
+		{
+			return NativeCFFI.lime_voice_capture_read(voice, buffer, samplesToRead);
+		}
+		#end
+
 		ALC.captureSamples(handle, buffer, samplesToRead);
 		return samplesToRead;
 		#end
@@ -211,6 +242,18 @@ class NativeAudioInput
 		if (disposed)
 		{
 			return false;
+		}
+
+		if (parent.__processing != 0)
+		{
+			if (openVoice())
+			{
+				return started = true;
+			}
+		}
+		else
+		{
+			closeVoice();
 		}
 
 		if (handle == null)
@@ -233,6 +276,13 @@ class NativeAudioInput
 
 	public function stop():Void
 	{
+		#if (lime_cffi && !macro)
+		if (started && voice != null)
+		{
+			NativeCFFI.lime_voice_capture_stop(voice);
+		}
+		#end
+
 		#if (!lime_doc_gen || lime_openal)
 		if (started && handle != null)
 		{
@@ -241,6 +291,18 @@ class NativeAudioInput
 		#end
 
 		started = false;
+	}
+
+	private function closeVoice():Void
+	{
+		#if (lime_cffi && !macro)
+		if (voice != null)
+		{
+			NativeCFFI.lime_voice_capture_close(voice);
+			voice = null;
+			disconnected = false;
+		}
+		#end
 	}
 
 	private function getFormat():Int
@@ -299,16 +361,73 @@ class NativeAudioInput
 		#end
 	}
 
+	// Opens the platform's voice processing capture, letting OpenAL's device go so the
+	// two do not hold the microphone together. Where the platform has none, OpenAL
+	// captures without processing.
+	private function openVoice():Bool
+	{
+		#if (lime_cffi && !macro)
+		if (voice == null)
+		{
+			if (parent.channels < 1 || parent.channels > 2 || (parent.bitsPerSample != 8 && parent.bitsPerSample != 16))
+			{
+				return false;
+			}
+
+			var deviceName = parent.device != null && !parent.device.isDefault ? parent.device.id : "";
+			voice = NativeCFFI.lime_voice_capture_open(deviceName, parent.sampleRate, parent.channels, parent.bitsPerSample, parent.bufferSize,
+				parent.__processing);
+
+			if (voice == null)
+			{
+				return false;
+			}
+
+			disconnected = false;
+
+			#if (!lime_doc_gen || lime_openal)
+			if (handle != null)
+			{
+				ALC.captureCloseDevice(handle);
+				handle = null;
+			}
+			#end
+		}
+
+		if (NativeCFFI.lime_voice_capture_start(voice))
+		{
+			return true;
+		}
+
+		closeVoice();
+		#end
+
+		return false;
+	}
+
 	// Polled with the samples, as the application polls for them, so onDisconnect is dispatched once
 	// from samplesAvailable or read
 	private function isConnected():Bool
 	{
-		#if (!lime_doc_gen || lime_openal)
 		if (disconnected)
 		{
 			return false;
 		}
 
+		#if (lime_cffi && !macro)
+		if (voice != null)
+		{
+			if (!NativeCFFI.lime_voice_capture_is_connected(voice))
+			{
+				setDisconnected();
+				return false;
+			}
+
+			return true;
+		}
+		#end
+
+		#if (!lime_doc_gen || lime_openal)
 		if (!canReportDisconnect)
 		{
 			return true;
@@ -318,15 +437,20 @@ class NativeAudioInput
 
 		if (values != null && values.length > 0 && values[0] == ALC.FALSE)
 		{
-			disconnected = true;
-			stop();
-			parent.running = false;
-			parent.onDisconnect.dispatch();
+			setDisconnected();
 			return false;
 		}
 		#end
 
 		return true;
+	}
+
+	private function setDisconnected():Void
+	{
+		disconnected = true;
+		stop();
+		parent.running = false;
+		parent.onDisconnect.dispatch();
 	}
 
 	private static function pollPermission():Void

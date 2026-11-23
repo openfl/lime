@@ -7,6 +7,7 @@ import lime.graphics.opengl.GLBuffer;
 import lime.graphics.opengl.GLFramebuffer;
 import lime.graphics.opengl.GLProgram;
 import lime.graphics.opengl.GLTexture;
+import lime.graphics.opengl.GLTransformFeedback;
 import lime.ui.Window;
 import lime.utils.ArrayBuffer;
 import lime.utils.ArrayBufferView;
@@ -577,6 +578,299 @@ class OpenGLTest extends Test
 	}
 	#end
 
+	// Framebuffers aren't shared between contexts, so each window's have names of their own, which
+	// in two new contexts are usually the same numbers
+	public function testACollectedFramebufferIsDeletedInTheContextThatMadeIt():Void
+	{
+		var main = getMainWindow();
+		if (main == null) return;
+
+		var gl = main.context.gl;
+		var first = createWindow();
+		var other = createWindow();
+		if (first == null || first.context == null || other == null || other.context == null) return;
+
+		makeCurrent(first);
+		var kept = makeFramebuffer(gl);
+
+		makeCurrent(other);
+		var names = makeFramebuffers(gl, 8);
+
+		// Collected, then cleared with the first window's context current
+		makeCurrent(first);
+		collect();
+		collect();
+		gl.clear(gl.COLOR_BUFFER_BIT);
+		Assert.isTrue(gl.isFramebuffer(kept), "another window's collected framebuffer deleted this window's of the same name");
+
+		// and with the other window's
+		makeCurrent(other);
+		gl.clear(gl.COLOR_BUFFER_BIT);
+		var left = [for (name in names) if (gl.isFramebuffer(framebufferNamed(name))) name];
+		Assert.isTrue(left.length < names.length / 2, left.length + " of " + names.length + " collected framebuffers were not deleted in the context that made them");
+		for (name in left) gl.deleteFramebuffer(framebufferNamed(name));
+
+		makeCurrent(first);
+		gl.deleteFramebuffer(kept);
+		clearErrors(gl);
+		makeCurrent(main);
+	}
+
+	public function testABoundFramebufferIsFoundInTheCurrentContext():Void
+	{
+		var main = getMainWindow();
+		if (main == null) return;
+
+		var gl = main.context.gl;
+		var first = createWindow();
+		var other = createWindow();
+		if (first == null || first.context == null || other == null || other.context == null) return;
+
+		makeCurrent(first);
+		var mine = makeFramebuffer(gl);
+		gl.bindFramebuffer(gl.FRAMEBUFFER, mine);
+
+		makeCurrent(other);
+		var theirs = makeFramebuffer(gl);
+
+		makeCurrent(first);
+		var bound:GLFramebuffer = gl.getParameter(gl.FRAMEBUFFER_BINDING);
+		gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+		Assert.isTrue(bound == mine, "this window's bound framebuffer was found as another window's");
+		gl.deleteFramebuffer(mine);
+		clearErrors(gl);
+
+		makeCurrent(other);
+		gl.deleteFramebuffer(theirs);
+		clearErrors(gl);
+		makeCurrent(main);
+	}
+
+	private static function makeFramebuffer(gl:OpenGLRenderContext):GLFramebuffer
+	{
+		// A name becomes a framebuffer once it is bound
+		var framebuffer = gl.createFramebuffer();
+		gl.bindFramebuffer(gl.FRAMEBUFFER, framebuffer);
+		gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+		return framebuffer;
+	}
+
+	// Made here, so that nothing on the caller's stack keeps them
+	private static function makeFramebuffers(gl:OpenGLRenderContext, count:Int):Array<Int>
+	{
+		var names = [];
+
+		for (i in 0...count)
+		{
+			var object:lime.graphics.opengl.GL.GLObject = makeFramebuffer(gl);
+			names.push(@:privateAccess object.id);
+		}
+
+		return names;
+	}
+
+	private static function framebufferNamed(name:Int):GLFramebuffer
+	{
+		return @:privateAccess new lime.graphics.opengl.GL.GLObject(name);
+	}
+
+	// A GLTransformFeedback dropped without deleteTransformFeedback() is deleted at the next clear()
+	public function testCollectedTransformFeedbacksAreDeleted():Void
+	{
+		var main = getMainWindow();
+		if (main == null) return;
+
+		var gl = main.context.gl;
+		makeCurrent(main);
+
+		var names = makeTransformFeedbacks(gl, 32);
+
+		if (names == null)
+		{
+			trace("There are no transform feedbacks here, so collecting them was not tested");
+			Assert.pass();
+			return;
+		}
+
+		collect();
+		collect();
+		gl.clear(gl.COLOR_BUFFER_BIT);
+
+		var left = [];
+
+		for (name in names)
+		{
+			var transformFeedback:GLTransformFeedback = @:privateAccess new lime.graphics.opengl.GL.GLObject(name);
+			if (gl.isTransformFeedback(transformFeedback)) left.push(transformFeedback);
+		}
+
+		// The collector scans the stack conservatively, so it may keep the odd one
+		Assert.isTrue(left.length < names.length / 2, left.length + " of " + names.length + " collected transform feedbacks were not deleted");
+
+		for (transformFeedback in left) gl.deleteTransformFeedback(transformFeedback);
+		clearErrors(gl);
+	}
+
+	// Made here, so that nothing on the caller's stack keeps them
+	private static function makeTransformFeedbacks(gl:OpenGLRenderContext, count:Int):Array<Int>
+	{
+		var names = [];
+
+		for (i in 0...count)
+		{
+			var transformFeedback = gl.createTransformFeedback();
+			if (transformFeedback == null) return null;
+
+			// A name becomes a transform feedback once it is bound
+			gl.bindTransformFeedback(gl.TRANSFORM_FEEDBACK, transformFeedback);
+			gl.bindTransformFeedback(gl.TRANSFORM_FEEDBACK, null);
+			var object:lime.graphics.opengl.GL.GLObject = transformFeedback;
+			names.push(@:privateAccess object.id);
+		}
+
+		clearErrors(gl);
+		return names;
+	}
+
+	// A sync's address can be given to the next one, which collecting the first must not delete
+	public function testCollectingADeletedSyncLeavesTheSyncsMadeAfterIt():Void
+	{
+		var main = getMainWindow();
+		if (main == null) return;
+
+		var gl = main.context.gl;
+		makeCurrent(main);
+
+		if (!makeAndDeleteSyncs(gl, 32))
+		{
+			trace("There are no syncs here, so collecting them was not tested");
+			Assert.pass();
+			return;
+		}
+
+		var syncs = [for (i in 0...32) gl.fenceSync(gl.SYNC_GPU_COMMANDS_COMPLETE, 0)];
+
+		collect();
+		collect();
+		gl.clear(gl.COLOR_BUFFER_BIT);
+
+		var deleted = 0;
+
+		for (sync in syncs)
+		{
+			if (!gl.isSync(sync)) deleted++;
+			gl.deleteSync(sync);
+		}
+
+		Assert.equals(0, deleted, "collecting deleted syncs deleted syncs that were still in use");
+		clearErrors(gl);
+	}
+
+	private static function makeAndDeleteSyncs(gl:OpenGLRenderContext, count:Int):Bool
+	{
+		for (i in 0...count)
+		{
+			var sync = gl.fenceSync(gl.SYNC_GPU_COMMANDS_COMPLETE, 0);
+			if (sync == null) return false;
+			gl.deleteSync(sync);
+		}
+
+		return true;
+	}
+
+	public function testPolygonModeDrawsLinesAndPointsOnDesktopOpenGL():Void
+	{
+		var window = getMainWindow();
+		if (window == null) return;
+
+		var gl = window.context.gl;
+		makeCurrent(window);
+		clearErrors(gl);
+
+		Assert.equals(0x1B00, gl.POINT);
+		Assert.equals(0x1B01, gl.LINE);
+		Assert.equals(0x1B02, gl.FILL);
+		Assert.equals(0x0B40, gl.POLYGON_MODE);
+
+		if (window.context.type != OPENGL)
+		{
+			// utest takes a warning as a failure, so the test passes, saying why
+			trace("The context is " + window.context.type + ", which has no polygon mode, so wireframes were not tested");
+			Assert.pass();
+			return;
+		}
+
+		// GL is the first window's context
+		if (lime.graphics.opengl.GL.context == gl) Assert.isTrue(lime.graphics.opengl.GL.supportsPolygonMode, "GL does not support polygonMode on OpenGL");
+
+		// A triangle over most of a 9x9 target, so its middle is not on an edge
+		var size = 9;
+		var texture = gl.createTexture();
+		gl.bindTexture(gl.TEXTURE_2D, texture);
+		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+		gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, size, size, 0, gl.RGBA, gl.UNSIGNED_BYTE, 0);
+		gl.bindTexture(gl.TEXTURE_2D, null);
+		var framebuffer = gl.createFramebuffer();
+		gl.bindFramebuffer(gl.FRAMEBUFFER, framebuffer);
+		gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, texture, 0);
+		gl.viewport(0, 0, size, size);
+
+		var program = createProgram(gl, "attribute vec2 position; void main () { gl_Position = vec4 (position, 0.0, 1.0); }",
+			"void main () { gl_FragColor = vec4 (1.0, 1.0, 1.0, 1.0); }");
+		var buffer = gl.createBuffer();
+		gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
+		gl.bufferData(gl.ARRAY_BUFFER, 24, new Float32Array([-0.9, -0.9, 0.9, -0.9, 0.0, 0.9]), gl.STATIC_DRAW);
+		var position = gl.getAttribLocation(program, "position");
+		gl.useProgram(program);
+		gl.enableVertexAttribArray(position);
+		gl.vertexAttribPointer(position, 2, gl.FLOAT, false, 0, 0);
+
+		var pixels = new UInt8Array(size * size * 4);
+		var draw = function(mode:Int):{middle:Int, lit:Int}
+		{
+			gl.clearColor(0, 0, 0, 1);
+			gl.clear(gl.COLOR_BUFFER_BIT);
+			gl.polygonMode(gl.FRONT_AND_BACK, mode);
+			gl.drawArrays(gl.TRIANGLES, 0, 3);
+			gl.readPixels(0, 0, size, size, gl.RGBA, gl.UNSIGNED_BYTE, pixels);
+
+			var lit = 0;
+			for (i in 0...size * size)
+			{
+				if (pixels[i * 4] > 127) lit++;
+			}
+
+			return {middle: pixels[((size >> 1) * size + (size >> 1)) * 4], lit: lit};
+		};
+
+		var filled = draw(gl.FILL);
+		var lines = draw(gl.LINE);
+		var points = draw(gl.POINT);
+		var error = gl.getError();
+
+		// Put back, as other drawing in the context expects
+		gl.polygonMode(gl.FRONT_AND_BACK, gl.FILL);
+		var restored = draw(gl.FILL);
+
+		gl.disableVertexAttribArray(position);
+		gl.useProgram(null);
+		gl.bindBuffer(gl.ARRAY_BUFFER, null);
+		gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+		gl.deleteBuffer(buffer);
+		gl.deleteFramebuffer(framebuffer);
+		gl.deleteTexture(texture);
+		gl.deleteProgram(program);
+		clearErrors(gl);
+
+		Assert.equals(gl.NO_ERROR, error, "polygonMode set GL error " + error);
+		Assert.equals(255, filled.middle, "a filled triangle left its middle empty");
+		Assert.equals(0, lines.middle, "a triangle drawn as lines filled its middle");
+		Assert.isTrue(lines.lit > 0 && lines.lit < filled.lit, lines.lit + " pixels were drawn as lines, and " + filled.lit + " filled");
+		Assert.equals(0, points.middle, "a triangle drawn as points filled its middle");
+		Assert.isTrue(points.lit > 0 && points.lit < lines.lit, points.lit + " pixels were drawn as points, and " + lines.lit + " as lines");
+		Assert.equals(filled.lit, restored.lit, "the triangle was not filled again");
+	}
+
 	#if software_gl
 	public function testAForcedSoftwareContextDraws():Void
 	{
@@ -859,6 +1153,15 @@ class OpenGLTest extends Test
 	private static function makeCurrent(window:Window):Void
 	{
 		@:privateAccess lime._internal.backend.native.NativeCFFI.lime_window_context_make_current(window.__backend.handle);
+	}
+	#elseif (js && html5)
+	public function testWebGLHasNoPolygonMode():Void
+	{
+		Assert.isFalse(lime.graphics.opengl.GL.supportsPolygonMode);
+
+		// Does nothing, rather than failing
+		lime.graphics.opengl.GL.polygonMode(lime.graphics.opengl.GL.FRONT_AND_BACK, lime.graphics.opengl.GL.LINE);
+		Assert.equals(0x1B01, lime.graphics.opengl.GL.LINE);
 	}
 	#end
 }

@@ -73,6 +73,32 @@ class Menu
 	public var items(get, never):Array<MenuItem>;
 
 	/**
+		Dispatched when this menu closes, whether an item was selected or not,
+		as when a context menu is dismissed. It comes after the menu has
+		closed, so it cannot change what was shown.
+
+		Available where `onOpen` is.
+	**/
+	public var onClose(default, null) = new Event<Void->Void>();
+
+	/**
+		Dispatched when this menu is about to be shown, before it appears, so
+		its items can still be changed: enabled, checked, relabeled, added or
+		removed. A menu bar dispatches it for each of its menus as they drop
+		down, and a submenu as it opens; the menu bar itself does not.
+
+		Changes to other menus made here wait until the menus close.
+
+		Available on Windows and macOS for menu bars, context menus and tray
+		icon menus, on Linux for context menus and their submenus, and on
+		HTML5. Linux tray icon menus are shown by the desktop over D-Bus and do
+		not dispatch it. On macOS, the menus of the menu bar are also prepared
+		this way before a key equivalent is matched against them while they
+		are closed, which does not dispatch it.
+	**/
+	public var onOpen(default, null) = new Event<Void->Void>();
+
+	/**
 		Dispatched when an item in this menu, or in one of its submenus, is
 		selected. The innermost menu is notified first. Canceling this event
 		prevents it from reaching the outer menus.
@@ -83,6 +109,11 @@ class Menu
 		The item that this menu is the submenu of, or `null`.
 	**/
 	public var parent(default, null):MenuItem;
+
+	// Changes made while a menu is opening are applied once menus are no longer shown
+	@:noCompletion private static var __applyingDeferred:Bool = false;
+	@:noCompletion private static var __deferred:Array<Menu> = [];
+	@:noCompletion private static var __deferring:Int = 0;
 
 	@:noCompletion private var __application:Application;
 	@:noCompletion private var __dockIcon:Bool;
@@ -214,8 +245,56 @@ class Menu
 		return false;
 	}
 
+	@:noCompletion private static function __applyDeferred():Void
+	{
+		if (__deferring > 0 || __deferred.length == 0) return;
+
+		var menus = __deferred;
+		__deferred = [];
+		__applyingDeferred = true;
+
+		try
+		{
+			for (menu in menus)
+			{
+				menu.__update();
+			}
+		}
+		catch (e:Dynamic)
+		{
+			__applyingDeferred = false;
+			throw e;
+		}
+
+		__applyingDeferred = false;
+	}
+
+	// Dispatches onOpen, holding back the updates the listeners make
+	@:noCompletion private function __dispatchOpen():Void
+	{
+		__deferring++;
+
+		try
+		{
+			onOpen.dispatch();
+		}
+		catch (e:Dynamic)
+		{
+			__deferring--;
+			throw e;
+		}
+
+		__deferring--;
+	}
+
 	@:noCompletion private function __update():Void
 	{
+		if (__deferring > 0)
+		{
+			if (__deferred.indexOf(this) == -1) __deferred.push(this);
+			return;
+		}
+
 		if (__application != null)
 		{
 			__application.__backend.setMenu(this);
