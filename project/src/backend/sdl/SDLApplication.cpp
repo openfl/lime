@@ -221,6 +221,8 @@ namespace lime
 #if defined(HX_WINDOWS) && !defined(HX_WINRT)
 		modalWatchInstalled = false;
 		modalExceptionPending = false;
+		modalFramePending = false;
+		SDL_zero(modalFrameEvent);
 		for (int i = 0; i < 4; ++i)
 			modalCallbacks[i] = 0;
 		mainThreadID = SDL_ThreadID();
@@ -789,21 +791,54 @@ namespace lime
 		if (application->modalExceptionPending || application->modalNativeException || !application->modalCallbacks[3])
 			return 0;
 
-		// Prevent re-entry if rendering queues another window event.
+		// A window event queued while a frame is drawn doesn't draw another
+		if (SDL_AtomicGet(&s_inModalEventWatch) != 0)
+			return 0;
+
+		// SDL calls every watch with its event lock held, so a frame drawn here would make any
+		// thread pushing an event wait for it, and anything the frame waits on that pushes one,
+		// such as a local socket's thread it closes, would never finish. The frame is drawn once
+		// SDL_PushEvent has returned, from the window's procedure. A resize is kept over other
+		// events, as it draws even when no frame is due.
+		bool pendingResize = application->modalFramePending && (application->modalFrameEvent.window.event == SDL_WINDOWEVENT_SIZE_CHANGED || application->modalFrameEvent.window.event == SDL_WINDOWEVENT_RESIZED);
+		if (!pendingResize)
+			application->modalFrameEvent = *event;
+		application->modalFramePending = true;
+		return 0;
+	}
+
+	void SDLApplication::RunPendingModalFrame()
+	{
+
+		SDLApplication *application = currentApplication;
+		if (!application || !application->modalFramePending || SDL_ThreadID() != application->mainThreadID)
+			return;
+
+		SDL_Event event = application->modalFrameEvent;
+		application->modalFramePending = false;
+
+		// Otherwise the frame loop draws it, as it handles the window event
+		if (!application->active || inBackground)
+			return;
+		if (SDL_AtomicGet(&s_waitEventBlocking) == 0 && SDL_AtomicGet(&s_nativeModalLoopDepth) == 0)
+			return;
+		if (application->modalExceptionPending || application->modalNativeException || !application->modalCallbacks[3])
+			return;
+
+		// Prevent re-entry if rendering sends the window another message.
 		ScopedModalWatch watch;
 		if (!watch.Entered())
-			return 0;
+			return;
 
 		try
 		{
 			ScopedModalCallbacks callbacks(application->modalCallbacks);
-			application->PumpOneFrameFromWatch(event);
+			application->PumpOneFrameFromWatch(&event);
 		}
 		catch (...)
 		{
 			application->modalNativeException = std::current_exception();
 		}
-		return 0;
 	}
 
 	void SDLApplication::SetModalCallbacks(ValuePointer* update, ValuePointer* render, ValuePointer* window, ValuePointer* rethrow)
