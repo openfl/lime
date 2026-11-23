@@ -83,6 +83,18 @@ class VideoDecoder
 	@:noCompletion private static inline var READ_ERROR:Int = -2;
 	@:noCompletion private static inline var READ_BUFFER_TOO_SMALL:Int = -3;
 
+	// The order the native decoder writes a frame's details in
+	@:noCompletion private static inline var FRAME_INFO_COLOR_MATRIX:Int = 0;
+	@:noCompletion private static inline var FRAME_INFO_DROPPED_FRAMES:Int = 1;
+	@:noCompletion private static inline var FRAME_INFO_DURATION:Int = 2;
+	@:noCompletion private static inline var FRAME_INFO_FULL_RANGE:Int = 3;
+	@:noCompletion private static inline var FRAME_INFO_HEIGHT:Int = 4;
+	@:noCompletion private static inline var FRAME_INFO_LENGTH:Int = 5;
+	@:noCompletion private static inline var FRAME_INFO_TEXTURE:Int = 6;
+	@:noCompletion private static inline var FRAME_INFO_TIME:Int = 7;
+	@:noCompletion private static inline var FRAME_INFO_WIDTH:Int = 8;
+	@:noCompletion private static inline var FRAME_INFO_COUNT:Int = 9;
+
 	/**
 		Whether this platform can decode video.
 	**/
@@ -229,6 +241,7 @@ class VideoDecoder
 	**/
 	public var width(default, null):Int = 0;
 
+	@:noCompletion private var __frameInfo:Bytes;
 	@:noCompletion private var __handle:Dynamic;
 	// A file written for openBytes, deleted when the video is closed
 	@:noCompletion private var __temporaryPath:String;
@@ -447,30 +460,27 @@ class VideoDecoder
 
 		if (result == READ_BUFFER_TOO_SMALL)
 		{
-			var info:Dynamic = NativeCFFI.lime_video_decoder_get_frame_info(__handle);
-			frame.data = new UInt8Array(info.length);
+			var info = __readFrameInfo();
+			frame.data = new UInt8Array(Std.int(info.getDouble(FRAME_INFO_LENGTH << 3)));
 			result = __readFrame(frame.data, time);
 		}
 
 		if (result > 0)
 		{
-			var info:Dynamic = NativeCFFI.lime_video_decoder_get_frame_info(__handle);
+			var info = __readFrameInfo();
 			#if (lime_opengl || lime_opengles)
-			var texture:Int = info.texture;
+			var texture = Std.int(info.getDouble(FRAME_INFO_TEXTURE << 3));
 			frame.texture = texture != 0 ? __getTexture(texture) : null;
 			#end
-			frame.colorMatrix = info.colorMatrix;
-			frame.duration = info.duration;
-
-			// A native library from before the count leaves it out
-			var dropped:Null<Int> = info.droppedFrames;
-			if (dropped != null) droppedFrames = dropped;
+			frame.colorMatrix = cast Std.int(info.getDouble(FRAME_INFO_COLOR_MATRIX << 3));
+			frame.duration = info.getDouble(FRAME_INFO_DURATION << 3);
+			droppedFrames = Std.int(info.getDouble(FRAME_INFO_DROPPED_FRAMES << 3));
 			frame.format = format;
-			frame.fullRange = info.fullRange;
-			frame.height = info.height;
+			frame.fullRange = info.getDouble(FRAME_INFO_FULL_RANGE << 3) != 0;
+			frame.height = Std.int(info.getDouble(FRAME_INFO_HEIGHT << 3));
 			frame.length = format == VideoFrameFormat.TEXTURE ? 0 : result;
-			frame.time = info.time;
-			frame.width = info.width;
+			frame.time = info.getDouble(FRAME_INFO_TIME << 3);
+			frame.width = Std.int(info.getDouble(FRAME_INFO_WIDTH << 3));
 			return true;
 		}
 
@@ -511,6 +521,21 @@ class VideoDecoder
 		#else
 		return false;
 		#end
+	}
+
+	// The details of the frame last read, written by the native decoder as
+	// doubles into a buffer kept for it, as an object made for every frame was
+	// allocated for every frame of every video. They are read from the bytes,
+	// as Haxe 4.2's HashLink output allocates for each read of a Float64Array.
+	@:noCompletion private function __readFrameInfo():Bytes
+	{
+		if (__frameInfo == null) __frameInfo = Bytes.alloc(FRAME_INFO_COUNT << 3);
+
+		#if (lime_cffi && !macro)
+		NativeCFFI.lime_video_decoder_read_frame_info(__handle, __frameInfo);
+		#end
+
+		return __frameInfo;
 	}
 
 	@:noCompletion private function __readFrame(data:UInt8Array, time:Float):Int

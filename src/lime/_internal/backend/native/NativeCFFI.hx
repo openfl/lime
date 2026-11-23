@@ -483,8 +483,6 @@ class NativeCFFI
 
 	@:cffi private static function lime_video_decoder_get_audio_time(handle:Dynamic):Float;
 
-	@:cffi private static function lime_video_decoder_get_frame_info(handle:Dynamic):Dynamic;
-
 	@:cffi private static function lime_video_decoder_is_supported():Bool;
 
 	@:cffi private static function lime_video_decoder_open(handle:Dynamic, path:String, hardwareDecoding:Bool, format:Int):Dynamic;
@@ -492,6 +490,8 @@ class NativeCFFI
 	@:cffi private static function lime_video_decoder_read_audio(handle:Dynamic, buffer:Dynamic, position:Int, length:Int):Int;
 
 	@:cffi private static function lime_video_decoder_read_frame(handle:Dynamic, buffer:Dynamic, position:Int, length:Int, time:Float):Int;
+
+	@:cffi private static function lime_video_decoder_read_frame_info(handle:Dynamic, buffer:Dynamic):Bool;
 
 	@:cffi private static function lime_video_decoder_seek(handle:Dynamic, time:Float, accurate:Bool):Bool;
 
@@ -1355,8 +1355,6 @@ class NativeCFFI
 	private static var lime_video_decoder_create = new cpp.Callable<Void->cpp.Object>(cpp.Prime._loadPrime("lime", "lime_video_decoder_create", "o", false));
 	private static var lime_video_decoder_get_audio_time = new cpp.Callable<cpp.Object->Float>(cpp.Prime._loadPrime("lime",
 		"lime_video_decoder_get_audio_time", "od", false));
-	private static var lime_video_decoder_get_frame_info = new cpp.Callable<cpp.Object->cpp.Object>(cpp.Prime._loadPrime("lime",
-		"lime_video_decoder_get_frame_info", "oo", false));
 	private static var lime_video_decoder_is_supported = new cpp.Callable<Void->Bool>(cpp.Prime._loadPrime("lime", "lime_video_decoder_is_supported", "b",
 		false));
 	private static var lime_video_decoder_open = new cpp.Callable<cpp.Object->String->Bool->Int->cpp.Object>(cpp.Prime._loadPrime("lime",
@@ -1365,6 +1363,8 @@ class NativeCFFI
 		"lime_video_decoder_read_audio", "ooiii", false));
 	private static var lime_video_decoder_read_frame = new cpp.Callable<cpp.Object->cpp.Object->Int->Int->Float->Int>(cpp.Prime._loadPrime("lime",
 		"lime_video_decoder_read_frame", "ooiidi", false));
+	private static var lime_video_decoder_read_frame_info = new cpp.Callable<cpp.Object->cpp.Object->Bool>(cpp.Prime._loadPrime("lime",
+		"lime_video_decoder_read_frame_info", "oob", false));
 	private static var lime_video_decoder_seek = new cpp.Callable<cpp.Object->Float->Bool->Bool>(cpp.Prime._loadPrime("lime", "lime_video_decoder_seek",
 		"odbb", false));
 	private static var lime_video_decoder_set_drop_late_frames = new cpp.Callable<cpp.Object->Bool->cpp.Void>(cpp.Prime._loadPrime("lime",
@@ -1950,11 +1950,11 @@ class NativeCFFI
 	private static var lime_video_decoder_close = CFFI.load("lime", "lime_video_decoder_close", 1);
 	private static var lime_video_decoder_create = CFFI.load("lime", "lime_video_decoder_create", 0);
 	private static var lime_video_decoder_get_audio_time = CFFI.load("lime", "lime_video_decoder_get_audio_time", 1);
-	private static var lime_video_decoder_get_frame_info = CFFI.load("lime", "lime_video_decoder_get_frame_info", 1);
 	private static var lime_video_decoder_is_supported = CFFI.load("lime", "lime_video_decoder_is_supported", 0);
 	private static var lime_video_decoder_open = CFFI.load("lime", "lime_video_decoder_open", 4);
 	private static var lime_video_decoder_read_audio = CFFI.load("lime", "lime_video_decoder_read_audio", 4);
 	private static var lime_video_decoder_read_frame = CFFI.load("lime", "lime_video_decoder_read_frame", 5);
+	private static var lime_video_decoder_read_frame_info = CFFI.load("lime", "lime_video_decoder_read_frame_info", 2);
 	private static var lime_video_decoder_seek = CFFI.load("lime", "lime_video_decoder_seek", 3);
 	private static var lime_video_decoder_set_drop_late_frames = CFFI.load("lime", "lime_video_decoder_set_drop_late_frames", 2);
 	private static var lime_voice_capture_close = CFFI.load("lime", "lime_voice_capture_close", 1);
@@ -3058,11 +3058,6 @@ class NativeCFFI
 		return 0;
 	}
 
-	@:hlNative("lime", "hl_video_decoder_get_frame_info") private static function lime_video_decoder_get_frame_info(handle:CFFIPointer):Dynamic
-	{
-		return null;
-	}
-
 	@:hlNative("lime", "hl_video_decoder_is_supported") private static function lime_video_decoder_is_supported():Bool
 	{
 		return false;
@@ -3084,6 +3079,11 @@ class NativeCFFI
 			length:Int, time:Float):Int
 	{
 		return 0;
+	}
+
+	@:hlNative("lime", "hl_video_decoder_read_frame_info") private static function lime_video_decoder_read_frame_info(handle:CFFIPointer, buffer:Bytes):Bool
+	{
+		return false;
 	}
 
 	@:hlNative("lime", "hl_video_decoder_seek") private static function lime_video_decoder_seek(handle:CFFIPointer, time:Float, accurate:Bool):Bool
