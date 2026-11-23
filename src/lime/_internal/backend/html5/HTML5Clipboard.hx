@@ -59,7 +59,7 @@ class HTML5Clipboard
 				case IMAGE:
 					// The PNG is made as the browser asks for it
 					var image:Image = value;
-					Reflect.setField(types, "image/png", new js.lib.Promise(function(resolve, reject)
+					Reflect.setField(types, "image/png", new #if haxe4 js.lib.Promise #else js.Promise #end(function(resolve, reject)
 					{
 						var canvas:CanvasElement = cast Browser.document.createElement("canvas");
 						canvas.width = image.width;
@@ -88,7 +88,7 @@ class HTML5Clipboard
 			return Lambda.count(items) == 0;
 		}
 
-		var promise:Dynamic = clipboard.write([js.Syntax.construct(itemClass, types)]);
+		var promise:Dynamic = clipboard.write([#if haxe4 js.Syntax.construct(itemClass, types) #else untyped __new__(itemClass, types) #end]);
 
 		promise.then(function(_)
 		{
