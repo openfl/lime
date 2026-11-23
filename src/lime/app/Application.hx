@@ -191,7 +191,8 @@ class Application extends Module
 			{
 				timePrecision: TimePrecision.AUTO,
 				busyWait: BusyWaitMode.AUTO,
-				uncapMode: UncapMode.OFF
+				uncapMode: UncapMode.OFF,
+				backgroundFrameRate: 30
 			};
 		__frameProfile = FrameProfile.BALANCED;
 		__windowByID = new Map();
@@ -845,14 +846,16 @@ class Application extends Module
 			return {
 				timePrecision: TimePrecision.AUTO,
 				busyWait: BusyWaitMode.AUTO,
-				uncapMode: UncapMode.OFF
+				uncapMode: UncapMode.OFF,
+				backgroundFrameRate: 30
 			};
 		}
 
 		return {
 			timePrecision: value.timePrecision,
 			busyWait: value.busyWait,
-			uncapMode: value.uncapMode
+			uncapMode: value.uncapMode,
+			backgroundFrameRate: Reflect.hasField(value, "backgroundFrameRate") ? value.backgroundFrameRate : 30
 		};
 	}
 
@@ -868,6 +871,7 @@ class Application extends Module
 		if (Reflect.hasField(value, "timePrecision")) base.timePrecision = value.timePrecision;
 		if (Reflect.hasField(value, "busyWait")) base.busyWait = value.busyWait;
 		if (Reflect.hasField(value, "uncapMode")) base.uncapMode = value.uncapMode;
+		if (Reflect.hasField(value, "backgroundFrameRate")) base.backgroundFrameRate = value.backgroundFrameRate;
 
 		return base;
 	}

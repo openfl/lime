@@ -274,6 +274,25 @@ class OpenALSourceTest extends Test
 		AL.deleteSource(source);
 	}
 
+	public function testIntegerPropertiesReadWithoutABoxMatchGetSourcei():Void
+	{
+		if (!hasContext()) return;
+
+		// The binding Lime's own sources poll with, which gives an Int
+		var source = AL.createSource();
+		AL.sourcei(source, AL.LOOPING, AL.TRUE);
+
+		for (param in [AL.SOURCE_STATE, AL.SOURCE_TYPE, AL.LOOPING, AL.BUFFERS_QUEUED, AL.BUFFERS_PROCESSED, AL.SAMPLE_OFFSET, AL.BYTE_OFFSET])
+		{
+			var boxed:Int = AL.getSourcei(source, param);
+			Assert.equals(boxed, @:privateAccess AL.__getSourceInt(source, param), "property " + param);
+		}
+
+		Assert.equals(AL.INITIAL, @:privateAccess AL.__getSourceInt(source, AL.SOURCE_STATE));
+		Assert.equals(AL.TRUE, @:privateAccess AL.__getSourceInt(source, AL.LOOPING));
+		AL.deleteSource(source);
+	}
+
 	public function testAnUnknownPropertySetsInvalidEnum():Void
 	{
 		if (!hasContext()) return;

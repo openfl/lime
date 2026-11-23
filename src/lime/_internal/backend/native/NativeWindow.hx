@@ -471,6 +471,7 @@ class NativeWindow
 			var items = [];
 			var data = NativeMenu.encode(menu, items);
 			var atCursor = (x == null || y == null);
+			NativeMenu.setPopup(NativeMenu.SOURCE_WINDOW, parent.id, menu, items);
 			var id = NativeCFFI.lime_window_popup_menu(handle, data, atCursor ? 0 : Std.int(x), atCursor ? 0 : Std.int(y), atCursor);
 
 			var item = NativeMenu.getItem(items, id);
@@ -874,7 +875,7 @@ class NativeWindow
 			#if (!macro && lime_cffi)
 			if (menu != null)
 			{
-				var items = [];
+				var items = NativeMenu.newItems(NativeMenu.SOURCE_WINDOW, parent.id, menu);
 				var data = NativeMenu.encode(menu, items);
 				menuItems = NativeCFFI.lime_window_set_menu(handle, data) ? items : null;
 			}
@@ -883,6 +884,8 @@ class NativeWindow
 				NativeCFFI.lime_window_set_menu(handle, null);
 				menuItems = null;
 			}
+
+			NativeMenu.setInstalled(NativeMenu.SOURCE_WINDOW, parent.id, menuItems != null ? menu : null, menuItems);
 			#end
 		}
 	}

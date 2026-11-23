@@ -1,4 +1,5 @@
 #include <media/VideoDecoder.h>
+#include "../../graphics/opengl/OpenGLShareGroups.h"
 
 
 #ifdef LIME_VIDEO_AVFOUNDATION
@@ -208,9 +209,8 @@ namespace lime {
 
 			}
 
-			// AVAssetReader only reads local files, so other URLs fail straight
-			// away rather than after loading over the network
-			return url && [url isFileURL] ? url : nil;
+			// Other URLs are downloaded by Open, since AVAssetReader only reads local files
+			return url;
 
 		}
 
@@ -344,15 +344,14 @@ namespace lime {
 
 	#if defined (LIME_VIDEO_AVF_TEXTURES) && defined (HX_MACOS)
 
-	// GL objects of a backend closed away from the GL thread, deleted the next
-	// time a decoder reads a texture frame where their context is current
+	// Textures a backend gave up, closed away from the GL thread or read in a
+	// context outside their group, deleted the next time a decoder reads a
+	// texture frame where a context of their group is current
 	struct AVFOrphan {
 
 		void* context;
-		GLuint copyFramebuffer;
+		int group;
 		GLuint copyTexture;
-		bool framebufferEXT;
-		GLuint sourceFramebuffer;
 		GLuint sourceTexture;
 
 	};
@@ -459,6 +458,7 @@ namespace lime {
 
 			CMSampleBufferRef CopyNextVideoSample ();
 			void ForgetTextures ();
+			void GiveUpTextures ();
 			void GetSampleTimes (CMSampleBufferRef sample, double* time, double* duration);
 			bool OpenAudio (AVAssetTrack* track);
 			bool OpenVideo (AVAssetTrack* track, int* width, int* height);
@@ -471,6 +471,7 @@ namespace lime {
 
 			AVURLAsset* asset;
 			double assetDuration;
+			NSURL* downloadedURL;
 			int audioChannels;
 			AVAssetReaderTrackOutput* audioOutput;
 			double audioPosition;
@@ -478,20 +479,20 @@ namespace lime {
 			int audioRestarts;
 			int audioSampleRate;
 			AVAssetTrack* audioTrack;
-			unsigned int copyFramebuffer;
 			unsigned int copyTexture;
 			int copyTextureHeight;
 			int copyTextureWidth;
 			bool framebufferEXT;
+			int framebufferSupport;
 			double frameRate;
 			VideoColorTransfer frameTransfer;
 			CMSampleBufferRef lockedSample;
 			CMSampleBufferRef pendingSample;
-			unsigned int sourceFramebuffer;
 			unsigned int sourceTexture;
 			VideoColorTransfer sourceTransfer;
 			AVFTextureCacheRef textureCache;
 			void* textureContext;
+			int textureGroup;
 			std::atomic<bool> textureOutput;
 			AVAssetReaderTrackOutput* videoOutput;
 			double videoPosition;
@@ -508,6 +509,7 @@ namespace lime {
 
 		asset = nil;
 		assetDuration = 0;
+		downloadedURL = nil;
 		audioChannels = 0;
 		audioOutput = nil;
 		audioPosition = 0;
@@ -515,20 +517,20 @@ namespace lime {
 		audioRestarts = 0;
 		audioSampleRate = 0;
 		audioTrack = nil;
-		copyFramebuffer = 0;
 		copyTexture = 0;
 		copyTextureHeight = 0;
 		copyTextureWidth = 0;
 		framebufferEXT = false;
+		framebufferSupport = 0;
 		frameRate = 0;
 		frameTransfer = VIDEO_COLOR_TRANSFER_SDR;
 		lockedSample = NULL;
 		pendingSample = NULL;
-		sourceFramebuffer = 0;
 		sourceTexture = 0;
 		sourceTransfer = VIDEO_COLOR_TRANSFER_SDR;
 		textureCache = NULL;
 		textureContext = NULL;
+		textureGroup = 0;
 		textureOutput = false;
 		videoOutput = nil;
 		videoPosition = 0;
@@ -554,20 +556,9 @@ namespace lime {
 	void AVFVideoBackend::Close () {
 
 		#if defined (LIME_VIDEO_AVF_TEXTURES) && defined (HX_MACOS)
-		// GL objects still held were left by closing away from the GL thread, as
+		// Textures still held were left by closing away from the GL thread, as
 		// closing there releases them first
-		if (copyTexture || sourceTexture || copyFramebuffer || sourceFramebuffer) {
-
-			AVFOrphan orphan = { textureContext, copyFramebuffer, copyTexture, framebufferEXT, sourceFramebuffer, sourceTexture };
-
-			{
-				std::lock_guard<std::mutex> lock (*orphanMutex);
-				orphans->push_back (orphan);
-			}
-
-			ForgetTextures ();
-
-		}
+		GiveUpTextures ();
 		#endif
 
 		@autoreleasepool {
@@ -581,6 +572,14 @@ namespace lime {
 			videoTrack = nil;
 			LIME_RELEASE (asset);
 			asset = nil;
+
+			if (downloadedURL) {
+
+				[[NSFileManager defaultManager] removeItemAtURL:downloadedURL error:NULL];
+				LIME_RELEASE (downloadedURL);
+				downloadedURL = nil;
+
+			}
 
 		}
 
@@ -798,14 +797,34 @@ namespace lime {
 
 		}
 
-		copyFramebuffer = 0;
 		copyTexture = 0;
 		copyTextureHeight = 0;
 		copyTextureWidth = 0;
-		framebufferEXT = false;
-		sourceFramebuffer = 0;
+		framebufferSupport = 0;
 		sourceTexture = 0;
 		textureContext = NULL;
+		textureGroup = 0;
+
+	}
+
+
+	void AVFVideoBackend::GiveUpTextures () {
+
+		#if defined (LIME_VIDEO_AVF_TEXTURES) && defined (HX_MACOS)
+		// Queued with their group, to be deleted where one of its contexts is current
+		if (copyTexture || sourceTexture) {
+
+			AVFOrphan orphan = { textureContext, textureGroup, copyTexture, sourceTexture };
+
+			{
+				std::lock_guard<std::mutex> lock (*orphanMutex);
+				orphans->push_back (orphan);
+			}
+
+		}
+		#endif
+
+		ForgetTextures ();
 
 	}
 
@@ -842,10 +861,23 @@ namespace lime {
 			CGLContextObj context = CGLGetCurrentContext ();
 			if (!context) return 0;
 
-			if ((void*)context != textureContext) ForgetTextures ();
-			textureContext = (void*)context;
+			// The textures are kept for every context of the group they were made
+			// in, as Lime's windows share them, and given up to that group in any
+			// other context. Framebuffers are never shared, so they are made for
+			// each frame.
+			void* glContext = VideoBackend::GetCurrentGLContext ();
+			if (!glContext) glContext = (void*)context;
 
-			if (!sourceFramebuffer) {
+			if ((copyTexture || sourceTexture) && !OpenGLShareGroups::Shares (textureContext, textureGroup, glContext)) GiveUpTextures ();
+
+			if (!copyTexture && !sourceTexture) {
+
+				textureContext = glContext;
+				textureGroup = OpenGLShareGroups::Get (glContext);
+
+			}
+
+			if (!framebufferSupport) {
 
 				const char* version = (const char*)glGetString (GL_VERSION);
 				int major = version ? atoi (version) : 0;
@@ -854,24 +886,28 @@ namespace lime {
 				if (major >= 3 || HasExtension (extensions, "GL_ARB_framebuffer_object")) {
 
 					framebufferEXT = false;
+					framebufferSupport = 1;
 
 				} else if (HasExtension (extensions, "GL_EXT_framebuffer_object") && HasExtension (extensions, "GL_EXT_framebuffer_blit")) {
 
 					framebufferEXT = true;
+					framebufferSupport = 1;
 
 				} else {
 
-					return 0;
+					framebufferSupport = -1;
 
 				}
 
-				copyFramebuffer = GenFramebuffer (framebufferEXT);
-				sourceFramebuffer = GenFramebuffer (framebufferEXT);
-
 			}
+
+			if (framebufferSupport < 0) return 0;
 
 			IOSurfaceRef surface = CVPixelBufferGetIOSurface (textureFrame->buffer);
 			if (!surface) return 0;
+
+			GLuint copyFramebuffer = GenFramebuffer (framebufferEXT);
+			GLuint sourceFramebuffer = GenFramebuffer (framebufferEXT);
 
 			// OpenFL caches GL state, so everything changed here is restored
 			GLint previousDrawFramebuffer = 0;
@@ -912,15 +948,13 @@ namespace lime {
 					glTexImage2D (GL_TEXTURE_2D, 0, GL_RGBA8, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
 					if (previousUnpackBuffer) glBindBuffer (GL_PIXEL_UNPACK_BUFFER, previousUnpackBuffer);
 
-					BindFramebuffer (framebufferEXT, GL_DRAW_FRAMEBUFFER, copyFramebuffer);
-					FramebufferTexture2D (framebufferEXT, GL_DRAW_FRAMEBUFFER, GL_TEXTURE_2D, copyTexture);
-
 					copyTextureWidth = width;
 					copyTextureHeight = height;
 
 				}
 
 				BindFramebuffer (framebufferEXT, GL_DRAW_FRAMEBUFFER, copyFramebuffer);
+				FramebufferTexture2D (framebufferEXT, GL_DRAW_FRAMEBUFFER, GL_TEXTURE_2D, copyTexture);
 				BindFramebuffer (framebufferEXT, GL_READ_FRAMEBUFFER, sourceFramebuffer);
 				FramebufferTexture2D (framebufferEXT, GL_READ_FRAMEBUFFER, GL_TEXTURE_RECTANGLE_ARB, sourceTexture);
 
@@ -944,6 +978,9 @@ namespace lime {
 			BindFramebuffer (framebufferEXT, GL_DRAW_FRAMEBUFFER, previousDrawFramebuffer);
 			glBindTexture (GL_TEXTURE_RECTANGLE_ARB, previousRectangleTexture);
 			glBindTexture (GL_TEXTURE_2D, previousTexture);
+
+			DeleteFramebuffer (framebufferEXT, copyFramebuffer);
+			DeleteFramebuffer (framebufferEXT, sourceFramebuffer);
 
 			if (!name) return 0;
 
@@ -1008,6 +1045,52 @@ namespace lime {
 	#pragma clang diagnostic push
 	#pragma clang diagnostic ignored "-Wdeprecated-declarations"
 
+	// AVAssetReader only reads local files, so a URL is downloaded to a
+	// temporary file first, on the thread that opens it. This returns the file,
+	// retained, or nil.
+	static NSURL* DownloadURL (NSURL* url) {
+
+		NSString* extension = [[url path] pathExtension];
+		if ([extension length] == 0) extension = @"mp4";
+
+		NSString* name = [NSString stringWithFormat:@"lime-video-%@.%@", [[NSUUID UUID] UUIDString], extension];
+		NSURL* destination = [NSURL fileURLWithPath:[NSTemporaryDirectory () stringByAppendingPathComponent:name]];
+
+		NSURLSessionConfiguration* configuration = [NSURLSessionConfiguration ephemeralSessionConfiguration];
+		configuration.timeoutIntervalForRequest = 30;
+		NSURLSession* session = [NSURLSession sessionWithConfiguration:configuration];
+
+		__block NSURL* result = nil;
+		dispatch_semaphore_t done = dispatch_semaphore_create (0);
+
+		// The handler runs on the session's own queue, so waiting here does not hold it up
+		NSURLSessionDownloadTask* task = [session downloadTaskWithURL:url completionHandler:^(NSURL* location, NSURLResponse* response, NSError* error) {
+
+			NSInteger status = [response isKindOfClass:[NSHTTPURLResponse class]] ? [(NSHTTPURLResponse*)response statusCode] : 200;
+
+			if (!error && location && status >= 200 && status < 300 && [[NSFileManager defaultManager] moveItemAtURL:location toURL:destination error:NULL]) {
+
+				result = LIME_RETAIN (destination);
+
+			}
+
+			dispatch_semaphore_signal (done);
+
+		}];
+
+		[task resume];
+		dispatch_semaphore_wait (done, DISPATCH_TIME_FOREVER);
+		[session finishTasksAndInvalidate];
+
+		#if !__has_feature(objc_arc)
+		dispatch_release (done);
+		#endif
+
+		return result;
+
+	}
+
+
 	bool AVFVideoBackend::Open (const char* path, bool hardwareDecoding, VideoStreamInfo* info) {
 
 		Close ();
@@ -1020,6 +1103,14 @@ namespace lime {
 
 			NSURL* url = GetURL (path);
 			if (!url) return false;
+
+			if (![url isFileURL]) {
+
+				downloadedURL = DownloadURL (url);
+				if (!downloadedURL) return false;
+				url = downloadedURL;
+
+			}
 
 			// Precise timing makes the duration and the readers' time ranges exact for formats such as MP3
 			asset = [[AVURLAsset alloc] initWithURL:url options:@{ AVURLAssetPreferPreciseDurationAndTimingKey: @YES }];
@@ -1171,18 +1262,33 @@ namespace lime {
 			list.swap (*orphans);
 		}
 
-		void* context = (void*)CGLGetCurrentContext ();
+		void* context = VideoBackend::GetCurrentGLContext ();
+		if (!context) context = (void*)CGLGetCurrentContext ();
+		std::vector<AVFOrphan> kept;
 
 		for (size_t i = 0; i < list.size (); i++) {
 
-			// Objects from a context that is no longer current are left with it
 			AVFOrphan& orphan = list[i];
-			if (orphan.context != context) continue;
 
-			if (orphan.copyTexture) glDeleteTextures (1, &orphan.copyTexture);
-			if (orphan.sourceTexture) glDeleteTextures (1, &orphan.sourceTexture);
-			if (orphan.copyFramebuffer) DeleteFramebuffer (orphan.framebufferEXT, orphan.copyFramebuffer);
-			if (orphan.sourceFramebuffer) DeleteFramebuffer (orphan.framebufferEXT, orphan.sourceFramebuffer);
+			if (OpenGLShareGroups::Shares (orphan.context, orphan.group, context)) {
+
+				if (orphan.copyTexture) glDeleteTextures (1, &orphan.copyTexture);
+				if (orphan.sourceTexture) glDeleteTextures (1, &orphan.sourceTexture);
+
+			} else if (OpenGLShareGroups::Exists (orphan.group)) {
+
+				kept.push_back (orphan);
+
+			}
+
+			// Otherwise every context of their group is gone, and the textures with it
+
+		}
+
+		if (!kept.empty ()) {
+
+			std::lock_guard<std::mutex> lock (*orphanMutex);
+			orphans->insert (orphans->end (), kept.begin (), kept.end ());
 
 		}
 		#endif
@@ -1194,13 +1300,19 @@ namespace lime {
 
 		#ifdef LIME_VIDEO_AVF_TEXTURES
 		#ifdef HX_MACOS
-		// GL names only mean these objects in the context that made them
-		if (textureContext && (void*)CGLGetCurrentContext () == textureContext) {
+		// GL names only mean these textures in their group, so elsewhere they are
+		// given up to it
+		void* context = VideoBackend::GetCurrentGLContext ();
+		if (!context) context = (void*)CGLGetCurrentContext ();
+
+		if ((copyTexture || sourceTexture) && OpenGLShareGroups::Shares (textureContext, textureGroup, context)) {
 
 			if (copyTexture) glDeleteTextures (1, &copyTexture);
 			if (sourceTexture) glDeleteTextures (1, &sourceTexture);
-			if (copyFramebuffer) DeleteFramebuffer (framebufferEXT, copyFramebuffer);
-			if (sourceFramebuffer) DeleteFramebuffer (framebufferEXT, sourceFramebuffer);
+
+		} else {
+
+			GiveUpTextures ();
 
 		}
 		#endif
