@@ -199,6 +199,35 @@ class ScriptedServer
 		}
 	}
 
+	// Whether the client has closed its end. A write to a client that hung up
+	// raises SIGPIPE on macOS, where Neko's sockets don't set SO_NOSIGPIPE (it
+	// passes no value), and Neko turns the signal into a "Broken pipe"
+	// exception on whichever thread it lands on, often the main thread inside
+	// the application's loop, where nothing catches it. So the server doesn't
+	// write to a client that is gone. The request has been read by now, so
+	// anything readable is the client closing. A select that fails (see
+	// readable) says nothing either way, so the write goes ahead.
+	private static function hungUp(connection:Socket):Bool
+	{
+		try
+		{
+			if (Socket.select([connection], [], [], 0).read.length == 0) return false;
+		}
+		catch (e:Dynamic)
+		{
+			return false;
+		}
+
+		try
+		{
+			return connection.input.readBytes(Bytes.alloc(1), 0, 1) <= 0;
+		}
+		catch (e:Dynamic)
+		{
+			return true;
+		}
+	}
+
 	// Whether a socket has something to read within 50 ms. On HashLink on Windows,
 	// select can fail with "Error while waiting on socket"; that ended the
 	// thread, and the connection it held closed early, so it is waited out
@@ -324,6 +353,12 @@ class ScriptedServer
 			if (stopped) return false;
 			if (position > 0 && response.pause > 0) pause(response.pause);
 
+			if (hungUp(connection))
+			{
+				disconnected();
+				return false;
+			}
+
 			var count = Std.int(Math.min(piece, data.length - position));
 
 			try
@@ -348,6 +383,12 @@ class ScriptedServer
 		if (response.silent)
 		{
 			hold(connection);
+			return;
+		}
+
+		if (hungUp(connection))
+		{
+			disconnected();
 			return;
 		}
 
