@@ -24,8 +24,9 @@ import utest.Test;
 	what SDL reports for them: the key code and SDL_Keymod bits of a key, the
 	position, button and click count of a mouse button, the position and the
 	relative motion of a mouse move, the steps of a wheel, the text typed or
-	being composed, and the path of a dropped file. Key, mouse and touch events
-	carry the time SDL took them in, as `Event.timestamp`.
+	being composed, and the path of a dropped file or the text dropped, between
+	the start and the end of the drop. Key, mouse and touch events carry the
+	time SDL took them in, as `Event.timestamp`.
 
 	The fullscreen shortcut, Alt+Enter on Windows and Linux and Ctrl+Command+F
 	on macOS, is the default action of its key press, so a listener that cancels
@@ -50,6 +51,10 @@ class InputEventTest extends Test
 	private static inline var TOUCH_MOVE = 2;
 	private static inline var TEXT_INPUT = 0;
 	private static inline var TEXT_EDIT = 1;
+	private static inline var DROP_FILE = 0;
+	private static inline var DROP_TEXT = 1;
+	private static inline var DROP_BEGIN = 2;
+	private static inline var DROP_COMPLETE = 3;
 
 	// SDL numbers windows from 1 as they are created
 	private static inline var NO_WINDOW = 0x3FFFFF;
@@ -83,6 +88,9 @@ class InputEventTest extends Test
 			opened.onTextInput.removeAll();
 			opened.onTextEdit.removeAll();
 			opened.onDropFile.removeAll();
+			opened.onDropStart.removeAll();
+			opened.onDropText.removeAll();
+			opened.onDropEnd.removeAll();
 			opened.preciseMouseWheel = false;
 
 			if (opened.menu != null) opened.menu = null;
@@ -826,6 +834,87 @@ class InputEventTest extends Test
 		Assert.equals("other", dropped.join(","));
 	}
 
+	public function testFilesDroppedTogetherComeBetweenTheStartAndTheEnd():Void
+	{
+		var window = open();
+		if (window == null) return;
+
+		var heard = [];
+		listenToDrops(window, "window", heard);
+
+		dropEvent(DROP_BEGIN, null, window.id);
+		dropEvent(DROP_FILE, "one.txt", window.id);
+		dropEvent(DROP_FILE, "two.txt", window.id);
+		dropEvent(DROP_COMPLETE, null, window.id);
+
+		Assert.equals("window start|window file one.txt|window file two.txt|window end", heard.join("|"));
+	}
+
+	public function testDroppedTextIsNotAFile():Void
+	{
+		var window = open();
+		if (window == null) return;
+
+		var text = "Dropped caf\u00E9 \u6F22\non two lines";
+		var heard = [];
+		listenToDrops(window, "window", heard);
+
+		dropEvent(DROP_BEGIN, null, window.id);
+		dropEvent(DROP_TEXT, text, window.id);
+		dropEvent(DROP_COMPLETE, null, window.id);
+
+		Assert.equals("window start|window text " + text + "|window end", heard.join("|"));
+	}
+
+	public function testADropOnNoKnownWindowReachesEveryWindow():Void
+	{
+		var window = open();
+		if (window == null) return;
+
+		var heard = [];
+		listenToDrops(window, "window", heard);
+		listenToDrops(other, "other", heard);
+
+		// As for a file dropped on the application's icon
+		dropEvent(DROP_BEGIN, null, 0);
+		dropEvent(DROP_TEXT, "text", 0);
+		dropEvent(DROP_COMPLETE, null, 0);
+
+		for (name in ["window", "other"])
+		{
+			var own = [for (line in heard) if (StringTools.startsWith(line, name + " ")) line];
+			Assert.equals(name + " start|" + name + " text text|" + name + " end", own.join("|"));
+		}
+	}
+
+	#if (cpp && windows)
+	/**
+		Sends the window the message Explorer sends when two files are dropped
+		on it, which SDL reads into a drop of two files.
+	**/
+	@:timeout(10000)
+	public function testRealFilesDroppedTogetherComeAsAGroup(async:utest.Async):Void
+	{
+		var window = open();
+
+		if (window == null)
+		{
+			async.done();
+			return;
+		}
+
+		var heard = [];
+		listenToDrops(window, "window", heard);
+		WindowsDrop.dropFiles(window.nativeHandle.window, ["C:/Dropped/one.txt", "C:/Dropped/caf\u00E9.txt"]);
+
+		haxe.Timer.delay(function()
+		{
+			Assert.equals("window start|window file C:/Dropped/one.txt|window file C:/Dropped/caf\u00E9.txt|window end", heard.join("|"));
+			async.done();
+		}, 500);
+	}
+	#end
+
 	private function open():Window
 	{
 		if (window == null)
@@ -975,6 +1064,27 @@ class InputEventTest extends Test
 		@:privateAccess backend.handleTextEvent();
 	}
 
+	private static function listenToDrops(window:Window, name:String, heard:Array<String>):Void
+	{
+		window.onDropStart.add(function() heard.push(name + " start"));
+		window.onDropFile.add(function(file:String) heard.push(name + " file " + file));
+		window.onDropText.add(function(text:String) heard.push(name + " text " + text));
+		window.onDropEnd.add(function() heard.push(name + " end"));
+	}
+
+	private static function dropEvent(type:Int, text:String, windowID:Int):Void
+	{
+		var backend = @:privateAccess Application.current.__backend;
+		var info = @:privateAccess backend.dropEventInfo;
+		info.type = cast type;
+		// The start and the end carry no text, which native code passes as empty
+		if (text == null) text = "";
+		info.file = #if hl @:privateAccess text.toUtf8() #else text #end;
+		info.windowID = windowID;
+
+		@:privateAccess backend.handleDropEvent();
+	}
+
 	private static function drop(file:String, window:Window):Void
 	{
 		var backend = @:privateAccess Application.current.__backend;
@@ -987,4 +1097,89 @@ class InputEventTest extends Test
 		@:privateAccess backend.handleDropEvent();
 	}
 	#end
+
+	#if (js && html5)
+	@:timeout(10000)
+	public function testTextAndFilesDroppedOnThePageComeBetweenTheStartAndTheEnd(async:utest.Async):Void
+	{
+		// The tests start before the application has opened its window
+		var timer = new haxe.Timer(10);
+		var started = false;
+		timer.run = function()
+		{
+			var window = Application.current.window;
+			// A run already queued can come after stop()
+			if (started || window == null) return;
+			started = true;
+			timer.stop();
+
+			var heard = [];
+			window.onDropStart.add(function() heard.push("start"));
+			window.onDropFile.add(function(file) heard.push("file"));
+			window.onDropText.add(function(text) heard.push("text " + text));
+			window.onDropEnd.add(function() heard.push("end"));
+
+			var backend = @:privateAccess window.__backend;
+			var element:js.html.Element = backend.canvas != null ? cast backend.canvas : cast backend.div;
+
+			var text = new js.html.DataTransfer();
+			text.setData("text/plain", "Dropped text");
+			var textDropped = element.dispatchEvent(new js.html.DragEvent("drop", {dataTransfer: text, bubbles: true, cancelable: true}));
+
+			var files = new js.html.DataTransfer();
+			files.items.add(new js.html.File(["one"], "one.txt"));
+			files.items.add(new js.html.File(["two"], "two.txt"));
+			element.dispatchEvent(new js.html.DragEvent("drop", {dataTransfer: files, bubbles: true, cancelable: true}));
+
+			// Nothing to take is not a drop
+			element.dispatchEvent(new js.html.DragEvent("drop", {dataTransfer: new js.html.DataTransfer(), bubbles: true, cancelable: true}));
+
+			window.onDropStart.removeAll();
+			window.onDropFile.removeAll();
+			window.onDropText.removeAll();
+			window.onDropEnd.removeAll();
+
+			// The files come as the page's FileList, in one dispatch
+			Assert.equals("start|text Dropped text|end|start|file|end", heard.join("|"));
+			Assert.isFalse(textDropped, "the browser's own handling of the drop was not prevented");
+			async.done();
+		};
+	}
+	#end
 }
+
+#if (cpp && windows && lime_cffi && !macro)
+@:cppFileCode('#include <windows.h>
+#include <shlobj.h>
+#include <string>')
+private class WindowsDrop
+{
+	/**
+		Sends `hwnd` a WM_DROPFILES message for `files`, as Explorer does.
+	**/
+	public static function dropFiles(hwnd:haxe.Int64, files:Array<String>):Void
+	{
+		var low = haxe.Int64.getLow(hwnd);
+		var high = haxe.Int64.getHigh(hwnd);
+
+		// The paths, each ending in a null character, and a null character after the last
+		untyped __cpp__('
+			std::wstring list;
+			for (int i = 0; i < {0}->length; i++) {
+				const char* utf8 = {0}->__get(i).utf8_str();
+				int count = MultiByteToWideChar(CP_UTF8, 0, utf8, -1, NULL, 0);
+				std::wstring file(count, 0);
+				MultiByteToWideChar(CP_UTF8, 0, utf8, -1, &file[0], count);
+				list.append(file.c_str(), count);
+			}
+			list.push_back(0);
+			HGLOBAL memory = GlobalAlloc(GHND, sizeof(DROPFILES) + list.size() * sizeof(wchar_t));
+			DROPFILES* drop = (DROPFILES*)GlobalLock(memory);
+			drop->pFiles = sizeof(DROPFILES);
+			drop->fWide = TRUE;
+			memcpy((char*)drop + sizeof(DROPFILES), list.data(), list.size() * sizeof(wchar_t));
+			GlobalUnlock(memory);
+			::SendMessageW((HWND)(((unsigned long long)(unsigned int){2} << 32) | (unsigned int){1}), WM_DROPFILES, (WPARAM)memory, 0)', files, low, high);
+	}
+}
+#end
