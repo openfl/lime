@@ -136,16 +136,16 @@ namespace lime {
 	}
 
 
-	void lime_web_view_focus (value handle) {
+	void lime_web_view_focus (value handle, int direction) {
 
-		((WebView*)val_data (handle))->Focus ();
+		((WebView*)val_data (handle))->Focus (direction);
 
 	}
 
 
-	HL_PRIM void HL_NAME(hl_web_view_focus) (HL_CFFIPointer* handle) {
+	HL_PRIM void HL_NAME(hl_web_view_focus) (HL_CFFIPointer* handle, int direction) {
 
-		((WebView*)handle->ptr)->Focus ();
+		((WebView*)handle->ptr)->Focus (direction);
 
 	}
 
@@ -476,7 +476,7 @@ namespace lime {
 	DEFINE_PRIME1v (lime_web_view_close);
 	DEFINE_PRIME7 (lime_web_view_create);
 	DEFINE_PRIME3v (lime_web_view_evaluate_java_script);
-	DEFINE_PRIME1v (lime_web_view_focus);
+	DEFINE_PRIME2v (lime_web_view_focus);
 	DEFINE_PRIME1 (lime_web_view_get_can_go_back);
 	DEFINE_PRIME1 (lime_web_view_get_can_go_forward);
 	DEFINE_PRIME1 (lime_web_view_get_id);
@@ -508,7 +508,7 @@ namespace lime {
 	DEFINE_HL_PRIM (_VOID, hl_web_view_close, _TCFFIPOINTER);
 	DEFINE_HL_PRIM (_TCFFIPOINTER, hl_web_view_create, _TCFFIPOINTER _I32 _I32 _I32 _I32 _I32 _STRING);
 	DEFINE_HL_PRIM (_VOID, hl_web_view_evaluate_java_script, _TCFFIPOINTER _STRING _I32);
-	DEFINE_HL_PRIM (_VOID, hl_web_view_focus, _TCFFIPOINTER);
+	DEFINE_HL_PRIM (_VOID, hl_web_view_focus, _TCFFIPOINTER _I32);
 	DEFINE_HL_PRIM (_BOOL, hl_web_view_get_can_go_back, _TCFFIPOINTER);
 	DEFINE_HL_PRIM (_BOOL, hl_web_view_get_can_go_forward, _TCFFIPOINTER);
 	DEFINE_HL_PRIM (_I32, hl_web_view_get_id, _TCFFIPOINTER);

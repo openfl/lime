@@ -4,6 +4,7 @@ import haxe.io.Bytes;
 import haxe.Timer;
 import lime.media.VideoDecoder;
 import lime.media.VideoFrame;
+import lime.media.VideoSource;
 import utest.Assert;
 import utest.Test;
 #if (sys && target.threaded)
@@ -117,6 +118,69 @@ class VideoNetworkTest extends Test
 		server.stop();
 
 		Assert.isTrue(took < 1, "closing took " + took + " s");
+	}
+
+	public function testAStalledStreamIsBufferingUntilPaused():Void
+	{
+		entering("opening the stream for playback");
+		var server = new StallingServer(streamable(readAsset(PATH)));
+
+		if (!VideoSource.isSupported)
+		{
+			Assert.pass();
+			server.stop();
+			return;
+		}
+
+		var video = new VideoSource();
+
+		if (!video.open(server.url))
+		{
+			#if (mac || ios)
+			// Only local files are read here
+			Assert.pass();
+			#else
+			Assert.fail("Cannot open " + server.url);
+			#end
+			video.dispose();
+			server.stop();
+			return;
+		}
+
+		// The size of a URL is not known
+		Assert.equals(0.0, video.bytesTotal);
+		Assert.equals(0.0, video.bytesLoaded);
+
+		// The test video is short enough that reading stops before its first
+		// frame is shown, so the wait is from the start
+		var buffering = [];
+		video.onBuffering.add(function(value) buffering.push((value ? "true at " : "false at ") + video.currentTime));
+		video.gain = 0;
+		video.play();
+
+		entering("playing until the stream stalls");
+		var frame = new VideoFrame();
+		var end = Timer.stamp() + TIMEOUT;
+		var stalled = function() return buffering.length > 0 && StringTools.startsWith(buffering[buffering.length - 1], "true");
+
+		while (!stalled() && Timer.stamp() < end)
+		{
+			video.readFrame(frame);
+			Sys.sleep(0.005);
+		}
+
+		Assert.isTrue(stalled(), "a stream that stalled at " + video.currentTime + " ms of " + video.length + " was not reported as buffering: "
+			+ buffering.join(", "));
+
+		entering("pausing the stalled stream");
+		var reported = buffering.length;
+		video.pause();
+		Assert.isTrue(buffering.length == reported + 1 && StringTools.startsWith(buffering[reported], "false"), "pausing did not end the buffering: "
+			+ buffering.join(", "));
+
+		entering("closing the stalled stream");
+		video.dispose();
+		server.stop();
 	}
 
 	public function testSeekingWhileTheServerIsDownDoesNotWait():Void

@@ -1016,6 +1016,19 @@ class AL
 		#end
 	}
 
+	/**
+		An integer property of a source, without the box `getSourcei` gives it
+		in, for the polling Lime's own sources do. Not for `AL.BUFFER`.
+	**/
+	@:noCompletion public static function __getSourceInt(source:ALSource, param:Int):Int
+	{
+		#if (lime_cffi && lime_openal && !macro)
+		return NativeCFFI.lime_al_get_sourcei_int(source, param);
+		#else
+		return 0;
+		#end
+	}
+
 	public static function getSourceiv(source:ALSource, param:Int, count:Int = 1):Array<Int>
 	{
 		#if (lime_cffi && lime_openal && !macro)

@@ -16,6 +16,7 @@ namespace lime {
 	static int id_type;
 	static int id_x;
 	static int id_y;
+	static int id_timestamp;
 	static bool init = false;
 
 
@@ -29,6 +30,7 @@ namespace lime {
 		dy = 0;
 		pressure = 0;
 		device = 0;
+		timestamp = 0;
 
 	}
 
@@ -49,6 +51,7 @@ namespace lime {
 					id_type = val_id ("type");
 					id_x = val_id ("x");
 					id_y = val_id ("y");
+					id_timestamp = val_id ("timestamp");
 					init = true;
 
 				}
@@ -63,6 +66,7 @@ namespace lime {
 				alloc_field (object, id_type, alloc_int (event->type));
 				alloc_field (object, id_x, alloc_float (event->x));
 				alloc_field (object, id_y, alloc_float (event->y));
+				alloc_field (object, id_timestamp, alloc_int (event->timestamp));
 
 			} else {
 
@@ -76,6 +80,7 @@ namespace lime {
 				eventObject->type = event->type;
 				eventObject->x = event->x;
 				eventObject->y = event->y;
+				eventObject->timestamp = event->timestamp;
 
 			}
 
