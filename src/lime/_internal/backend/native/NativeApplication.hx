@@ -23,6 +23,8 @@ import lime.system.Orientation;
 import lime.system.Sensor;
 import lime.system.SensorType;
 import lime.system.System;
+import lime.ui.DragData;
+import lime.ui.DropAction;
 import lime.ui.Gamepad;
 import lime.ui.Joystick;
 import lime.ui.JoystickHatPosition;
@@ -60,6 +62,7 @@ import lime.ui.Window;
 @:access(lime.system.Clipboard)
 @:access(lime.system.Sensor)
 @:access(lime.system.System)
+@:access(lime.ui.DragData)
 @:access(lime.ui.Gamepad)
 @:access(lime.ui.Joystick)
 @:access(lime.ui.MenuItem)
@@ -69,6 +72,7 @@ class NativeApplication
 	private var applicationEventInfo = new ApplicationEventInfo(UPDATE);
 	private var clipboardEventInfo = new ClipboardEventInfo();
 	private var currentTouches = new Map<Int, Touch>();
+	private var dragEventInfo = new DragEventInfo();
 	private var dropEventInfo = new DropEventInfo();
 	private var gamepadEventInfo = new GamepadEventInfo();
 	private var joystickEventInfo = new JoystickEventInfo();
@@ -173,6 +177,7 @@ class NativeApplication
 		#if lime_cffi
 		NativeCFFI.lime_application_event_manager_register(handleApplicationEvent, applicationEventInfo);
 		NativeCFFI.lime_clipboard_event_manager_register(handleClipboardEvent, clipboardEventInfo);
+		NativeCFFI.lime_drag_event_manager_register(handleDragEvent, dragEventInfo);
 		NativeCFFI.lime_drop_event_manager_register(handleDropEvent, dropEventInfo);
 		NativeCFFI.lime_gamepad_event_manager_register(handleGamepadEvent, gamepadEventInfo);
 		NativeCFFI.lime_joystick_event_manager_register(handleJoystickEvent, joystickEventInfo);
@@ -421,6 +426,84 @@ class NativeApplication
 			case AUTO: 3;
 			default: 0;
 		};
+	}
+
+	// Dispatched while the system waits for the action a drop would take, which is read back from dragEventInfo
+	private function handleDragEvent():Void
+	{
+		var info = dragEventInfo;
+
+		if (info.type == DRAG_COMPLETE)
+		{
+			// A drag out ended, with the ID it started with
+			var promise = NativeWindow.dragPromises.get(info.windowID);
+
+			if (promise != null)
+			{
+				NativeWindow.dragPromises.remove(info.windowID);
+				promise.complete(info.action);
+			}
+
+			return;
+		}
+
+		var window = parent.__windowByID.get(info.windowID);
+		var allowedActions:DropAction = info.allowedActions;
+		info.action = DropAction.NONE;
+		if (window == null) return;
+
+		switch (info.type)
+		{
+			case DRAG_ENTER:
+				window.dropAction = DropAction.NONE;
+
+				var data = DragData.__fromSystem(allowedActions);
+				window.onDragEnter.dispatch(data, info.x, info.y);
+				data.__active = false;
+
+			case DRAG_OVER:
+				window.onDragOver.dispatch(info.x, info.y);
+
+			case DRAG_LEAVE:
+				window.onDragLeave.dispatch();
+				return;
+
+			case DRAG_DROP:
+				var data = DragData.__fromSystem(allowedActions);
+				window.onDrop.dispatch(data, info.x, info.y);
+
+				if ((window.dropAction : Int) & (allowedActions : Int) != 0)
+				{
+					// The window takes drops in place of SDL, so its file and text drops are dispatched from here
+					var files:Array<String> = data.getData(FILE_LIST);
+					var text:String = files == null || files.length == 0 ? data.getData(TEXT) : null;
+
+					if ((files != null && files.length > 0) || text != null)
+					{
+						window.onDropStart.dispatch();
+
+						if (files != null && files.length > 0)
+						{
+							for (file in files)
+							{
+								window.onDropFile.dispatch(file);
+							}
+						}
+						else
+						{
+							window.onDropText.dispatch(text);
+						}
+
+						window.onDropEnd.dispatch();
+					}
+				}
+
+				data.__active = false;
+
+			default:
+		}
+
+		info.action = (window.dropAction : Int) & (allowedActions : Int);
 	}
 
 	private function handleDropEvent():Void
@@ -1057,6 +1140,41 @@ class NativeApplication
 #if (haxe_ver >= 4.0) private enum #else @:enum private #end abstract ClipboardEventType(Int)
 {
 	var UPDATE = 0;
+}
+
+@:keep /*private*/ class DragEventInfo
+{
+	// In the order of lime::DragEvent, for HashLink
+	public var action:Int;
+	public var allowedActions:Int;
+	public var type:DragEventType;
+	public var windowID:Int;
+	public var x:Float;
+	public var y:Float;
+
+	public function new(type:DragEventType = null, windowID:Int = 0, x:Float = 0, y:Float = 0, allowedActions:Int = 0, action:Int = 0)
+	{
+		this.type = type;
+		this.windowID = windowID;
+		this.x = x;
+		this.y = y;
+		this.allowedActions = allowedActions;
+		this.action = action;
+	}
+
+	public function clone():DragEventInfo
+	{
+		return new DragEventInfo(type, windowID, x, y, allowedActions, action);
+	}
+}
+
+#if (haxe_ver >= 4.0) private enum #else @:enum private #end abstract DragEventType(Int)
+{
+	var DRAG_ENTER = 1;
+	var DRAG_OVER = 2;
+	var DRAG_LEAVE = 3;
+	var DRAG_DROP = 4;
+	var DRAG_COMPLETE = 5;
 }
 
 @:keep /*private*/ class DropEventInfo

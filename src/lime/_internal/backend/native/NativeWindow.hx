@@ -4,6 +4,8 @@ import haxe.Int64;
 import haxe.io.Bytes;
 import lime._internal.backend.native.NativeCFFI;
 import lime.app.Application;
+import lime.app.Future;
+import lime.app.Promise;
 import lime.app.VSyncMode;
 import lime.graphics.cairo.Cairo;
 import lime.graphics.cairo.CairoFormat;
@@ -19,10 +21,13 @@ import lime.graphics.VulkanRenderContext;
 import lime.math.Rectangle;
 import lime.math.Vector2;
 import lime.system.CFFI;
+import lime.system.Clipboard;
 import lime.system.Display;
 import lime.system.DisplayMode;
 import lime.system.JNI;
 import lime.system.System;
+import lime.ui.DragData;
+import lime.ui.DropAction;
 import lime.ui.KeyCode;
 import lime.ui.KeyModifier;
 import lime.ui.Menu;
@@ -45,6 +50,7 @@ import lime.utils.UInt8Array;
 @:access(lime.graphics.OpenGLRenderContext)
 @:access(lime.graphics.RenderContext)
 @:access(lime.system.DisplayMode)
+@:access(lime.ui.DragData)
 @:access(lime.ui.MenuItem)
 @:access(lime.ui.Window)
 class NativeWindow
@@ -54,11 +60,16 @@ class NativeWindow
 	**/
 	public static var rendering:Window;
 
+	// Drags out that end after doDragDrop returns, as on macOS and X11, by ID
+	private static var dragPromises:Map<Int, Promise<DropAction>> = new Map();
+	private static var nextDragID:Int = 1;
+
 	public var handle:Dynamic;
 
 	private var closing:Bool;
 	private var cursor:MouseCursor;
 	private var displayMode:DisplayMode;
+	private var dropTarget:Bool = false;
 	private var frameRate:Float;
 	private var menuItems:Array<MenuItem>;
 	private var mouseLock:Bool;
@@ -264,6 +275,8 @@ class NativeWindow
 				if (handle != null)
 				{
 					#if (!macro && lime_cffi)
+					// The system keeps a drop target registered until it is given back
+					if (dropTarget) setDropTarget(false);
 					NativeCFFI.lime_window_close(handle);
 					#end
 
@@ -390,6 +403,11 @@ class NativeWindow
 		}
 		#end
 		return false;
+	}
+
+	public function getDropTarget():Bool
+	{
+		return dropTarget;
 	}
 
 	public function getKeyboardGrab():Bool
@@ -770,6 +788,53 @@ class NativeWindow
 			#end
 		}
 		return displayMode;
+	}
+
+	public function doDragDrop(data:DragData, image:Image, offsetX:Int, offsetY:Int, actions:DropAction):Future<DropAction>
+	{
+		#if (!macro && lime_cffi)
+		if (handle != null)
+		{
+			var imageBytes:Bytes = null;
+
+			if (image != null)
+			{
+				var pixels = image.getPixels(image.rect, RGBA32);
+				imageBytes = Bytes.alloc(8 + pixels.length);
+				imageBytes.setInt32(0, image.width);
+				imageBytes.setInt32(4, image.height);
+				imageBytes.blit(8, pixels, 0, pixels.length);
+			}
+
+			var id = nextDragID++;
+			var promise = new Promise<DropAction>();
+			dragPromises.set(id, promise);
+
+			var result = NativeCFFI.lime_window_start_drag(handle, @:privateAccess Clipboard.__encodeItems(data.__items), imageBytes, offsetX, offsetY,
+				actions, id);
+
+			// -1 when the drag ends later, with a complete event carrying id
+			if (result >= 0)
+			{
+				dragPromises.remove(id);
+				promise.complete(result);
+			}
+
+			return promise.future;
+		}
+		#end
+		return Future.withValue(DropAction.NONE);
+	}
+
+	public function setDropTarget(value:Bool):Bool
+	{
+		#if (!macro && lime_cffi)
+		if (handle != null && value != dropTarget && NativeCFFI.lime_window_set_drag_target(handle, value))
+		{
+			dropTarget = value;
+		}
+		#end
+		return dropTarget;
 	}
 
 	public function setKeyboardGrab(value:Bool):Bool

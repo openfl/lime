@@ -3,6 +3,7 @@
 #include <system/Clipboard.h>
 #include <system/System.h>
 #include <ui/DockIcon.h>
+#include <ui/DragDrop.h>
 
 
 namespace lime {
@@ -23,6 +24,15 @@ namespace lime {
 
 
 	bool System::GetStorageVolumes (std::string* volumes) { return false; }
+
+
+	bool DragDrop::IsSupported () { return false; }
+	bool DragDrop::SetTarget (Window* window, bool enabled) { return false; }
+	int DragDrop::StartDrag (Window* window, const unsigned char* items, int itemsLength, const unsigned char* image, int imageLength, int offsetX, int offsetY, int actions, int id) { return 0; }
+	bool DragDrop::GetFiles (std::vector<std::string>* files) { return false; }
+	bool DragDrop::GetFormatText (int format, std::string* text) { return false; }
+	bool DragDrop::GetImage (std::vector<unsigned char>* pixels, int* width, int* height) { return false; }
+	bool DragDrop::HasFormat (int format) { return false; }
 
 
 	TrayIcon* CreateTrayIcon () {

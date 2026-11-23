@@ -18,6 +18,8 @@ import js.html.ClipboardEvent;
 import js.Browser;
 import lime._internal.graphics.ImageCanvasUtil;
 import lime.app.Application;
+import lime.app.Future;
+import lime.app.Promise;
 import lime.graphics.opengl.GL;
 import lime.graphics.Image;
 import lime.graphics.OpenGLRenderContext;
@@ -28,6 +30,9 @@ import lime.system.Display;
 import lime.system.DisplayMode;
 import lime.system.System;
 import lime.system.Clipboard;
+import lime.system.ClipboardFormat;
+import lime.ui.DragData;
+import lime.ui.DropAction;
 import lime.ui.Gamepad;
 import lime.ui.Joystick;
 import lime.ui.KeyCode;
@@ -67,6 +72,9 @@ class HTML5Window
 	private var cacheMouseX:Float;
 	private var cacheMouseY:Float;
 	private var cursor:MouseCursor;
+	private var dragDepth:Int = 0;
+	private var dragOut:{data:DragData, image:Image, offsetX:Int, offsetY:Int, actions:DropAction, promise:Promise<DropAction>, started:Bool};
+	private var dropTarget:Bool = false;
 	private var currentTouches = new Map<Int, Touch>();
 	private var isFullscreen:Bool;
 	private var menus:HTML5Menu;
@@ -244,6 +252,9 @@ class HTML5Window
 			element.addEventListener("contextmenu", handleContextMenuEvent, true);
 
 			element.addEventListener("dragstart", handleDragEvent, true);
+			element.addEventListener("dragend", handleDragEvent, true);
+			element.addEventListener("dragenter", handleDragEvent, true);
+			element.addEventListener("dragleave", handleDragEvent, true);
 			element.addEventListener("dragover", handleDragEvent, true);
 			element.addEventListener("drop", handleDragEvent, true);
 
@@ -313,6 +324,9 @@ class HTML5Window
 			element.removeEventListener("contextmenu", handleContextMenuEvent, true);
 
 			element.removeEventListener("dragstart", handleDragEvent, true);
+			element.removeEventListener("dragend", handleDragEvent, true);
+			element.removeEventListener("dragenter", handleDragEvent, true);
+			element.removeEventListener("dragleave", handleDragEvent, true);
 			element.removeEventListener("dragover", handleDragEvent, true);
 			element.removeEventListener("drop", handleDragEvent, true);
 
@@ -473,6 +487,11 @@ class HTML5Window
 		return false;
 	}
 
+	public function getDropTarget():Bool
+	{
+		return dropTarget;
+	}
+
 	public function getKeyboardGrab():Bool
 	{
 		return false;
@@ -558,11 +577,79 @@ class HTML5Window
 		switch (event.type)
 		{
 			case "dragstart":
+				if (dragOut != null && !dragOut.started && event.dataTransfer != null)
+				{
+					startDragOut(event);
+					return true;
+				}
+
 				if (cast(event.target, Element).nodeName.toLowerCase() == "img" && event.cancelable)
 				{
 					event.preventDefault();
 					return false;
 				}
+
+			case "dragend":
+				if (dragOut != null && dragOut.started)
+				{
+					var action = getDropAction(event.dataTransfer != null ? event.dataTransfer.dropEffect : "none");
+					finishDragOut(action);
+
+					// The browser takes the button's release for the drag
+					var position = getWindowPosition(event.clientX, event.clientY);
+					Browser.window.removeEventListener("mouseup", handleMouseEvent);
+					Browser.window.removeEventListener("mousemove", handleMouseEvent);
+					parent.onMouseUp.dispatch(position[0], position[1], 0);
+				}
+
+			case "dragenter" if (dropTarget):
+				dragDepth++;
+
+				// Entering the element's children is entering it again
+				if (dragDepth == 1)
+				{
+					parent.dropAction = NONE;
+
+					var position = getWindowPosition(event.clientX, event.clientY);
+					var data = @:privateAccess DragData.__fromTransfer(event.dataTransfer, getAllowedActions(event.dataTransfer));
+					parent.onDragEnter.dispatch(data, position[0], position[1]);
+					@:privateAccess data.__active = false;
+				}
+
+				return acceptDrag(event);
+
+			case "dragleave" if (dropTarget):
+				dragDepth--;
+
+				if (dragDepth <= 0)
+				{
+					dragDepth = 0;
+					parent.onDragLeave.dispatch();
+				}
+
+			case "dragover" if (dropTarget):
+				var position = getWindowPosition(event.clientX, event.clientY);
+				parent.onDragOver.dispatch(position[0], position[1]);
+				return acceptDrag(event);
+
+			case "drop" if (dropTarget):
+				dragDepth = 0;
+				if (event.dataTransfer == null) return true;
+
+				var allowedActions = getAllowedActions(event.dataTransfer);
+				var position = getWindowPosition(event.clientX, event.clientY);
+				var data = @:privateAccess DragData.__fromTransfer(event.dataTransfer, allowedActions);
+				parent.onDrop.dispatch(data, position[0], position[1]);
+				@:privateAccess data.__active = false;
+
+				event.preventDefault();
+
+				if ((parent.dropAction : Int) & (allowedActions : Int) != 0)
+				{
+					dispatchDrop(event);
+				}
+
+				return false;
 
 			case "dragover":
 				event.preventDefault();
@@ -587,6 +674,154 @@ class HTML5Window
 		}
 
 		return true;
+	}
+
+	// Lets the drop go ahead, with the window's action, when one of the source's
+	private function acceptDrag(event:DragEvent):Bool
+	{
+		var action:Int = (parent.dropAction : Int) & (getAllowedActions(event.dataTransfer) : Int);
+
+		if (event.dataTransfer != null)
+		{
+			event.dataTransfer.dropEffect = action & DropAction.COPY != 0 ? "copy" : action & DropAction.MOVE != 0 ? "move" : action & DropAction.LINK != 0 ? "link" : "none";
+		}
+
+		if (action != 0)
+		{
+			event.preventDefault();
+			return false;
+		}
+
+		return true;
+	}
+
+	private function dispatchDrop(event:DragEvent):Void
+	{
+		var hasFiles = event.dataTransfer.files.length > 0;
+		var text = hasFiles ? "" : event.dataTransfer.getData("text/plain");
+
+		if (hasFiles || (text != null && text != ""))
+		{
+			parent.onDropStart.dispatch();
+			if (hasFiles) parent.onDropFile.dispatch(cast event.dataTransfer.files);
+			else parent.onDropText.dispatch(text);
+			parent.onDropEnd.dispatch();
+		}
+	}
+
+	private function finishDragOut(action:DropAction):Void
+	{
+		if (dragOut == null) return;
+
+		var promise = dragOut.promise;
+		dragOut = null;
+		if (parent.element != null) parent.element.draggable = false;
+		promise.complete(action);
+	}
+
+	private static function getAllowedActions(transfer:js.html.DataTransfer):DropAction
+	{
+		if (transfer == null) return COPY | MOVE | LINK;
+
+		return switch (transfer.effectAllowed)
+		{
+			case "none": NONE;
+			case "copy": COPY;
+			case "move": MOVE;
+			case "link": LINK;
+			case "copyMove": COPY | MOVE;
+			case "copyLink": COPY | LINK;
+			case "linkMove": MOVE | LINK;
+			default: COPY | MOVE | LINK;
+		}
+	}
+
+	private static function getDropAction(effect:String):DropAction
+	{
+		return switch (effect)
+		{
+			case "copy": COPY;
+			case "move": MOVE;
+			case "link": LINK;
+			default: NONE;
+		}
+	}
+
+	private function getWindowPosition(clientX:Float, clientY:Float):Array<Float>
+	{
+		if (parent.element == null) return [clientX, clientY];
+
+		var target:Element = canvas != null ? canvas : (div != null ? div : parent.element);
+		var rect = target.getBoundingClientRect();
+
+		if (div != null && canvas == null)
+		{
+			return [clientX - rect.left, clientY - rect.top];
+		}
+
+		return [
+			(clientX - rect.left) * (parent.__width / rect.width),
+			(clientY - rect.top) * (parent.__height / rect.height)
+		];
+	}
+
+	// The drag doDragDrop asked for, now that the browser starts it
+	private function startDragOut(event:DragEvent):Void
+	{
+		dragOut.started = true;
+
+		var transfer = event.dataTransfer;
+		var data = dragOut.data;
+		var actions:Int = dragOut.actions;
+
+		transfer.effectAllowed = switch (actions & 7)
+		{
+			case 1: "copy";
+			case 2: "move";
+			case 4: "link";
+			case 3: "copyMove";
+			case 5: "copyLink";
+			case 6: "linkMove";
+			case 7: "all";
+			default: "none";
+		}
+
+		// Pages can only give text to other applications
+		var text:Dynamic = data.getData(ClipboardFormat.TEXT);
+		var html:Dynamic = data.getData(ClipboardFormat.HTML);
+		var url:Dynamic = data.getData(ClipboardFormat.URL);
+
+		if (url != null)
+		{
+			transfer.setData("text/uri-list", Std.string(url));
+			if (text == null) text = url;
+		}
+		if (html != null) transfer.setData("text/html", Std.string(html));
+		if (text != null) transfer.setData("text/plain", Std.string(text));
+
+		if (dragOut.image != null)
+		{
+			var image = dragOut.image;
+			ImageCanvasUtil.convertToCanvas(image);
+			var dragCanvas:CanvasElement = cast image.buffer.src;
+
+			// The image must be in the document while the drag starts
+			var style = dragCanvas.style;
+			var position = style.position, left = style.left, top = style.top;
+			style.position = "absolute";
+			style.left = "-10000px";
+			style.top = "0px";
+			Browser.document.body.appendChild(dragCanvas);
+			transfer.setDragImage(dragCanvas, dragOut.offsetX, dragOut.offsetY);
+
+			Timer.delay(function()
+			{
+				if (dragCanvas.parentNode == Browser.document.body) Browser.document.body.removeChild(dragCanvas);
+				style.position = position;
+				style.left = left;
+				style.top = top;
+			}, 0);
+		}
 	}
 
 	private function handleFocusEvent(event:FocusEvent):Void
@@ -800,6 +1035,9 @@ class HTML5Window
 
 					Browser.window.removeEventListener("mouseup", handleMouseEvent);
 					Browser.window.removeEventListener("mousemove", handleMouseEvent);
+
+					// A drag asked for that the browser did not start
+					if (dragOut != null && !dragOut.started) finishDragOut(NONE);
 
 					__stopMousePropagation = event.currentTarget == parent.element;
 
@@ -1353,6 +1591,13 @@ class HTML5Window
 		return false;
 	}
 
+	public function setDropTarget(value:Bool):Bool
+	{
+		dropTarget = value;
+		dragDepth = 0;
+		return dropTarget;
+	}
+
 	public function setKeyboardGrab(value:Bool):Bool
 	{
 		return false;
@@ -1635,6 +1880,18 @@ class HTML5Window
 				}
 			}
 		}
+	}
+
+	// The browser starts a drag as the mouse moves with the button down on a draggable element
+	public function doDragDrop(data:DragData, image:Image, offsetX:Int, offsetY:Int, actions:DropAction):Future<DropAction>
+	{
+		if (parent.element == null) return Future.withValue(DropAction.NONE);
+		if (dragOut != null) finishDragOut(NONE);
+
+		var promise = new Promise<DropAction>();
+		dragOut = {data: data, image: image, offsetX: offsetX, offsetY: offsetY, actions: actions, promise: promise, started: false};
+		parent.element.draggable = true;
+		return promise.future;
 	}
 
 	public function warpMouse(x:Int, y:Int):Void {}
