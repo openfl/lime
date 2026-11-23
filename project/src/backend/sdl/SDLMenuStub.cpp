@@ -7,6 +7,8 @@
 namespace lime {
 
 
+	bool SDLMenu::DragWindow (SDL_Window* window, int edges) { return false; }
+	bool SDLMenu::OrderWindow (SDL_Window* window, SDL_Window* other, int mode) { return false; }
 	bool Clipboard::GetFiles (std::vector<std::string>* files) { return false; }
 	bool Clipboard::GetFormatText (int format, std::string* text) { return false; }
 	bool Clipboard::GetImage (std::vector<unsigned char>* pixels, int* width, int* height) { return false; }

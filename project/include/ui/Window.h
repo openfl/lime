@@ -36,6 +36,11 @@ namespace lime {
 			virtual void ContextMakeCurrent () = 0;
 			virtual void ContextUnlock () = 0;
 			virtual void Focus () = 0;
+			// Stacking and dragging, where the platform's own window can do them. StartMoveResize moves the window
+			// for edges 0, or resizes it by the edges (1 top, 2 bottom, 4 left, 8 right) while the button is held.
+			virtual bool OrderRelative (Window* other, bool above) = 0;
+			virtual bool OrderToBack () = 0;
+			virtual bool StartMoveResize (int edges) = 0;
 			virtual void* GetContext () = 0;
 			virtual const char* GetContextType () = 0;
 			// virtual Cursor GetCursor () = 0;

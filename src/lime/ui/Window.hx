@@ -2677,6 +2677,72 @@ class Window
 		__backend.focus();
 	}
 
+	/**
+		Puts this window just above `window`, without activating it. Returns
+		whether the system moved it.
+
+		Supported on Windows, macOS and X11. On X11 the window manager decides,
+		and may not do it. On macOS a window that is hidden or minimised is not
+		ordered, nor ordered against one that is, as the system would show it.
+	**/
+	public function orderAbove(window:Window):Bool
+	{
+		return window != null && window != this && __backend.orderRelative(window, true);
+	}
+
+	/**
+		Puts this window just below `window`, without activating it. Returns
+		whether the system moved it.
+
+		Supported on Windows, macOS and X11, as `orderAbove` describes.
+	**/
+	public function orderBelow(window:Window):Bool
+	{
+		return window != null && window != this && __backend.orderRelative(window, false);
+	}
+
+	/**
+		Puts this window behind the application's other windows and those of
+		other applications. Returns whether the system moved it.
+
+		Supported on Windows, macOS and X11. On macOS a window that is hidden or
+		minimised is not ordered, as `orderAbove` describes.
+	**/
+	public function orderToBack():Bool
+	{
+		return __backend.orderToBack();
+	}
+
+	/**
+		Moves the window with the pointer until the left button is released, as
+		dragging its title bar does, for a window without one or a custom title
+		bar. Call it from `onMouseDown`, while the button is down; it returns
+		`false` when the button is already up.
+
+		On Windows and macOS this returns once the button is released, and the
+		release is still dispatched. On X11 the window manager moves the window
+		after this returns.
+
+		Supported on Windows, macOS and X11.
+	**/
+	public function startMove():Bool
+	{
+		return __backend.startMoveResize(0);
+	}
+
+	/**
+		Resizes the window from `edge` with the pointer until the left button
+		is released, as dragging that edge or corner does. Call it from
+		`onMouseDown`, as `startMove` describes. macOS keeps the window within
+		its minimum and maximum size.
+
+		Supported on Windows, macOS and X11.
+	**/
+	public function startResize(edge:WindowEdge):Bool
+	{
+		return edge != 0 && __backend.startMoveResize(edge);
+	}
+
 	public function move(x:Int, y:Int):Void
 	{
 		__backend.move(x, y);

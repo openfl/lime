@@ -300,6 +300,31 @@ class NativeWindow
 		#end
 	}
 
+	public function orderRelative(other:Window, above:Bool):Bool
+	{
+		#if (!macro && lime_cffi)
+		var otherHandle:Dynamic = other != null ? other.__backend.handle : null;
+		if (handle != null && otherHandle != null) return NativeCFFI.lime_window_order_relative(handle, otherHandle, above);
+		#end
+		return false;
+	}
+
+	public function orderToBack():Bool
+	{
+		#if (!macro && lime_cffi)
+		if (handle != null) return NativeCFFI.lime_window_order_to_back(handle);
+		#end
+		return false;
+	}
+
+	public function startMoveResize(edges:Int):Bool
+	{
+		#if (!macro && lime_cffi)
+		if (handle != null) return NativeCFFI.lime_window_start_move_resize(handle, edges);
+		#end
+		return false;
+	}
+
 	public function focus():Void
 	{
 		if (handle != null)

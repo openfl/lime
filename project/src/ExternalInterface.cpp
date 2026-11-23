@@ -5500,6 +5500,48 @@ namespace lime {
 	}
 
 
+	bool lime_window_order_relative (value window, value other, bool above) {
+
+		return !val_is_null (other) && ((Window*)val_data (window))->OrderRelative ((Window*)val_data (other), above);
+
+	}
+
+
+	HL_PRIM bool HL_NAME(hl_window_order_relative) (HL_CFFIPointer* window, HL_CFFIPointer* other, bool above) {
+
+		return other && ((Window*)window->ptr)->OrderRelative ((Window*)other->ptr, above);
+
+	}
+
+
+	bool lime_window_order_to_back (value window) {
+
+		return ((Window*)val_data (window))->OrderToBack ();
+
+	}
+
+
+	HL_PRIM bool HL_NAME(hl_window_order_to_back) (HL_CFFIPointer* window) {
+
+		return ((Window*)window->ptr)->OrderToBack ();
+
+	}
+
+
+	bool lime_window_start_move_resize (value window, int edges) {
+
+		return ((Window*)val_data (window))->StartMoveResize (edges);
+
+	}
+
+
+	HL_PRIM bool HL_NAME(hl_window_start_move_resize) (HL_CFFIPointer* window, int edges) {
+
+		return ((Window*)window->ptr)->StartMoveResize (edges);
+
+	}
+
+
 	double lime_window_get_context (value window) {
 
 		Window* targetWindow = (Window*)val_data (window);
@@ -14679,6 +14721,9 @@ namespace lime {
 	DEFINE_PRIME0 (lime_window_get_creation_error);
 	DEFINE_PRIME2v (lime_window_event_manager_register);
 	DEFINE_PRIME1v (lime_window_focus);
+	DEFINE_PRIME3 (lime_window_order_relative);
+	DEFINE_PRIME1 (lime_window_order_to_back);
+	DEFINE_PRIME2 (lime_window_start_move_resize);
 	DEFINE_PRIME1 (lime_window_get_context);
 	DEFINE_PRIME1 (lime_window_get_context_type);
 	DEFINE_PRIME3 (lime_window_create_vulkan_surface);
@@ -15052,6 +15097,9 @@ namespace lime {
 	DEFINE_HL_PRIM (_TCFFIPOINTER, hl_window_create, _TCFFIPOINTER _I32 _I32 _I32 _STRING);
 	DEFINE_HL_PRIM (_VOID, hl_window_event_manager_register, _FUN (_VOID, _NO_ARG) _TWINDOW_EVENT);
 	DEFINE_HL_PRIM (_VOID, hl_window_focus, _TCFFIPOINTER);
+	DEFINE_HL_PRIM (_BOOL, hl_window_order_relative, _TCFFIPOINTER _TCFFIPOINTER _BOOL);
+	DEFINE_HL_PRIM (_BOOL, hl_window_order_to_back, _TCFFIPOINTER);
+	DEFINE_HL_PRIM (_BOOL, hl_window_start_move_resize, _TCFFIPOINTER _I32);
 	DEFINE_HL_PRIM (_F64, hl_window_get_context, _TCFFIPOINTER);
 	DEFINE_HL_PRIM (_BYTES, hl_window_get_context_type, _TCFFIPOINTER);
 	DEFINE_HL_PRIM (_BYTES, hl_window_get_creation_error, _NO_ARG);
