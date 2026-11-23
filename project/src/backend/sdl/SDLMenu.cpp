@@ -524,6 +524,32 @@ namespace lime {
 	}
 
 
+	// System's, as native-desktop is only in desktop builds
+	bool System::GetStorageVolumes (std::string* volumes) {
+
+		#ifdef NATIVE_DESKTOP_STORAGE_VOLUMES
+		std::vector<native_desktop::StorageVolume> list;
+		if (!volumes || !native_desktop::StorageVolumes::GetVolumes (&list)) return false;
+
+		volumes->clear ();
+
+		for (size_t i = 0; i < list.size (); i++) {
+
+			const native_desktop::StorageVolume& volume = list[i];
+			*volumes += volume.rootDirectory + "\x1F" + volume.name + "\x1F" + volume.fileSystemType + "\x1F" + volume.drive + "\x1F";
+			*volumes += volume.isRemovable ? "1\x1F" : "0\x1F";
+			*volumes += volume.isWritable ? "1\x1E" : "0\x1E";
+
+		}
+
+		return true;
+		#else
+		return false;
+		#endif
+
+	}
+
+
 	void DockIcon::Bounce (bool critical) {
 
 		native_desktop::DockIcon::Bounce (critical);

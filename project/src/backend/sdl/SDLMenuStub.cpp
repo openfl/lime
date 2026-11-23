@@ -22,6 +22,9 @@ namespace lime {
 	bool System::MoveToTrash (const char* path) { return false; }
 
 
+	bool System::GetStorageVolumes (std::string* volumes) { return false; }
+
+
 	TrayIcon* CreateTrayIcon () {
 
 		return new SDLTrayIcon ();
