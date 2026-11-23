@@ -109,6 +109,8 @@ jobs:
           LIME_TEST_CLIPBOARD: "1"
           # The trash tests move files to the user's trash, so they only run here
           LIME_TEST_TRASH: "1"
+          # NetworkInterfaceTest changes the network with sudo to see onChange, so it only runs here
+          LIME_TEST_NETWORK: "1"
         run: |
           python -m unittest discover -s fixtures
           # The test app exits when its first window cannot be made, so it needs a display
@@ -288,6 +290,8 @@ jobs:
           LIME_TEST_CLIPBOARD: "1"
           # The trash tests move files to the user's trash, so they only run here
           LIME_TEST_TRASH: "1"
+          # NetworkInterfaceTest changes the network with sudo to see onChange, so it only runs here
+          LIME_TEST_NETWORK: "1"
         run: |
           python -m unittest discover -s fixtures
           # The test app exits when its first window cannot be made, so it needs a display
@@ -494,6 +498,8 @@ jobs:
           LIME_TEST_CLIPBOARD: "1"
           # The trash tests move files to the user's trash, so they only run here
           LIME_TEST_TRASH: "1"
+          # NetworkInterfaceTest changes the network with sudo to see onChange, so it only runs here
+          LIME_TEST_NETWORK: "1"
         run: |
           python -m unittest discover -s fixtures
           lime test neko -release -verbose -nocolor
@@ -647,6 +653,8 @@ jobs:
           LIME_TEST_CLIPBOARD: "1"
           # The trash tests move files to the user's trash, so they only run here
           LIME_TEST_TRASH: "1"
+          # NetworkInterfaceTest changes the network with sudo to see onChange, so it only runs here
+          LIME_TEST_NETWORK: "1"
         run: |
           python -m unittest discover -s fixtures
           lime test neko -release -verbose -nocolor
