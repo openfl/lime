@@ -491,6 +491,10 @@ namespace lime {
 		presentInfo.pImageIndices = &imageIndex;
 
 		result = vkQueuePresentKHR (queue, &presentInfo);
+
+		// A swap for the frame loop, which waits for the next frame as it does after a swap otherwise
+		if (result == VK_SUCCESS || result == VK_SUBOPTIMAL_KHR) window->NoteVulkanPresent ();
+
 		if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR) {
 
 			return RecreateSwapchain ();
