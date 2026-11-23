@@ -2,7 +2,6 @@ package lime._internal.backend.html5;
 
 import haxe.Timer;
 import js.Browser;
-import js.Syntax;
 import lime.net.LocalSocket;
 import lime.net.LocalSocketError;
 import lime.utils.Bytes;
@@ -104,7 +103,7 @@ class HTML5LocalSocket
 
 	public static function isSupported():Bool
 	{
-		return Syntax.typeof(untyped BroadcastChannel) != "undefined";
+		return #if haxe4 js.Syntax.typeof(untyped BroadcastChannel) #else untyped __typeof__(BroadcastChannel) #end != "undefined";
 	}
 
 	public function send(data:Bytes, offset:Int, length:Int):Bool
@@ -251,7 +250,7 @@ class HTML5LocalSocket
 
 	@:noCompletion private function openChannel(name:String):Void
 	{
-		channel = Syntax.code("new BroadcastChannel({0})", channelName(name));
+		channel = untyped #if haxe4 js.Syntax.code #else __js__ #end ("new BroadcastChannel({0})", channelName(name));
 		channel.onmessage = handleMessage;
 		openSockets.push(this);
 		listenForUnload();
