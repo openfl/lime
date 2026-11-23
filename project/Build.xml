@@ -365,6 +365,8 @@
 		<file name="src/math/Rectangle.cpp" />
 		<file name="src/math/Vector2.cpp" />
 		<file name="src/media/AudioBuffer.cpp" />
+		<file name="src/media/AudioInputPermission.cpp" unless="mac || ios" />
+		<file name="src/media/AudioInputPermission.mm" if="mac || ios" />
 		<file name="src/media/containers/WAV.cpp" />
 		<file name="src/media/video/AVFVideoBackend.mm" if="mac || ios" />
 		<file name="src/media/video/GStreamerVideoBackend.cpp" if="linux" />
@@ -390,6 +392,7 @@
 		<file name="src/system/SensorEvent.cpp" />
 		<file name="src/system/System.cpp" unless="ios" />
 		<file name="src/system/System.mm" if="ios" />
+		<file name="src/system/SystemFiles.cpp" />
 		<file name="src/system/ValuePointer.cpp" />
 		<file name="src/ui/DropEvent.cpp" />
 		<file name="src/ui/GamepadEvent.cpp" />
@@ -419,6 +422,13 @@
 	<!-- Run setup now so the submodule projects can determine whether clang or GCC will be used. -->
 	<!-- TODO: if https://github.com/HaxeFoundation/hxcpp/issues/930 ever gets resolved, use that instead. -->
 	<setup name="androidNdk" if="android" />
+
+	<!-- 64-bit devices with 16 KB pages need LOAD segments aligned to 16 KB. NDK r28 and later do
+	     that by default, and hxcpp 4.3.2, the release on lib.haxe.org, doesn't ask older ones to -->
+	<linker id="dll" if="android" unless="NDKV28+">
+		<flag value="-Wl,-z,max-page-size=16384" if="HXCPP_ARM64 || HXCPP_X86_64" />
+		<flag value="-Wl,-z,common-page-size=16384" if="HXCPP_ARM64 || HXCPP_X86_64" />
+	</linker>
 
 	<include name="lib/cairo-files.xml" />
 	<include name="lib/curl-files.xml" />
