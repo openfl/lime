@@ -1522,6 +1522,22 @@ namespace lime
 
 			MenuEvent::Dispatch(&menuEvent);
 		}
+		else
+		{
+
+			int source;
+
+			if (SDLMenu::GetClose(event, &windowID, &id, &source) && source >= 0 && source <= 3)
+			{
+
+				// One type for each place a menu belongs, in native_desktop's MenuSource order
+				menuEvent.type = (MenuEventType)(MENU_CLOSE_WINDOW + source);
+				menuEvent.id = id;
+				menuEvent.windowID = windowID;
+
+				MenuEvent::Dispatch(&menuEvent);
+			}
+		}
 	}
 
 	void SDLApplication::ProcessMouseEvent(SDL_Event *event)
