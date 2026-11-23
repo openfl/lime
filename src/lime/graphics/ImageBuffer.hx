@@ -129,6 +129,13 @@ class ImageBuffer
 		var buffer = new ImageBuffer(data, width, height, bitsPerPixel);
 
 		#if flash
+		if (data != null)
+		{
+			// Its own pixels, as on the other targets, rather than the original's
+			var bytes = Bytes.alloc(data.byteLength);
+			bytes.blit(0, data.buffer, data.byteOffset, data.byteLength);
+			buffer.data = new UInt8Array(bytes);
+		}
 		if (__srcBitmapData != null) buffer.__srcBitmapData = __srcBitmapData.clone();
 		#elseif (js && html5)
 		if (data != null)

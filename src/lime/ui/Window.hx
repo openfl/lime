@@ -2,6 +2,7 @@ package lime.ui;
 
 import lime.app.Application;
 import lime.app.Event;
+import lime.app.Future;
 import lime.app.VSyncMode;
 import lime.graphics.Image;
 import lime.graphics.RenderContext;
@@ -27,6 +28,7 @@ typedef Stage = Dynamic;
 @:fileXml('tags="haxe,release"')
 @:noDebug
 #end
+@:access(lime.ui.DragData)
 @:access(lime.ui.Menu)
 class Window
 {
@@ -69,6 +71,29 @@ class Window
 		fullscreen, which is not minimized when another window takes focus.
 	**/
 	public var displayMode(get, set):DisplayMode;
+
+	/**
+		Whether the window takes drags from other windows and applications,
+		dispatching `onDragEnter`, `onDragOver`, `onDragLeave` and `onDrop`.
+
+		Off by default, when files dropped on the window still go to
+		`onDropFile` as before. While on, a drop is taken only when the
+		listeners set `dropAction`, and it is then also dispatched with
+		`onDropStart`, `onDropFile` or `onDropText`, and `onDropEnd`.
+
+		Supported where `DragData.isSupported` is `true`: Windows, macOS and
+		Linux on X11, and HTML5. Setting it elsewhere leaves it `false`.
+	**/
+	public var dropTarget(get, set):Bool;
+
+	/**
+		The action a drop on the window takes. Listeners of `onDragEnter` and
+		`onDragOver` set it to one of the drag's `allowedActions` to accept the
+		drag, or to `NONE` to refuse it, and the system shows the pointer for
+		it. It is reset to `NONE` as each drag enters, and `onDrop` listeners
+		can read it.
+	**/
+	public var dropAction:DropAction = NONE;
 	#if (!lime_doc_gen || (js && html5))
 	public var element(default, null):#if (js && html5) Element #else Dynamic #end;
 	#end
@@ -163,7 +188,59 @@ class Window
 	public var onActivate(default, null) = new Event<Void->Void>();
 	public var onClose(default, null) = new Event<Void->Void>();
 	public var onDeactivate(default, null) = new Event<Void->Void>();
+
+	/**
+		Dispatched as a drag enters the window, with its data and the position
+		in the window, while `dropTarget` is on. Set `dropAction` to accept it.
+		The data can only be read while the listener runs.
+	**/
+	public var onDragEnter(default, null) = new Event<DragData->Float->Float->Void>();
+
+	/**
+		Dispatched as a drag leaves the window without dropping, or is
+		canceled.
+	**/
+	public var onDragLeave(default, null) = new Event<Void->Void>();
+
+	/**
+		Dispatched as a drag moves over the window, with its position. Setting
+		`dropAction` changes the action, such as for the part of the window
+		under the pointer.
+	**/
+	public var onDragOver(default, null) = new Event<Float->Float->Void>();
+
+	/**
+		Dispatched as a drag the window accepted is dropped on it, with its
+		data and position. `dropAction` holds the action the drop takes, and
+		the data can only be read while the listener runs.
+	**/
+	public var onDrop(default, null) = new Event<DragData->Float->Float->Void>();
 	public var onDropFile(default, null) = new Event<String->Void>();
+
+	/**
+		Dispatched after everything dropped on the window at once has been
+		dispatched, so files dropped together can be handled as one group.
+
+		Dispatched on native desktop targets and HTML5.
+	**/
+	public var onDropEnd(default, null) = new Event<Void->Void>();
+
+	/**
+		Dispatched when something is dropped on the window, before the files
+		or text it holds are dispatched with `onDropFile` and `onDropText`.
+
+		Dispatched on native desktop targets and HTML5.
+	**/
+	public var onDropStart(default, null) = new Event<Void->Void>();
+
+	/**
+		Dispatched with text dropped on the window, such as a selection dragged
+		from another application.
+
+		Dispatched on macOS, Linux and HTML5. SDL only takes files dropped on a
+		window on Windows.
+	**/
+	public var onDropText(default, null) = new Event<String->Void>();
 	public var onEnter(default, null) = new Event<Void->Void>();
 	public var onExpose(default, null) = new Event<Void->Void>();
 	public var onFocusIn(default, null) = new Event<Void->Void>();
@@ -312,6 +389,7 @@ class Window
 				"cursor": {get: p.get_cursor, set: p.set_cursor},
 				"display": {get: p.get_display},
 				"displayMode": {get: p.get_displayMode, set: p.set_displayMode},
+				"dropTarget": {get: p.get_dropTarget, set: p.set_dropTarget},
 				"frameRate": {get: p.get_frameRate, set: p.set_frameRate},
 				"fullscreen": {get: p.get_fullscreen, set: p.set_fullscreen},
 				"height": {get: p.get_height, set: p.set_height},
@@ -2652,6 +2730,96 @@ class Window
 		__backend.focus();
 	}
 
+	/**
+		Puts this window just above `window`, without activating it. Returns
+		whether the system moved it.
+
+		Supported on Windows, macOS and X11. On X11 the window manager decides,
+		and may not do it. On macOS a window that is hidden or minimised is not
+		ordered, nor ordered against one that is, as the system would show it.
+	**/
+	public function orderAbove(window:Window):Bool
+	{
+		return window != null && window != this && __backend.orderRelative(window, true);
+	}
+
+	/**
+		Puts this window just below `window`, without activating it. Returns
+		whether the system moved it.
+
+		Supported on Windows, macOS and X11, as `orderAbove` describes.
+	**/
+	public function orderBelow(window:Window):Bool
+	{
+		return window != null && window != this && __backend.orderRelative(window, false);
+	}
+
+	/**
+		Puts this window behind the application's other windows and those of
+		other applications. Returns whether the system moved it.
+
+		Supported on Windows, macOS and X11. On macOS a window that is hidden or
+		minimised is not ordered, as `orderAbove` describes.
+	**/
+	public function orderToBack():Bool
+	{
+		return __backend.orderToBack();
+	}
+
+	/**
+		Moves the window with the pointer until the left button is released, as
+		dragging its title bar does, for a window without one or a custom title
+		bar. Call it from `onMouseDown`, while the button is down; it returns
+		`false` when the button is already up.
+
+		On Windows and macOS this returns once the button is released, and the
+		release is still dispatched. On X11 the window manager moves the window
+		after this returns.
+
+		Supported on Windows, macOS and X11.
+	**/
+	public function startMove():Bool
+	{
+		return __backend.startMoveResize(0);
+	}
+
+	/**
+		Resizes the window from `edge` with the pointer until the left button
+		is released, as dragging that edge or corner does. Call it from
+		`onMouseDown`, as `startMove` describes. macOS keeps the window within
+		its minimum and maximum size.
+
+		Supported on Windows, macOS and X11.
+	**/
+	public function startResize(edge:WindowEdge):Bool
+	{
+		return edge != 0 && __backend.startMoveResize(edge);
+	}
+
+	/**
+		Drags `data` out of the window, to another of its windows or another
+		application. Call it while the left mouse button is down, as from an
+		`onMouseDown` or `onMouseMove` listener.
+
+		Supported where `DragData.isSupported` is `true`. On HTML5 the browser
+		starts the drag as the mouse moves, and carries text, HTML and URLs
+		only; call it from `onMouseDown` there. `image` and the offsets are used
+		where the browser allows.
+
+		@param data The data to drag, made with `new DragData()`.
+		@param image What follows the pointer, or `null` for the system's own.
+		@param offsetX Where the pointer is in `image`, from its left.
+		@param offsetY Where the pointer is in `image`, from its top.
+		@param actions The actions a drop target may take, as `DropAction` flags.
+		@return The action the drop took, or `NONE` when the drag was canceled,
+		refused, or could not start.
+	**/
+	public function doDragDrop(data:DragData, image:Image = null, offsetX:Int = 0, offsetY:Int = 0, actions:DropAction = COPY):Future<DropAction>
+	{
+		if (data == null || data.__items == null) return Future.withValue(DropAction.NONE);
+		return __backend.doDragDrop(data, image, offsetX, offsetY, actions);
+	}
+
 	public function move(x:Int, y:Int):Void
 	{
 		__backend.move(x, y);
@@ -2940,6 +3108,16 @@ class Window
 	{
 		__backend.setMouseRect(value);
 		return value;
+	}
+
+	@:noCompletion private function get_dropTarget():Bool
+	{
+		return __backend.getDropTarget();
+	}
+
+	@:noCompletion private function set_dropTarget(value:Bool):Bool
+	{
+		return __backend.setDropTarget(value);
 	}
 
 	@:noCompletion private function get_keyboardGrab():Bool

@@ -16,6 +16,10 @@
 #define ALC_ALL_DEVICES_SPECIFIER 0x1013
 #endif
 
+#ifndef ALC_EVENT_NOT_SUPPORTED_SOFT
+#define ALC_EVENT_NOT_SUPPORTED_SOFT 0x19DA
+#endif
+
 #include <system/CFFI.h>
 #include <system/CFFIPointer.h>
 #include <system/Mutex.h>
@@ -1398,15 +1402,43 @@ namespace lime {
 	}
 
 
-	value lime_al_gen_aux () {
+	// Whether alGenBuffers and alGenSources made every name: the names start at 0, which no
+	// buffer or source made has, and a name made is one alIsBuffer or alIsSource knows. The
+	// gen functions check this rather than the error, as reading the error clears one the
+	// application hasn't read yet.
+	static bool al_made_buffers (ALuint* buffers, int n) {
 
-		alGetError ();
+		for (int i = 0; i < n; i++) {
+
+			if (buffers[i] == 0 || !alIsBuffer (buffers[i])) return false;
+
+		}
+
+		return true;
+
+	}
+
+
+	static bool al_made_sources (ALuint* sources, int n) {
+
+		for (int i = 0; i < n; i++) {
+
+			if (sources[i] == 0 || !alIsSource (sources[i])) return false;
+
+		}
+
+		return true;
+
+	}
+
+
+	value lime_al_gen_aux () {
 
 		#ifdef LIME_OPENALSOFT
 		ALuint aux = 0;
 		alGenAuxiliaryEffectSlots ((ALuint)1, &aux);
 
-		if (alGetError () == AL_NO_ERROR) {
+		if (aux != 0 && alIsAuxiliaryEffectSlot (aux)) {
 
 			return al_object (AL_OBJECT_AUXILIARY_EFFECT_SLOT, aux);
 
@@ -1420,13 +1452,11 @@ namespace lime {
 
 	HL_PRIM HL_CFFIPointer* HL_NAME(hl_al_gen_aux) () {
 
-		alGetError ();
-
 		#ifdef LIME_OPENALSOFT
 		ALuint aux = 0;
 		alGenAuxiliaryEffectSlots ((ALuint)1, &aux);
 
-		if (alGetError () == AL_NO_ERROR) {
+		if (aux != 0 && alIsAuxiliaryEffectSlot (aux)) {
 
 			return hl_al_object (AL_OBJECT_AUXILIARY_EFFECT_SLOT, aux);
 
@@ -1440,12 +1470,10 @@ namespace lime {
 
 	value lime_al_gen_buffer () {
 
-		alGetError ();
-
 		ALuint buffer = 0;
 		alGenBuffers ((ALuint)1, &buffer);
 
-		if (alGetError () == AL_NO_ERROR) {
+		if (buffer != 0 && alIsBuffer (buffer)) {
 
 			return al_object (AL_OBJECT_BUFFER, buffer);
 
@@ -1460,12 +1488,10 @@ namespace lime {
 
 	HL_PRIM HL_CFFIPointer* HL_NAME(hl_al_gen_buffer) () {
 
-		alGetError ();
-
 		ALuint buffer = 0;
 		alGenBuffers ((ALuint)1, &buffer);
 
-		if (alGetError () == AL_NO_ERROR) {
+		if (buffer != 0 && alIsBuffer (buffer)) {
 
 			return hl_al_object (AL_OBJECT_BUFFER, buffer);
 
@@ -1480,12 +1506,10 @@ namespace lime {
 
 	value lime_al_gen_buffers (int n) {
 
-		alGetError ();
-
-		ALuint* buffers = new ALuint[n];
+		ALuint* buffers = new ALuint[n] ();
 		alGenBuffers (n, buffers);
 
-		if (alGetError () == AL_NO_ERROR) {
+		if (al_made_buffers (buffers, n)) {
 
 			value result = alloc_array (n);
 
@@ -1510,12 +1534,10 @@ namespace lime {
 
 	HL_PRIM varray* HL_NAME(hl_al_gen_buffers) (int n) {
 
-		alGetError ();
-
-		ALuint* buffers = new ALuint[n];
+		ALuint* buffers = new ALuint[n] ();
 		alGenBuffers (n, buffers);
 
-		if (alGetError () == AL_NO_ERROR) {
+		if (al_made_buffers (buffers, n)) {
 
 			varray* result = hl_alloc_array (&hlt_dyn, n);
 			HL_CFFIPointer** resultData = hl_aptr (result, HL_CFFIPointer*);
@@ -1541,13 +1563,11 @@ namespace lime {
 
 	value lime_al_gen_effect () {
 
-		alGetError ();
-
 		#ifdef LIME_OPENALSOFT
 		ALuint effect = 0;
 		alGenEffects ((ALuint)1, &effect);
 
-		if (alGetError () == AL_NO_ERROR) {
+		if (effect != 0 && alIsEffect (effect)) {
 
 			return al_object (AL_OBJECT_EFFECT, effect);
 
@@ -1561,13 +1581,11 @@ namespace lime {
 
 	HL_PRIM HL_CFFIPointer* HL_NAME(hl_al_gen_effect) () {
 
-		alGetError ();
-
 		#ifdef LIME_OPENALSOFT
 		ALuint effect = 0;
 		alGenEffects ((ALuint)1, &effect);
 
-		if (alGetError () == AL_NO_ERROR) {
+		if (effect != 0 && alIsEffect (effect)) {
 
 			return hl_al_object (AL_OBJECT_EFFECT, effect);
 
@@ -1581,13 +1599,11 @@ namespace lime {
 
 	value lime_al_gen_filter () {
 
-		alGetError ();
-
 		#ifdef LIME_OPENALSOFT
 		ALuint filter = 0;
 		alGenFilters ((ALuint)1, &filter);
 
-		if (alGetError () == AL_NO_ERROR) {
+		if (filter != 0 && alIsFilter (filter)) {
 
 			return al_object (AL_OBJECT_FILTER, filter);
 
@@ -1601,13 +1617,11 @@ namespace lime {
 
 	HL_PRIM HL_CFFIPointer* HL_NAME(hl_al_gen_filter) () {
 
-		alGetError ();
-
 		#ifdef LIME_OPENALSOFT
 		ALuint filter = 0;
 		alGenFilters ((ALuint)1, &filter);
 
-		if (alGetError () == AL_NO_ERROR) {
+		if (filter != 0 && alIsFilter (filter)) {
 
 			return hl_al_object (AL_OBJECT_FILTER, filter);
 
@@ -1621,12 +1635,10 @@ namespace lime {
 
 	value lime_al_gen_source () {
 
-		alGetError ();
-
 		ALuint source = 0;
 		alGenSources ((ALuint)1, &source);
 
-		if (alGetError () == AL_NO_ERROR) {
+		if (source != 0 && alIsSource (source)) {
 
 			return al_object (AL_OBJECT_SOURCE, source);
 
@@ -1641,12 +1653,10 @@ namespace lime {
 
 	HL_PRIM HL_CFFIPointer* HL_NAME(hl_al_gen_source) () {
 
-		alGetError ();
-
 		ALuint source = 0;
 		alGenSources ((ALuint)1, &source);
 
-		if (alGetError () == AL_NO_ERROR) {
+		if (source != 0 && alIsSource (source)) {
 
 			return hl_al_object (AL_OBJECT_SOURCE, source);
 
@@ -1661,12 +1671,10 @@ namespace lime {
 
 	value lime_al_gen_sources (int n) {
 
-		alGetError ();
-
-		ALuint* sources = new ALuint[n];
+		ALuint* sources = new ALuint[n] ();
 		alGenSources (n, sources);
 
-		if (alGetError () == AL_NO_ERROR) {
+		if (al_made_sources (sources, n)) {
 
 			value result = alloc_array (n);
 
@@ -1691,12 +1699,10 @@ namespace lime {
 
 	HL_PRIM varray* HL_NAME(hl_al_gen_sources) (int n) {
 
-		alGetError ();
-
-		ALuint* sources = new ALuint[n];
+		ALuint* sources = new ALuint[n] ();
 		alGenSources (n, sources);
 
-		if (alGetError () == AL_NO_ERROR) {
+		if (al_made_sources (sources, n)) {
 
 			varray* result = hl_alloc_array (&hlt_dyn, n);
 			HL_CFFIPointer** resultData = hl_aptr (result, HL_CFFIPointer*);
@@ -1736,7 +1742,7 @@ namespace lime {
 
 	value lime_al_get_booleanv (int param, int count) {
 
-		ALboolean* values = new ALboolean[count];
+		ALboolean* values = new ALboolean[count] ();
 		alGetBooleanv (param, values);
 
 		value result = alloc_array (count);
@@ -1809,7 +1815,7 @@ namespace lime {
 		ALuint id = (ALuint)(uintptr_t)buffer->ptr;
 		varray* result = hl_alloc_array (&hlt_i32, 3);
 
-		alGetBuffer3i (id, param, &hl_aptr (result, int)[0], &hl_aptr (result, int)[2], &hl_aptr (result, int)[3]);
+		alGetBuffer3i (id, param, &hl_aptr (result, int)[0], &hl_aptr (result, int)[1], &hl_aptr (result, int)[2]);
 		return result;
 
 	}
@@ -1838,7 +1844,7 @@ namespace lime {
 	value lime_al_get_bufferfv (value buffer, int param, int count) {
 
 		ALuint id = (ALuint)(uintptr_t)val_data (buffer);
-		ALfloat* values = new ALfloat[count];
+		ALfloat* values = new ALfloat[count] ();
 		alGetBufferfv (id, param, values);
 
 		value result = alloc_array (count);
@@ -1888,7 +1894,7 @@ namespace lime {
 	value lime_al_get_bufferiv (value buffer, int param, int count) {
 
 		ALuint id = (ALuint)(uintptr_t)val_data (buffer);
-		ALint* values = new ALint[count];
+		ALint* values = new ALint[count] ();
 		alGetBufferiv (id, param, values);
 
 		value result = alloc_array (count);
@@ -1931,7 +1937,7 @@ namespace lime {
 
 	value lime_al_get_doublev (int param, int count) {
 
-		ALdouble* values = new ALdouble[count];
+		ALdouble* values = new ALdouble[count] ();
 		alGetDoublev (param, values);
 
 		value result = alloc_array (count);
@@ -2029,7 +2035,7 @@ namespace lime {
 
 	value lime_al_get_floatv (int param, int count) {
 
-		ALfloat* values = new ALfloat[count];
+		ALfloat* values = new ALfloat[count] ();
 		alGetFloatv (param, values);
 
 		value result = alloc_array (count);
@@ -2071,7 +2077,7 @@ namespace lime {
 
 	value lime_al_get_integerv (int param, int count) {
 
-		ALint* values = new ALint[count];
+		ALint* values = new ALint[count] ();
 		alGetIntegerv (param, values);
 
 		value result = alloc_array (count);
@@ -2115,7 +2121,7 @@ namespace lime {
 	HL_PRIM varray* HL_NAME(hl_al_get_listener3f) (int param) {
 
 		varray* result = hl_alloc_array (&hlt_f32, 3);
-		alGetListener3f (param, &hl_aptr (result, float)[0], &hl_aptr (result, float)[2], &hl_aptr (result, float)[3]);
+		alGetListener3f (param, &hl_aptr (result, float)[0], &hl_aptr (result, float)[1], &hl_aptr (result, float)[2]);
 		return result;
 
 	}
@@ -2139,7 +2145,7 @@ namespace lime {
 	HL_PRIM varray* HL_NAME(hl_al_get_listener3i) (int param) {
 
 		varray* result = hl_alloc_array (&hlt_i32, 3);
-		alGetListener3i (param, &hl_aptr (result, int)[0], &hl_aptr (result, int)[2], &hl_aptr (result, int)[3]);
+		alGetListener3i (param, &hl_aptr (result, int)[0], &hl_aptr (result, int)[1], &hl_aptr (result, int)[2]);
 		return result;
 
 	}
@@ -2165,7 +2171,7 @@ namespace lime {
 
 	value lime_al_get_listenerfv (int param, int count) {
 
-		ALfloat* values = new ALfloat[count];
+		ALfloat* values = new ALfloat[count] ();
 		alGetListenerfv (param, values);
 
 		value result = alloc_array (count);
@@ -2211,7 +2217,7 @@ namespace lime {
 
 	value lime_al_get_listeneriv (int param, int count) {
 
-		ALint* values = new ALint[count];
+		ALint* values = new ALint[count] ();
 		alGetListeneriv (param, values);
 
 		value result = alloc_array (count);
@@ -2271,7 +2277,7 @@ namespace lime {
 
 		ALuint id = (ALuint)(uintptr_t)source->ptr;
 		varray* result = hl_alloc_array (&hlt_f32, 3);
-		alGetSource3f (id, param, &hl_aptr (result, float)[0], &hl_aptr (result, float)[2], &hl_aptr (result, float)[3]);
+		alGetSource3f (id, param, &hl_aptr (result, float)[0], &hl_aptr (result, float)[1], &hl_aptr (result, float)[2]);
 		return result;
 
 	}
@@ -2285,9 +2291,9 @@ namespace lime {
 		alGetSource3i (id, param, &val1, &val2, &val3);
 
 		value result = alloc_array (3);
-		val_array_set_i (result, 1, alloc_int (val1));
-		val_array_set_i (result, 2, alloc_int (val2));
-		val_array_set_i (result, 3, alloc_int (val3));
+		val_array_set_i (result, 0, alloc_int (val1));
+		val_array_set_i (result, 1, alloc_int (val2));
+		val_array_set_i (result, 2, alloc_int (val3));
 		return result;
 
 	}
@@ -2297,7 +2303,7 @@ namespace lime {
 
 		ALuint id = (ALuint)(uintptr_t)source->ptr;
 		varray* result = hl_alloc_array (&hlt_i32, 3);
-		alGetSource3i (id, param, &hl_aptr (result, int)[0], &hl_aptr (result, int)[2], &hl_aptr (result, int)[3]);
+		alGetSource3i (id, param, &hl_aptr (result, int)[0], &hl_aptr (result, int)[1], &hl_aptr (result, int)[2]);
 		return result;
 
 	}
@@ -2377,7 +2383,7 @@ namespace lime {
 	value lime_al_get_sourcefv (value source, int param, int count) {
 
 		ALuint id = (ALuint)(uintptr_t)val_data (source);
-		ALfloat* values = new ALfloat[count];
+		ALfloat* values = new ALfloat[count] ();
 		alGetSourcefv (id, param, values);
 
 		value result = alloc_array (count);
@@ -2444,10 +2450,32 @@ namespace lime {
 	}
 
 
+	// An integer property without a box, for Lime's own polling: AL_BUFFER, the
+	// one object getSourcei gives, isn't asked for here
+	int lime_al_get_sourcei_int (value source, int param) {
+
+		ALuint id = (ALuint)(uintptr_t)val_data (source);
+		ALint data = 0;
+		alGetSourcei (id, param, &data);
+		return data;
+
+	}
+
+
+	HL_PRIM int HL_NAME(hl_al_get_sourcei_int) (HL_CFFIPointer* source, int param) {
+
+		ALuint id = (ALuint)(uintptr_t)source->ptr;
+		ALint data = 0;
+		alGetSourcei (id, param, &data);
+		return data;
+
+	}
+
+
 	value lime_al_get_sourceiv (value source, int param, int count) {
 
 		ALuint id = (ALuint)(uintptr_t)val_data (source);
-		ALint* values = new ALint[count];
+		ALint* values = new ALint[count] ();
 		alGetSourceiv (id, param, values);
 
 		value result = alloc_array (count);
@@ -2484,11 +2512,12 @@ namespace lime {
 
 	HL_PRIM vbyte* HL_NAME(hl_al_get_string) (int param) {
 
+		// Null for a name OpenAL doesn't know, which leaves the error set
 		const char* result = alGetString (param);
-		int length = strlen (result);
-		char* _result = (char*)malloc (length + 1);
-		strcpy (_result, result);
-		return (vbyte*)_result;
+		if (!result) return NULL;
+
+		// The collector frees the copy, where a malloc'd one was never freed
+		return hl_copy_bytes ((const vbyte*)result, (int)strlen (result) + 1);
 
 	}
 
@@ -2621,7 +2650,7 @@ namespace lime {
 
 		#ifdef LIME_OPENALSOFT
 		ALuint id = (ALuint)(uintptr_t)val_data (filter);
-		return alIsSource (id);
+		return alIsFilter (id);
 		#else
 		return false;
 		#endif
@@ -2633,7 +2662,7 @@ namespace lime {
 
 		#ifdef LIME_OPENALSOFT
 		ALuint id = (ALuint)(uintptr_t)filter->ptr;
-		return alIsSource (id);
+		return alIsFilter (id);
 		#else
 		return false;
 		#endif
@@ -3741,6 +3770,198 @@ namespace lime {
 	}
 
 
+	// ALC_SOFT_reopen_device moves an open playback device to another output,
+	// keeping its contexts, sources and buffers
+	bool lime_alc_reopen_device (value device, HxString devicename, value attrlist) {
+
+		#ifdef LIME_OPENALSOFT
+		ALCdevice* alcDevice = (ALCdevice*)val_data (device);
+		std::vector<ALCint> list;
+
+		if (!val_is_null (attrlist)) {
+
+			int size = val_array_size (attrlist);
+			list.resize (size);
+
+			for (int i = 0; i < size; ++i) {
+
+				list[i] = (ALCint)val_int (val_array_i (attrlist, i));
+
+			}
+
+		}
+
+		return alcReopenDeviceSOFT (alcDevice, devicename.__s, list.empty () ? NULL : &list[0]);
+		#else
+		return false;
+		#endif
+
+	}
+
+
+	HL_PRIM bool HL_NAME(hl_alc_reopen_device) (HL_CFFIPointer* device, hl_vstring* devicename, varray* attrlist) {
+
+		#ifdef LIME_OPENALSOFT
+		ALCdevice* alcDevice = (ALCdevice*)device->ptr;
+		return alcReopenDeviceSOFT (alcDevice, devicename ? (char*)hl_to_utf8 ((const uchar*)devicename->bytes) : NULL, attrlist ? hl_aptr (attrlist, int) : NULL);
+		#else
+		return false;
+		#endif
+
+	}
+
+
+	int lime_alc_event_is_supported (int eventType, int deviceType) {
+
+		#ifdef LIME_OPENALSOFT
+		return alcEventIsSupportedSOFT (eventType, deviceType);
+		#else
+		return ALC_EVENT_NOT_SUPPORTED_SOFT;
+		#endif
+
+	}
+
+
+	HL_PRIM int HL_NAME(hl_alc_event_is_supported) (int eventType, int deviceType) {
+
+		return lime_alc_event_is_supported (eventType, deviceType);
+
+	}
+
+
+	#ifdef LIME_OPENALSOFT
+	// ALC_SOFT_system_events calls back from OpenAL Soft's own threads, so the
+	// events wait here, as event type and device type pairs, until Lime reads
+	// them on the main thread. They are allocated once and never freed, so an
+	// event that arrives while the process exits finds them still there.
+	static Mutex* alcEventMutex = new Mutex ();
+	static std::vector<int>* alcEventQueue = new std::vector<int> ();
+	static bool alcEventCallbackSet = false;
+	static const size_t ALC_EVENT_QUEUE_LIMIT = 256;
+
+
+	static void ALC_APIENTRY lime_alc_event_callback (ALCenum eventType, ALCenum deviceType, ALCdevice* device, ALCsizei length, const ALCchar* message, void* userParam) noexcept {
+
+		alcEventMutex->Lock ();
+
+		// Nothing reads the events while the application is stalled, so the
+		// oldest are dropped first; the newest are the ones that matter
+		if (alcEventQueue->size () >= ALC_EVENT_QUEUE_LIMIT * 2) {
+
+			alcEventQueue->erase (alcEventQueue->begin (), alcEventQueue->begin () + 2);
+
+		}
+
+		alcEventQueue->push_back (eventType);
+		alcEventQueue->push_back (deviceType);
+
+		alcEventMutex->Unlock ();
+
+	}
+
+
+	static bool EnableALCEvents (const ALCenum* events, int count, bool enable) {
+
+		if (!alcEventCallbackSet) {
+
+			alcEventCallbackSOFT (lime_alc_event_callback, NULL);
+			alcEventCallbackSet = true;
+
+		}
+
+		return alcEventControlSOFT (count, events, enable ? ALC_TRUE : ALC_FALSE);
+
+	}
+
+
+	static void TakeALCEvents (std::vector<int>& events) {
+
+		alcEventMutex->Lock ();
+		events.swap (*alcEventQueue);
+		alcEventMutex->Unlock ();
+
+	}
+	#endif
+
+
+	bool lime_alc_event_control (value events, bool enable) {
+
+		#ifdef LIME_OPENALSOFT
+		int count = val_is_null (events) ? 0 : val_array_size (events);
+		std::vector<ALCenum> list (count);
+
+		for (int i = 0; i < count; ++i) {
+
+			list[i] = (ALCenum)val_int (val_array_i (events, i));
+
+		}
+
+		return EnableALCEvents (count > 0 ? &list[0] : NULL, count, enable);
+		#else
+		return false;
+		#endif
+
+	}
+
+
+	HL_PRIM bool HL_NAME(hl_alc_event_control) (varray* events, bool enable) {
+
+		#ifdef LIME_OPENALSOFT
+		int count = events ? events->size : 0;
+		return EnableALCEvents (count > 0 ? hl_aptr (events, ALCenum) : NULL, count, enable);
+		#else
+		return false;
+		#endif
+
+	}
+
+
+	value lime_alc_poll_events () {
+
+		std::vector<int> events;
+
+		#ifdef LIME_OPENALSOFT
+		TakeALCEvents (events);
+		#endif
+
+		// The array is allocated after the lock is released, since a collection
+		// may run while it is allocated
+		int count = events.size ();
+		value result = alloc_array (count);
+
+		for (int i = 0; i < count; i++) {
+
+			val_array_set_i (result, i, alloc_int (events[i]));
+
+		}
+
+		return result;
+
+	}
+
+
+	HL_PRIM varray* HL_NAME(hl_alc_poll_events) () {
+
+		std::vector<int> events;
+
+		#ifdef LIME_OPENALSOFT
+		TakeALCEvents (events);
+		#endif
+
+		int count = events.size ();
+		varray* result = hl_alloc_array (&hlt_i32, count);
+
+		if (count > 0) {
+
+			memcpy (hl_aptr (result, int), &events[0], count * sizeof (int));
+
+		}
+
+		return result;
+
+	}
+
+
 	void lime_alc_suspend_context (value context) {
 
 		ALCcontext* alcContext = (ALCcontext*)val_data (context);
@@ -3913,6 +4134,7 @@ namespace lime {
 	DEFINE_PRIME2 (lime_al_get_sourcef);
 	DEFINE_PRIME3 (lime_al_get_sourcefv);
 	DEFINE_PRIME2 (lime_al_get_sourcei);
+	DEFINE_PRIME2 (lime_al_get_sourcei_int);
 	DEFINE_PRIME3 (lime_al_get_sourceiv);
 	DEFINE_PRIME1 (lime_al_get_string);
 	DEFINE_PRIME1 (lime_al_is_aux);
@@ -3962,6 +4184,10 @@ namespace lime {
 	DEFINE_PRIME1v (lime_alc_pause_device);
 	DEFINE_PRIME1v (lime_alc_process_context);
 	DEFINE_PRIME1v (lime_alc_resume_device);
+	DEFINE_PRIME3 (lime_alc_reopen_device);
+	DEFINE_PRIME2 (lime_alc_event_is_supported);
+	DEFINE_PRIME2 (lime_alc_event_control);
+	DEFINE_PRIME0 (lime_alc_poll_events);
 	DEFINE_PRIME1v (lime_alc_suspend_context);
 	DEFINE_PRIME4 (lime_alc_capture_open_device);
 	DEFINE_PRIME1 (lime_alc_capture_close_device);
@@ -4045,6 +4271,7 @@ namespace lime {
 	DEFINE_HL_PRIM (_F32, hl_al_get_sourcef, _TCFFIPOINTER _I32);
 	DEFINE_HL_PRIM (_ARR, hl_al_get_sourcefv, _TCFFIPOINTER _I32 _I32);
 	DEFINE_HL_PRIM (_DYN, hl_al_get_sourcei, _TCFFIPOINTER _I32);
+	DEFINE_HL_PRIM (_I32, hl_al_get_sourcei_int, _TCFFIPOINTER _I32);
 	DEFINE_HL_PRIM (_ARR, hl_al_get_sourceiv, _TCFFIPOINTER _I32 _I32);
 	DEFINE_HL_PRIM (_BYTES, hl_al_get_string, _I32);
 	DEFINE_HL_PRIM (_BOOL, hl_al_is_aux, _TCFFIPOINTER);
@@ -4094,6 +4321,10 @@ namespace lime {
 	DEFINE_HL_PRIM (_VOID, hl_alc_pause_device, _TCFFIPOINTER);
 	DEFINE_HL_PRIM (_VOID, hl_alc_process_context, _TCFFIPOINTER);
 	DEFINE_HL_PRIM (_VOID, hl_alc_resume_device, _TCFFIPOINTER);
+	DEFINE_HL_PRIM (_BOOL, hl_alc_reopen_device, _TCFFIPOINTER _STRING _ARR);
+	DEFINE_HL_PRIM (_I32, hl_alc_event_is_supported, _I32 _I32);
+	DEFINE_HL_PRIM (_BOOL, hl_alc_event_control, _ARR _BOOL);
+	DEFINE_HL_PRIM (_ARR, hl_alc_poll_events, _NO_ARG);
 	DEFINE_HL_PRIM (_VOID, hl_alc_suspend_context, _TCFFIPOINTER);
 	DEFINE_HL_PRIM (_TCFFIPOINTER, hl_alc_capture_open_device, _STRING _I32 _I32 _I32);
 	DEFINE_HL_PRIM (_BOOL, hl_alc_capture_close_device, _TCFFIPOINTER);

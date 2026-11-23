@@ -4,6 +4,7 @@
 #include "SDLMenu.h"
 #include "../../graphics/opengl/OpenGL.h"
 #include "../../graphics/opengl/OpenGLBindings.h"
+#include "../../graphics/opengl/OpenGLShareGroups.h"
 
 #ifdef HX_WINDOWS
 #include <SDL_syswm.h>
@@ -281,7 +282,12 @@ namespace lime {
 			ClearResizeEventProperties (hwnd);
 		}
 
-		return DefSubclassProc (hwnd, message, wParam, lParam);
+		LRESULT result = DefSubclassProc (hwnd, message, wParam, lParam);
+
+		// A frame the window's events asked for while the application waits or Windows resizes it, drawn
+		// now that SDL has queued them and let go of its event lock
+		SDLApplication::RunPendingModalFrame ();
+		return result;
 
 	}
 
@@ -998,9 +1004,11 @@ namespace lime {
 
 		// Windows share textures, buffers and shaders through the context current as
 		// one is made, which Lime keeps to the main window's
-		bool shareContext = SDL_GL_GetCurrentContext () != NULL;
+		SDL_GLContext shareWith = SDL_GL_GetCurrentContext ();
+		bool shareContext = shareWith != NULL;
 		SDL_GL_SetAttribute (SDL_GL_SHARE_WITH_CURRENT_CONTEXT, shareContext ? 1 : 0);
 		context = SDL_GL_CreateContext (sdlWindow);
+		bool shared = context && shareContext;
 
 		if (!context && shareContext) {
 
@@ -1011,6 +1019,9 @@ namespace lime {
 		}
 
 		SDL_GL_SetAttribute (SDL_GL_SHARE_WITH_CURRENT_CONTEXT, 0);
+
+		// Video decoders keep their textures for every context in the group
+		OpenGLShareGroups::Add (context, shared ? shareWith : NULL);
 
 		if (context && SDL_GL_MakeCurrent (sdlWindow, context) == 0) {
 
@@ -1039,6 +1050,7 @@ namespace lime {
 
 			if (version < 2 && !strstr ((const char*)glGetString (GL_VERSION), "OpenGL ES")) {
 
+				OpenGLShareGroups::Remove (context);
 				SDL_GL_DeleteContext (context);
 				context = 0;
 
@@ -1057,6 +1069,7 @@ namespace lime {
 
 		} else {
 
+			OpenGLShareGroups::Remove (context);
 			SDL_GL_DeleteContext (context);
 			context = NULL;
 
@@ -1086,6 +1099,7 @@ namespace lime {
 
 			}
 
+			OpenGLShareGroups::Remove (context);
 			SDL_GL_DeleteContext (context);
 			context = 0;
 
@@ -1147,6 +1161,7 @@ namespace lime {
 
 				}
 
+				OpenGLShareGroups::Remove (context);
 				SDL_GL_DeleteContext (context);
 				context = 0;
 
@@ -1174,6 +1189,13 @@ namespace lime {
 		}
 
 		return (SDL_GetWindowFlags (sdlWindow) & SDL_WINDOW_SHOWN);
+
+	}
+
+
+	void SDLWindow::NoteVulkanPresent () {
+
+		if (useVulkan) SDLApplication::NoteContextFlip ();
 
 	}
 
@@ -1422,6 +1444,7 @@ namespace lime {
 		}
 		if (!context) return false;
 		if (SDL_GL_GetCurrentContext () == context && SDL_GL_MakeCurrent (sdlWindow, NULL) != 0) return false;
+		OpenGLShareGroups::Remove (context);
 		SDL_GL_DeleteContext (context);
 		context = NULL;
 		return true;
@@ -1446,6 +1469,27 @@ namespace lime {
 	void SDLWindow::Focus () {
 
 		SDL_RaiseWindow (sdlWindow);
+
+	}
+
+
+	bool SDLWindow::OrderRelative (Window* other, bool above) {
+
+		return other && SDLMenu::OrderWindow (sdlWindow, ((SDLWindow*)other)->sdlWindow, above ? 1 : 2);
+
+	}
+
+
+	bool SDLWindow::OrderToBack () {
+
+		return SDLMenu::OrderWindow (sdlWindow, NULL, 0);
+
+	}
+
+
+	bool SDLWindow::StartMoveResize (int edges) {
+
+		return SDLMenu::DragWindow (sdlWindow, edges);
 
 	}
 
