@@ -320,8 +320,14 @@ class ThreadPool extends WorkOutput
 			{
 				__queuedExitEvents--;
 			}
+			else if (queuedEvent.event == WORK)
+			{
+				__queuedWorkEvents--;
+			}
 		}
-		__queuedWorkEvents = 0;
+		// A job a thread has taken, but whose `WORK` event hasn't arrived, is
+		// still counted: the event comes, and takes it off. Setting the count
+		// to 0 took it below 0, and `__update()` stopped while a job ran.
 
 		while (currentThreads > minThreads)
 		{
@@ -384,7 +390,9 @@ class ThreadPool extends WorkOutput
 			{
 				if (threadData != null && threadData.jobID == jobID)
 				{
-					threadData.thread.sendMessage({event: IDLE});
+					// The thread may have moved on to another job, which this
+					// must not stop, so the message says which job it is for
+					threadData.thread.sendMessage({event: IDLE, jobID: jobID});
 					break;
 				}
 			}
@@ -501,7 +509,8 @@ class ThreadPool extends WorkOutput
 		// marks it to be canceled later. (And "later" is now.)
 		if (event.event == WORK && event.threadID != null)
 		{
-			__threads[event.threadID].thread.sendMessage({event: IDLE});
+			// The thread may be on the next job by now: see `cancelJob()`
+			__threads[event.threadID].thread.sendMessage({event: IDLE, jobID: event.jobID});
 			__queuedWorkEvents--;
 		}
 		#end
@@ -720,8 +729,26 @@ class ThreadPool extends WorkOutput
 				var interruption:ThreadEvent = null;
 				try
 				{
-					while (!output.__jobComplete.value && (interruption = Thread.readMessage(false)) == null)
+					while (!output.__jobComplete.value)
 					{
+						// Read here, not in a function of its own: on HTML5 this waits with
+						// `await`, which only this async function can do
+						interruption = Thread.readMessage(false);
+
+						if (interruption != null)
+						{
+							// The main thread learns which job a thread is on from its `WORK`
+							// event, so a cancel can come after the thread has moved on from
+							// the job it is for. Such a cancel names its job, and is dropped.
+							if (interruption.event == IDLE && interruption.jobID != null && interruption.jobID != event.jobID)
+							{
+								interruption = null;
+								continue;
+							}
+
+							break;
+						}
+
 						if (output.workIterations.value == 0)
 						{
 							output.sendThreadEvent({event: WORK, jobID: event.jobID, threadID: args.threadID});

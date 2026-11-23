@@ -136,7 +136,7 @@ class AIRPlatform extends FlashPlatform
 		}
 		else
 		{
-			var airSdk = project.environment.get("AIR_SDK");
+			var airSdk = project.defines.get("AIR_SDK");
 			if (!FileSystem.exists(airSdk))
 			{
 				Log.error("The path specified for AIR_SDK does not exist: " + airSdk);

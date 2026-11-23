@@ -414,6 +414,40 @@ class System
 	#end
 
 	/**
+		The space left for this user on the volume that holds `path`, in bytes,
+		or `-1` when it cannot be found. `path` can be a folder or a file, and
+		on Windows a file or folder that does not exist yet, whose nearest
+		existing folder is asked about. Space kept for the system, which this
+		user cannot use, is left out.
+
+		Available on native targets.
+	**/
+	public static function getFreeSpace(path:String):Float
+	{
+		#if (lime_cffi && !macro)
+		if (path != null && path != "") return NativeCFFI.lime_system_get_free_space(path);
+		#end
+
+		return -1;
+	}
+
+	/**
+		Whether `path` is a symbolic link, without following it. On Windows,
+		junctions and other reparse points count too, as they do for AIR's
+		`File.isSymbolicLink`. A path that does not exist is not a link.
+
+		Available on native targets.
+	**/
+	public static function isSymbolicLink(path:String):Bool
+	{
+		#if (lime_cffi && !macro)
+		if (path != null && path != "") return NativeCFFI.lime_system_is_symbolic_link(path);
+		#end
+
+		return false;
+	}
+
+	/**
 		Opens a file with the system default application.
 
 		In a web browser, opens a URL with target `_blank`.

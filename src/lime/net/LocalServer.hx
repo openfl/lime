@@ -26,7 +26,14 @@ import lime.app.Event;
 	```
 
 	Events are dispatched on the main thread. `isSupported` is true on
-	Windows, macOS and Linux.
+	Windows, macOS and Linux, and on HTML5 where the browser has
+	`BroadcastChannel`.
+
+	On HTML5, a server takes connections from pages of the same origin in the
+	same browser. Whether another page is listening on the name is only known
+	once that page answers, so `listen` returns `true`, and a moment later the
+	server stops listening, with `error` set to `NAME_IN_USE`, if the name was
+	taken.
 **/
 #if !lime_debug
 @:fileXml('tags="haxe,release"')

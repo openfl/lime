@@ -206,6 +206,14 @@ class AssetLibrary
 			return AudioBuffer.fromBytes(cast(Type.createInstance(classTypes.get(id), []), Bytes));
 			#end
 		}
+		else if (cachedBytes.exists(id))
+		{
+			// A bundle's sound, decoded the first time it is asked for. The bytes
+			// are kept, so it can still be streamed, or decoded again once disposed.
+			var buffer = AudioBuffer.fromBytes(cachedBytes.get(id));
+			if (buffer != null) cachedAudioBuffers.set(id, buffer);
+			return buffer;
+		}
 		else
 		{
 			return AudioBuffer.fromFile(getPath(id));
@@ -234,6 +242,10 @@ class AssetLibrary
 			#else
 			return AudioBuffer.fromBytesStream(cast(Type.createInstance(classTypes.get(id), []), Bytes));
 			#end
+		}
+		else if (cachedBytes.exists(id))
+		{
+			return AudioBuffer.fromBytesStream(cachedBytes.get(id));
 		}
 		else
 		{
@@ -305,6 +317,19 @@ class AssetLibrary
 			return cast(Type.createInstance(classTypes.get(id), []), Font);
 			#end
 		}
+		else if (cachedBytes.exists(id))
+		{
+			// A bundle's font, decoded the first time it is asked for
+			var font = Font.fromBytes(cachedBytes.get(id));
+
+			if (font != null)
+			{
+				cachedBytes.remove(id);
+				cachedFonts.set(id, font);
+			}
+
+			return font;
+		}
 		else
 		{
 			return Font.fromFile(getPath(id));
@@ -324,6 +349,19 @@ class AssetLibrary
 			#else
 			return cast(Type.createInstance(classTypes.get(id), []), Image);
 			#end
+		}
+		else if (cachedBytes.exists(id))
+		{
+			// A bundle's image, decoded the first time it is asked for
+			var image = Image.fromBytes(cachedBytes.get(id));
+
+			if (image != null)
+			{
+				cachedBytes.remove(id);
+				cachedImages.set(id, image);
+			}
+
+			return image;
 		}
 		else
 		{
@@ -389,13 +427,13 @@ class AssetLibrary
 				|| cachedFonts.exists(id);
 
 			case IMAGE:
-				cachedImages.exists(id);
+				cachedImages.exists(id) || cachedBytes.exists(id);
 
 			case MUSIC, SOUND:
-				cachedAudioBuffers.exists(id);
+				cachedAudioBuffers.exists(id) || cachedBytes.exists(id);
 
 			case FONT:
-				cachedFonts.exists(id);
+				cachedFonts.exists(id) || cachedBytes.exists(id);
 
 			default: cachedBytes.exists(id) || cachedText.exists(id);
 		}
@@ -523,6 +561,10 @@ class AssetLibrary
 		{
 			return Future.withValue(AudioBuffer.fromBytes(cast(Type.createInstance(classTypes.get(id), []), Bytes)));
 		}
+		else if (cachedBytes.exists(id))
+		{
+			return Future.withValue(getAudioBuffer(id));
+		}
 		else
 		{
 			if (pathGroups.exists(id))
@@ -556,6 +598,10 @@ class AssetLibrary
 			#else
 			return Future.withValue(AudioBuffer.fromBytesStream(cast(Type.createInstance(classTypes.get(id), []), Bytes)));
 			#end
+		}
+		else if (cachedBytes.exists(id))
+		{
+			return Future.withValue(AudioBuffer.fromBytesStream(cachedBytes.get(id)));
 		}
 		else
 		{
@@ -610,6 +656,15 @@ class AssetLibrary
 			#else
 			return Future.withValue(font);
 			#end
+		}
+		else if (cachedBytes.exists(id))
+		{
+			return Font.loadFromBytes(cachedBytes.get(id)).then(function(font)
+			{
+				cachedBytes.remove(id);
+				cachedFonts.set(id, font);
+				return Future.withValue(font);
+			});
 		}
 		else
 		{
@@ -788,20 +843,19 @@ class AssetLibrary
 					type = asset.type;
 					switch (type)
 					{
-						#if !web
-						case IMAGE:
-							cachedImages.set(id, Image.fromBytes(data));
-						case MUSIC, SOUND:
-							cachedAudioBuffers.set(id, AudioBuffer.fromBytes(data));
-						case FONT:
-							cachedFonts.set(id, Font.fromBytes(data));
-						#end
+						// Images, sounds and fonts are kept as bytes, and decoded when
+						// they are first asked for, or by load() when marked to preload
 						case TEXT:
 							cachedText.set(id, data != null ? Std.string(data) : null);
 						default:
 							cachedBytes.set(id, data);
 					}
 					types.set(id, asset.type);
+
+					if (Reflect.hasField(asset, "preload"))
+					{
+						preload.set(id, Reflect.field(asset, "preload"));
+					}
 				}
 				else
 				{

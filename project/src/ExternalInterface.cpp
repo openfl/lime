@@ -29,6 +29,7 @@
 #include <media/containers/OGG.h>
 #include <media/containers/WAV.h>
 #include <media/AudioBuffer.h>
+#include <media/AudioInputPermission.h>
 #include <system/CFFIPointer.h>
 #include <system/Clipboard.h>
 #include <system/ClipboardEvent.h>
@@ -1632,6 +1633,22 @@ namespace lime {
 	}
 
 
+	void lime_application_set_background_frame_rate (value application, double frameRate) {
+
+		Application* app = (Application*)val_data (application);
+		app->SetBackgroundFrameRate (frameRate);
+
+	}
+
+
+	HL_PRIM void HL_NAME(hl_application_set_background_frame_rate) (HL_CFFIPointer* application, double frameRate) {
+
+		Application* app = (Application*)application->ptr;
+		app->SetBackgroundFrameRate (frameRate);
+
+	}
+
+
 	void lime_application_set_vsync_mode (value application, int vsyncMode) {
 
 		Application* app = (Application*)val_data (application);
@@ -1978,6 +1995,127 @@ namespace lime {
 			return 0;
 
 		}
+
+	}
+
+
+	// File paths, one to a line, as paths have no line breaks on the systems with these formats
+	static std::string JoinClipboardFiles (const std::vector<std::string>& files) {
+
+		std::string result;
+
+		for (size_t i = 0; i < files.size (); i++) {
+
+			if (i > 0) result += "\n";
+			result += files[i];
+
+		}
+
+		return result;
+
+	}
+
+
+	value lime_clipboard_get_files () {
+
+		std::vector<std::string> files;
+		if (!Clipboard::GetFiles (&files)) return alloc_null ();
+		return alloc_string (JoinClipboardFiles (files).c_str ());
+
+	}
+
+
+	HL_PRIM vbyte* HL_NAME(hl_clipboard_get_files) () {
+
+		std::vector<std::string> files;
+		if (!Clipboard::GetFiles (&files)) return NULL;
+
+		std::string text = JoinClipboardFiles (files);
+		vbyte* result = hl_alloc_bytes ((int)text.size () + 1);
+		memcpy (result, text.c_str (), text.size () + 1);
+		return result;
+
+	}
+
+
+	value lime_clipboard_get_format_text (int format) {
+
+		std::string text;
+		if (!Clipboard::GetFormatText (format, &text)) return alloc_null ();
+		return alloc_string_len (text.c_str (), (int)text.size ());
+
+	}
+
+
+	HL_PRIM vbyte* HL_NAME(hl_clipboard_get_format_text) (int format) {
+
+		std::string text;
+		if (!Clipboard::GetFormatText (format, &text)) return NULL;
+
+		vbyte* result = hl_alloc_bytes ((int)text.size () + 1);
+		memcpy (result, text.c_str (), text.size () + 1);
+		return result;
+
+	}
+
+
+	// The width and height as two Int32 values, then the pixels
+	value lime_clipboard_get_image (value data) {
+
+		std::vector<unsigned char> pixels;
+		int width = 0, height = 0;
+		if (!Clipboard::GetImage (&pixels, &width, &height)) return alloc_null ();
+
+		Bytes bytes (data);
+		bytes.Resize ((int)pixels.size () + 8);
+		memcpy (bytes.b, &width, 4);
+		memcpy (bytes.b + 4, &height, 4);
+		if (!pixels.empty ()) memcpy (bytes.b + 8, &pixels[0], pixels.size ());
+		return bytes.Value (data);
+
+	}
+
+
+	HL_PRIM Bytes* HL_NAME(hl_clipboard_get_image) (Bytes* data) {
+
+		std::vector<unsigned char> pixels;
+		int width = 0, height = 0;
+		if (!data || !Clipboard::GetImage (&pixels, &width, &height)) return NULL;
+
+		data->Resize ((int)pixels.size () + 8);
+		memcpy (data->b, &width, 4);
+		memcpy (data->b + 4, &height, 4);
+		if (!pixels.empty ()) memcpy (data->b + 8, &pixels[0], pixels.size ());
+		return data;
+
+	}
+
+
+	bool lime_clipboard_has_format (int format) {
+
+		return Clipboard::HasFormat (format);
+
+	}
+
+
+	HL_PRIM bool HL_NAME(hl_clipboard_has_format) (int format) {
+
+		return Clipboard::HasFormat (format);
+
+	}
+
+
+	bool lime_clipboard_set_items (value data) {
+
+		Bytes bytes (data);
+		return Clipboard::SetItems (bytes.b, bytes.length);
+
+	}
+
+
+	HL_PRIM bool HL_NAME(hl_clipboard_set_items) (Bytes* data) {
+
+		return data && Clipboard::SetItems (data->b, data->length);
 
 	}
 
@@ -2451,8 +2589,9 @@ namespace lime {
 		#ifdef LIME_FREETYPE
 		Font *font = (Font*)val_data (fontHandle);
 		wchar_t *name = font->GetFamilyName ();
+		if (!name) return alloc_null ();
 		value result = alloc_wstring (name);
-		delete name;
+		free (name);
 		return result;
 		#else
 		return alloc_null ();
@@ -2469,7 +2608,7 @@ namespace lime {
 		if (!name)
 			return nullptr;
 		vbyte* const result = hl_wstring_to_utf8_bytes (name);
-		delete name;
+		free (name);
 		return result;
 		#else
 		return 0;
@@ -4264,6 +4403,66 @@ namespace lime {
 	}
 
 
+	static ValuePointer* menuOpenCallback = 0;
+
+
+	static void CallMenuOpenCallback () {
+
+		menuOpenCallback->Call ();
+
+	}
+
+
+	// 0 is the window or tray icon ID, 1 the ID of the item whose submenu opens, or 0, and 2 where the menu belongs
+	int lime_menu_get_open_event (int index) {
+
+		int values[3];
+		Menu::GetOpenEvent (&values[0], &values[1], &values[2]);
+		return (index >= 0 && index < 3) ? values[index] : 0;
+
+	}
+
+
+	HL_PRIM int HL_NAME(hl_menu_get_open_event) (int index) {
+
+		return lime_menu_get_open_event (index);
+
+	}
+
+
+	void lime_menu_set_open_callback (value callback) {
+
+		if (menuOpenCallback) delete menuOpenCallback;
+		menuOpenCallback = new ValuePointer (callback);
+		Menu::SetOpenCallback (CallMenuOpenCallback);
+
+	}
+
+
+	HL_PRIM void HL_NAME(hl_menu_set_open_callback) (vclosure* callback) {
+
+		if (menuOpenCallback) delete menuOpenCallback;
+		menuOpenCallback = new ValuePointer (callback);
+		Menu::SetOpenCallback (CallMenuOpenCallback);
+
+	}
+
+
+	void lime_menu_set_open_items (value data) {
+
+		Bytes bytes (data);
+		Menu::SetOpenItems (bytes.b, bytes.length);
+
+	}
+
+
+	HL_PRIM void HL_NAME(hl_menu_set_open_items) (Bytes* data) {
+
+		if (data) Menu::SetOpenItems (data->b, data->length);
+
+	}
+
+
 	HL_PRIM int HL_NAME(hl_menu_get_support) () {
 
 		return Menu::GetSupport ();
@@ -4630,6 +4829,34 @@ namespace lime {
 	}
 
 
+	int lime_audio_input_get_permission_status () {
+
+		return AudioInputPermission::GetStatus ();
+
+	}
+
+
+	HL_PRIM int HL_NAME(hl_audio_input_get_permission_status) () {
+
+		return AudioInputPermission::GetStatus ();
+
+	}
+
+
+	void lime_audio_input_request_permission () {
+
+		AudioInputPermission::Request ();
+
+	}
+
+
+	HL_PRIM void HL_NAME(hl_audio_input_request_permission) () {
+
+		AudioInputPermission::Request ();
+
+	}
+
+
 	value lime_system_get_platform_label () {
 
 		std::wstring* label = System::GetPlatformLabel ();
@@ -4801,6 +5028,38 @@ namespace lime {
 		#else
 		return 0;
 		#endif
+
+	}
+
+
+	double lime_system_get_free_space (HxString path) {
+
+		// hxcpp keeps strings with characters beyond ASCII as UTF-16, which hxs_utf8 converts
+		return System::GetAvailableSpace (hxs_utf8 (path, nullptr));
+
+	}
+
+
+	HL_PRIM double HL_NAME(hl_system_get_free_space) (hl_vstring* path) {
+
+		// HashLink strings are UTF-16
+		return System::GetAvailableSpace (path ? hl_to_utf8 ((const uchar*)path->bytes) : NULL);
+
+	}
+
+
+	bool lime_system_is_symbolic_link (HxString path) {
+
+		// hxcpp keeps strings with characters beyond ASCII as UTF-16, which hxs_utf8 converts
+		return System::IsSymbolicLink (hxs_utf8 (path, nullptr));
+
+	}
+
+
+	HL_PRIM bool HL_NAME(hl_system_is_symbolic_link) (hl_vstring* path) {
+
+		// HashLink strings are UTF-16
+		return System::IsSymbolicLink (path ? hl_to_utf8 ((const uchar*)path->bytes) : NULL);
 
 	}
 
@@ -14287,6 +14546,7 @@ namespace lime {
 	DEFINE_PRIME1 (lime_application_quit);
 	DEFINE_PRIME2v (lime_application_set_idle_events);
 	DEFINE_PRIME6v (lime_application_set_main_loop);
+	DEFINE_PRIME2v (lime_application_set_background_frame_rate);
 	DEFINE_PRIME2v (lime_application_set_frame_rate);
 	DEFINE_PRIME5v (lime_application_set_modal_callbacks);
 	DEFINE_PRIME1v (lime_application_defer_modal_exception);
@@ -14304,6 +14564,11 @@ namespace lime {
 	DEFINE_PRIME1 (lime_cffi_set_finalizer);
 	DEFINE_PRIME2v (lime_clipboard_event_manager_register);
 	DEFINE_PRIME0 (lime_clipboard_get_text);
+	DEFINE_PRIME0 (lime_clipboard_get_files);
+	DEFINE_PRIME1 (lime_clipboard_get_format_text);
+	DEFINE_PRIME1 (lime_clipboard_get_image);
+	DEFINE_PRIME1 (lime_clipboard_has_format);
+	DEFINE_PRIME1 (lime_clipboard_set_items);
 	DEFINE_PRIME1v (lime_clipboard_set_text);
 	DEFINE_PRIME2 (lime_data_pointer_offset);
 	DEFINE_PRIME2 (lime_deflate_compress);
@@ -14403,6 +14668,9 @@ namespace lime {
 	DEFINE_PRIME2v (lime_menu_event_manager_register);
 	DEFINE_PRIME1 (lime_menu_get_application_menu);
 	DEFINE_PRIME0 (lime_menu_get_support);
+	DEFINE_PRIME1 (lime_menu_get_open_event);
+	DEFINE_PRIME1v (lime_menu_set_open_callback);
+	DEFINE_PRIME1v (lime_menu_set_open_items);
 	DEFINE_PRIME2v (lime_mouse_event_manager_register);
 	DEFINE_PRIME1v (lime_neko_execute);
 	DEFINE_PRIME2v (lime_orientation_event_manager_register);
@@ -14418,12 +14686,16 @@ namespace lime {
 	DEFINE_PRIME0 (lime_system_get_ios_tablet);
 	DEFINE_PRIME0 (lime_system_get_num_displays);
 	DEFINE_PRIME0 (lime_system_get_device_orientation);
+	DEFINE_PRIME0 (lime_audio_input_get_permission_status);
+	DEFINE_PRIME0v (lime_audio_input_request_permission);
 	DEFINE_PRIME0 (lime_system_get_platform_label);
 	DEFINE_PRIME0 (lime_system_get_platform_name);
 	DEFINE_PRIME0 (lime_system_get_platform_version);
 	DEFINE_PRIME3 (lime_system_get_secure_random_bytes);
 	DEFINE_PRIME0 (lime_system_get_timer);
 	DEFINE_PRIME1 (lime_system_get_windows_console_mode);
+	DEFINE_PRIME1 (lime_system_get_free_space);
+	DEFINE_PRIME1 (lime_system_is_symbolic_link);
 	DEFINE_PRIME1v (lime_system_open_file);
 	DEFINE_PRIME2v (lime_system_open_url);
 	DEFINE_PRIME1 (lime_system_set_allow_screen_timeout);
@@ -14622,14 +14894,14 @@ namespace lime {
 	#define _TJOYSTICK_EVENT _OBJ (_I32 _I32 _I32 _I32 _F64 _F64)
 	#define _TKEY_EVENT _OBJ (_F64 _I32 _I32 _I32 _I32)
 	#define _TMENU_EVENT _OBJ (_I32 _I32 _I32)
-	#define _TMOUSE_EVENT _OBJ (_I32 _F64 _F64 _I32 _I32 _F64 _F64 _I32)
+	#define _TMOUSE_EVENT _OBJ (_I32 _F64 _F64 _I32 _I32 _F64 _F64 _I32 _I32)
 	#define _TORIENTATION_EVENT _OBJ (_I32 _I32 _I32)
 	#define _TRECTANGLE _OBJ (_F64 _F64 _F64 _F64)
 	#define _TRENDER_EVENT _OBJ (_I32)
 	#define _TSENSOR_EVENT _OBJ (_I32 _F64 _F64 _F64 _I32)
 	#define _TTEXT_EVENT _OBJ (_I32 _I32 _I32 _BYTES _I32 _I32)
-	#define _TTOUCH_EVENT _OBJ (_I32 _F64 _F64 _I32 _F64 _I32 _F64 _F64)
-	#define _TTRAY_ICON_EVENT _OBJ (_I32 _I32 _I32)
+	#define _TTOUCH_EVENT _OBJ (_I32 _F64 _F64 _I32 _F64 _I32 _F64 _F64 _I32)
+	#define _TTRAY_ICON_EVENT _OBJ (_I32 _I32 _I32 _I32 _I32)
 	#define _TVECTOR2 _OBJ (_F64 _F64)
 	#define _TVORBISFILE _OBJ (_I32 _DYN _TBYTES)
 	#define _TWINDOW_EVENT _OBJ (_I32 _I32 _I32 _I32 _I32 _I32)
@@ -14652,6 +14924,7 @@ namespace lime {
 	DEFINE_HL_PRIM (_I32, hl_application_quit, _TCFFIPOINTER);
 	DEFINE_HL_PRIM (_VOID, hl_application_set_idle_events, _TCFFIPOINTER _BOOL);
 	DEFINE_HL_PRIM (_VOID, hl_application_set_main_loop, _TCFFIPOINTER _I32 _F64 _I32 _I32 _I32);
+	DEFINE_HL_PRIM (_VOID, hl_application_set_background_frame_rate, _TCFFIPOINTER _F64);
 	DEFINE_HL_PRIM (_VOID, hl_application_set_frame_rate, _TCFFIPOINTER _F64);
 	DEFINE_HL_PRIM (_VOID, hl_application_set_modal_callbacks, _TCFFIPOINTER _FUN(_VOID, _NO_ARG) _FUN(_VOID, _NO_ARG) _FUN(_VOID, _NO_ARG) _FUN(_VOID, _NO_ARG));
 	DEFINE_HL_PRIM (_VOID, hl_application_defer_modal_exception, _TCFFIPOINTER);
@@ -14669,6 +14942,11 @@ namespace lime {
 	DEFINE_HL_PRIM (_VOID, hl_clipboard_event_manager_register, _FUN(_VOID, _NO_ARG) _TCLIPBOARD_EVENT);
 	DEFINE_HL_PRIM (_BYTES, hl_clipboard_get_text, _NO_ARG);
 	DEFINE_HL_PRIM (_VOID, hl_clipboard_set_text, _STRING);
+	DEFINE_HL_PRIM (_BYTES, hl_clipboard_get_files, _NO_ARG);
+	DEFINE_HL_PRIM (_BYTES, hl_clipboard_get_format_text, _I32);
+	DEFINE_HL_PRIM (_TBYTES, hl_clipboard_get_image, _TBYTES);
+	DEFINE_HL_PRIM (_BOOL, hl_clipboard_has_format, _I32);
+	DEFINE_HL_PRIM (_BOOL, hl_clipboard_set_items, _TBYTES);
 	DEFINE_HL_PRIM (_F64, hl_data_pointer_offset, _F64 _I32);
 	DEFINE_HL_PRIM (_TBYTES, hl_deflate_compress, _TBYTES _TBYTES);
 	DEFINE_HL_PRIM (_TBYTES, hl_deflate_decompress, _TBYTES _TBYTES);
@@ -14767,6 +15045,9 @@ namespace lime {
 	DEFINE_HL_PRIM (_VOID, hl_menu_event_manager_register, _FUN (_VOID, _NO_ARG) _TMENU_EVENT);
 	DEFINE_HL_PRIM (_TBYTES, hl_menu_get_application_menu, _TBYTES);
 	DEFINE_HL_PRIM (_I32, hl_menu_get_support, _NO_ARG);
+	DEFINE_HL_PRIM (_I32, hl_menu_get_open_event, _I32);
+	DEFINE_HL_PRIM (_VOID, hl_menu_set_open_callback, _FUN (_VOID, _NO_ARG));
+	DEFINE_HL_PRIM (_VOID, hl_menu_set_open_items, _TBYTES);
 	DEFINE_HL_PRIM (_VOID, hl_mouse_event_manager_register, _FUN (_VOID, _NO_ARG) _TMOUSE_EVENT);
 	// DEFINE_PRIME1v (lime_neko_execute);
 	DEFINE_HL_PRIM (_VOID, hl_orientation_event_manager_register, _FUN (_VOID, _NO_ARG) _TORIENTATION_EVENT);
@@ -14782,12 +15063,16 @@ namespace lime {
 	DEFINE_HL_PRIM (_BOOL, hl_system_get_ios_tablet, _NO_ARG);
 	DEFINE_HL_PRIM (_I32, hl_system_get_num_displays, _NO_ARG);
 	DEFINE_HL_PRIM (_I32, hl_system_get_device_orientation, _NO_ARG);
+	DEFINE_HL_PRIM (_I32, hl_audio_input_get_permission_status, _NO_ARG);
+	DEFINE_HL_PRIM (_VOID, hl_audio_input_request_permission, _NO_ARG);
 	DEFINE_HL_PRIM (_BYTES, hl_system_get_platform_label, _NO_ARG);
 	DEFINE_HL_PRIM (_BYTES, hl_system_get_platform_name, _NO_ARG);
 	DEFINE_HL_PRIM (_BYTES, hl_system_get_platform_version, _NO_ARG);
 	DEFINE_HL_PRIM (_BOOL, hl_system_get_secure_random_bytes, _TBYTES _I32 _I32);
 	DEFINE_HL_PRIM (_F64, hl_system_get_timer, _NO_ARG);
 	DEFINE_HL_PRIM (_I32, hl_system_get_windows_console_mode, _I32);
+	DEFINE_HL_PRIM (_F64, hl_system_get_free_space, _STRING);
+	DEFINE_HL_PRIM (_BOOL, hl_system_is_symbolic_link, _STRING);
 	DEFINE_HL_PRIM (_VOID, hl_system_open_file, _STRING);
 	DEFINE_HL_PRIM (_VOID, hl_system_open_url, _STRING _STRING);
 	DEFINE_HL_PRIM (_BOOL, hl_system_set_allow_screen_timeout, _BOOL);

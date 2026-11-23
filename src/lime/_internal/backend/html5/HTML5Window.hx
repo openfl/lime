@@ -569,10 +569,18 @@ class HTML5Window
 				return false;
 
 			case "drop":
+				if (event.dataTransfer == null) return true;
+
 				// TODO: Create a formal API that supports HTML5 file objects
-				if (event.dataTransfer != null && event.dataTransfer.files.length > 0)
+				var hasFiles = event.dataTransfer.files.length > 0;
+				var text = hasFiles ? "" : event.dataTransfer.getData("text/plain");
+
+				if (hasFiles || (text != null && text != ""))
 				{
-					parent.onDropFile.dispatch(cast event.dataTransfer.files);
+					parent.onDropStart.dispatch();
+					if (hasFiles) parent.onDropFile.dispatch(cast event.dataTransfer.files);
+					else parent.onDropText.dispatch(text);
+					parent.onDropEnd.dispatch();
 					event.preventDefault();
 					return false;
 				}
