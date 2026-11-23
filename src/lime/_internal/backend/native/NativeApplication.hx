@@ -329,6 +329,20 @@ class NativeApplication
 		}
 	}
 
+	// The time SDL took an input, on the clock of System.getTimer(). SDL's clock is
+	// that clock already, but -Dsimulate_uptime moves getTimer() on, so the input
+	// times move with it, wrapping as getTimer() does
+	private static inline function __inputTime(timestamp:Int):Int
+	{
+		#if (simulate_uptime && !macro)
+		var time = (timestamp < 0 ? timestamp + 4294967296.0 : timestamp) + Std.parseFloat(haxe.macro.Compiler.getDefine("simulate_uptime"));
+		time = time % 4294967296.0;
+		return Std.int(time < 2147483648.0 ? time : time - 4294967296.0);
+		#else
+		return timestamp;
+		#end
+	}
+
 	private function __setIdleCallback(callback:Void->Void):Void
 	{
 		__idleCallback = callback;
@@ -432,14 +446,14 @@ class NativeApplication
 		{
 			case AXIS_MOVE:
 				var gamepad = Gamepad.devices.get(gamepadEventInfo.id);
-				if (gamepad != null) @:privateAccess gamepad.onAxisMove.__dispatchWithTimestamp(gamepadEventInfo.timestamp, gamepadEventInfo.axis,
+				if (gamepad != null) @:privateAccess gamepad.onAxisMove.__dispatchWithTimestamp(__inputTime(gamepadEventInfo.timestamp), gamepadEventInfo.axis,
 					gamepadEventInfo.axisValue);
 			case BUTTON_DOWN:
 				var gamepad = Gamepad.devices.get(gamepadEventInfo.id);
-				if (gamepad != null) @:privateAccess gamepad.onButtonDown.__dispatchWithTimestamp(gamepadEventInfo.timestamp, gamepadEventInfo.button);
+				if (gamepad != null) @:privateAccess gamepad.onButtonDown.__dispatchWithTimestamp(__inputTime(gamepadEventInfo.timestamp), gamepadEventInfo.button);
 			case BUTTON_UP:
 				var gamepad = Gamepad.devices.get(gamepadEventInfo.id);
-				if (gamepad != null) @:privateAccess gamepad.onButtonUp.__dispatchWithTimestamp(gamepadEventInfo.timestamp, gamepadEventInfo.button);
+				if (gamepad != null) @:privateAccess gamepad.onButtonUp.__dispatchWithTimestamp(__inputTime(gamepadEventInfo.timestamp), gamepadEventInfo.button);
 			case CONNECT:
 				Gamepad.__connect(gamepadEventInfo.id);
 
@@ -449,7 +463,7 @@ class NativeApplication
 			case SENSOR_UPDATE:
 				// The sensor comes in axis, and its readings in x, y and z
 				var gamepad = Gamepad.devices.get(gamepadEventInfo.id);
-				if (gamepad != null) @:privateAccess gamepad.onSensorUpdate.__dispatchWithTimestamp(gamepadEventInfo.timestamp, gamepadEventInfo.axis,
+				if (gamepad != null) @:privateAccess gamepad.onSensorUpdate.__dispatchWithTimestamp(__inputTime(gamepadEventInfo.timestamp), gamepadEventInfo.axis,
 					gamepadEventInfo.x, gamepadEventInfo.y, gamepadEventInfo.z);
 
 			case TOUCHPAD_DOWN, TOUCHPAD_MOVE, TOUCHPAD_UP:
@@ -458,7 +472,7 @@ class NativeApplication
 				if (gamepad != null)
 				{
 					var event = gamepadEventInfo.type == TOUCHPAD_DOWN ? gamepad.onTouchpadDown : (gamepadEventInfo.type == TOUCHPAD_MOVE ? gamepad.onTouchpadMove : gamepad.onTouchpadUp);
-					@:privateAccess event.__dispatchWithTimestamp(gamepadEventInfo.timestamp, gamepadEventInfo.button, gamepadEventInfo.x, gamepadEventInfo.y);
+					@:privateAccess event.__dispatchWithTimestamp(__inputTime(gamepadEventInfo.timestamp), gamepadEventInfo.button, gamepadEventInfo.x, gamepadEventInfo.y);
 				}
 		}
 	}
@@ -503,9 +517,9 @@ class NativeApplication
 				case KEY_DOWN:
 					// Key equivalents of the menu bar take priority, like native accelerators
 					if (window.__backend.handleMenuKeyEquivalent(keyCode, modifier)) return;
-					@:privateAccess window.onKeyDown.__dispatchWithTimestamp(keyEventInfo.timestamp, keyCode, modifier);
+					@:privateAccess window.onKeyDown.__dispatchWithTimestamp(__inputTime(keyEventInfo.timestamp), keyCode, modifier);
 				case KEY_UP:
-					@:privateAccess window.onKeyUp.__dispatchWithTimestamp(keyEventInfo.timestamp, keyCode, modifier);
+					@:privateAccess window.onKeyUp.__dispatchWithTimestamp(__inputTime(keyEventInfo.timestamp), keyCode, modifier);
 			}
 
 			#if (windows || linux)
@@ -623,22 +637,23 @@ class NativeApplication
 				case MOUSE_DOWN:
 					window.clickCount = mouseEventInfo.clickCount;
 
-					window.onMouseDown.dispatch(mouseEventInfo.x, mouseEventInfo.y, mouseEventInfo.button);
+					@:privateAccess window.onMouseDown.__dispatchWithTimestamp(__inputTime(mouseEventInfo.timestamp), mouseEventInfo.x, mouseEventInfo.y, mouseEventInfo.button);
 					window.clickCount = 0;
 				case MOUSE_UP:
 					window.clickCount = mouseEventInfo.clickCount;
-					window.onMouseUp.dispatch(mouseEventInfo.x, mouseEventInfo.y, mouseEventInfo.button);
+					@:privateAccess window.onMouseUp.__dispatchWithTimestamp(__inputTime(mouseEventInfo.timestamp), mouseEventInfo.x, mouseEventInfo.y, mouseEventInfo.button);
 
 					window.clickCount = 0;
 				case MOUSE_MOVE:
-					window.onMouseMove.dispatch(mouseEventInfo.x, mouseEventInfo.y);
+					@:privateAccess window.onMouseMove.__dispatchWithTimestamp(__inputTime(mouseEventInfo.timestamp), mouseEventInfo.x, mouseEventInfo.y);
 
-					window.onMouseMoveRelative.dispatch(mouseEventInfo.movementX, mouseEventInfo.movementY);
+					@:privateAccess window.onMouseMoveRelative.__dispatchWithTimestamp(__inputTime(mouseEventInfo.timestamp), mouseEventInfo.movementX, mouseEventInfo.movementY);
 				case MOUSE_WHEEL:
 					// The fractions of a step come in movementX and movementY
-					if (window.preciseMouseWheel) window.onMouseWheel.dispatch(mouseEventInfo.movementX, mouseEventInfo.movementY, UNKNOWN);
+					if (window.preciseMouseWheel) @:privateAccess window.onMouseWheel.__dispatchWithTimestamp(__inputTime(mouseEventInfo.timestamp), mouseEventInfo.movementX,
+						mouseEventInfo.movementY, UNKNOWN);
 					else
-						window.onMouseWheel.dispatch(mouseEventInfo.x, mouseEventInfo.y, UNKNOWN);
+						@:privateAccess window.onMouseWheel.__dispatchWithTimestamp(__inputTime(mouseEventInfo.timestamp), mouseEventInfo.x, mouseEventInfo.y, UNKNOWN);
 				default:
 			}
 		}
@@ -788,7 +803,7 @@ class NativeApplication
 				}
 				currentTouches.set(touch.id, touch);
 
-				Touch.onStart.dispatch(touch);
+				@:privateAccess Touch.onStart.__dispatchWithTimestamp(__inputTime(touchEventInfo.timestamp), touch);
 			case TOUCH_END:
 				var touch = currentTouches.get(touchEventInfo.id);
 
@@ -801,7 +816,7 @@ class NativeApplication
 					touch.dy = touchEventInfo.dy;
 					touch.pressure = touchEventInfo.pressure;
 
-					Touch.onEnd.dispatch(touch);
+					@:privateAccess Touch.onEnd.__dispatchWithTimestamp(__inputTime(touchEventInfo.timestamp), touch);
 					currentTouches.remove(touchEventInfo.id);
 					unusedTouchesPool.add(touch);
 				}
@@ -816,7 +831,7 @@ class NativeApplication
 
 					touch.dy = touchEventInfo.dy;
 					touch.pressure = touchEventInfo.pressure;
-					Touch.onMove.dispatch(touch);
+					@:privateAccess Touch.onMove.__dispatchWithTimestamp(__inputTime(touchEventInfo.timestamp), touch);
 				}
 			default:
 		}
@@ -1207,9 +1222,10 @@ class NativeApplication
 	public var x:Float;
 	public var y:Float;
 	public var clickCount:Int;
+	public var timestamp:Int;
 
 	public function new(type:MouseEventType = null, windowID:Int = 0, x:Float = 0, y:Float = 0, button:Int = 0, movementX:Float = 0, movementY:Float = 0,
-			clickCount:Int = 0)
+			clickCount:Int = 0, timestamp:Int = 0)
 	{
 		this.type = type;
 		this.windowID = windowID;
@@ -1220,11 +1236,12 @@ class NativeApplication
 		this.movementX = movementX;
 		this.movementY = movementY;
 		this.clickCount = clickCount;
+		this.timestamp = timestamp;
 	}
 
 	public function clone():MouseEventInfo
 	{
-		return new MouseEventInfo(type, windowID, x, y, button, movementX, movementY, clickCount);
+		return new MouseEventInfo(type, windowID, x, y, button, movementX, movementY, clickCount, timestamp);
 	}
 }
 
@@ -1327,8 +1344,10 @@ class NativeApplication
 	public var type:TouchEventType;
 	public var x:Float;
 	public var y:Float;
+	public var timestamp:Int;
 
-	public function new(type:TouchEventType = null, x:Float = 0, y:Float = 0, id:Int = 0, dx:Float = 0, dy:Float = 0, pressure:Float = 0, device:Int = 0)
+	public function new(type:TouchEventType = null, x:Float = 0, y:Float = 0, id:Int = 0, dx:Float = 0, dy:Float = 0, pressure:Float = 0, device:Int = 0,
+			timestamp:Int = 0)
 	{
 		this.type = type;
 		this.x = x;
@@ -1339,11 +1358,12 @@ class NativeApplication
 		this.dy = dy;
 		this.pressure = pressure;
 		this.device = device;
+		this.timestamp = timestamp;
 	}
 
 	public function clone():TouchEventInfo
 	{
-		return new TouchEventInfo(type, x, y, id, dx, dy, pressure, device);
+		return new TouchEventInfo(type, x, y, id, dx, dy, pressure, device, timestamp);
 	}
 }
 
