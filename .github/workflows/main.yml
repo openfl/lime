@@ -1,20 +1,10 @@
 name: CI
-on:
-  # A branch with a pull request is tested by the pull request's run, so pushes
-  # only run here for the long-lived branches. Any branch can be run by hand.
-  push:
-    branches:
-      - develop
-      - master
-      - '*-dev'
-      - '*-Dev'
-      - 'train/**'
-  pull_request:
-  workflow_dispatch:
+on: [push, pull_request, workflow_dispatch]
 
-# A newer run on the same branch or pull request replaces one still going
+# A newer run of the same kind on the same branch or pull request replaces one still
+# going. Push and pull request runs are kept apart, so neither cancels the other.
 concurrency:
-  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  group: ${{ github.workflow }}-${{ github.event_name }}-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: true
 
 env:
@@ -24,7 +14,20 @@ env:
 
 jobs:
 
+  # In openfl/lime, a push only runs CI on the long-lived branches: a branch with a
+  # pull request is tested by the pull request's run, which would otherwise run the
+  # same jobs again. In forks every push runs, and any branch can be run by hand.
+  gate:
+    runs-on: ubuntu-22.04
+    outputs:
+      run: ${{ steps.check.outputs.run }}
+    steps:
+      - id: check
+        run: echo "run=${{ github.event_name != 'push' || github.repository != 'openfl/lime' || github.ref == 'refs/heads/develop' || github.ref == 'refs/heads/master' || endsWith(github.ref, '-dev') || endsWith(github.ref, '-Dev') || startsWith(github.ref, 'refs/heads/train/') }}" >> "$GITHUB_OUTPUT"
+
   linux:
+    needs: gate
+    if: needs.gate.outputs.run == 'true'
     runs-on: ubuntu-22.04
     steps:
 
@@ -236,6 +239,8 @@ jobs:
           lime build SimpleVideo linux -release -verbose -nocolor
 
   linux-arm64:
+    needs: gate
+    if: needs.gate.outputs.run == 'true'
     runs-on: ubuntu-22.04-arm
     steps:
 
@@ -392,6 +397,8 @@ jobs:
           lime build SimpleVideo linux -release -verbose -nocolor
 
   vulkan-smoke:
+    needs: gate
+    if: needs.gate.outputs.run == 'true'
     runs-on: ubuntu-22.04
     steps:
 
@@ -465,6 +472,8 @@ jobs:
           SDL_AUDIODRIVER=dummy xvfb-run -a Export/linux/bin/LimeVulkanSmoke
 
   macos:
+    needs: gate
+    if: needs.gate.outputs.run == 'true'
     runs-on: macos-15
     steps:
 
@@ -594,6 +603,8 @@ jobs:
           lime build SimpleVideo macos -arm64 -release -verbose -nocolor
 
   macos-intel:
+    needs: gate
+    if: needs.gate.outputs.run == 'true'
     runs-on: macos-15-intel
     steps:
 
@@ -746,6 +757,8 @@ jobs:
           lime build SimpleVideo macos -x86_64 -release -verbose -nocolor
 
   windows:
+    needs: gate
+    if: needs.gate.outputs.run == 'true'
     runs-on: windows-latest
     steps:
 
@@ -952,6 +965,8 @@ jobs:
           if-no-files-found: error
 
   webassembly:
+    needs: gate
+    if: needs.gate.outputs.run == 'true'
     runs-on: ubuntu-22.04
     steps:
 
@@ -1034,6 +1049,8 @@ jobs:
           lime build SimpleVideo webassembly -release -verbose -nocolor -eval
 
   android:
+    needs: gate
+    if: needs.gate.outputs.run == 'true'
     runs-on: ubuntu-22.04
     strategy:
       matrix:
@@ -1163,6 +1180,8 @@ jobs:
           lime build android -release -verbose -nocolor -eval
 
   ios:
+    needs: gate
+    if: needs.gate.outputs.run == 'true'
     runs-on: macos-15
     steps:
 
@@ -1385,6 +1404,8 @@ jobs:
           if-no-files-found: error
 
   docs:
+    needs: gate
+    if: needs.gate.outputs.run == 'true'
     runs-on: ubuntu-22.04
     steps:
 
@@ -1425,6 +1446,8 @@ jobs:
           if-no-files-found: error
 
   flash-samples:
+    needs: gate
+    if: needs.gate.outputs.run == 'true'
     runs-on: ubuntu-22.04
     steps:
 
@@ -1480,6 +1503,8 @@ jobs:
           lime build SimpleVideo flash -release -verbose -nocolor -eval
 
   air-samples:
+    needs: gate
+    if: needs.gate.outputs.run == 'true'
     runs-on: windows-latest
     strategy:
       matrix:
@@ -1856,9 +1881,9 @@ jobs:
 
   notify:
     runs-on: ubuntu-22.04
-    needs: [package-haxelib, docs, android, flash-samples, air-samples, hashlink-samples, hashlinkc-samples, html5-samples, ios, linux, linux-arm64, vulkan-smoke, macos, macos-intel, neko-samples, webassembly, windows]
+    needs: [gate, package-haxelib, docs, android, flash-samples, air-samples, hashlink-samples, hashlinkc-samples, html5-samples, ios, linux, linux-arm64, vulkan-smoke, macos, macos-intel, neko-samples, webassembly, windows]
     # Reports failures too, which is when it matters most
-    if: ${{ always() && github.repository == 'openfl/lime' && github.event_name != 'pull_request' }}
+    if: ${{ always() && needs.gate.outputs.run == 'true' && github.repository == 'openfl/lime' && github.event_name != 'pull_request' }}
     steps:
       - name: Notify Discord
         env:
