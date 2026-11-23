@@ -27,6 +27,21 @@ namespace lime {
 	}
 
 
+	void Menu::GetOpenEvent (int* target, int* menu, int* source) {
+
+		*target = 0;
+		*menu = 0;
+		*source = 0;
+
+	}
+
+
+	void Menu::SetOpenCallback (void (*callback) ()) {}
+
+
+	void Menu::SetOpenItems (const unsigned char* data, int length) {}
+
+
 	int SDLMenu::GetSupport () {
 
 		return 0;
@@ -65,6 +80,13 @@ namespace lime {
 	}
 
 
+	bool SDLMenu::GetClose (SDL_Event* event, Uint32* target, int* menu, int* source) {
+
+		return false;
+
+	}
+
+
 	bool SDLMenu::GetDockMenuSelection (SDL_Event* event, int* id) {
 
 		return false;
@@ -72,7 +94,7 @@ namespace lime {
 	}
 
 
-	bool SDLMenu::GetTrayIconEvent (SDL_Event* event, int* id, int* type, int* item) {
+	bool SDLMenu::GetTrayIconEvent (SDL_Event* event, int* id, int* type, int* item, int* x, int* y) {
 
 		return false;
 
@@ -82,13 +104,16 @@ namespace lime {
 	void SDLMenu::PushEvent (int kind, Uint32 target, int code, int value) {}
 
 
+	void SDLMenu::PushClose (Uint32 target, int menu, int source) {}
+
+
 	void SDLMenu::PushDockMenuSelection (int id) {}
 
 
 	void SDLMenu::PushSelection (Uint32 windowID, int id) {}
 
 
-	void SDLMenu::PushTrayIconEvent (int trayIconID, int type, int itemID) {}
+	void SDLMenu::PushTrayIconEvent (int trayIconID, int type, int itemID, int x, int y) {}
 
 
 	bool TrayIcon::IsSupported () {

@@ -340,6 +340,9 @@ class HTML5Menu
 		if (bar != null) bar.classList.remove("lime-menu-keyboard");
 
 		stopListening();
+
+		// Changes made in onOpen to menus other than the one opening
+		Menu.__applyDeferred();
 	}
 
 	private function closePanels(depth:Int):Void
@@ -352,6 +355,8 @@ class HTML5Menu
 			{
 				panel.element.parentNode.removeChild(panel.element);
 			}
+
+			panel.menu.onClose.dispatch();
 		}
 	}
 
@@ -734,6 +739,9 @@ class HTML5Menu
 
 	private function openPanel(menu:Menu, owner:MenuPanel):MenuPanel
 	{
+		// Before the panel takes its items, so listeners can still change them
+		menu.__dispatchOpen();
+
 		var panel = new MenuPanel(menu);
 
 		var element = panel.element;

@@ -67,10 +67,9 @@ namespace lime {
 
 				}
 
+				// In memory the collector owns, which a malloc copy was not, so every event leaked it
 				int length = strlen ((const char*)event->text);
-				char* text = (char*)malloc (length + 1);
-				strcpy (text, (const char*)event->text);
-				eventObject->text = (vbyte*)text;
+				eventObject->text = hl_copy_bytes ((const vbyte*)event->text, length + 1);
 				eventObject->type = event->type;
 				eventObject->windowID = event->windowID;
 

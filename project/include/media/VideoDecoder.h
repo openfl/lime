@@ -389,6 +389,7 @@ namespace lime {
 			std::condition_variable stoppedCondition;
 			unsigned int texture;
 			void* textureContext;
+			int textureGroup;
 			int textureHeight;
 			std::atomic<bool> texturesFailed;
 			std::thread::id textureThread;

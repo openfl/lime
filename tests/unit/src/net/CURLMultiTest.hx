@@ -175,6 +175,58 @@ class CURLMultiTest extends Test
 		Assert.equals(1, server.countDisconnects(), "the removed transfer's connection stayed open");
 	}
 
+	public function testCallbacksCanRemoveHandlesWhilePerformFlushesThem():Void
+	{
+		// perform() hands each handle's data to its callbacks, one handle at a
+		// time, and a callback may remove handles from the multi handle
+		var server = delaying(0);
+
+		// Its own, where it is the only one
+		var alone = newMulti();
+		var only = handle(server.url("/only"), null);
+		var removedAlone = false;
+		only.setOption(WRITEFUNCTION, function(_, output:Bytes):Int
+		{
+			if (!removedAlone)
+			{
+				removedAlone = true;
+				alone.removeHandle(only);
+			}
+			return output.length;
+		});
+		alone.addHandle(only);
+		Assert.isTrue(drive(alone, 5), "the transfer did not finish");
+		Assert.isTrue(removedAlone, "the callback did not run");
+		Assert.equals(0, readAll(alone).length);
+
+		// Its own and a later one, while another goes on
+		var multi = newMulti();
+		var first = handle(server.url("/first"), null);
+		var secondBody = new BytesBuffer();
+		var second = handle(server.url("/second"), secondBody);
+		var third = handle(server.url("/third"), null);
+		var removed = false;
+		first.setOption(WRITEFUNCTION, function(_, output:Bytes):Int
+		{
+			if (!removed)
+			{
+				removed = true;
+				multi.removeHandle(first);
+				multi.removeHandle(third);
+			}
+			return output.length;
+		});
+		for (curl in [first, second, third]) multi.addHandle(curl);
+
+		Assert.isTrue(drive(multi, 5), "the transfers did not finish");
+		Assert.isTrue(removed, "the callback did not run");
+		Assert.equals("answer for /second", secondBody.getBytes().toString());
+
+		var messages = readAll(multi);
+		Assert.equals(1, messages.length, "only the transfer left should be reported");
+		if (messages.length == 1) Assert.equals(second, messages[0].curl);
+	}
+
 	public function testAFinishedHandleCanBeAddedAgain():Void
 	{
 		var server = serve(function(request) return ScriptedResponse.text(200, "answer for " + request.path));
