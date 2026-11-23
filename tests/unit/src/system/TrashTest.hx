@@ -34,7 +34,12 @@ class TrashTest extends Test
 	#if (lime_cffi && !macro && (windows || mac || linux))
 	public function testAMissingPathIsNotMoved():Void
 	{
-		Assert.isFalse(System.moveToTrash(Path.join([temporaryFolder(), "lime-test-trash-missing-" + Std.random(0x3FFFFFFF)])));
+		var missing = Path.join([temporaryFolder(), "lime-test-trash-missing-" + Std.random(0x3FFFFFFF)]);
+		Assert.isFalse(System.moveToTrash(missing));
+
+		// Boxed, as for a Future's result: HashLink 1.16's JIT boxed a native function's false as true on macOS
+		var boxed:Dynamic = System.moveToTrash(missing);
+		Assert.isFalse(boxed, "moveToTrash gave " + boxed + " once boxed");
 	}
 
 	@:timeout(10000)
