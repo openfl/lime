@@ -38,7 +38,7 @@ This product bundles Mozilla's CA certificate list, as published by curl,
 which is available under an "MPL 2.0" license. For details, see
 [project/lib/custom/curl/ca_certificates.h](project/lib/custom/curl/ca_certificates.h).
 
-This product bundles native-desktop 1.1.0, which is available under an
+This product bundles native-desktop 1.2.1, which is available under an
 "MIT" license. For details, see [DimensionscapeOrg/native-desktop](https://github.com/DimensionscapeOrg/native-desktop).
 
 This product bundles native-ipc 1.0.0, which is available under an
@@ -46,7 +46,7 @@ This product bundles native-ipc 1.0.0, which is available under an
 
 _native-desktop and native-ipc are only included in Windows, macOS and Linux builds._
 
-This product bundles StageWebView 1.0.1, which is available under an
+This product bundles StageWebView 1.1.0, which is available under an
 "Apache 2.0" license. For details, see [DimensionscapeOrg/stagewebview](https://github.com/DimensionscapeOrg/stagewebview).
 It includes webview, under an "MIT" license, and headers from the WebView2 SDK, under a "BSD" license.
 
