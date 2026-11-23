@@ -216,7 +216,7 @@ class CommandLineTools
 
 					switch (haxelib.name)
 					{
-						case "hxcpp":
+						case "hxcpp", "libhxcpp":
 							hxmlPath = Path.combine(haxelibPath, "tools/hxcpp/compile.hxml");
 
 						case "haxelib":
