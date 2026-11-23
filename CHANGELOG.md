@@ -36,7 +36,6 @@ Changelog
 - Added `System.moveToTrash()` and `System.moveToTrashAsync()` on Windows, macOS and Linux.
 - Added `StorageVolume`, with the mounted volumes and `onMount` and `onUnmount` events, on Windows, macOS and Linux.
 - Added `NetworkInterface`, with the network interfaces and their addresses and an `onChange` event, on Windows, macOS, Linux, iOS and Android, and `onChange` on HTML5.
-- Added explicit font rendering flags, DPI-aware glyph rendering, unhinted font decomposition, and HarfBuzz FT font change notifications.
 - Added explicit font rendering flags and DPI-aware glyph rendering with `Font.renderGlyphWithLoadFlags()`, unhinted font decomposition with `Font.decomposeUnhinted()`, and HarfBuzz FT font change notifications.
 - Added `Font.isBold` and `Font.isItalic`.
 - Added `Font.setVariation()` to set the axes of variable fonts.
