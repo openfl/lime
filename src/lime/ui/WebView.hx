@@ -200,11 +200,17 @@ class WebView
 	}
 
 	/**
-		Gives the view the focus.
+		Gives the view the focus. With `TOP` or `BOTTOM`, the focus enters the
+		page at its first or last element that takes the focus, as tabbing into
+		it does; with `NONE`, it goes back to where it was in the page.
+
+		WebView2 on Windows does this itself. Elsewhere, the page's elements
+		are focused by a script, in document order, which does not reach into
+		frames of another origin.
 	**/
-	public function focus():Void
+	public function focus(direction:FocusDirection = NONE):Void
 	{
-		__backend.focus();
+		__backend.focus(direction);
 	}
 
 	/**
