@@ -4148,9 +4148,15 @@ class NativeCFFI
 
 	@:cffi private static function lime_al_cleanup():Void;
 
+	@:cffi private static function lime_al_delete_auxiliary_effect_slot(aux:CFFIPointer):Void;
+
 	@:cffi private static function lime_al_delete_buffer(buffer:CFFIPointer):Void;
 
 	@:cffi private static function lime_al_delete_buffers(n:Int, buffers:Dynamic):Void;
+
+	@:cffi private static function lime_al_delete_effect(effect:CFFIPointer):Void;
+
+	@:cffi private static function lime_al_delete_filter(filter:CFFIPointer):Void;
 
 	@:cffi private static function lime_al_delete_source(source:CFFIPointer):Void;
 
@@ -4386,9 +4392,13 @@ class NativeCFFI
 	private static var lime_al_bufferiv = new cpp.Callable<cpp.Object->Int->cpp.Object->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_al_bufferiv", "oiov",
 		false));
 	private static var lime_al_cleanup = new cpp.Callable<Void->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_al_cleanup", "v", false));
+	private static var lime_al_delete_auxiliary_effect_slot = new cpp.Callable<cpp.Object->cpp.Void>(cpp.Prime._loadPrime("lime",
+		"lime_al_delete_auxiliary_effect_slot", "ov", false));
 	private static var lime_al_delete_buffer = new cpp.Callable<cpp.Object->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_al_delete_buffer", "ov", false));
 	private static var lime_al_delete_buffers = new cpp.Callable<Int->cpp.Object->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_al_delete_buffers", "iov",
 		false));
+	private static var lime_al_delete_effect = new cpp.Callable<cpp.Object->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_al_delete_effect", "ov", false));
+	private static var lime_al_delete_filter = new cpp.Callable<cpp.Object->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_al_delete_filter", "ov", false));
 	private static var lime_al_delete_source = new cpp.Callable<cpp.Object->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_al_delete_source", "ov", false));
 	private static var lime_al_delete_sources = new cpp.Callable<Int->cpp.Object->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_al_delete_sources", "iov",
 		false));
@@ -4543,8 +4553,11 @@ class NativeCFFI
 	private static var lime_al_bufferi = CFFI.load("lime", "lime_al_bufferi", 3);
 	private static var lime_al_bufferiv = CFFI.load("lime", "lime_al_bufferiv", 3);
 	private static var lime_al_cleanup = CFFI.load("lime", "lime_al_cleanup", 0);
+	private static var lime_al_delete_auxiliary_effect_slot = CFFI.load("lime", "lime_al_delete_auxiliary_effect_slot", 1);
 	private static var lime_al_delete_buffer = CFFI.load("lime", "lime_al_delete_buffer", 1);
 	private static var lime_al_delete_buffers = CFFI.load("lime", "lime_al_delete_buffers", 2);
+	private static var lime_al_delete_effect = CFFI.load("lime", "lime_al_delete_effect", 1);
+	private static var lime_al_delete_filter = CFFI.load("lime", "lime_al_delete_filter", 1);
 	private static var lime_al_delete_source = CFFI.load("lime", "lime_al_delete_source", 1);
 	private static var lime_al_delete_sources = CFFI.load("lime", "lime_al_delete_sources", 2);
 	private static var lime_al_disable = CFFI.load("lime", "lime_al_disable", 1);
@@ -4676,9 +4689,15 @@ class NativeCFFI
 
 	@:hlNative("lime", "hl_al_cleanup") private static function lime_al_cleanup():Void {}
 
+	@:hlNative("lime", "hl_al_delete_auxiliary_effect_slot") private static function lime_al_delete_auxiliary_effect_slot(aux:CFFIPointer):Void {}
+
 	@:hlNative("lime", "hl_al_delete_buffer") private static function lime_al_delete_buffer(buffer:CFFIPointer):Void {}
 
 	@:hlNative("lime", "hl_al_delete_buffers") private static function lime_al_delete_buffers(n:Int, buffers:hl.NativeArray<CFFIPointer>):Void {}
+
+	@:hlNative("lime", "hl_al_delete_effect") private static function lime_al_delete_effect(effect:CFFIPointer):Void {}
+
+	@:hlNative("lime", "hl_al_delete_filter") private static function lime_al_delete_filter(filter:CFFIPointer):Void {}
 
 	@:hlNative("lime", "hl_al_delete_source") private static function lime_al_delete_source(source:CFFIPointer):Void {}
 
