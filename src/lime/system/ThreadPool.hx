@@ -650,31 +650,6 @@ class ThreadPool extends WorkOutput
 	/**
 		__Run this only on a background thread.__
 
-		The next message that interrupts the job `jobID`, or `null`. The main
-		thread learns which job a thread is on from its `WORK` event, so a
-		cancel can be sent after the thread has moved on from the job it is
-		for: such a cancel names its job, and is dropped here.
-	**/
-	private static function nextInterruption(jobID:Null<Int>):ThreadEvent
-	{
-		var message:ThreadEvent;
-
-		while ((message = Thread.readMessage(false)) != null)
-		{
-			if (message.event == IDLE && message.jobID != null && message.jobID != jobID)
-			{
-				continue;
-			}
-
-			return message;
-		}
-
-		return null;
-	}
-
-	/**
-		__Run this only on a background thread.__
-
 		Retrieves jobs using `Thread.readMessage()`, runs them until complete,
 		and repeats. The first message must be `ThreadArguments`, and the rest
 		must be `ThreadEvent`s.
@@ -754,8 +729,26 @@ class ThreadPool extends WorkOutput
 				var interruption:ThreadEvent = null;
 				try
 				{
-					while (!output.__jobComplete.value && (interruption = nextInterruption(event.jobID)) == null)
+					while (!output.__jobComplete.value)
 					{
+						// Read here, not in a function of its own: on HTML5 this waits with
+						// `await`, which only this async function can do
+						interruption = Thread.readMessage(false);
+
+						if (interruption != null)
+						{
+							// The main thread learns which job a thread is on from its `WORK`
+							// event, so a cancel can come after the thread has moved on from
+							// the job it is for. Such a cancel names its job, and is dropped.
+							if (interruption.event == IDLE && interruption.jobID != null && interruption.jobID != event.jobID)
+							{
+								interruption = null;
+								continue;
+							}
+
+							break;
+						}
+
 						if (output.workIterations.value == 0)
 						{
 							output.sendThreadEvent({event: WORK, jobID: event.jobID, threadID: args.threadID});
