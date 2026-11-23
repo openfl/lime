@@ -101,14 +101,22 @@ namespace lime {
 		static void my_skip_input_data (j_decompress_ptr cinfo, long num_bytes) {
 
 			MySrcManager *man = (MySrcManager *)cinfo->src;
-			man->pub.next_input_byte += num_bytes;
-			man->pub.bytes_in_buffer -= num_bytes;
 
-			// was < 0 and was always false PJK 16JUN12
-			if (man->pub.bytes_in_buffer == 0) {
+			if (num_bytes <= 0) return;
 
+			// A marker may claim more than is left, in a truncated or damaged
+			// file. The whole file is one buffer, so a skip to or past its end
+			// leaves only the end of image marker, as libjpeg's memory source does.
+			if ((size_t)num_bytes >= man->pub.bytes_in_buffer) {
+
+				man->mUsed = true;
 				man->pub.next_input_byte = man->mEOI;
 				man->pub.bytes_in_buffer = 2;
+
+			} else {
+
+				man->pub.next_input_byte += num_bytes;
+				man->pub.bytes_in_buffer -= num_bytes;
 
 			}
 

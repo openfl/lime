@@ -24,6 +24,19 @@
 #ifndef CREATE_WAITABLE_TIMER_HIGH_RESOLUTION
 #define CREATE_WAITABLE_TIMER_HIGH_RESOLUTION 0x00000002
 #endif
+
+// Looked up at run time: MinGW's headers declare CreateWaitableTimerExW only
+// when _WIN32_WINNT says Vista or later
+typedef HANDLE (WINAPI *CreateWaitableTimerExWFunc) (LPSECURITY_ATTRIBUTES, LPCWSTR, DWORD, DWORD);
+
+static HANDLE CreateHighResolutionTimer ()
+{
+	HMODULE kernel32 = GetModuleHandleW (L"kernel32.dll");
+	if (!kernel32) return NULL;
+	CreateWaitableTimerExWFunc create = (CreateWaitableTimerExWFunc)GetProcAddress (kernel32, "CreateWaitableTimerExW");
+	if (!create) return NULL;
+	return create (NULL, NULL, CREATE_WAITABLE_TIMER_HIGH_RESOLUTION, TIMER_ALL_ACCESS);
+}
 #elif !defined(HX_WINDOWS)
 #include <time.h>
 #endif
@@ -147,7 +160,7 @@ namespace lime
 		mainLoopApplied = false;
 #if defined(HX_WINDOWS) && !defined(HX_WINRT)
 		// Windows 10 1803 and later; without it the remainder of a frame is spun as before
-		frameTimer = CreateWaitableTimerExW(NULL, NULL, CREATE_WAITABLE_TIMER_HIGH_RESOLUTION, TIMER_ALL_ACCESS);
+		frameTimer = CreateHighResolutionTimer ();
 #endif
 		swapPaced = false;
 		swapFallback = false;
@@ -463,6 +476,23 @@ namespace lime
 			sleepGuardMs = 16.0;
 
 		lastSleepCalibration = now;
+	}
+
+	bool SDLApplication::CalibrateSleepGuardBefore(double remaining)
+	{
+
+		// The measurement sleeps for about the guard, so it waits for a wait
+		// with time to spare, where it can't make the frame start late. The
+		// caller reads the time left again when it returns true.
+		Uint32 now = SDL_GetTicks();
+		if (lastSleepCalibration != 0 && (now - lastSleepCalibration) < 5000)
+			return false;
+
+		if (remaining < (double)GetSleepGuardMs() * 2.0 + 2.0)
+			return false;
+
+		CalibrateSleepGuard();
+		return true;
 	}
 
 	Uint32 SDLApplication::GetSleepGuardMs() const
@@ -1837,7 +1867,8 @@ namespace lime
 #endif
 
 #ifdef LIME_SDL_SOUND
-		Sound_Quit ();
+		// Not under a stream being refilled on another thread
+		SDLSound::Quit ();
 #endif
 
 		SDL_QuitSubSystem(initFlags);
@@ -2136,7 +2167,18 @@ namespace lime
 			else if (!busyWaitOnly)
 			{
 
-				CalibrateSleepGuard();
+				if (CalibrateSleepGuardBefore(remaining))
+				{
+					// Measuring slept, so the time left is read again
+					remaining = nextUpdate - GetCurrentTimeMs();
+					if (remaining <= 0.0)
+						return 0;
+
+					waitMs = (int)(remaining + 0.999);
+					if (waitMs < 1)
+						waitMs = 1;
+				}
+
 				Uint32 guardMs = GetSleepGuardMs();
 				if (remaining > (double)guardMs + 1.0)
 				{
@@ -2277,7 +2319,20 @@ namespace lime
 				if (!busyWaitOnly)
 				{
 
-					CalibrateSleepGuard();
+					if (CalibrateSleepGuardBefore(remaining))
+					{
+						// Measuring slept, so the time left is read again
+						remaining = nextUpdate - GetCurrentTimeMs();
+						if (remaining <= 0.0)
+						{
+							if (isBlocking)
+							{
+								SDL_AtomicSet(&s_waitEventBlocking, 0);
+								System::GCExitBlocking();
+							}
+							return 0;
+						}
+					}
 
 					Uint32 guardMs = GetSleepGuardMs();
 					if (remaining > (double)guardMs + 1.0)

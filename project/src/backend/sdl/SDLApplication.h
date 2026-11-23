@@ -64,6 +64,7 @@ namespace lime {
 			void ApplyMainLoopSettings ();
 			void UpdateWindowsHidden (bool apply);
 			void CalibrateSleepGuard (bool force = false);
+			bool CalibrateSleepGuardBefore (double remaining);
 			void DispatchFrame (double now, bool renderFrame = true);
 			void DispatchIdle (double remaining);
 			double GetCurrentTimeMs () const;
