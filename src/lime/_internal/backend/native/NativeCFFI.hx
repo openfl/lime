@@ -118,6 +118,28 @@ class NativeCFFI
 
 	@:cffi private static function lime_cffi_get_native_pointer(ptr:Dynamic):Float;
 
+	@:cffi private static function lime_camera_capture_close(handle:CFFIPointer):Void;
+
+	@:cffi private static function lime_camera_capture_get_devices():Dynamic;
+
+	@:cffi private static function lime_camera_capture_get_permission_status():Int;
+
+	@:cffi private static function lime_camera_capture_get_property(handle:CFFIPointer, property:Int):Float;
+
+	@:cffi private static function lime_camera_capture_is_connected(handle:CFFIPointer):Bool;
+
+	@:cffi private static function lime_camera_capture_is_supported():Bool;
+
+	@:cffi private static function lime_camera_capture_open(id:String, width:Int, height:Int, frameRate:Float):CFFIPointer;
+
+	@:cffi private static function lime_camera_capture_read_frame(handle:CFFIPointer, format:Int, buffer:Dynamic, position:Int, length:Int):Int;
+
+	@:cffi private static function lime_camera_capture_request_permission():Void;
+
+	@:cffi private static function lime_camera_capture_start(handle:CFFIPointer):Bool;
+
+	@:cffi private static function lime_camera_capture_stop(handle:CFFIPointer):Void;
+
 	@:cffi private static function lime_clipboard_event_manager_register(callback:Dynamic, eventObject:Dynamic):Void;
 
 	@:cffi private static function lime_clipboard_get_text():Dynamic;
@@ -1020,6 +1042,28 @@ class NativeCFFI
 		false));
 	private static var lime_cffi_get_native_pointer = new cpp.Callable<cpp.Object->Float>(cpp.Prime._loadPrime("lime", "lime_cffi_get_native_pointer", "od",
 		false));
+	private static var lime_camera_capture_close = new cpp.Callable<cpp.Object->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_camera_capture_close", "ov",
+		false));
+	private static var lime_camera_capture_get_devices = new cpp.Callable<Void->cpp.Object>(cpp.Prime._loadPrime("lime", "lime_camera_capture_get_devices",
+		"o", false));
+	private static var lime_camera_capture_get_permission_status = new cpp.Callable<Void->Int>(cpp.Prime._loadPrime("lime",
+		"lime_camera_capture_get_permission_status", "i", false));
+	private static var lime_camera_capture_get_property = new cpp.Callable<cpp.Object->Int->Float>(cpp.Prime._loadPrime("lime",
+		"lime_camera_capture_get_property", "oid", false));
+	private static var lime_camera_capture_is_connected = new cpp.Callable<cpp.Object->Bool>(cpp.Prime._loadPrime("lime",
+		"lime_camera_capture_is_connected", "ob", false));
+	private static var lime_camera_capture_is_supported = new cpp.Callable<Void->Bool>(cpp.Prime._loadPrime("lime", "lime_camera_capture_is_supported",
+		"b", false));
+	private static var lime_camera_capture_open = new cpp.Callable<String->Int->Int->Float->cpp.Object>(cpp.Prime._loadPrime("lime",
+		"lime_camera_capture_open", "siido", false));
+	private static var lime_camera_capture_read_frame = new cpp.Callable<cpp.Object->Int->cpp.Object->Int->Int->Int>(cpp.Prime._loadPrime("lime",
+		"lime_camera_capture_read_frame", "oioiii", false));
+	private static var lime_camera_capture_request_permission = new cpp.Callable<Void->cpp.Void>(cpp.Prime._loadPrime("lime",
+		"lime_camera_capture_request_permission", "v", false));
+	private static var lime_camera_capture_start = new cpp.Callable<cpp.Object->Bool>(cpp.Prime._loadPrime("lime", "lime_camera_capture_start", "ob",
+		false));
+	private static var lime_camera_capture_stop = new cpp.Callable<cpp.Object->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_camera_capture_stop", "ov",
+		false));
 	private static var lime_clipboard_event_manager_register = new cpp.Callable<cpp.Object->cpp.Object->cpp.Void>(cpp.Prime._loadPrime("lime",
 		"lime_clipboard_event_manager_register", "oov", false));
 	private static var lime_clipboard_get_text = new cpp.Callable<Void->cpp.Object>(cpp.Prime._loadPrime("lime", "lime_clipboard_get_text", "o", false));
@@ -1697,6 +1741,17 @@ class NativeCFFI
 	private static var lime_bytes_get_data_pointer_offset = CFFI.load("lime", "lime_bytes_get_data_pointer_offset", 2);
 	private static var lime_bytes_read_file = CFFI.load("lime", "lime_bytes_read_file", 2);
 	private static var lime_cffi_get_native_pointer = CFFI.load("lime", "lime_cffi_get_native_pointer", 1);
+	private static var lime_camera_capture_close = CFFI.load("lime", "lime_camera_capture_close", 1);
+	private static var lime_camera_capture_get_devices = CFFI.load("lime", "lime_camera_capture_get_devices", 0);
+	private static var lime_camera_capture_get_permission_status = CFFI.load("lime", "lime_camera_capture_get_permission_status", 0);
+	private static var lime_camera_capture_get_property = CFFI.load("lime", "lime_camera_capture_get_property", 2);
+	private static var lime_camera_capture_is_connected = CFFI.load("lime", "lime_camera_capture_is_connected", 1);
+	private static var lime_camera_capture_is_supported = CFFI.load("lime", "lime_camera_capture_is_supported", 0);
+	private static var lime_camera_capture_open = CFFI.load("lime", "lime_camera_capture_open", 4);
+	private static var lime_camera_capture_read_frame = CFFI.load("lime", "lime_camera_capture_read_frame", 5);
+	private static var lime_camera_capture_request_permission = CFFI.load("lime", "lime_camera_capture_request_permission", 0);
+	private static var lime_camera_capture_start = CFFI.load("lime", "lime_camera_capture_start", 1);
+	private static var lime_camera_capture_stop = CFFI.load("lime", "lime_camera_capture_stop", 1);
 	private static var lime_clipboard_event_manager_register = CFFI.load("lime", "lime_clipboard_event_manager_register", 2);
 	private static var lime_clipboard_get_text = CFFI.load("lime", "lime_clipboard_get_text", 0);
 	private static var lime_clipboard_set_text = CFFI.load("lime", "lime_clipboard_set_text", 1);
@@ -2199,6 +2254,53 @@ class NativeCFFI
 	{
 		return 0;
 	}
+
+	@:hlNative("lime", "hl_camera_capture_close") private static function lime_camera_capture_close(handle:CFFIPointer):Void {}
+
+	@:hlNative("lime", "hl_camera_capture_get_devices") private static function lime_camera_capture_get_devices():hl.Bytes
+	{
+		return null;
+	}
+
+	@:hlNative("lime", "hl_camera_capture_get_permission_status") private static function lime_camera_capture_get_permission_status():Int
+	{
+		return 0;
+	}
+
+	@:hlNative("lime", "hl_camera_capture_get_property") private static function lime_camera_capture_get_property(handle:CFFIPointer, property:Int):Float
+	{
+		return 0;
+	}
+
+	@:hlNative("lime", "hl_camera_capture_is_connected") private static function lime_camera_capture_is_connected(handle:CFFIPointer):Bool
+	{
+		return false;
+	}
+
+	@:hlNative("lime", "hl_camera_capture_is_supported") private static function lime_camera_capture_is_supported():Bool
+	{
+		return false;
+	}
+
+	@:hlNative("lime", "hl_camera_capture_open") private static function lime_camera_capture_open(id:String, width:Int, height:Int, frameRate:Float):CFFIPointer
+	{
+		return null;
+	}
+
+	@:hlNative("lime", "hl_camera_capture_read_frame") private static function lime_camera_capture_read_frame(handle:CFFIPointer, format:Int, buffer:Bytes,
+		position:Int, length:Int):Int
+	{
+		return 0;
+	}
+
+	@:hlNative("lime", "hl_camera_capture_request_permission") private static function lime_camera_capture_request_permission():Void {}
+
+	@:hlNative("lime", "hl_camera_capture_start") private static function lime_camera_capture_start(handle:CFFIPointer):Bool
+	{
+		return false;
+	}
+
+	@:hlNative("lime", "hl_camera_capture_stop") private static function lime_camera_capture_stop(handle:CFFIPointer):Void {}
 
 	@:hlNative("lime", "hl_clipboard_event_manager_register") private static function lime_clipboard_event_manager_register(callback:Void->Void,
 		eventObject:ClipboardEventInfo):Void {}

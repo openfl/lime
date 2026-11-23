@@ -43,6 +43,7 @@ class TestMain extends Application
 		runner.addCase(new media.AudioInputTest());
 		runner.addCase(new media.AudioInputOptionsTest());
 		runner.addCase(new media.AudioSourceTest());
+		runner.addCase(new media.CameraInputTest());
 		runner.addCase(new media.OpenALSourceTest());
 		runner.addCase(new media.OpenALStateTest());
 		runner.addCase(new media.OpenALTest());

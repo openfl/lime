@@ -61,6 +61,8 @@
 	</dict>
 	::if (IOS_HIGH_FRAME_RATE)::<key>CADisableMinimumFrameDurationOnPhone</key>
 	<true/>::end::
+	::if (IOS_CAMERA_USAGE_DESCRIPTION != null)::<key>NSCameraUsageDescription</key>
+	<string>::IOS_CAMERA_USAGE_DESCRIPTION::</string>::end::
 	::if (IOS_MICROPHONE_USAGE_DESCRIPTION != null)::<key>NSMicrophoneUsageDescription</key>
 	<string>::IOS_MICROPHONE_USAGE_DESCRIPTION::</string>::end::
 	::if (IOS_NON_EXEMPT_ENCRYPTION != null)::<key>ITSAppUsesNonExemptEncryption</key><::IOS_NON_EXEMPT_ENCRYPTION:: />::end::
