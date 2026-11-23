@@ -88,6 +88,109 @@ class AssetBundleTest extends Test
 		}
 	}
 
+	#if (lime_cffi && !macro)
+	// A bundle's images, sounds and fonts are decoded as they are asked for, as a manifest's are
+	public function testBundleAssetsAreDecodedWhenAskedFor():Void
+	{
+		var library = AssetLibrary.fromBundle(AssetBundle.fromBytes(withMedia(false)));
+		Assert.notNull(library);
+		if (library == null) return;
+
+		Assert.isFalse(@:privateAccess library.cachedImages.exists("image"), "the image was decoded before it was asked for");
+		Assert.isFalse(@:privateAccess library.cachedAudioBuffers.exists("sound"), "the sound was decoded before it was asked for");
+		Assert.isFalse(@:privateAccess library.cachedFonts.exists("font"), "the font was decoded before it was asked for");
+		Assert.isTrue(library.isLocal("image", AssetType.IMAGE));
+
+		var image = library.getImage("image");
+		Assert.notNull(image);
+		if (image != null) Assert.isTrue(image.width > 0 && image.height > 0);
+		Assert.equals(image, library.getImage("image"), "the image was decoded again");
+
+		var sound = library.getAudioBuffer("sound");
+		Assert.notNull(sound);
+		if (sound != null) Assert.notNull(sound.data, "the sound was not decoded");
+
+		var font = library.getFont("font");
+		Assert.notNull(font);
+		if (font != null) Assert.isTrue(font.getGlyphs("A").length > 0);
+	}
+
+	// Music streams from the bundle's bytes rather than being decoded whole
+	public function testBundleMusicStreams(async:Async):Void
+	{
+		var library = AssetLibrary.fromBundle(AssetBundle.fromBytes(withMedia(false)));
+		Assert.notNull(library);
+		if (library == null)
+		{
+			async.done();
+			return;
+		}
+
+		var stream = library.getAudioBufferStream("music");
+		Assert.notNull(stream);
+		if (stream != null) Assert.isNull(stream.data, "the music was decoded whole");
+
+		library.loadAudioBufferStream("music").onComplete(function(buffer)
+		{
+			Assert.notNull(buffer);
+			if (buffer != null) Assert.isNull(buffer.data, "the music was decoded whole");
+			async.done();
+		}).onError(function(error)
+		{
+			Assert.fail("loading the music as a stream failed: " + error);
+			async.done();
+		});
+	}
+
+	// Assets marked to preload are decoded by load(), the rest are left
+	public function testBundleAssetsMarkedToPreloadAreDecodedAtLoad(async:Async):Void
+	{
+		var library = AssetLibrary.fromBundle(AssetBundle.fromBytes(withMedia(true)));
+		Assert.notNull(library);
+		if (library == null)
+		{
+			async.done();
+			return;
+		}
+
+		library.load().onComplete(function(_)
+		{
+			Assert.isTrue(@:privateAccess library.cachedImages.exists("image"), "the image marked to preload was not decoded");
+			Assert.isFalse(@:privateAccess library.cachedFonts.exists("font"), "the font was decoded though not marked to preload");
+			async.done();
+		}).onError(function(error)
+		{
+			Assert.fail("loading the library failed: " + error);
+			async.done();
+		});
+	}
+
+	private function withMedia(preloadImage:Bool):Bytes
+	{
+		var image = sys.io.File.getBytes("assets/image-rgba.png");
+		var sound = sys.io.File.getBytes("assets/tone.wav");
+		var music = sys.io.File.getBytes("assets/tone.ogg");
+		var font = sys.io.File.getBytes("assets/mono.ttf");
+
+		var manifest = new AssetManifest();
+		manifest.name = "bundle";
+		manifest.assets = [
+			{id: "image", path: "image.png", size: image.length, type: "IMAGE", preload: preloadImage},
+			{id: "sound", path: "tone.wav", size: sound.length, type: "SOUND"},
+			{id: "music", path: "tone.ogg", size: music.length, type: "MUSIC"},
+			{id: "font", path: "mono.ttf", size: font.length, type: "FONT"}
+		];
+
+		return zip([
+			"library.json" => Bytes.ofString(manifest.serialize()),
+			"image.png" => image,
+			"tone.wav" => sound,
+			"tone.ogg" => music,
+			"mono.ttf" => font
+		], true);
+	}
+	#end
+
 	public function testBundlesWithoutAManifestHaveEachFileAsAnAsset():Void
 	{
 		var library = AssetLibrary.fromBundle(AssetBundle.fromBytes(zip(["a.txt" => Bytes.ofString("alpha"), "dir/data.bin" => binary], false)));

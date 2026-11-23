@@ -44,10 +44,13 @@ class TestMain extends Application
 		runner.addCase(new media.OpenALSourceTest());
 		runner.addCase(new media.OpenALStateTest());
 		runner.addCase(new media.OpenALTest());
+		runner.addCase(new media.VideoBytesTest());
 		runner.addCase(new media.VideoDecoderTest());
+		runner.addCase(new media.VideoTextureOpenGLTest());
 		runner.addCase(new media.VideoInputTest());
 		runner.addCase(new media.VideoNetworkTest());
 		runner.addCase(new media.VideoFrameTest());
+		runner.addCase(new media.VideoSourceEventTest());
 		runner.addCase(new media.VideoSourceTest());
 		runner.addCase(new net.CURLEasyTest());
 		runner.addCase(new net.CURLMultiTest());
@@ -62,8 +65,11 @@ class TestMain extends Application
 		runner.addCase(new net.URIParserTest());
 		runner.addCase(new net.WebSocketTest());
 		runner.addCase(new system.DisplayTest());
+		runner.addCase(new system.FileSystemInfoTest());
 		runner.addCase(new system.FinalizerTest());
+		runner.addCase(new system.FullPathTest());
 		runner.addCase(new system.LocaleTest());
+		runner.addCase(new system.ProcessTest());
 		runner.addCase(new system.TimerTest());
 		runner.addCase(new ui.GamepadTest());
 		runner.addCase(new ui.HighDPITest());
@@ -71,6 +77,8 @@ class TestMain extends Application
 		runner.addCase(new ui.KeyCodeTest());
 		runner.addCase(new ui.KeyModifierTest());
 		runner.addCase(new ui.MenuTest());
+		runner.addCase(new ui.MenuOpenCloseTest());
+		runner.addCase(new ui.TrayIconTest());
 		runner.addCase(new ui.WebViewTest());
 		runner.addCase(new ui.WindowEventTest());
 		runner.addCase(new ui.WindowTest());

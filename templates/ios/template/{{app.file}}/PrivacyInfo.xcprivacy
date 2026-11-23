@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>NSPrivacyTracking</key>
+	<false/>
+	<key>NSPrivacyTrackingDomains</key>
+	<array/>
+	<key>NSPrivacyCollectedDataTypes</key>
+	<array/>
+	<key>NSPrivacyAccessedAPITypes</key>
+	<array>::foreach IOS_PRIVACY_ACCESSED_API_TYPES::
+		<dict>
+			<key>NSPrivacyAccessedAPIType</key>
+			<string>::type::</string>
+			<key>NSPrivacyAccessedAPITypeReasons</key>
+			<array>::foreach reasons::
+				<string>::__current__::</string>::end::
+			</array>
+		</dict>::end::
+	</array>
+</dict>
+</plist>

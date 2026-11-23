@@ -1,8 +1,13 @@
 package lime._internal.backend.native;
 
 import haxe.io.Bytes;
+import haxe.Timer;
 import lime.media.AudioInput;
 import lime.media.AudioInputDevice;
+import lime.system.PermissionStatus;
+#if android
+import lime.system.JNI;
+#end
 #if (!lime_doc_gen || lime_openal)
 import lime.media.openal.AL;
 import lime.media.openal.ALC;
@@ -14,8 +19,18 @@ import lime.media.openal.ALDevice;
 @:noDebug
 #end
 @:access(lime.media.AudioInput)
+@:access(lime._internal.backend.native.NativeCFFI)
 class NativeAudioInput
 {
+	private static inline var PERMISSION_POLL_MS = 100;
+
+	#if android
+	private static var lime_get_permission_status:String->Int;
+	private static var lime_request_permission:String->Void;
+	#end
+	private static var permissionRequests:Int = 0;
+	private static var permissionTimer:Timer;
+
 	private var canReportDisconnect:Bool;
 	private var disconnected:Bool;
 	private var disposed:Bool;
@@ -52,9 +67,54 @@ class NativeAudioInput
 		#end
 	}
 
+	public static function getPermissionStatus():PermissionStatus
+	{
+		#if android
+		if (lime_get_permission_status == null)
+		{
+			lime_get_permission_status = JNI.createStaticMethod("org/haxe/lime/GameActivity", "getPermissionStatus", "(Ljava/lang/String;)I");
+		}
+
+		return toPermissionStatus(lime_get_permission_status("android.permission.RECORD_AUDIO"));
+		#elseif ((mac || ios) && (lime_cffi && !macro))
+		return toPermissionStatus(NativeCFFI.lime_audio_input_get_permission_status());
+		#else
+		// Desktop applications on Windows and Linux are not asked
+		return GRANTED;
+		#end
+	}
+
 	public static function isSupported():Bool
 	{
 		return getDefaultDevice() != null || getDevices().length > 0;
+	}
+
+	public static function requestPermission():Void
+	{
+		if (getPermissionStatus() == UNDETERMINED)
+		{
+			#if android
+			if (lime_request_permission == null)
+			{
+				lime_request_permission = JNI.createStaticMethod("org/haxe/lime/GameActivity", "requestPermission", "(Ljava/lang/String;)V");
+			}
+
+			lime_request_permission("android.permission.RECORD_AUDIO");
+			#elseif ((mac || ios) && (lime_cffi && !macro))
+			NativeCFFI.lime_audio_input_request_permission();
+			#end
+		}
+
+		// The answer comes on another thread or activity, so it is polled here
+		// and dispatched on the main thread, never before this call returns,
+		// once for each request
+		permissionRequests++;
+
+		if (permissionTimer == null)
+		{
+			permissionTimer = new Timer(PERMISSION_POLL_MS);
+			permissionTimer.run = pollPermission;
+		}
 	}
 
 	public function new(parent:AudioInput)
@@ -267,6 +327,38 @@ class NativeAudioInput
 		#end
 
 		return true;
+	}
+
+	private static function pollPermission():Void
+	{
+		var status = getPermissionStatus();
+
+		if (status == UNDETERMINED)
+		{
+			return;
+		}
+
+		permissionTimer.stop();
+		permissionTimer = null;
+
+		var requests = permissionRequests;
+		permissionRequests = 0;
+
+		for (i in 0...requests)
+		{
+			AudioInput.onPermission.dispatch(status);
+		}
+	}
+
+	// 0 is undetermined, 1 granted and 2 denied, from both the JNI and the CFFI calls
+	private static function toPermissionStatus(value:Int):PermissionStatus
+	{
+		return switch (value)
+		{
+			case 1: GRANTED;
+			case 2: DENIED;
+			default: UNDETERMINED;
+		}
 	}
 
 	private static function createDevices(names:Array<String>, defaultName:String):Array<AudioInputDevice>

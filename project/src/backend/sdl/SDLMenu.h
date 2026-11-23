@@ -21,17 +21,19 @@ namespace lime {
 
 		public:
 
+			static bool GetClose (SDL_Event* event, Uint32* target, int* menu, int* source);
 			static bool GetDockMenuSelection (SDL_Event* event, int* id);
 			static bool GetSelection (SDL_Event* event, Uint32* windowID, int* id);
 			static int GetSupport ();
-			static bool GetTrayIconEvent (SDL_Event* event, int* trayIconID, int* type, int* itemID);
+			static bool GetTrayIconEvent (SDL_Event* event, int* trayIconID, int* type, int* itemID, int* x, int* y);
 			static int Popup (SDL_Window* window, const unsigned char* data, int length, int x, int y, bool atCursor);
 			static void Remove (SDL_Window* window);
 			static bool SetApplicationMenu (const unsigned char* data, int length);
 			static bool SetWindowMenu (SDL_Window* window, const unsigned char* data, int length);
+			static void PushClose (Uint32 target, int menu, int source);
 			static void PushDockMenuSelection (int id);
 			static void PushSelection (Uint32 windowID, int id);
-			static void PushTrayIconEvent (int trayIconID, int type, int itemID);
+			static void PushTrayIconEvent (int trayIconID, int type, int itemID, int x = 0, int y = 0);
 
 		private:
 			static void PushEvent (int kind, Uint32 target, int code, int value);

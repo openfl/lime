@@ -70,14 +70,30 @@ class NativeTrayIcon
 			#end
 
 			trayIconsByID.remove(id);
+			NativeMenu.setInstalled(NativeMenu.SOURCE_TRAY_ICON, id, null, null);
 			handle = null;
 			menuItems = null;
 		}
 	}
 
-	public function handleClick():Void
+	public function handleClick(x:Int, y:Int):Void
 	{
-		parent.onClick.dispatch();
+		parent.onClick.dispatch(x, y);
+	}
+
+	public function handleDoubleClick(x:Int, y:Int, button:Int):Void
+	{
+		parent.onDoubleClick.dispatch(x, y, button);
+	}
+
+	public function handleMouseDown(x:Int, y:Int, button:Int):Void
+	{
+		parent.onMouseDown.dispatch(x, y, button);
+	}
+
+	public function handleMouseUp(x:Int, y:Int, button:Int):Void
+	{
+		parent.onMouseUp.dispatch(x, y, button);
 	}
 
 	public function handleMenuSelect(itemID:Int):Void
@@ -86,9 +102,9 @@ class NativeTrayIcon
 		if (item != null) item.__select();
 	}
 
-	public function handleRightClick():Void
+	public function handleRightClick(x:Int, y:Int):Void
 	{
-		parent.onRightClick.dispatch();
+		parent.onRightClick.dispatch(x, y);
 
 		if (!parent.onRightClick.canceled && !menuShownByPlatform && parent.__menu != null)
 		{
@@ -103,6 +119,7 @@ class NativeTrayIcon
 			#if (!macro && lime_cffi)
 			var items = [];
 			var data = NativeMenu.encode(menu, items);
+			NativeMenu.setPopup(NativeMenu.SOURCE_TRAY_ICON, id, menu, items);
 			var item = NativeMenu.getItem(items, NativeCFFI.lime_tray_icon_popup_menu(handle, data));
 			if (item != null) item.__select();
 			#end
@@ -126,7 +143,7 @@ class NativeTrayIcon
 			#if (!macro && lime_cffi)
 			if (menu != null)
 			{
-				var items = [];
+				var items = NativeMenu.newItems(NativeMenu.SOURCE_TRAY_ICON, id, menu);
 				var data = NativeMenu.encode(menu, items);
 				menuItems = items;
 				menuShownByPlatform = NativeCFFI.lime_tray_icon_set_menu(handle, data);
@@ -136,6 +153,8 @@ class NativeTrayIcon
 				menuItems = null;
 				menuShownByPlatform = NativeCFFI.lime_tray_icon_set_menu(handle, null);
 			}
+
+			NativeMenu.setInstalled(NativeMenu.SOURCE_TRAY_ICON, id, menuItems != null ? menu : null, menuItems);
 			#end
 		}
 	}

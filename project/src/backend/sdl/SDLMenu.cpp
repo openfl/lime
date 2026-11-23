@@ -1,3 +1,4 @@
+#include "SDLApplication.h"
 #include "SDLMenu.h"
 #include "SDLTrayIcon.h"
 #include "SDLWindow.h"
@@ -24,11 +25,43 @@ namespace lime {
 
 		MENU_EVENT_SELECTION = 1,
 		MENU_EVENT_TRAY_ICON = 2,
-		MENU_EVENT_DOCK_SELECTION = 3
+		MENU_EVENT_DOCK_SELECTION = 3,
+		MENU_EVENT_CLOSE = 5
 
 	};
 
 	static Uint32 menuEventType = 0;
+
+	static void (*openCallback) () = 0;
+	static native_desktop::Event openEvent = { 0, 0, 0, 0 };
+	static std::vector<unsigned char>* openItems = 0;
+	static bool openReplaced = false;
+
+
+	#ifdef NATIVE_DESKTOP_MENU_OPEN_EVENTS
+	static void CallOpenCallback (void*) {
+
+		openCallback ();
+
+	}
+
+
+	// Runs while the system waits to show the menu, so the menu's items can still change
+	static bool HandleDesktopOpen (const native_desktop::Event& event, std::vector<unsigned char>* items, void*) {
+
+		if (!openCallback) return false;
+
+		openEvent = event;
+		openItems = items;
+		openReplaced = false;
+
+		SDLApplication::CallFromEventPump (CallOpenCallback, 0);
+
+		openItems = 0;
+		return openReplaced;
+
+	}
+	#endif
 
 
 	static void ForwardDesktopEvent (const native_desktop::Event& event, void*) {
@@ -40,12 +73,22 @@ namespace lime {
 				break;
 
 			case native_desktop::MENU_EVENT_TRAY_ICON:
+				#ifdef NATIVE_DESKTOP_TRAY_ICON_MOUSE_EVENTS
+				SDLMenu::PushTrayIconEvent (event.target, event.code, event.value, event.x, event.y);
+				#else
 				SDLMenu::PushTrayIconEvent (event.target, event.code, event.value);
+				#endif
 				break;
 
 			case native_desktop::MENU_EVENT_DOCK_SELECTION:
 				SDLMenu::PushDockMenuSelection (event.code);
 				break;
+
+			#ifdef NATIVE_DESKTOP_MENU_OPEN_EVENTS
+			case native_desktop::MENU_EVENT_CLOSE:
+				SDLMenu::PushClose (event.target, event.code, event.value);
+				break;
+			#endif
 
 		}
 
@@ -55,6 +98,10 @@ namespace lime {
 	static void ConfigureDesktop () {
 
 		native_desktop::Menu::SetEventSink (ForwardDesktopEvent, NULL);
+		// native-desktop 1.1.0 has no open events, and onOpen and onClose are not dispatched with it
+		#ifdef NATIVE_DESKTOP_MENU_OPEN_EVENTS
+		native_desktop::Menu::SetOpenHandler (HandleDesktopOpen, NULL);
+		#endif
 		native_desktop::Menu::SetKeyNameProvider (SDL_GetKeyName);
 
 		#ifdef LIME_SDL_MENU_GTK
@@ -217,12 +264,15 @@ namespace lime {
 	}
 
 
-	bool SDLMenu::GetTrayIconEvent (SDL_Event* event, int* id, int* type, int* item) {
+	// A tray icon event carries the screen position as 16 bits beside the kind and the type
+	bool SDLMenu::GetTrayIconEvent (SDL_Event* event, int* id, int* type, int* item, int* x, int* y) {
 
-		if (!menuEventType || event->type != menuEventType || (intptr_t)event->user.data1 != MENU_EVENT_TRAY_ICON) return false;
+		if (!menuEventType || event->type != menuEventType || ((intptr_t)event->user.data1 & 0xFF) != MENU_EVENT_TRAY_ICON) return false;
 		*id = event->user.windowID;
-		*type = event->user.code;
+		*type = event->user.code & 0xFF;
 		*item = (int)(intptr_t)event->user.data2;
+		*x = (Sint16)(((intptr_t)event->user.data1 >> 8) & 0xFFFF);
+		*y = (Sint16)((event->user.code >> 8) & 0xFFFF);
 		return true;
 
 	}
@@ -381,6 +431,51 @@ namespace lime {
 	}
 
 
+	void Menu::GetOpenEvent (int* target, int* menu, int* source) {
+
+		*target = (int)openEvent.target;
+		*menu = openEvent.code;
+		*source = openEvent.value;
+
+	}
+
+
+	void Menu::SetOpenCallback (void (*callback) ()) {
+
+		openCallback = callback;
+
+	}
+
+
+	void Menu::SetOpenItems (const unsigned char* data, int length) {
+
+		if (!openItems || !data || length <= 0) return;
+
+		openItems->assign (data, data + length);
+		openReplaced = true;
+
+	}
+
+
+	bool SDLMenu::GetClose (SDL_Event* event, Uint32* target, int* menu, int* source) {
+
+		if (!menuEventType || event->type != menuEventType || (intptr_t)event->user.data1 != MENU_EVENT_CLOSE) return false;
+
+		*target = event->user.windowID;
+		*menu = event->user.code;
+		*source = (int)(intptr_t)event->user.data2;
+		return true;
+
+	}
+
+
+	void SDLMenu::PushClose (Uint32 target, int menu, int source) {
+
+		PushEvent (MENU_EVENT_CLOSE, target, menu, source);
+
+	}
+
+
 	void SDLMenu::PushDockMenuSelection (int id) {
 
 		PushEvent (MENU_EVENT_DOCK_SELECTION, 0, id, 0);
@@ -395,9 +490,9 @@ namespace lime {
 	}
 
 
-	void SDLMenu::PushTrayIconEvent (int trayIconID, int type, int itemID) {
+	void SDLMenu::PushTrayIconEvent (int trayIconID, int type, int itemID, int x, int y) {
 
-		PushEvent (MENU_EVENT_TRAY_ICON, (Uint32)trayIconID, type, itemID);
+		PushEvent (MENU_EVENT_TRAY_ICON | ((x & 0xFFFF) << 8), (Uint32)trayIconID, (type & 0xFF) | ((y & 0xFFFF) << 8), itemID);
 
 	}
 
