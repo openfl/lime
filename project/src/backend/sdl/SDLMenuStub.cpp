@@ -1,6 +1,7 @@
 #include "SDLMenu.h"
 #include "SDLTrayIcon.h"
 #include <system/Clipboard.h>
+#include <system/System.h>
 #include <ui/DockIcon.h>
 #include <ui/DragDrop.h>
 
@@ -8,6 +9,8 @@
 namespace lime {
 
 
+	bool SDLMenu::DragWindow (SDL_Window* window, int edges) { return false; }
+	bool SDLMenu::OrderWindow (SDL_Window* window, SDL_Window* other, int mode) { return false; }
 	bool Clipboard::GetFiles (std::vector<std::string>* files) { return false; }
 	bool Clipboard::GetFormatText (int format, std::string* text) { return false; }
 	bool Clipboard::GetImage (std::vector<unsigned char>* pixels, int* width, int* height) { return false; }
@@ -15,6 +18,12 @@ namespace lime {
 	bool Clipboard::SetItems (const unsigned char* data, int length) { return false; }
 	bool Clipboard::HasDesktopText () { return false; }
 	bool Clipboard::SetDesktopText (const char* text) { return false; }
+
+
+	bool System::MoveToTrash (const char* path) { return false; }
+
+
+	bool System::GetStorageVolumes (std::string* volumes) { return false; }
 
 
 	bool DragDrop::IsSupported () { return false; }
@@ -45,6 +54,21 @@ namespace lime {
 		return 0;
 
 	}
+
+
+	void Menu::GetOpenEvent (int* target, int* menu, int* source) {
+
+		*target = 0;
+		*menu = 0;
+		*source = 0;
+
+	}
+
+
+	void Menu::SetOpenCallback (void (*callback) ()) {}
+
+
+	void Menu::SetOpenItems (const unsigned char* data, int length) {}
 
 
 	int SDLMenu::GetSupport () {
@@ -85,6 +109,13 @@ namespace lime {
 	}
 
 
+	bool SDLMenu::GetClose (SDL_Event* event, Uint32* target, int* menu, int* source) {
+
+		return false;
+
+	}
+
+
 	bool SDLMenu::GetDockMenuSelection (SDL_Event* event, int* id) {
 
 		return false;
@@ -92,7 +123,7 @@ namespace lime {
 	}
 
 
-	bool SDLMenu::GetTrayIconEvent (SDL_Event* event, int* id, int* type, int* item) {
+	bool SDLMenu::GetTrayIconEvent (SDL_Event* event, int* id, int* type, int* item, int* x, int* y) {
 
 		return false;
 
@@ -102,13 +133,16 @@ namespace lime {
 	void SDLMenu::PushEvent (int kind, Uint32 target, int code, int value) {}
 
 
+	void SDLMenu::PushClose (Uint32 target, int menu, int source) {}
+
+
 	void SDLMenu::PushDockMenuSelection (int id) {}
 
 
 	void SDLMenu::PushSelection (Uint32 windowID, int id) {}
 
 
-	void SDLMenu::PushTrayIconEvent (int trayIconID, int type, int itemID) {}
+	void SDLMenu::PushTrayIconEvent (int trayIconID, int type, int itemID, int x, int y) {}
 
 
 	bool TrayIcon::IsSupported () {

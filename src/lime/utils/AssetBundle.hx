@@ -98,6 +98,10 @@ class AssetBundle
 			{
 				var bytes:LimeBytes = entry.data;
 				bundle.data.set(entry.fileName, bytes.decompress(DEFLATE));
+
+				// Let go of the compressed data once inflated, rather than keeping
+				// the whole zip until every entry is
+				entry.data = null;
 			}
 			else
 			{

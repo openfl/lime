@@ -437,7 +437,7 @@ class AndroidPlatform extends PlatformTarget
 		context.CPP_DIR = targetDirectory + "/obj";
 		context.OUTPUT_DIR = targetDirectory;
 		context.ANDROID_MINIMUM_SDK_VERSION = project.config.getInt("android.minimum-sdk-version", 21);
-		context.ANDROID_TARGET_SDK_VERSION = project.config.getInt("android.target-sdk-version", 35);
+		context.ANDROID_TARGET_SDK_VERSION = project.config.getInt("android.target-sdk-version", 36);
 		context.ANDROID_EXTENSIONS = project.config.getArrayString("android.extension");
 		context.ANDROID_PERMISSIONS = project.config.getArrayString("android.permission", [
 			"android.permission.WAKE_LOCK",
@@ -445,8 +445,8 @@ class AndroidPlatform extends PlatformTarget
 			"android.permission.VIBRATE",
 			"android.permission.ACCESS_NETWORK_STATE"
 		]);
-		context.ANDROID_GRADLE_VERSION = project.config.getString("android.gradle-version", "8.9");
-		context.ANDROID_GRADLE_PLUGIN = project.config.getString("android.gradle-plugin", "8.7.3");
+		context.ANDROID_GRADLE_VERSION = project.config.getString("android.gradle-version", "8.11.1");
+		context.ANDROID_GRADLE_PLUGIN = project.config.getString("android.gradle-plugin", "8.9.1");
 		// The templates' < and >= compare text, where "10.0.0" comes before "4.0"
 		context.ANDROID_GRADLE_PLUGIN_4_0 = compareVersions(context.ANDROID_GRADLE_PLUGIN, "4.0") >= 0;
 		context.ANDROID_GRADLE_PLUGIN_7_1 = compareVersions(context.ANDROID_GRADLE_PLUGIN, "7.1") >= 0;
@@ -483,6 +483,8 @@ class AndroidPlatform extends PlatformTarget
 				"android:allowBackup": "true",
 				"android:theme": "@android:style/Theme.NoTitleBar" + (project.window.fullscreen ? ".Fullscreen" : ""),
 				"android:hardwareAccelerated": "true",
+				// From API 36, large screens ignore the orientation lock of an app that is not a game
+				"android:appCategory": "game",
 				"android:allowNativeHeapPointerTagging": context.ANDROID_TARGET_SDK_VERSION >= 30 ? "false" : null
 			});
 		context.ANDROID_APPLICATION_CHILDREN = project.config.get("android.application").xmlChildren;

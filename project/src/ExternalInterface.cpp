@@ -29,6 +29,7 @@
 #include <media/containers/OGG.h>
 #include <media/containers/WAV.h>
 #include <media/AudioBuffer.h>
+#include <media/AudioInputPermission.h>
 #include <system/CFFIPointer.h>
 #include <system/Clipboard.h>
 #include <system/ClipboardEvent.h>
@@ -1634,6 +1635,22 @@ namespace lime {
 	}
 
 
+	void lime_application_set_background_frame_rate (value application, double frameRate) {
+
+		Application* app = (Application*)val_data (application);
+		app->SetBackgroundFrameRate (frameRate);
+
+	}
+
+
+	HL_PRIM void HL_NAME(hl_application_set_background_frame_rate) (HL_CFFIPointer* application, double frameRate) {
+
+		Application* app = (Application*)application->ptr;
+		app->SetBackgroundFrameRate (frameRate);
+
+	}
+
+
 	void lime_application_set_vsync_mode (value application, int vsyncMode) {
 
 		Application* app = (Application*)val_data (application);
@@ -2736,8 +2753,9 @@ namespace lime {
 		#ifdef LIME_FREETYPE
 		Font *font = (Font*)val_data (fontHandle);
 		wchar_t *name = font->GetFamilyName ();
+		if (!name) return alloc_null ();
 		value result = alloc_wstring (name);
-		delete name;
+		free (name);
 		return result;
 		#else
 		return alloc_null ();
@@ -2754,7 +2772,7 @@ namespace lime {
 		if (!name)
 			return nullptr;
 		vbyte* const result = hl_wstring_to_utf8_bytes (name);
-		delete name;
+		free (name);
 		return result;
 		#else
 		return 0;
@@ -4549,6 +4567,66 @@ namespace lime {
 	}
 
 
+	static ValuePointer* menuOpenCallback = 0;
+
+
+	static void CallMenuOpenCallback () {
+
+		menuOpenCallback->Call ();
+
+	}
+
+
+	// 0 is the window or tray icon ID, 1 the ID of the item whose submenu opens, or 0, and 2 where the menu belongs
+	int lime_menu_get_open_event (int index) {
+
+		int values[3];
+		Menu::GetOpenEvent (&values[0], &values[1], &values[2]);
+		return (index >= 0 && index < 3) ? values[index] : 0;
+
+	}
+
+
+	HL_PRIM int HL_NAME(hl_menu_get_open_event) (int index) {
+
+		return lime_menu_get_open_event (index);
+
+	}
+
+
+	void lime_menu_set_open_callback (value callback) {
+
+		if (menuOpenCallback) delete menuOpenCallback;
+		menuOpenCallback = new ValuePointer (callback);
+		Menu::SetOpenCallback (CallMenuOpenCallback);
+
+	}
+
+
+	HL_PRIM void HL_NAME(hl_menu_set_open_callback) (vclosure* callback) {
+
+		if (menuOpenCallback) delete menuOpenCallback;
+		menuOpenCallback = new ValuePointer (callback);
+		Menu::SetOpenCallback (CallMenuOpenCallback);
+
+	}
+
+
+	void lime_menu_set_open_items (value data) {
+
+		Bytes bytes (data);
+		Menu::SetOpenItems (bytes.b, bytes.length);
+
+	}
+
+
+	HL_PRIM void HL_NAME(hl_menu_set_open_items) (Bytes* data) {
+
+		if (data) Menu::SetOpenItems (data->b, data->length);
+
+	}
+
+
 	HL_PRIM int HL_NAME(hl_menu_get_support) () {
 
 		return Menu::GetSupport ();
@@ -4915,6 +4993,34 @@ namespace lime {
 	}
 
 
+	int lime_audio_input_get_permission_status () {
+
+		return AudioInputPermission::GetStatus ();
+
+	}
+
+
+	HL_PRIM int HL_NAME(hl_audio_input_get_permission_status) () {
+
+		return AudioInputPermission::GetStatus ();
+
+	}
+
+
+	void lime_audio_input_request_permission () {
+
+		AudioInputPermission::Request ();
+
+	}
+
+
+	HL_PRIM void HL_NAME(hl_audio_input_request_permission) () {
+
+		AudioInputPermission::Request ();
+
+	}
+
+
 	value lime_system_get_platform_label () {
 
 		std::wstring* label = System::GetPlatformLabel ();
@@ -5086,6 +5192,75 @@ namespace lime {
 		#else
 		return 0;
 		#endif
+
+	}
+
+
+	double lime_system_get_free_space (HxString path) {
+
+		// hxcpp keeps strings with characters beyond ASCII as UTF-16, which hxs_utf8 converts
+		return System::GetAvailableSpace (hxs_utf8 (path, nullptr));
+
+	}
+
+
+	HL_PRIM double HL_NAME(hl_system_get_free_space) (hl_vstring* path) {
+
+		// HashLink strings are UTF-16
+		return System::GetAvailableSpace (path ? hl_to_utf8 ((const uchar*)path->bytes) : NULL);
+
+	}
+
+
+	bool lime_system_is_symbolic_link (HxString path) {
+
+		// hxcpp keeps strings with characters beyond ASCII as UTF-16, which hxs_utf8 converts
+		return System::IsSymbolicLink (hxs_utf8 (path, nullptr));
+
+	}
+
+
+	HL_PRIM bool HL_NAME(hl_system_is_symbolic_link) (hl_vstring* path) {
+
+		// HashLink strings are UTF-16
+		return System::IsSymbolicLink (path ? hl_to_utf8 ((const uchar*)path->bytes) : NULL);
+
+	}
+
+
+	bool lime_system_move_to_trash (HxString path) {
+
+		// hxcpp keeps strings with characters beyond ASCII as UTF-16, which hxs_utf8 converts
+		return System::MoveToTrash (hxs_utf8 (path, nullptr));
+
+	}
+
+
+	HL_PRIM bool HL_NAME(hl_system_move_to_trash) (hl_vstring* path) {
+
+		// HashLink strings are UTF-16
+		return path && System::MoveToTrash ((const char*)hl_to_utf8 ((const uchar*)path->bytes));
+
+	}
+
+
+	value lime_system_get_storage_volumes () {
+
+		std::string volumes;
+		if (!System::GetStorageVolumes (&volumes)) return alloc_null ();
+		return alloc_string_len (volumes.c_str (), (int)volumes.size ());
+
+	}
+
+
+	HL_PRIM vbyte* HL_NAME(hl_system_get_storage_volumes) () {
+
+		std::string volumes;
+		if (!System::GetStorageVolumes (&volumes)) return NULL;
+
+		vbyte* result = hl_alloc_bytes ((int)volumes.size () + 1);
+		memcpy (result, volumes.c_str (), volumes.size () + 1);
+		return result;
 
 	}
 
@@ -5522,6 +5697,48 @@ namespace lime {
 
 		Window* targetWindow = (Window*)window->ptr;
 		targetWindow->Focus ();
+
+	}
+
+
+	bool lime_window_order_relative (value window, value other, bool above) {
+
+		return !val_is_null (other) && ((Window*)val_data (window))->OrderRelative ((Window*)val_data (other), above);
+
+	}
+
+
+	HL_PRIM bool HL_NAME(hl_window_order_relative) (HL_CFFIPointer* window, HL_CFFIPointer* other, bool above) {
+
+		return other && ((Window*)window->ptr)->OrderRelative ((Window*)other->ptr, above);
+
+	}
+
+
+	bool lime_window_order_to_back (value window) {
+
+		return ((Window*)val_data (window))->OrderToBack ();
+
+	}
+
+
+	HL_PRIM bool HL_NAME(hl_window_order_to_back) (HL_CFFIPointer* window) {
+
+		return ((Window*)window->ptr)->OrderToBack ();
+
+	}
+
+
+	bool lime_window_start_move_resize (value window, int edges) {
+
+		return ((Window*)val_data (window))->StartMoveResize (edges);
+
+	}
+
+
+	HL_PRIM bool HL_NAME(hl_window_start_move_resize) (HL_CFFIPointer* window, int edges) {
+
+		return ((Window*)window->ptr)->StartMoveResize (edges);
 
 	}
 
@@ -14530,6 +14747,7 @@ namespace lime {
 	DEFINE_PRIME1 (lime_application_quit);
 	DEFINE_PRIME2v (lime_application_set_idle_events);
 	DEFINE_PRIME6v (lime_application_set_main_loop);
+	DEFINE_PRIME2v (lime_application_set_background_frame_rate);
 	DEFINE_PRIME2v (lime_application_set_frame_rate);
 	DEFINE_PRIME5v (lime_application_set_modal_callbacks);
 	DEFINE_PRIME1v (lime_application_defer_modal_exception);
@@ -14657,6 +14875,9 @@ namespace lime {
 	DEFINE_PRIME2v (lime_menu_event_manager_register);
 	DEFINE_PRIME1 (lime_menu_get_application_menu);
 	DEFINE_PRIME0 (lime_menu_get_support);
+	DEFINE_PRIME1 (lime_menu_get_open_event);
+	DEFINE_PRIME1v (lime_menu_set_open_callback);
+	DEFINE_PRIME1v (lime_menu_set_open_items);
 	DEFINE_PRIME2v (lime_mouse_event_manager_register);
 	DEFINE_PRIME1v (lime_neko_execute);
 	DEFINE_PRIME2v (lime_orientation_event_manager_register);
@@ -14672,12 +14893,18 @@ namespace lime {
 	DEFINE_PRIME0 (lime_system_get_ios_tablet);
 	DEFINE_PRIME0 (lime_system_get_num_displays);
 	DEFINE_PRIME0 (lime_system_get_device_orientation);
+	DEFINE_PRIME0 (lime_audio_input_get_permission_status);
+	DEFINE_PRIME0v (lime_audio_input_request_permission);
 	DEFINE_PRIME0 (lime_system_get_platform_label);
 	DEFINE_PRIME0 (lime_system_get_platform_name);
 	DEFINE_PRIME0 (lime_system_get_platform_version);
 	DEFINE_PRIME3 (lime_system_get_secure_random_bytes);
 	DEFINE_PRIME0 (lime_system_get_timer);
 	DEFINE_PRIME1 (lime_system_get_windows_console_mode);
+	DEFINE_PRIME1 (lime_system_get_free_space);
+	DEFINE_PRIME1 (lime_system_is_symbolic_link);
+	DEFINE_PRIME1 (lime_system_move_to_trash);
+	DEFINE_PRIME0 (lime_system_get_storage_volumes);
 	DEFINE_PRIME1v (lime_system_open_file);
 	DEFINE_PRIME2v (lime_system_open_url);
 	DEFINE_PRIME1 (lime_system_set_allow_screen_timeout);
@@ -14705,6 +14932,9 @@ namespace lime {
 	DEFINE_PRIME0 (lime_window_get_creation_error);
 	DEFINE_PRIME2v (lime_window_event_manager_register);
 	DEFINE_PRIME1v (lime_window_focus);
+	DEFINE_PRIME3 (lime_window_order_relative);
+	DEFINE_PRIME1 (lime_window_order_to_back);
+	DEFINE_PRIME2 (lime_window_start_move_resize);
 	DEFINE_PRIME1 (lime_window_get_context);
 	DEFINE_PRIME1 (lime_window_get_context_type);
 	DEFINE_PRIME3 (lime_window_create_vulkan_surface);
@@ -14876,14 +15106,14 @@ namespace lime {
 	#define _TJOYSTICK_EVENT _OBJ (_I32 _I32 _I32 _I32 _F64 _F64)
 	#define _TKEY_EVENT _OBJ (_F64 _I32 _I32 _I32 _I32)
 	#define _TMENU_EVENT _OBJ (_I32 _I32 _I32)
-	#define _TMOUSE_EVENT _OBJ (_I32 _F64 _F64 _I32 _I32 _F64 _F64 _I32)
+	#define _TMOUSE_EVENT _OBJ (_I32 _F64 _F64 _I32 _I32 _F64 _F64 _I32 _I32)
 	#define _TORIENTATION_EVENT _OBJ (_I32 _I32 _I32)
 	#define _TRECTANGLE _OBJ (_F64 _F64 _F64 _F64)
 	#define _TRENDER_EVENT _OBJ (_I32)
 	#define _TSENSOR_EVENT _OBJ (_I32 _F64 _F64 _F64 _I32)
 	#define _TTEXT_EVENT _OBJ (_I32 _I32 _I32 _BYTES _I32 _I32)
-	#define _TTOUCH_EVENT _OBJ (_I32 _F64 _F64 _I32 _F64 _I32 _F64 _F64)
-	#define _TTRAY_ICON_EVENT _OBJ (_I32 _I32 _I32)
+	#define _TTOUCH_EVENT _OBJ (_I32 _F64 _F64 _I32 _F64 _I32 _F64 _F64 _I32)
+	#define _TTRAY_ICON_EVENT _OBJ (_I32 _I32 _I32 _I32 _I32)
 	#define _TVECTOR2 _OBJ (_F64 _F64)
 	#define _TVORBISFILE _OBJ (_I32 _DYN _TBYTES)
 	#define _TWINDOW_EVENT _OBJ (_I32 _I32 _I32 _I32 _I32 _I32)
@@ -14906,6 +15136,7 @@ namespace lime {
 	DEFINE_HL_PRIM (_I32, hl_application_quit, _TCFFIPOINTER);
 	DEFINE_HL_PRIM (_VOID, hl_application_set_idle_events, _TCFFIPOINTER _BOOL);
 	DEFINE_HL_PRIM (_VOID, hl_application_set_main_loop, _TCFFIPOINTER _I32 _F64 _I32 _I32 _I32);
+	DEFINE_HL_PRIM (_VOID, hl_application_set_background_frame_rate, _TCFFIPOINTER _F64);
 	DEFINE_HL_PRIM (_VOID, hl_application_set_frame_rate, _TCFFIPOINTER _F64);
 	DEFINE_HL_PRIM (_VOID, hl_application_set_modal_callbacks, _TCFFIPOINTER _FUN(_VOID, _NO_ARG) _FUN(_VOID, _NO_ARG) _FUN(_VOID, _NO_ARG) _FUN(_VOID, _NO_ARG));
 	DEFINE_HL_PRIM (_VOID, hl_application_defer_modal_exception, _TCFFIPOINTER);
@@ -15032,6 +15263,9 @@ namespace lime {
 	DEFINE_HL_PRIM (_VOID, hl_menu_event_manager_register, _FUN (_VOID, _NO_ARG) _TMENU_EVENT);
 	DEFINE_HL_PRIM (_TBYTES, hl_menu_get_application_menu, _TBYTES);
 	DEFINE_HL_PRIM (_I32, hl_menu_get_support, _NO_ARG);
+	DEFINE_HL_PRIM (_I32, hl_menu_get_open_event, _I32);
+	DEFINE_HL_PRIM (_VOID, hl_menu_set_open_callback, _FUN (_VOID, _NO_ARG));
+	DEFINE_HL_PRIM (_VOID, hl_menu_set_open_items, _TBYTES);
 	DEFINE_HL_PRIM (_VOID, hl_mouse_event_manager_register, _FUN (_VOID, _NO_ARG) _TMOUSE_EVENT);
 	// DEFINE_PRIME1v (lime_neko_execute);
 	DEFINE_HL_PRIM (_VOID, hl_orientation_event_manager_register, _FUN (_VOID, _NO_ARG) _TORIENTATION_EVENT);
@@ -15047,12 +15281,18 @@ namespace lime {
 	DEFINE_HL_PRIM (_BOOL, hl_system_get_ios_tablet, _NO_ARG);
 	DEFINE_HL_PRIM (_I32, hl_system_get_num_displays, _NO_ARG);
 	DEFINE_HL_PRIM (_I32, hl_system_get_device_orientation, _NO_ARG);
+	DEFINE_HL_PRIM (_I32, hl_audio_input_get_permission_status, _NO_ARG);
+	DEFINE_HL_PRIM (_VOID, hl_audio_input_request_permission, _NO_ARG);
 	DEFINE_HL_PRIM (_BYTES, hl_system_get_platform_label, _NO_ARG);
 	DEFINE_HL_PRIM (_BYTES, hl_system_get_platform_name, _NO_ARG);
 	DEFINE_HL_PRIM (_BYTES, hl_system_get_platform_version, _NO_ARG);
 	DEFINE_HL_PRIM (_BOOL, hl_system_get_secure_random_bytes, _TBYTES _I32 _I32);
 	DEFINE_HL_PRIM (_F64, hl_system_get_timer, _NO_ARG);
 	DEFINE_HL_PRIM (_I32, hl_system_get_windows_console_mode, _I32);
+	DEFINE_HL_PRIM (_F64, hl_system_get_free_space, _STRING);
+	DEFINE_HL_PRIM (_BOOL, hl_system_is_symbolic_link, _STRING);
+	DEFINE_HL_PRIM (_BOOL, hl_system_move_to_trash, _STRING);
+	DEFINE_HL_PRIM (_BYTES, hl_system_get_storage_volumes, _NO_ARG);
 	DEFINE_HL_PRIM (_VOID, hl_system_open_file, _STRING);
 	DEFINE_HL_PRIM (_VOID, hl_system_open_url, _STRING _STRING);
 	DEFINE_HL_PRIM (_BOOL, hl_system_set_allow_screen_timeout, _BOOL);
@@ -15079,6 +15319,9 @@ namespace lime {
 	DEFINE_HL_PRIM (_TCFFIPOINTER, hl_window_create, _TCFFIPOINTER _I32 _I32 _I32 _STRING);
 	DEFINE_HL_PRIM (_VOID, hl_window_event_manager_register, _FUN (_VOID, _NO_ARG) _TWINDOW_EVENT);
 	DEFINE_HL_PRIM (_VOID, hl_window_focus, _TCFFIPOINTER);
+	DEFINE_HL_PRIM (_BOOL, hl_window_order_relative, _TCFFIPOINTER _TCFFIPOINTER _BOOL);
+	DEFINE_HL_PRIM (_BOOL, hl_window_order_to_back, _TCFFIPOINTER);
+	DEFINE_HL_PRIM (_BOOL, hl_window_start_move_resize, _TCFFIPOINTER _I32);
 	DEFINE_HL_PRIM (_F64, hl_window_get_context, _TCFFIPOINTER);
 	DEFINE_HL_PRIM (_BYTES, hl_window_get_context_type, _TCFFIPOINTER);
 	DEFINE_HL_PRIM (_BYTES, hl_window_get_creation_error, _NO_ARG);
@@ -15277,8 +15520,11 @@ extern "C" int lime_sdl_sound_register_prims ();
 extern "C" int lime_sdl_sound_register_prims () { return 0; }
 #endif
 
+extern "C" int lime_camera_capture_register_prims ();
 extern "C" int lime_local_socket_register_prims ();
+extern "C" int lime_network_interface_register_prims ();
 extern "C" int lime_video_register_prims ();
+extern "C" int lime_voice_capture_register_prims ();
 extern "C" int lime_web_view_register_prims ();
 
 #ifdef LIME_VORBIS
@@ -15291,13 +15537,16 @@ extern "C" int lime_vorbis_register_prims () { return 0; }
 extern "C" int lime_register_prims () {
 
 	lime_cairo_register_prims ();
+	lime_camera_capture_register_prims ();
 	lime_curl_register_prims ();
 	lime_harfbuzz_register_prims ();
 	lime_local_socket_register_prims ();
+	lime_network_interface_register_prims ();
 	lime_openal_register_prims ();
 	lime_opengl_register_prims ();
 	lime_sdl_sound_register_prims ();
 	lime_video_register_prims ();
+	lime_voice_capture_register_prims ();
 	lime_vorbis_register_prims ();
 	lime_web_view_register_prims ();
 

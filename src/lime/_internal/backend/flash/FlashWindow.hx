@@ -296,6 +296,21 @@ class FlashWindow
 		}
 	}
 
+	public function orderRelative(other:Window, above:Bool):Bool
+	{
+		return false;
+	}
+
+	public function orderToBack():Bool
+	{
+		return false;
+	}
+
+	public function startMoveResize(edges:Int):Bool
+	{
+		return false;
+	}
+
 	public function focus():Void {}
 
 	public function getCursor():MouseCursor

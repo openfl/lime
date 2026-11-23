@@ -313,6 +313,31 @@ class NativeWindow
 		#end
 	}
 
+	public function orderRelative(other:Window, above:Bool):Bool
+	{
+		#if (!macro && lime_cffi)
+		var otherHandle:Dynamic = other != null ? other.__backend.handle : null;
+		if (handle != null && otherHandle != null) return NativeCFFI.lime_window_order_relative(handle, otherHandle, above);
+		#end
+		return false;
+	}
+
+	public function orderToBack():Bool
+	{
+		#if (!macro && lime_cffi)
+		if (handle != null) return NativeCFFI.lime_window_order_to_back(handle);
+		#end
+		return false;
+	}
+
+	public function startMoveResize(edges:Int):Bool
+	{
+		#if (!macro && lime_cffi)
+		if (handle != null) return NativeCFFI.lime_window_start_move_resize(handle, edges);
+		#end
+		return false;
+	}
+
 	public function focus():Void
 	{
 		if (handle != null)
@@ -489,6 +514,7 @@ class NativeWindow
 			var items = [];
 			var data = NativeMenu.encode(menu, items);
 			var atCursor = (x == null || y == null);
+			NativeMenu.setPopup(NativeMenu.SOURCE_WINDOW, parent.id, menu, items);
 			var id = NativeCFFI.lime_window_popup_menu(handle, data, atCursor ? 0 : Std.int(x), atCursor ? 0 : Std.int(y), atCursor);
 
 			var item = NativeMenu.getItem(items, id);
@@ -939,7 +965,7 @@ class NativeWindow
 			#if (!macro && lime_cffi)
 			if (menu != null)
 			{
-				var items = [];
+				var items = NativeMenu.newItems(NativeMenu.SOURCE_WINDOW, parent.id, menu);
 				var data = NativeMenu.encode(menu, items);
 				menuItems = NativeCFFI.lime_window_set_menu(handle, data) ? items : null;
 			}
@@ -948,6 +974,8 @@ class NativeWindow
 				NativeCFFI.lime_window_set_menu(handle, null);
 				menuItems = null;
 			}
+
+			NativeMenu.setInstalled(NativeMenu.SOURCE_WINDOW, parent.id, menuItems != null ? menu : null, menuItems);
 			#end
 		}
 	}
