@@ -137,6 +137,11 @@ class FlashVideoSource
 		return false;
 	}
 
+	public function openBytes(bytes:haxe.io.Bytes, format:VideoFrameFormat):Bool
+	{
+		return false;
+	}
+
 	public function pause():Void {}
 
 	public function play():Void {}

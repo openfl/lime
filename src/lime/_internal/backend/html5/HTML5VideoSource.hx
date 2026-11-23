@@ -1,5 +1,6 @@
 package lime._internal.backend.html5;
 
+import haxe.io.Bytes;
 import js.html.VideoElement;
 import js.Browser;
 import lime.app.Future;
@@ -27,6 +28,8 @@ class HTML5VideoSource
 	private var frameSeconds:Float;
 	private var frameTime:Float;
 	private var gain:Float;
+	// A blob: URL made for openBytes, revoked when the video is closed
+	private var objectURL:String;
 	private var rate:Float;
 	private var loops:Int;
 	private var pan:Float;
@@ -239,7 +242,17 @@ class HTML5VideoSource
 		if (Assets.exists(path))
 		{
 			var assetPath = Assets.getPath(path);
-			if (assetPath != null) url = assetPath;
+
+			if (assetPath != null)
+			{
+				url = assetPath;
+			}
+			else
+			{
+				// An embedded asset has no URL of its own
+				var bytes = Assets.getBytes(path);
+				return bytes != null && openBytes(bytes, format, path);
+			}
 		}
 
 		element = cast Browser.document.createElement("video");
@@ -270,6 +283,25 @@ class HTML5VideoSource
 		presentedTime = -1;
 		requestFrameCallback();
 		this.path = path;
+		return true;
+	}
+
+	public function openBytes(bytes:Bytes, format:VideoFrameFormat, path:String = null):Bool
+	{
+		if (bytes == null || bytes.length == 0) return false;
+
+		var blob = new js.html.Blob([bytes.getData()], {type: getMimeType(bytes)});
+		var url = js.html.URL.createObjectURL(blob);
+
+		// Opening closes any video before, revoking its URL, so this one is kept after
+		if (!open(url, format))
+		{
+			js.html.URL.revokeObjectURL(url);
+			return false;
+		}
+
+		objectURL = url;
+		if (path != null) this.path = path;
 		return true;
 	}
 
@@ -421,9 +453,28 @@ class HTML5VideoSource
 			element = null;
 		}
 
+		if (objectURL != null)
+		{
+			js.html.URL.revokeObjectURL(objectURL);
+			objectURL = null;
+		}
+
 		buffering = false;
 		pendingSeeks = 0;
 		playing = false;
+	}
+
+	@:noCompletion private static function getMimeType(bytes:Bytes):String
+	{
+		if (bytes.length >= 12)
+		{
+			if (bytes.getString(4, 4) == "ftyp") return bytes.getString(8, 2) == "qt" ? "video/quicktime" : "video/mp4";
+			if (bytes.get(0) == 0x1A && bytes.get(1) == 0x45 && bytes.get(2) == 0xDF && bytes.get(3) == 0xA3) return "video/webm";
+			if (bytes.getString(0, 4) == "OggS") return "video/ogg";
+		}
+
+		// The browser looks at the data itself
+		return "";
 	}
 
 	@:noCompletion private function measureFrameRate(metadata:Dynamic):Void

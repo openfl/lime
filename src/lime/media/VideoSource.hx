@@ -1,5 +1,6 @@
 package lime.media;
 
+import haxe.io.Bytes;
 import lime.app.Event;
 import lime.app.Future;
 import lime.app.Promise;
@@ -43,7 +44,10 @@ import lime.app.Promise;
 	with `texImage2D`, and the browser turns and sizes it already.
 
 	Availability: native targets where `VideoDecoder.isSupported` is `true`,
-	and HTML5. On macOS and iOS, only local files play, not URLs.
+	and HTML5. Videos open from a path, an asset (embedded or not), a URL
+	or bytes. On macOS and iOS, a URL is downloaded to a temporary file before
+	it plays, as the system's reader only reads files, so live streams do not
+	play there.
 
 	On HTML5, a video from another origin needs the server to allow it with
 	CORS headers, or it fails to load, as its frames are read by WebGL.
@@ -276,6 +280,19 @@ class VideoSource
 	}
 
 	/**
+		Creates a video source from a whole video file held in memory, or
+		returns `null` when it cannot be opened.
+
+		@param	bytes	The video file
+		@param	format	The layout of frames on native targets
+	**/
+	public static function fromBytes(bytes:Bytes, format:VideoFrameFormat = NV12):VideoSource
+	{
+		var source = new VideoSource();
+		return source.openBytes(bytes, format) ? source : null;
+	}
+
+	/**
 		Opens a video without blocking.
 
 		@param	path	A file path, asset ID or URL
@@ -286,6 +303,24 @@ class VideoSource
 	public static function loadFromFile(path:String, format:VideoFrameFormat = NV12):Future<VideoSource>
 	{
 		return VideoSourceBackend.loadFromFile(path, format);
+	}
+
+	/**
+		Opens a whole video file held in memory, closing any video already
+		open. Playback starts paused at the beginning, and `source` is `null`.
+
+		Native targets write the bytes to a temporary file, as the platform
+		decoders read files, and delete it when the video is closed. HTML5 plays
+		them from a `blob:` URL.
+
+		@param	bytes	The video file
+		@param	format	The layout of frames on native targets
+		@return	Whether the video can be played
+	**/
+	public function openBytes(bytes:Bytes, format:VideoFrameFormat = NV12):Bool
+	{
+		source = null;
+		return __backend.openBytes(bytes, format);
 	}
 
 	/**
