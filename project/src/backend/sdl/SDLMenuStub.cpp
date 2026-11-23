@@ -94,7 +94,7 @@ namespace lime {
 	}
 
 
-	bool SDLMenu::GetTrayIconEvent (SDL_Event* event, int* id, int* type, int* item) {
+	bool SDLMenu::GetTrayIconEvent (SDL_Event* event, int* id, int* type, int* item, int* x, int* y) {
 
 		return false;
 
@@ -113,7 +113,7 @@ namespace lime {
 	void SDLMenu::PushSelection (Uint32 windowID, int id) {}
 
 
-	void SDLMenu::PushTrayIconEvent (int trayIconID, int type, int itemID) {}
+	void SDLMenu::PushTrayIconEvent (int trayIconID, int type, int itemID, int x, int y) {}
 
 
 	bool TrayIcon::IsSupported () {

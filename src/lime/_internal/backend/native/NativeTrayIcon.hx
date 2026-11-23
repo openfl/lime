@@ -76,9 +76,24 @@ class NativeTrayIcon
 		}
 	}
 
-	public function handleClick():Void
+	public function handleClick(x:Int, y:Int):Void
 	{
-		parent.onClick.dispatch();
+		parent.onClick.dispatch(x, y);
+	}
+
+	public function handleDoubleClick(x:Int, y:Int, button:Int):Void
+	{
+		parent.onDoubleClick.dispatch(x, y, button);
+	}
+
+	public function handleMouseDown(x:Int, y:Int, button:Int):Void
+	{
+		parent.onMouseDown.dispatch(x, y, button);
+	}
+
+	public function handleMouseUp(x:Int, y:Int, button:Int):Void
+	{
+		parent.onMouseUp.dispatch(x, y, button);
 	}
 
 	public function handleMenuSelect(itemID:Int):Void
@@ -87,9 +102,9 @@ class NativeTrayIcon
 		if (item != null) item.__select();
 	}
 
-	public function handleRightClick():Void
+	public function handleRightClick(x:Int, y:Int):Void
 	{
-		parent.onRightClick.dispatch();
+		parent.onRightClick.dispatch(x, y);
 
 		if (!parent.onRightClick.canceled && !menuShownByPlatform && parent.__menu != null)
 		{
