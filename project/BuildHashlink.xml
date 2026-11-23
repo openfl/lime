@@ -34,6 +34,9 @@
 		<compilerflag value="-DLIBHL_EXPORTS" />
 		<compilerflag value="-DHAVE_CONFIG_H" />
 		<compilerflag value="-DPCRE2_CODE_UNIT_WIDTH=16" />
+		<!-- HashLink's strings are UTF-16, and process.c and file.c call the Windows functions by their generic names -->
+		<compilerflag value="-D_UNICODE" if="windows" />
+		<compilerflag value="-DUNICODE" if="windows" />
 
 		<compilerflag value="-I${HASHLINK_PATH}/src" />
 		<compilerflag value="-I${HASHLINK_PATH}/include" />
@@ -268,6 +271,8 @@
 	</files>
 	<files id="ui">
 		<compilerflag value="-I${HASHLINK_PATH}/src" />
+		<compilerflag value="-D_UNICODE" if="windows" />
+		<compilerflag value="-DUNICODE" if="windows" />
 
 		<file name="${HASHLINK_PATH}/libs/ui/ui_stub.c" unless="windows" />
 		<file name="${HASHLINK_PATH}/libs/ui/ui_win.c" if="windows" />

@@ -133,6 +133,85 @@ class CURLEasyTest extends Test
 		assertCode(URL_MALFORMAT, curl.perform(), "no URL");
 	}
 
+	public function testTheErrorBufferDescribesAFailedTransfer():Void
+	{
+		// CURLOPT_ERRORBUFFER: libcurl writes why a transfer failed to the
+		// handle's buffer, and empties it when the next transfer starts
+		var curl = handle();
+		Assert.isNull(curl.getErrorBuffer(), "before the option is set");
+
+		assertCode(OK, curl.setOption(ERRORBUFFER, true));
+		Assert.equals("", curl.getErrorBuffer());
+
+		var url = ScriptedServer.refusedURL();
+		var port = url.substring(url.lastIndexOf(":") + 1, url.lastIndexOf("/"));
+		assertCode(COULDNT_CONNECT, run(curl, url).code);
+
+		var message = curl.getErrorBuffer();
+		Assert.notNull(message);
+		if (message != null)
+		{
+			Assert.isTrue(message.length > 0 && message.length < 256, "message of " + message.length + " characters");
+			Assert.isTrue(message.indexOf(port) > -1, "no port " + port + " in: " + message);
+		}
+
+		var server = serve(function(_) return ScriptedResponse.text(200, "ok"));
+		assertCode(OK, run(curl, server.url("/after")).code);
+		Assert.equals("", curl.getErrorBuffer());
+
+		assertCode(OK, curl.setOption(ERRORBUFFER, false));
+		Assert.isNull(curl.getErrorBuffer(), "once turned off");
+		assertCode(COULDNT_CONNECT, run(curl, ScriptedServer.refusedURL()).code);
+		Assert.isNull(curl.getErrorBuffer());
+	}
+
+	public function testTheErrorBufferIsNeverAValueOfTheCaller():Void
+	{
+		// The option once handed libcurl a string's bytes, or on HashLink a
+		// copy that could be collected, to write up to CURL_ERROR_SIZE bytes to
+		var curl = handle();
+		var text = [for (i in 0...4) "x"].join("");
+		assertCode(OK, curl.setOption(ERRORBUFFER, text));
+		collect();
+
+		for (i in 0...3)
+		{
+			assertCode(COULDNT_CONNECT, run(curl, ScriptedServer.refusedURL()).code);
+			collect();
+		}
+
+		Assert.equals("xxxx", text);
+		var message = curl.getErrorBuffer();
+		Assert.isTrue(message != null && message.length > 0, "message: " + message);
+	}
+
+	public function testAResetOrCloneHandleHasItsOwnErrorBuffer():Void
+	{
+		var curl = handle();
+		curl.setOption(ERRORBUFFER, true);
+
+		// curl_easy_duphandle would leave the clone writing to the original's buffer
+		var clone = track(curl.clone());
+		assertCode(COULDNT_CONNECT, run(clone, ScriptedServer.refusedURL()).code);
+		Assert.isTrue(clone.getErrorBuffer().length > 0, "the clone's buffer is empty");
+		Assert.equals("", curl.getErrorBuffer(), "the clone wrote to the original's buffer");
+
+		// The clone keeps its buffer once the original's is gone
+		curl.cleanup();
+		handles.remove(curl);
+		collect();
+		assertCode(COULDNT_CONNECT, run(clone, ScriptedServer.refusedURL()).code);
+		Assert.isTrue(clone.getErrorBuffer().length > 0, "the clone's buffer is empty after the original's cleanup");
+
+		// curl_easy_reset turns the option off
+		clone.reset();
+		Assert.isNull(clone.getErrorBuffer(), "after a reset");
+		clone.setOption(NOSIGNAL, true);
+		clone.setOption(TIMEOUT_MS, 8000);
+		assertCode(COULDNT_CONNECT, run(clone, ScriptedServer.refusedURL()).code);
+		Assert.isNull(clone.getErrorBuffer());
+	}
+
 	public function testErrorStatusesAreTransfersThatWorked():Void
 	{
 		// CURLOPT_FAILONERROR: off by default, when a 404 is a successful transfer

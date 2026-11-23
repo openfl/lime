@@ -153,7 +153,7 @@ class ScriptedServer
 		while (!stopped)
 		{
 			// Waits briefly, so stopping is seen
-			if (Socket.select([listener], [], [], 0.05).read.length == 0) continue;
+			if (!readable(listener)) continue;
 
 			try
 			{
@@ -181,7 +181,7 @@ class ScriptedServer
 
 		while (!stopped)
 		{
-			if (Socket.select([connection], [], [], 0.05).read.length == 0) continue;
+			if (!readable(connection)) continue;
 
 			try
 			{
@@ -199,7 +199,53 @@ class ScriptedServer
 		}
 	}
 
-	private function pause(seconds:Float):Void
+	// Whether the client has closed its end. A write to a client that hung up
+	// raises SIGPIPE on macOS, where Neko's sockets don't set SO_NOSIGPIPE (it
+	// passes no value), and Neko turns the signal into a "Broken pipe"
+	// exception on whichever thread it lands on, often the main thread inside
+	// the application's loop, where nothing catches it. So the server doesn't
+	// write to a client that is gone. The request has been read by now, so
+	// anything readable is the client closing. A select that fails (see
+	// readable) says nothing either way, so the write goes ahead.
+	private static function hungUp(connection:Socket):Bool
+	{
+		try
+		{
+			if (Socket.select([connection], [], [], 0).read.length == 0) return false;
+		}
+		catch (e:Dynamic)
+		{
+			return false;
+		}
+
+		try
+		{
+			return connection.input.readBytes(Bytes.alloc(1), 0, 1) <= 0;
+		}
+		catch (e:Dynamic)
+		{
+			return true;
+		}
+	}
+
+	// Whether a socket has something to read within 50 ms. On HashLink on Windows,
+	// select can fail with "Error while waiting on socket"; that ended the
+	// thread, and the connection it held closed early, so it is waited out
+	// and tried again.
+	private static function readable(socket:Socket):Bool
+	{
+		try
+		{
+			return Socket.select([socket], [], [], 0.05).read.length > 0;
+		}
+		catch (e:Dynamic)
+		{
+			Sys.sleep(0.05);
+			return false;
+		}
+	}
+
+		private function pause(seconds:Float):Void
 	{
 		var end = haxe.Timer.stamp() + seconds;
 		while (!stopped && haxe.Timer.stamp() < end)
@@ -307,6 +353,12 @@ class ScriptedServer
 			if (stopped) return false;
 			if (position > 0 && response.pause > 0) pause(response.pause);
 
+			if (hungUp(connection))
+			{
+				disconnected();
+				return false;
+			}
+
 			var count = Std.int(Math.min(piece, data.length - position));
 
 			try
@@ -331,6 +383,12 @@ class ScriptedServer
 		if (response.silent)
 		{
 			hold(connection);
+			return;
+		}
+
+		if (hungUp(connection))
+		{
+			disconnected();
 			return;
 		}
 

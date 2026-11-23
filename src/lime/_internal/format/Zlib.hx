@@ -31,6 +31,9 @@ class Zlib
 		#end
 		return Bytes.ofData(data);
 		#elseif flash
+		// Flash compresses nothing to nothing, where a stream needs its header, final block and Adler-32
+		if (bytes.length == 0) return __bytes([0x78, 0x9C, 0x03, 0x00, 0x00, 0x00, 0x00, 0x01]);
+
 		var byteArray:ByteArray = cast bytes.getData();
 
 		var data = new ByteArray();
@@ -54,13 +57,11 @@ class Zlib
 		return @:privateAccess new Bytes(data.length, data.b);
 		#end
 		#elseif js
-		#if commonjs
-		var data = untyped #if haxe4 js.Syntax.code #else __js__ #end ("require (\"pako\").inflate")(bytes.getData());
-		#else
-		var data = untyped #if haxe4 js.Syntax.code #else __js__ #end ("pako.inflate")(bytes.getData());
-		#end
-		return Bytes.ofData(data);
+		return PakoInflate.inflate(bytes, PakoInflate.ZLIB);
 		#elseif flash
+		// Flash uncompresses nothing to nothing, but a stream has at least its header
+		if (bytes.length == 0) return null;
+
 		var byteArray:ByteArray = cast bytes.getData();
 
 		var data = new ByteArray();
@@ -72,4 +73,13 @@ class Zlib
 		return null;
 		#end
 	}
+
+	#if flash
+	private static function __bytes(values:Array<Int>):Bytes
+	{
+		var bytes = Bytes.alloc(values.length);
+		for (i in 0...values.length) bytes.set(i, values[i]);
+		return bytes;
+	}
+	#end
 }

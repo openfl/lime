@@ -3,6 +3,7 @@ package org.haxe.lime;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.res.AssetManager;
 import android.net.Uri;
@@ -42,6 +43,10 @@ public class GameActivity extends SDLActivity {
 	private static OrientationEventListener orientationListener;
 	private static HaxeObject deviceOrientationListener;
 	private static int deviceOrientation = SDL_ORIENTATION_UNKNOWN;
+	private static String pendingPermission;
+
+	private static final int LIME_PERMISSION_REQUEST = 0x4C4D;
+	private static final String LIME_PERMISSION_PREFERENCES = "org.haxe.lime.permissions";
 
 	public Handler handler;
 
@@ -156,10 +161,88 @@ public class GameActivity extends SDLActivity {
 
 	}
 
+	::if (ANDROID_TARGET_SDK_VERSION >= 33)::
+	// An application that targets API 36 gets neither onBackPressed nor KEYCODE_BACK on
+	// Android 16, only this callback. Before Android 16, unless the manifest opts in with
+	// android:enableOnBackInvokedCallback, the callback is not called and the key arrives
+	// as before.
+	@android.annotation.TargetApi(33) private void registerBackCallback () {
+
+		getOnBackInvokedDispatcher ().registerOnBackInvokedCallback (android.window.OnBackInvokedDispatcher.PRIORITY_DEFAULT, new android.window.OnBackInvokedCallback () {
+
+			@Override public void onBackInvoked () {
+
+				for (Extension extension : extensions) {
+
+					if (!extension.onBackPressed ()) {
+
+						return;
+
+					}
+
+				}
+
+				// The press reaches Haxe as the key did, as APP_CONTROL_BACK: an application
+				// that cancels onKeyUp keeps it, and otherwise the task moves to the back
+				SDLActivity.onNativeKeyDown (KeyEvent.KEYCODE_BACK);
+				SDLActivity.onNativeKeyUp (KeyEvent.KEYCODE_BACK);
+
+			}
+
+		});
+
+	}
+	::end::
+
+
+	::if (ANDROID_TARGET_SDK_VERSION >= 35)::
+	// From API 35, Android 15 draws an application edge to edge, under the status and
+	// navigation bars, and Android 16 doesn't let it opt out. SDL's layout is padded by
+	// the bars, so a window that isn't fullscreen stays clear of them as it was before.
+	// Fullscreen hides the bars, whose insets are then 0. A cutout is kept clear too,
+	// unless the project asked to draw into it, as Android 15 takes the default mode as
+	// "always".
+	@android.annotation.TargetApi(30) private void keepClearOfSystemBars () {
+
+		if (mLayout == null) return;
+
+		mLayout.setOnApplyWindowInsetsListener (new View.OnApplyWindowInsetsListener () {
+
+			@Override public WindowInsets onApplyWindowInsets (View view, WindowInsets insets) {
+
+				int types = WindowInsets.Type.systemBars ();
+				int cutoutMode = getWindow ().getAttributes ().layoutInDisplayCutoutMode;
+
+				if (cutoutMode == WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_DEFAULT || cutoutMode == WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_NEVER) {
+
+					types |= WindowInsets.Type.displayCutout ();
+
+				}
+
+				android.graphics.Insets bars = insets.getInsets (types);
+				view.setPadding (bars.left, bars.top, bars.right, bars.bottom);
+				return insets;
+
+			}
+
+		});
+
+		mLayout.requestApplyInsets ();
+
+	}
+	::end::
+
 
 	protected void onCreate (Bundle state) {
 
 		super.onCreate (state);
+		::if (ANDROID_TARGET_SDK_VERSION >= 35)::
+		if (Build.VERSION.SDK_INT >= 35) {
+
+			keepClearOfSystemBars ();
+
+		}
+		::end::
 
 		orientationListener = new OrientationEventListener(this) {
 
@@ -253,6 +336,13 @@ public class GameActivity extends SDLActivity {
 			extension.onCreate (state);
 
 		}
+		::if (ANDROID_TARGET_SDK_VERSION >= 33)::
+		if (Build.VERSION.SDK_INT >= 33) {
+
+			registerBackCallback ();
+
+		}
+		::end::
 
 	}
 
@@ -319,6 +409,31 @@ public class GameActivity extends SDLActivity {
 
 	::if (ANDROID_TARGET_SDK_VERSION >= 23)::
 	@Override public void onRequestPermissionsResult (int requestCode, String permissions[], int[] grantResults) {
+
+		if (requestCode == LIME_PERMISSION_REQUEST) {
+
+			// Without this, a refusal looks the same as never having asked
+			SharedPreferences.Editor editor = getSharedPreferences (LIME_PERMISSION_PREFERENCES, Context.MODE_PRIVATE).edit ();
+
+			// The list is empty when the dialog is dismissed, which counts as a refusal
+			if (permissions.length == 0 && pendingPermission != null) {
+
+				editor.putBoolean (pendingPermission, true);
+
+			}
+
+			for (String permission : permissions) {
+
+				editor.putBoolean (permission, true);
+
+			}
+
+			pendingPermission = null;
+
+			editor.apply ();
+			return;
+
+		}
 
 		for (Extension extension : extensions) {
 
@@ -492,6 +607,57 @@ public class GameActivity extends SDLActivity {
 			@Override public void run () {
 
 				Lime.onCallback (handle);
+
+			}
+
+		});
+
+	}
+
+
+	// 0 when the user has not been asked, 1 when granted and 2 when refused
+	public static int getPermissionStatus (String permission) {
+
+		if (mSingleton == null) {
+
+			return 0;
+
+		}
+
+		if (mSingleton.checkPermission (permission, android.os.Process.myPid (), android.os.Process.myUid ()) == PackageManager.PERMISSION_GRANTED) {
+
+			return 1;
+
+		}
+
+		if (Build.VERSION.SDK_INT < 23) {
+
+			// Granted at install or not at all, from the manifest
+			return 2;
+
+		}
+
+		boolean asked = mSingleton.getSharedPreferences (LIME_PERMISSION_PREFERENCES, Context.MODE_PRIVATE).getBoolean (permission, false);
+		return (asked || mSingleton.shouldShowRequestPermissionRationale (permission)) ? 2 : 0;
+
+	}
+
+
+	// The answer is read back with getPermissionStatus once onRequestPermissionsResult records it
+	public static void requestPermission (final String permission) {
+
+		if (mSingleton == null || Build.VERSION.SDK_INT < 23) {
+
+			return;
+
+		}
+
+		mSingleton.runOnUiThread (new Runnable () {
+
+			@Override public void run () {
+
+				pendingPermission = permission;
+				mSingleton.requestPermissions (new String[] { permission }, LIME_PERMISSION_REQUEST);
 
 			}
 
