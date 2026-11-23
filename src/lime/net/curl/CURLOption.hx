@@ -13,6 +13,12 @@ package lime.net.curl;
 	var RANGE = 10007;
 	var INFILE = 10009;
 	var READDATA = 10009;
+	/**
+		Gives the handle a buffer that libcurl describes each failed transfer
+		in, read with `CURL.getErrorBuffer()`. Set it to `true` to turn it on,
+		and to `false` or `null` to turn it off. Any other value turns it on
+		too: libcurl writes to the handle's own buffer, never to the value.
+	**/
 	var ERRORBUFFER = 10010;
 	var WRITEFUNCTION = 20011;
 	var READFUNCTION = 20012;

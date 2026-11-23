@@ -24,6 +24,19 @@
 #ifndef CREATE_WAITABLE_TIMER_HIGH_RESOLUTION
 #define CREATE_WAITABLE_TIMER_HIGH_RESOLUTION 0x00000002
 #endif
+
+// Looked up at run time: MinGW's headers declare CreateWaitableTimerExW only
+// when _WIN32_WINNT says Vista or later
+typedef HANDLE (WINAPI *CreateWaitableTimerExWFunc) (LPSECURITY_ATTRIBUTES, LPCWSTR, DWORD, DWORD);
+
+static HANDLE CreateHighResolutionTimer ()
+{
+	HMODULE kernel32 = GetModuleHandleW (L"kernel32.dll");
+	if (!kernel32) return NULL;
+	CreateWaitableTimerExWFunc create = (CreateWaitableTimerExWFunc)GetProcAddress (kernel32, "CreateWaitableTimerExW");
+	if (!create) return NULL;
+	return create (NULL, NULL, CREATE_WAITABLE_TIMER_HIGH_RESOLUTION, TIMER_ALL_ACCESS);
+}
 #elif !defined(HX_WINDOWS)
 #include <time.h>
 #endif
@@ -147,7 +160,7 @@ namespace lime
 		mainLoopApplied = false;
 #if defined(HX_WINDOWS) && !defined(HX_WINRT)
 		// Windows 10 1803 and later; without it the remainder of a frame is spun as before
-		frameTimer = CreateWaitableTimerExW(NULL, NULL, CREATE_WAITABLE_TIMER_HIGH_RESOLUTION, TIMER_ALL_ACCESS);
+		frameTimer = CreateHighResolutionTimer ();
 #endif
 		swapPaced = false;
 		swapFallback = false;
@@ -229,7 +242,9 @@ namespace lime
 		clockLastTicks = SDL_GetTicks();
 		clockElapsedTicks = 0;
 		realVSyncActive = false;
+		requestedBackgroundFrameRate = 30.0;
 		requestedBusyWaitMode = MAIN_LOOP_BUSY_WAIT_AUTO;
+		windowsHidden = false;
 		requestedFrameRate = 60.0;
 		requestedProfile = MAIN_LOOP_PROFILE_BALANCED;
 		requestedTimePrecisionMode = MAIN_LOOP_TIME_PRECISION_AUTO;
@@ -360,6 +375,20 @@ namespace lime
 
 		framePeriod = 1000.0 / effectiveFrameRate;
 
+		// While every window is minimised or hidden, nothing shows the frames, so they are
+		// timed at no more than the background frame rate, whatever the profile
+		bool backgroundLimited = windowsHidden && requestedBackgroundFrameRate > 0.0;
+
+		if (backgroundLimited)
+		{
+			double backgroundPeriod = 1000.0 / requestedBackgroundFrameRate;
+			schedulerUnthrottled = false;
+			swapPaced = false;
+			useDisplayDrivenFallback = false;
+			if (framePeriod < backgroundPeriod)
+				framePeriod = backgroundPeriod;
+		}
+
 		switch (requestedTimePrecisionMode)
 		{
 			case MAIN_LOOP_TIME_PRECISION_MILLISECOND:
@@ -390,6 +419,9 @@ namespace lime
 				allowBusyWait = (requestedProfile != MAIN_LOOP_PROFILE_LOW_ENERGY);
 				break;
 		}
+
+		if (backgroundLimited)
+			allowBusyWait = false;
 
 		busyWaitOnly = allowBusyWait && (activeUncapMode == MAIN_LOOP_UNCAP_HARD || (framePeriod > 0.0 && framePeriod <= 2.0));
 
@@ -447,6 +479,23 @@ namespace lime
 			sleepGuardMs = 16.0;
 
 		lastSleepCalibration = now;
+	}
+
+	bool SDLApplication::CalibrateSleepGuardBefore(double remaining)
+	{
+
+		// The measurement sleeps for about the guard, so it waits for a wait
+		// with time to spare, where it can't make the frame start late. The
+		// caller reads the time left again when it returns true.
+		Uint32 now = SDL_GetTicks();
+		if (lastSleepCalibration != 0 && (now - lastSleepCalibration) < 5000)
+			return false;
+
+		if (remaining < (double)GetSleepGuardMs() * 2.0 + 2.0)
+			return false;
+
+		CalibrateSleepGuard();
+		return true;
 	}
 
 	Uint32 SDLApplication::GetSleepGuardMs() const
@@ -1034,6 +1083,12 @@ namespace lime
 			case SDL_WINDOWEVENT_RESTORED:
 
 				ProcessWindowEvent(event);
+
+				// The frame rate drops while every window is minimised or hidden
+				if (event->window.event == SDL_WINDOWEVENT_SHOWN || event->window.event == SDL_WINDOWEVENT_HIDDEN ||
+					event->window.event == SDL_WINDOWEVENT_MINIMIZED || event->window.event == SDL_WINDOWEVENT_RESTORED ||
+					event->window.event == SDL_WINDOWEVENT_MAXIMIZED)
+					UpdateWindowsHidden(true);
 				break;
 
 			case SDL_WINDOWEVENT_DISPLAY_CHANGED:
@@ -1489,6 +1544,22 @@ namespace lime
 
 			MenuEvent::Dispatch(&menuEvent);
 		}
+		else
+		{
+
+			int source;
+
+			if (SDLMenu::GetClose(event, &windowID, &id, &source) && source >= 0 && source <= 3)
+			{
+
+				// One type for each place a menu belongs, in native_desktop's MenuSource order
+				menuEvent.type = (MenuEventType)(MENU_CLOSE_WINDOW + source);
+				menuEvent.id = id;
+				menuEvent.windowID = windowID;
+
+				MenuEvent::Dispatch(&menuEvent);
+			}
+		}
 	}
 
 	void SDLApplication::ProcessMouseEvent(SDL_Event *event)
@@ -1576,6 +1647,7 @@ namespace lime
 			}
 
 			mouseEvent.windowID = event->button.windowID;
+			mouseEvent.timestamp = event->common.timestamp;
 			MouseEvent::Dispatch(&mouseEvent);
 		}
 	}
@@ -1694,6 +1766,7 @@ namespace lime
 			touchEvent.dy = event->tfinger.dy;
 			touchEvent.pressure = event->tfinger.pressure;
 			touchEvent.device = event->tfinger.touchId;
+			touchEvent.timestamp = event->common.timestamp;
 
 			TouchEvent::Dispatch(&touchEvent);
 		}
@@ -1726,13 +1799,17 @@ namespace lime
 		int id;
 		int type;
 		int itemID;
+		int x;
+		int y;
 
-		if (TrayIconEvent::callback && SDLMenu::GetTrayIconEvent(event, &id, &type, &itemID))
+		if (TrayIconEvent::callback && SDLMenu::GetTrayIconEvent(event, &id, &type, &itemID, &x, &y))
 		{
 
 			trayIconEvent.type = (TrayIconEventType)type;
 			trayIconEvent.id = id;
 			trayIconEvent.itemID = itemID;
+			trayIconEvent.x = x;
+			trayIconEvent.y = y;
 
 			TrayIconEvent::Dispatch(&trayIconEvent);
 		}
@@ -1834,7 +1911,8 @@ namespace lime
 #endif
 
 #ifdef LIME_SDL_SOUND
-		Sound_Quit ();
+		// Not under a stream being refilled on another thread
+		SDLSound::Quit ();
 #endif
 
 		SDL_QuitSubSystem(initFlags);
@@ -1851,6 +1929,7 @@ namespace lime
 		{
 			windows.push_back (window);
 			window->SetVSyncMode (requestedVSyncMode);
+			UpdateWindowsHidden (false);
 			RefreshVSyncState ();
 		}
 
@@ -1866,7 +1945,45 @@ namespace lime
 		if (window) dispatchedWindowSizes.erase(window->GetID());
 #endif
 		windows.erase (std::remove (windows.begin (), windows.end (), window), windows.end ());
+		UpdateWindowsHidden (false);
 		RefreshVSyncState ();
+	}
+
+	void SDLApplication::UpdateWindowsHidden(bool apply)
+	{
+
+		// An application without windows isn't limited, as it may draw nothing on purpose
+		int shown = 0;
+		int counted = 0;
+
+		for (std::vector<SDLWindow*>::const_iterator iter = windows.begin (); iter != windows.end (); ++iter)
+		{
+			if (!*iter || !(*iter)->sdlWindow)
+				continue;
+
+			counted++;
+			if (!(SDL_GetWindowFlags ((*iter)->sdlWindow) & (SDL_WINDOW_MINIMIZED | SDL_WINDOW_HIDDEN)))
+				shown++;
+		}
+
+		bool hidden = (counted > 0 && shown == 0);
+
+		if (hidden != windowsHidden)
+		{
+			windowsHidden = hidden;
+			if (apply) ApplyMainLoopSettings ();
+		}
+	}
+
+	void SDLApplication::SetBackgroundFrameRate(double frameRate)
+	{
+
+		double rate = (frameRate > 0.0) ? frameRate : 0.0;
+		if (rate == requestedBackgroundFrameRate)
+			return;
+
+		requestedBackgroundFrameRate = rate;
+		if (windowsHidden) ApplyMainLoopSettings ();
 	}
 
 	void SDLApplication::SetIdleEvents(bool enabled)
@@ -2094,7 +2211,18 @@ namespace lime
 			else if (!busyWaitOnly)
 			{
 
-				CalibrateSleepGuard();
+				if (CalibrateSleepGuardBefore(remaining))
+				{
+					// Measuring slept, so the time left is read again
+					remaining = nextUpdate - GetCurrentTimeMs();
+					if (remaining <= 0.0)
+						return 0;
+
+					waitMs = (int)(remaining + 0.999);
+					if (waitMs < 1)
+						waitMs = 1;
+				}
+
 				Uint32 guardMs = GetSleepGuardMs();
 				if (remaining > (double)guardMs + 1.0)
 				{
@@ -2235,7 +2363,20 @@ namespace lime
 				if (!busyWaitOnly)
 				{
 
-					CalibrateSleepGuard();
+					if (CalibrateSleepGuardBefore(remaining))
+					{
+						// Measuring slept, so the time left is read again
+						remaining = nextUpdate - GetCurrentTimeMs();
+						if (remaining <= 0.0)
+						{
+							if (isBlocking)
+							{
+								SDL_AtomicSet(&s_waitEventBlocking, 0);
+								System::GCExitBlocking();
+							}
+							return 0;
+						}
+					}
 
 					Uint32 guardMs = GetSleepGuardMs();
 					if (remaining > (double)guardMs + 1.0)

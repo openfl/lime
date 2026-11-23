@@ -31,6 +31,9 @@ class Deflate
 		#end
 		return Bytes.ofData(data);
 		#elseif flash
+		// Flash deflates nothing to nothing, where a stream needs its final block: an empty stored block
+		if (bytes.length == 0) return __bytes([0x03, 0x00]);
+
 		var byteArray:ByteArray = cast bytes.getData();
 
 		var data = new ByteArray();
@@ -54,13 +57,11 @@ class Deflate
 		return @:privateAccess new Bytes(data.length, data.b);
 		#end
 		#elseif js
-		#if commonjs
-		var data = untyped #if haxe4 js.Syntax.code #else __js__ #end ("require (\"pako\").inflateRaw")(bytes.getData());
-		#else
-		var data = untyped #if haxe4 js.Syntax.code #else __js__ #end ("pako.inflateRaw")(bytes.getData());
-		#end
-		return Bytes.ofData(data);
+		return PakoInflate.inflate(bytes, PakoInflate.DEFLATE);
 		#elseif flash
+		// Flash inflates nothing to nothing, but a stream has at least its final block
+		if (bytes.length == 0) return null;
+
 		var byteArray:ByteArray = cast bytes.getData();
 
 		var data = new ByteArray();
@@ -72,4 +73,13 @@ class Deflate
 		return null;
 		#end
 	}
+
+	#if flash
+	private static function __bytes(values:Array<Int>):Bytes
+	{
+		var bytes = Bytes.alloc(values.length);
+		for (i in 0...values.length) bytes.set(i, values[i]);
+		return bytes;
+	}
+	#end
 }
