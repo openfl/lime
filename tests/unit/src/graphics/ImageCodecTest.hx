@@ -547,6 +547,28 @@ class ImageCodecTest extends Test
 		if (header != null) Assert.equals("16x16", header.width + "x" + header.height);
 	}
 
+	public function testAMarkerLongerThanTheDataLeftEndsTheInput():Void
+	{
+		// An APP1 marker that claims 65533 more bytes than there are. Skipping it
+		// read past the end of the bytes, where the decoder should see an end
+		var jpeg = imageOf(8, opaque(pattern(8, 8))).encode(ImageFileFormat.JPEG, 90);
+		var overlong = Bytes.ofHex("FFE1FFFF457869660000");
+
+		// Before the frame, so there's no image
+		var beforeFrame = new BytesOutput();
+		beforeFrame.writeBytes(jpeg, 0, 2);
+		beforeFrame.write(overlong);
+		assertDoesNotDecode(beforeFrame.getBytes(), "a marker past the end before the frame");
+
+		// After the scan, in place of the end of image marker, so the image is whole
+		var afterScan = new BytesOutput();
+		afterScan.writeBytes(jpeg, 0, jpeg.length - 2);
+		afterScan.write(overlong);
+		var image = Image.fromBytes(afterScan.getBytes());
+		Assert.notNull(image, "the image before a marker past the end did not decode");
+		if (image != null) Assert.equals(describe(Image.fromBytes(jpeg)), describe(image));
+	}
+
 	// BMP
 
 	public function testBMPEncodingHasAValidFileHeader():Void
