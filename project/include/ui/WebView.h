@@ -65,7 +65,8 @@ namespace lime {
 			virtual std::string Capture () = 0;
 			virtual void Close () = 0;
 			virtual void EvaluateJavaScript (const char* script, int token) = 0;
-			virtual void Focus () = 0;
+			// 0 enters at the last element, 1 leaves the focus where it was, 2 enters at the first
+			virtual void Focus (int direction) = 0;
 			virtual bool GetCanGoBack () = 0;
 			virtual bool GetCanGoForward () = 0;
 			virtual int GetID () = 0;

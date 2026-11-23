@@ -39,6 +39,8 @@
 
 #include <SDL.h>
 #include <string>
+#include <cstdlib>
+#include <cstring>
 
 #include <locale>
 #include <codecvt>
@@ -65,6 +67,17 @@ namespace lime {
 
 	const char* Clipboard::GetText () {
 
+		if (HasDesktopText ()) {
+
+			// Freed with free, as SDL's text is
+			std::string text;
+			if (!GetFormatText (0, &text)) return NULL;
+			char* copy = (char*)malloc (text.size () + 1);
+			if (copy) memcpy (copy, text.c_str (), text.size () + 1);
+			return copy;
+
+		}
+
 		return SDL_GetClipboardText ();
 
 	}
@@ -72,6 +85,7 @@ namespace lime {
 
 	bool Clipboard::HasText () {
 
+		if (HasDesktopText ()) return HasFormat (0);
 		return SDL_HasClipboardText ();
 
 	}
@@ -79,6 +93,7 @@ namespace lime {
 
 	bool Clipboard::SetText (const char* text) {
 
+		if (HasDesktopText () && SetDesktopText (text)) return true;
 		return (SDL_SetClipboardText (text) == 0);
 
 	}

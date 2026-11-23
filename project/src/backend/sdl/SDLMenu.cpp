@@ -1,6 +1,8 @@
+#include "SDLApplication.h"
 #include "SDLMenu.h"
 #include "SDLTrayIcon.h"
 #include "SDLWindow.h"
+#include <system/Clipboard.h>
 #include <system/System.h>
 #include <ui/DockIcon.h>
 #include <native_desktop/Desktop.h>
@@ -25,11 +27,43 @@ namespace lime {
 
 		MENU_EVENT_SELECTION = 1,
 		MENU_EVENT_TRAY_ICON = 2,
-		MENU_EVENT_DOCK_SELECTION = 3
+		MENU_EVENT_DOCK_SELECTION = 3,
+		MENU_EVENT_CLOSE = 5
 
 	};
 
 	static Uint32 menuEventType = 0;
+
+	static void (*openCallback) () = 0;
+	static native_desktop::Event openEvent = { 0, 0, 0, 0 };
+	static std::vector<unsigned char>* openItems = 0;
+	static bool openReplaced = false;
+
+
+	#ifdef NATIVE_DESKTOP_MENU_OPEN_EVENTS
+	static void CallOpenCallback (void*) {
+
+		openCallback ();
+
+	}
+
+
+	// Runs while the system waits to show the menu, so the menu's items can still change
+	static bool HandleDesktopOpen (const native_desktop::Event& event, std::vector<unsigned char>* items, void*) {
+
+		if (!openCallback) return false;
+
+		openEvent = event;
+		openItems = items;
+		openReplaced = false;
+
+		SDLApplication::CallFromEventPump (CallOpenCallback, 0);
+
+		openItems = 0;
+		return openReplaced;
+
+	}
+	#endif
 
 
 	static void ForwardDesktopEvent (const native_desktop::Event& event, void*) {
@@ -41,12 +75,22 @@ namespace lime {
 				break;
 
 			case native_desktop::MENU_EVENT_TRAY_ICON:
+				#ifdef NATIVE_DESKTOP_TRAY_ICON_MOUSE_EVENTS
+				SDLMenu::PushTrayIconEvent (event.target, event.code, event.value, event.x, event.y);
+				#else
 				SDLMenu::PushTrayIconEvent (event.target, event.code, event.value);
+				#endif
 				break;
 
 			case native_desktop::MENU_EVENT_DOCK_SELECTION:
 				SDLMenu::PushDockMenuSelection (event.code);
 				break;
+
+			#ifdef NATIVE_DESKTOP_MENU_OPEN_EVENTS
+			case native_desktop::MENU_EVENT_CLOSE:
+				SDLMenu::PushClose (event.target, event.code, event.value);
+				break;
+			#endif
 
 		}
 
@@ -56,6 +100,10 @@ namespace lime {
 	static void ConfigureDesktop () {
 
 		native_desktop::Menu::SetEventSink (ForwardDesktopEvent, NULL);
+		// native-desktop 1.1.0 has no open events, and onOpen and onClose are not dispatched with it
+		#ifdef NATIVE_DESKTOP_MENU_OPEN_EVENTS
+		native_desktop::Menu::SetOpenHandler (HandleDesktopOpen, NULL);
+		#endif
 		native_desktop::Menu::SetKeyNameProvider (SDL_GetKeyName);
 
 		#ifdef LIME_SDL_MENU_GTK
@@ -218,12 +266,15 @@ namespace lime {
 	}
 
 
-	bool SDLMenu::GetTrayIconEvent (SDL_Event* event, int* id, int* type, int* item) {
+	// A tray icon event carries the screen position as 16 bits beside the kind and the type
+	bool SDLMenu::GetTrayIconEvent (SDL_Event* event, int* id, int* type, int* item, int* x, int* y) {
 
-		if (!menuEventType || event->type != menuEventType || (intptr_t)event->user.data1 != MENU_EVENT_TRAY_ICON) return false;
+		if (!menuEventType || event->type != menuEventType || ((intptr_t)event->user.data1 & 0xFF) != MENU_EVENT_TRAY_ICON) return false;
 		*id = event->user.windowID;
-		*type = event->user.code;
+		*type = event->user.code & 0xFF;
 		*item = (int)(intptr_t)event->user.data2;
+		*x = (Sint16)(((intptr_t)event->user.data1 >> 8) & 0xFFFF);
+		*y = (Sint16)((event->user.code >> 8) & 0xFFFF);
 		return true;
 
 	}
@@ -317,6 +368,157 @@ namespace lime {
 		// SDL already dispatches Win32 and Cocoa events. GTK's context is separate.
 		#ifdef LIME_SDL_MENU_GTK
 		native_desktop::TrayIcon::Update ();
+		#ifdef NATIVE_DESKTOP_CLIPBOARD
+		native_desktop::Clipboard::Update ();
+		#endif
+		#endif
+
+	}
+
+
+	bool SDLMenu::DragWindow (SDL_Window* window, int edges) {
+
+		#ifdef NATIVE_DESKTOP_WINDOW_CONTROL
+		native_desktop::Window desktopWindow;
+		if (!GetDesktopWindow (window, &desktopWindow)) return false;
+		return edges == 0 ? native_desktop::WindowControl::StartMove (&desktopWindow) : native_desktop::WindowControl::StartResize (&desktopWindow, edges);
+		#else
+		return false;
+		#endif
+
+	}
+
+
+	bool SDLMenu::OrderWindow (SDL_Window* window, SDL_Window* other, int mode) {
+
+		#ifdef NATIVE_DESKTOP_WINDOW_CONTROL
+		native_desktop::Window desktopWindow;
+		if (!GetDesktopWindow (window, &desktopWindow)) return false;
+		if (mode == 0) return native_desktop::WindowControl::OrderToBack (&desktopWindow);
+
+		native_desktop::Window otherWindow;
+		if (!other || !GetDesktopWindow (other, &otherWindow)) return false;
+		return mode == 1 ? native_desktop::WindowControl::OrderAbove (&desktopWindow, &otherWindow) : native_desktop::WindowControl::OrderBelow (&desktopWindow, &otherWindow);
+		#else
+		return false;
+		#endif
+
+	}
+
+
+	#ifdef NATIVE_DESKTOP_CLIPBOARD
+	bool Clipboard::GetFiles (std::vector<std::string>* files) { return native_desktop::Clipboard::GetFiles (files); }
+	bool Clipboard::GetFormatText (int format, std::string* text) { return native_desktop::Clipboard::GetText (format, text); }
+	bool Clipboard::GetImage (std::vector<unsigned char>* pixels, int* width, int* height) { return native_desktop::Clipboard::GetImage (pixels, width, height); }
+	bool Clipboard::HasFormat (int format) { return native_desktop::Clipboard::HasFormat (format); }
+
+
+	bool Clipboard::HasDesktopText () {
+
+		// SDL reads the X11 clipboard by asking its owner and waiting for the answer, but GTK only
+		// answers from its own events, which aren't run while SDL waits. SDL then gives up after a
+		// second and takes the clipboard with empty text, and GTK waiting on SDL times out the same way.
+		#if defined(HX_LINUX) && !defined(HX_ANDROID)
+		return native_desktop::Clipboard::IsSupported ();
+		#else
+		return false;
+		#endif
+
+	}
+
+
+	bool Clipboard::SetDesktopText (const char* text) {
+
+		std::vector<native_desktop::ClipboardItem> items (1);
+		items[0].format = native_desktop::CLIPBOARD_TEXT;
+		items[0].text = text ? text : "";
+		return native_desktop::Clipboard::SetItems (items);
+
+	}
+
+
+	static bool ReadInt (const unsigned char* data, int length, int* position, int* value) {
+
+		if (*position + 4 > length) return false;
+		*value = (int)(data[*position] | (data[*position + 1] << 8) | (data[*position + 2] << 16) | ((unsigned)data[*position + 3] << 24));
+		*position += 4;
+		return true;
+
+	}
+
+
+	static bool ReadString (const unsigned char* data, int length, int* position, std::string* text) {
+
+		int size;
+		if (!ReadInt (data, length, position, &size) || size < 0 || *position + size > length) return false;
+		text->assign ((const char*)data + *position, size);
+		*position += size;
+		return true;
+
+	}
+
+
+	bool Clipboard::SetItems (const unsigned char* data, int length) {
+
+		int position = 0;
+		int count;
+		if (!data || !ReadInt (data, length, &position, &count) || count < 0) return false;
+
+		// GTK takes no empty list of targets, so emptying the clipboard there is setting empty text
+		if (count == 0 && HasDesktopText ()) return false;
+
+		std::vector<native_desktop::ClipboardItem> items (count);
+
+		for (int i = 0; i < count; i++) {
+
+			native_desktop::ClipboardItem& item = items[i];
+			if (!ReadInt (data, length, &position, &item.format)) return false;
+
+			if (item.format == native_desktop::CLIPBOARD_FILE_LIST) {
+
+				int files;
+				if (!ReadInt (data, length, &position, &files) || files < 0) return false;
+				item.files.resize (files);
+				for (int j = 0; j < files; j++) if (!ReadString (data, length, &position, &item.files[j])) return false;
+
+			} else if (item.format == native_desktop::CLIPBOARD_IMAGE) {
+
+				if (!ReadInt (data, length, &position, &item.width) || !ReadInt (data, length, &position, &item.height)) return false;
+				if (item.width < 0 || item.height < 0) return false;
+				size_t size = (size_t)item.width * item.height * 4;
+				if (position + size > (size_t)length) return false;
+				item.pixels.assign (data + position, data + position + size);
+				position += (int)size;
+
+			} else {
+
+				if (!ReadString (data, length, &position, &item.text)) return false;
+
+			}
+
+		}
+
+		return native_desktop::Clipboard::SetItems (items);
+
+	}
+	#else
+	bool Clipboard::GetFiles (std::vector<std::string>* files) { return false; }
+	bool Clipboard::GetFormatText (int format, std::string* text) { return false; }
+	bool Clipboard::GetImage (std::vector<unsigned char>* pixels, int* width, int* height) { return false; }
+	bool Clipboard::HasFormat (int format) { return false; }
+	bool Clipboard::SetItems (const unsigned char* data, int length) { return false; }
+	bool Clipboard::HasDesktopText () { return false; }
+	bool Clipboard::SetDesktopText (const char* text) { return false; }
+	#endif
+
+
+	// System's, as native-desktop is only in desktop builds
+	bool System::MoveToTrash (const char* path) {
+
+		#ifdef NATIVE_DESKTOP_TRASH
+		return native_desktop::Trash::MoveToTrash (path);
+		#else
+		return false;
 		#endif
 
 	}
@@ -408,6 +610,51 @@ namespace lime {
 	}
 
 
+	void Menu::GetOpenEvent (int* target, int* menu, int* source) {
+
+		*target = (int)openEvent.target;
+		*menu = openEvent.code;
+		*source = openEvent.value;
+
+	}
+
+
+	void Menu::SetOpenCallback (void (*callback) ()) {
+
+		openCallback = callback;
+
+	}
+
+
+	void Menu::SetOpenItems (const unsigned char* data, int length) {
+
+		if (!openItems || !data || length <= 0) return;
+
+		openItems->assign (data, data + length);
+		openReplaced = true;
+
+	}
+
+
+	bool SDLMenu::GetClose (SDL_Event* event, Uint32* target, int* menu, int* source) {
+
+		if (!menuEventType || event->type != menuEventType || (intptr_t)event->user.data1 != MENU_EVENT_CLOSE) return false;
+
+		*target = event->user.windowID;
+		*menu = event->user.code;
+		*source = (int)(intptr_t)event->user.data2;
+		return true;
+
+	}
+
+
+	void SDLMenu::PushClose (Uint32 target, int menu, int source) {
+
+		PushEvent (MENU_EVENT_CLOSE, target, menu, source);
+
+	}
+
+
 	void SDLMenu::PushDockMenuSelection (int id) {
 
 		PushEvent (MENU_EVENT_DOCK_SELECTION, 0, id, 0);
@@ -422,9 +669,9 @@ namespace lime {
 	}
 
 
-	void SDLMenu::PushTrayIconEvent (int trayIconID, int type, int itemID) {
+	void SDLMenu::PushTrayIconEvent (int trayIconID, int type, int itemID, int x, int y) {
 
-		PushEvent (MENU_EVENT_TRAY_ICON, (Uint32)trayIconID, type, itemID);
+		PushEvent (MENU_EVENT_TRAY_ICON | ((x & 0xFFFF) << 8), (Uint32)trayIconID, (type & 0xFF) | ((y & 0xFFFF) << 8), itemID);
 
 	}
 

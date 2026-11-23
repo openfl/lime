@@ -179,6 +179,48 @@ class ThreadPoolTest extends Test
 		Assert.equals(0, pool.activeJobs);
 	}
 
+	public function testCancelingAJobLeavesTheJobAfterItRunning():Void
+	{
+		// The thread finishes the first job and takes the second before the
+		// pool hears of either, so canceling the first reached the thread while
+		// it ran the second, which then never reported
+		var pool = new ThreadPool(0, 1, MULTI_THREADED);
+		var completed = [];
+		pool.onComplete.add(function(message) completed.push(Std.string(message)));
+
+		var release = new sys.thread.Deque<Bool>();
+		var first = pool.run(completeAtOnce, "first");
+		pool.run(completeWhenReleased, {release: release, name: "second"});
+		Sys.sleep(0.3);
+
+		Assert.isTrue(pool.cancelJob(first), "the first job was not canceled");
+		pumpFor(pool, 0.2);
+		release.add(true);
+		pumpUntil(pool, function() return completed.length > 0);
+
+		Assert.equals("second", completed.join(","));
+		Assert.equals(0, pool.activeJobs);
+	}
+
+	public function testCancelLeavesTheCountOfJobsTakenButNotReported():Void
+	{
+		// A job a thread had taken, whose WORK event was still coming, was
+		// uncounted by cancel(), and the event then took the count below zero,
+		// which stopped the pool updating while later jobs ran
+		var pool = new ThreadPool(0, 1, MULTI_THREADED);
+		pool.run(progressForever, {});
+		Sys.sleep(0.2);
+
+		pool.cancel("stopped");
+		pumpFor(pool, 0.2);
+
+		#if lime_threads_deque
+		Assert.equals(0, @:privateAccess pool.__queuedWorkEvents);
+		#else
+		Assert.pass();
+		#end
+	}
+
 	public function testCancelReportsItsErrorForEachJob():Void
 	{
 		var pool = new ThreadPool(0, 1, MULTI_THREADED);
@@ -323,6 +365,24 @@ class ThreadPoolTest extends Test
 	private static function failWithError(state:Dynamic, output:WorkOutput):Void
 	{
 		output.sendError("failed");
+	}
+
+	private static function completeAtOnce(state:Dynamic, output:WorkOutput):Void
+	{
+		output.sendComplete(state);
+	}
+
+	private static function completeWhenReleased(state:Dynamic, output:WorkOutput):Void
+	{
+		// A job of many short steps, which a message to the thread interrupts
+		if ((state.release : sys.thread.Deque<Bool>).pop(false) != null)
+		{
+			output.sendComplete(state.name);
+		}
+		else
+		{
+			Sys.sleep(0.005);
+		}
 	}
 
 	private static function progressForever(state:Dynamic, output:WorkOutput):Void
