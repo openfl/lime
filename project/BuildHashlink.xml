@@ -22,7 +22,8 @@
 		<file name="src/hashlink_main.c" tag="main"/>
 		<file name="${HASHLINK_PATH}/src/code.c" />
 		<file name="${HASHLINK_PATH}/src/debugger.c" />
-		<file name="${HASHLINK_PATH}/src/jit.c" />
+		<!-- Lime's copy, which boxes a native function's bool as it is on every compiler -->
+		<file name="${NATIVE_TOOLKIT_PATH}/custom/hashlink/src/jit.c" />
 		<file name="${HASHLINK_PATH}/src/main.c" />
 		<file name="${HASHLINK_PATH}/src/module.c" />
 		<file name="${HASHLINK_PATH}/src/profile.c" />

@@ -98,6 +98,7 @@ Changelog
 - Updated the bundled CA certificates to Mozilla's 2026-10-20 list, which drops three eMudhra roots.
 - Updated HashLink to 1.16.
 - Fixed an asset embedding regression.
+- Fixed HashLink on macOS boxing a `false` returned by a native function as `true`, as in a `Future` result: Lime's HashLink runtime clears the upper bits of a `Bool` before boxing it, as HashLink's newer JIT does.
 - Fixed Windows cpp icon resource handling when no icon is generated.
 - Fixed GL cleanup and desktop GL object collection.
 - Fixed native and HashLink `AudioBuffer` layout mismatches.
