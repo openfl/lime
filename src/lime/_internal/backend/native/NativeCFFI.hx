@@ -124,6 +124,16 @@ class NativeCFFI
 
 	@:cffi private static function lime_clipboard_set_text(text:String):Void;
 
+	@:cffi private static function lime_clipboard_get_files():Dynamic;
+
+	@:cffi private static function lime_clipboard_get_format_text(format:Int):Dynamic;
+
+	@:cffi private static function lime_clipboard_get_image(data:Dynamic):Dynamic;
+
+	@:cffi private static function lime_clipboard_has_format(format:Int):Bool;
+
+	@:cffi private static function lime_clipboard_set_items(data:Dynamic):Bool;
+
 	@:cffi private static function lime_data_pointer_offset(dataPointer:DataPointer, offset:Int):Float;
 
 	@:cffi private static function lime_deflate_compress(data:Dynamic, bytes:Dynamic):Dynamic;
@@ -983,6 +993,12 @@ class NativeCFFI
 		"lime_clipboard_event_manager_register", "oov", false));
 	private static var lime_clipboard_get_text = new cpp.Callable<Void->cpp.Object>(cpp.Prime._loadPrime("lime", "lime_clipboard_get_text", "o", false));
 	private static var lime_clipboard_set_text = new cpp.Callable<String->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_clipboard_set_text", "sv", false));
+	private static var lime_clipboard_get_files = new cpp.Callable<Void->cpp.Object>(cpp.Prime._loadPrime("lime", "lime_clipboard_get_files", "o", false));
+	private static var lime_clipboard_get_format_text = new cpp.Callable<Int->cpp.Object>(cpp.Prime._loadPrime("lime", "lime_clipboard_get_format_text", "io",
+		false));
+	private static var lime_clipboard_get_image = new cpp.Callable<cpp.Object->cpp.Object>(cpp.Prime._loadPrime("lime", "lime_clipboard_get_image", "oo", false));
+	private static var lime_clipboard_has_format = new cpp.Callable<Int->Bool>(cpp.Prime._loadPrime("lime", "lime_clipboard_has_format", "ib", false));
+	private static var lime_clipboard_set_items = new cpp.Callable<cpp.Object->Bool>(cpp.Prime._loadPrime("lime", "lime_clipboard_set_items", "ob", false));
 	private static var lime_data_pointer_offset = new cpp.Callable<lime.utils.DataPointer->Int->Float>(cpp.Prime._loadPrime("lime",
 		"lime_data_pointer_offset", "did", false));
 	private static var lime_deflate_compress = new cpp.Callable<cpp.Object->cpp.Object->cpp.Object>(cpp.Prime._loadPrime("lime", "lime_deflate_compress",
@@ -1626,6 +1642,11 @@ class NativeCFFI
 	private static var lime_clipboard_event_manager_register = CFFI.load("lime", "lime_clipboard_event_manager_register", 2);
 	private static var lime_clipboard_get_text = CFFI.load("lime", "lime_clipboard_get_text", 0);
 	private static var lime_clipboard_set_text = CFFI.load("lime", "lime_clipboard_set_text", 1);
+	private static var lime_clipboard_get_files = CFFI.load("lime", "lime_clipboard_get_files", 0);
+	private static var lime_clipboard_get_format_text = CFFI.load("lime", "lime_clipboard_get_format_text", 1);
+	private static var lime_clipboard_get_image = CFFI.load("lime", "lime_clipboard_get_image", 1);
+	private static var lime_clipboard_has_format = CFFI.load("lime", "lime_clipboard_has_format", 1);
+	private static var lime_clipboard_set_items = CFFI.load("lime", "lime_clipboard_set_items", 1);
 	private static var lime_data_pointer_offset = CFFI.load("lime", "lime_data_pointer_offset", 2);
 	private static var lime_deflate_compress = CFFI.load("lime", "lime_deflate_compress", 2);
 	private static var lime_deflate_decompress = CFFI.load("lime", "lime_deflate_decompress", 2);
@@ -2115,6 +2136,31 @@ class NativeCFFI
 	}
 
 	@:hlNative("lime", "hl_clipboard_set_text") private static function lime_clipboard_set_text(text:String):Void {}
+
+	@:hlNative("lime", "hl_clipboard_get_files") private static function lime_clipboard_get_files():hl.Bytes
+	{
+		return null;
+	}
+
+	@:hlNative("lime", "hl_clipboard_get_format_text") private static function lime_clipboard_get_format_text(format:Int):hl.Bytes
+	{
+		return null;
+	}
+
+	@:hlNative("lime", "hl_clipboard_get_image") private static function lime_clipboard_get_image(data:Bytes):Bytes
+	{
+		return null;
+	}
+
+	@:hlNative("lime", "hl_clipboard_has_format") private static function lime_clipboard_has_format(format:Int):Bool
+	{
+		return false;
+	}
+
+	@:hlNative("lime", "hl_clipboard_set_items") private static function lime_clipboard_set_items(data:Bytes):Bool
+	{
+		return false;
+	}
 
 	@:hlNative("lime", "hl_data_pointer_offset") private static function lime_data_pointer_offset(dataPointer:DataPointer, offset:Int):Float
 	{
