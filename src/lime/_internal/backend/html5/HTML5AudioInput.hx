@@ -30,6 +30,7 @@ class HTML5AudioInput
 	private var frameSize:Int;
 	private var mediaStream:Dynamic;
 	private var parent:AudioInput;
+	private var processing:Int;
 	private var processorNode:Dynamic;
 	private var queuedBytes:Int;
 	private var sourceNode:Dynamic;
@@ -123,6 +124,11 @@ class HTML5AudioInput
 		queuedBytes = 0;
 	}
 
+	public function getProcessing():Int
+	{
+		return processing;
+	}
+
 	public function getSamplesAvailable():Int
 	{
 		if (frameSize <= 0)
@@ -211,9 +217,9 @@ class HTML5AudioInput
 				audio:
 					{
 						channelCount: parent.channels,
-						echoCancellation: false,
-						noiseSuppression: false,
-						autoGainControl: false
+						echoCancellation: (parent.__processing & 1) != 0,
+						noiseSuppression: (parent.__processing & 2) != 0,
+						autoGainControl: (parent.__processing & 4) != 0
 					}
 			};
 
@@ -380,6 +386,24 @@ class HTML5AudioInput
 		}
 	}
 
+	// What the browser applied, which can differ from the constraints it was asked for
+	private function getAppliedProcessing(stream:Dynamic):Int
+	{
+		var tracks:Dynamic = stream.getAudioTracks != null ? stream.getAudioTracks() : null;
+
+		if (tracks == null || tracks.length == 0 || tracks[0].getSettings == null)
+		{
+			return 0;
+		}
+
+		var settings:Dynamic = tracks[0].getSettings();
+		var applied = 0;
+		if (settings.echoCancellation == true) applied |= 1;
+		if (settings.noiseSuppression == true) applied |= 2;
+		if (settings.autoGainControl == true) applied |= 4;
+		return applied;
+	}
+
 	private function getFrameSize():Int
 	{
 		return Std.int((parent.channels * parent.bitsPerSample) / 8);
@@ -417,6 +441,7 @@ class HTML5AudioInput
 		}
 
 		mediaStream = stream;
+		processing = getAppliedProcessing(stream);
 		watchTracks(stream);
 		sourceNode = audioContext.createMediaStreamSource(stream);
 		processorNode = audioContext.createScriptProcessor(getProcessorBufferSize(), parent.channels, parent.channels);
