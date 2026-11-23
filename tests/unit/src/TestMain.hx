@@ -45,6 +45,7 @@ class TestMain extends Application
 		runner.addCase(new media.OpenALStateTest());
 		runner.addCase(new media.OpenALTest());
 		runner.addCase(new media.VideoDecoderTest());
+		runner.addCase(new media.VideoTextureOpenGLTest());
 		runner.addCase(new media.VideoInputTest());
 		runner.addCase(new media.VideoNetworkTest());
 		runner.addCase(new media.VideoFrameTest());
@@ -63,7 +64,9 @@ class TestMain extends Application
 		runner.addCase(new net.WebSocketTest());
 		runner.addCase(new system.DisplayTest());
 		runner.addCase(new system.FinalizerTest());
+		runner.addCase(new system.FullPathTest());
 		runner.addCase(new system.LocaleTest());
+		runner.addCase(new system.ProcessTest());
 		runner.addCase(new system.TimerTest());
 		runner.addCase(new ui.GamepadTest());
 		runner.addCase(new ui.HighDPITest());

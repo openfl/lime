@@ -9,6 +9,7 @@
 #define LIME_VIDEO_TEXTURES
 #include "../../graphics/opengl/OpenGL.h"
 #include "../../graphics/opengl/OpenGLBindings.h"
+#include "../../graphics/opengl/OpenGLShareGroups.h"
 #ifdef NEED_EXTENSIONS
 #define DECLARE_EXTENSION
 #include "../../graphics/opengl/OpenGLExtensions.h"
@@ -33,12 +34,15 @@
 namespace lime {
 
 
-	// Textures of decoders closed away from the GL thread, deleted the next
-	// time any decoder reads a texture frame where their context is current
+	// Textures a decoder gave up away from their context: closed on another
+	// thread, or read where the context current does not share them. They are
+	// deleted the next time any decoder reads a texture frame where they can
+	// be, and forgotten once no context of their group is left.
 	struct OrphanTexture {
 
 		unsigned int name;
 		void* context;
+		int group;
 
 	};
 
@@ -59,16 +63,57 @@ namespace lime {
 		}
 
 		void* context = VideoBackend::GetCurrentGLContext ();
+		std::vector<OrphanTexture> kept;
 
 		for (size_t i = 0; i < textures.size (); i++) {
 
-			// A texture made in a context that has since been replaced went with it
-			if (textures[i].context == context) glDeleteTextures (1, &textures[i].name);
+			if (OpenGLShareGroups::Shares (textures[i].context, textures[i].group, context)) {
+
+				glDeleteTextures (1, &textures[i].name);
+
+			} else if (OpenGLShareGroups::Exists (textures[i].group)) {
+
+				kept.push_back (textures[i]);
+
+			}
+
+			// Otherwise every context that had it, such as one that Android
+			// replaced after losing it, is gone, and the texture with them
+
+		}
+
+		if (!kept.empty ()) {
+
+			std::lock_guard<std::mutex> lock (*orphanMutex);
+			orphanTextures->insert (orphanTextures->end (), kept.begin (), kept.end ());
 
 		}
 		#endif
 
 		backend->ReleaseOrphans ();
+
+	}
+
+
+	// Deletes a decoder's texture where a context of its group is current, or
+	// leaves it for ReleaseOrphans while the group lasts
+	static void GiveUpTexture (unsigned int name, void* context, int group) {
+
+		#ifdef LIME_VIDEO_TEXTURES
+		if (!name) return;
+
+		if (OpenGLShareGroups::Shares (context, group, VideoBackend::GetCurrentGLContext ())) {
+
+			glDeleteTextures (1, &name);
+
+		} else if (OpenGLShareGroups::Exists (group)) {
+
+			std::lock_guard<std::mutex> lock (*orphanMutex);
+			OrphanTexture orphan = { name, context, group };
+			orphanTextures->push_back (orphan);
+
+		}
+		#endif
 
 	}
 
@@ -290,6 +335,7 @@ namespace lime {
 		seekPending = false;
 		texture = 0;
 		textureContext = 0;
+		textureGroup = 0;
 		textureHeight = 0;
 		texturesFailed = false;
 		textureThreadKnown = false;
@@ -417,7 +463,7 @@ namespace lime {
 			if (texture) {
 
 				std::lock_guard<std::mutex> lock (*orphanMutex);
-				OrphanTexture orphan = { texture, textureContext };
+				OrphanTexture orphan = { texture, textureContext, textureGroup };
 				orphanTextures->push_back (orphan);
 
 			}
@@ -425,6 +471,7 @@ namespace lime {
 
 			texture = 0;
 			textureContext = 0;
+			textureGroup = 0;
 			frameTexture = 0;
 			textureHeight = 0;
 			textureThreadKnown = false;
@@ -784,16 +831,12 @@ namespace lime {
 		backend->ReleaseTextures ();
 
 		#ifdef LIME_VIDEO_TEXTURES
-		// A texture made in a context that has since been replaced went with it
-		if (texture && textureContext == VideoBackend::GetCurrentGLContext ()) {
-
-			glDeleteTextures (1, &texture);
-
-		}
+		GiveUpTexture (texture, textureContext, textureGroup);
 		#endif
 
 		texture = 0;
 		textureContext = 0;
+		textureGroup = 0;
 		frameTexture = 0;
 		textureHeight = 0;
 		textureThreadKnown = false;
@@ -1089,13 +1132,14 @@ namespace lime {
 
 		}
 
-		// A texture from a context that has since been replaced, as Android does
-		// after losing it, went with that context, and its name may now belong to
-		// one of the application's textures
+		// Every window's context shares the texture, but a context that does
+		// not, such as one that Android made after losing the last, makes its
+		// own, and the old one is deleted where it can be
 		void* context = VideoBackend::GetCurrentGLContext ();
 
-		if (texture && context != textureContext) {
+		if (texture && !OpenGLShareGroups::Shares (textureContext, textureGroup, context)) {
 
+			GiveUpTexture (texture, textureContext, textureGroup);
 			texture = 0;
 
 		}
@@ -1119,6 +1163,7 @@ namespace lime {
 
 			glGenTextures (1, &texture);
 			textureContext = context;
+			textureGroup = OpenGLShareGroups::Get (context);
 			glBindTexture (GL_TEXTURE_2D, texture);
 			glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 			glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
