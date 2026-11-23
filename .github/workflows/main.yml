@@ -1022,6 +1022,23 @@ jobs:
           lime create HelloWorld -verbose -nocolor -eval
           lime build HelloWorld android -release -verbose -nocolor -eval
 
+      # 64-bit devices with 16 KB pages need every LOAD segment aligned to 16 KB
+      - name: Check 64-bit libraries are 16 KB aligned (Android)
+        run: |
+          ndk=${{ matrix.ndk-version == 'stable' && '$ANDROID_NDK_ROOT' || steps.setup-ndk.outputs.ndk-path }}
+          readelf="$ndk/toolchains/llvm/prebuilt/linux-x86_64/bin/llvm-readelf"
+          files=$(ls ndll/Android/liblime-64.so ndll/Android/liblime-x86_64.so 2>/dev/null; find HelloWorld/Export/android/bin/app/src/main/jniLibs \( -path '*/arm64-v8a/*' -o -path '*/x86_64/*' \) -name '*.so')
+          [ -n "$files" ] || { echo "No 64-bit libraries found"; exit 1; }
+          failed=0
+          for file in $files; do
+            aligns=$("$readelf" -lW "$file" | awk '$1 == "LOAD" { print $NF }')
+            echo "$file: $aligns"
+            for align in $aligns; do
+              [ $((align)) -ge 16384 ] || failed=1
+            done
+          done
+          exit $failed
+
       - name: Build SimpleImage sample
         run: |
           lime create SimpleImage -verbose -nocolor -eval
