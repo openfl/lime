@@ -1,5 +1,21 @@
 name: CI
-on: [push, pull_request]
+on:
+  # A branch with a pull request is tested by the pull request's run, so pushes
+  # only run here for the long-lived branches. Any branch can be run by hand.
+  push:
+    branches:
+      - develop
+      - master
+      - '*-dev'
+      - '*-Dev'
+      - 'train/**'
+  pull_request:
+  workflow_dispatch:
+
+# A newer run on the same branch or pull request replaces one still going
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
 
 env:
   HAXE_VERSION: 4.2.5
@@ -1535,7 +1551,9 @@ jobs:
     needs: package-haxelib
     strategy:
       matrix:
-        os: [windows-latest, ubuntu-22.04, macos-15]
+        # macOS runners are scarce: pull requests build the samples on Windows and Linux,
+        # and the long-lived branches on macOS too
+        os: ${{ fromJSON(github.event_name == 'pull_request' && '["windows-latest", "ubuntu-22.04"]' || '["windows-latest", "ubuntu-22.04", "macos-15"]') }}
     runs-on: ${{ matrix.os }}
     steps:
 
@@ -1606,7 +1624,9 @@ jobs:
     needs: package-haxelib
     strategy:
       matrix:
-        os: [windows-latest, ubuntu-22.04, macos-15]
+        # macOS runners are scarce: pull requests build the samples on Windows and Linux,
+        # and the long-lived branches on macOS too
+        os: ${{ fromJSON(github.event_name == 'pull_request' && '["windows-latest", "ubuntu-22.04"]' || '["windows-latest", "ubuntu-22.04", "macos-15"]') }}
     runs-on: ${{ matrix.os }}
     steps:
 
@@ -1765,7 +1785,9 @@ jobs:
     strategy:
       matrix:
         haxe-version: [3.4.7, 4.2.5]
-        os: [windows-latest, ubuntu-22.04, macos-15]
+        # macOS runners are scarce: pull requests build the samples on Windows and Linux,
+        # and the long-lived branches on macOS too
+        os: ${{ fromJSON(github.event_name == 'pull_request' && '["windows-latest", "ubuntu-22.04"]' || '["windows-latest", "ubuntu-22.04", "macos-15"]') }}
     runs-on: ${{ matrix.os }}
     steps:
 
