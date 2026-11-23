@@ -51,6 +51,8 @@ namespace lime {
 			static int GetWindowsConsoleMode (int handleType);
 			#endif
 			static bool IsSymbolicLink (const char* path);
+			// Through native-desktop, where Lime has it; any thread may call it
+			static bool MoveToTrash (const char* path);
 			static void OpenFile (const char* path);
 			static void OpenURL (const char* url, const char* target);
 			static bool SetAllowScreenTimeout (bool allow);

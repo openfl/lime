@@ -30,6 +30,7 @@ Changelog
 - Added the platform's input time to mouse and touch event timestamps on native targets, as key and gamepad events already had.
 - Added `Promise.completeAsync()`.
 - Added `System.getFreeSpace()` and `System.isSymbolicLink()` on native targets.
+- Added `System.moveToTrash()` and `System.moveToTrashAsync()` on Windows, macOS and Linux.
 - Added explicit font rendering flags, DPI-aware glyph rendering, unhinted font decomposition, and HarfBuzz FT font change notifications.
 - Added explicit font rendering flags and DPI-aware glyph rendering with `Font.renderGlyphWithLoadFlags()`, unhinted font decomposition with `Font.decomposeUnhinted()`, and HarfBuzz FT font change notifications.
 - Added `Font.isBold` and `Font.isItalic`.
@@ -118,6 +119,7 @@ Changelog
 - Updated the bundled CA certificates to Mozilla's 2026-10-20 list, which drops three eMudhra roots.
 - Updated HashLink to 1.16.
 - Fixed an asset embedding regression.
+- Fixed HashLink on macOS boxing a `false` returned by a native function as `true`, as in a `Future` result: Lime's HashLink runtime clears the upper bits of a `Bool` before boxing it, as HashLink's newer JIT does.
 - Fixed Windows cpp icon resource handling when no icon is generated.
 - Fixed GL cleanup and desktop GL object collection.
 - Fixed native and HashLink `AudioBuffer` layout mismatches.

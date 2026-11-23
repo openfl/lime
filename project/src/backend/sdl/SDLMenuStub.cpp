@@ -1,6 +1,7 @@
 #include "SDLMenu.h"
 #include "SDLTrayIcon.h"
 #include <system/Clipboard.h>
+#include <system/System.h>
 #include <ui/DockIcon.h>
 
 
@@ -16,6 +17,9 @@ namespace lime {
 	bool Clipboard::SetItems (const unsigned char* data, int length) { return false; }
 	bool Clipboard::HasDesktopText () { return false; }
 	bool Clipboard::SetDesktopText (const char* text) { return false; }
+
+
+	bool System::MoveToTrash (const char* path) { return false; }
 
 
 	TrayIcon* CreateTrayIcon () {
