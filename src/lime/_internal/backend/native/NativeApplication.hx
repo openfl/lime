@@ -37,6 +37,18 @@ import lime.ui.Window;
 @:fileXml('tags="haxe,release"')
 @:noDebug
 #end
+#if android
+// 64-bit devices with 16 KB pages need the application's LOAD segments aligned to 16 KB.
+// NDK r28 and later do that by default, and hxcpp 4.3.2 doesn't ask older ones to. The NDK
+// is found before the toolchain is read, as in project/Build.xml, to know its version here.
+@:buildXml('
+<setup name="androidNdk" />
+<linker id="dll" unless="NDKV28+">
+	<flag value="-Wl,-z,max-page-size=16384" if="HXCPP_ARM64 || HXCPP_X86_64" />
+	<flag value="-Wl,-z,common-page-size=16384" if="HXCPP_ARM64 || HXCPP_X86_64" />
+</linker>
+')
+#end
 @:access(haxe.Timer)
 @:access(lime._internal.backend.native.NativeCFFI)
 @:access(lime._internal.backend.native.NativeOpenGLRenderContext)
@@ -242,6 +254,8 @@ class NativeApplication
 		#if (!macro && lime_cffi)
 		NativeCFFI.lime_application_set_main_loop(handle, __convertFrameProfile(profile), frameRate, __convertTimePrecision(options.timePrecision),
 			__convertBusyWaitMode(options.busyWait), __convertUncapMode(options.uncapMode));
+		var backgroundFrameRate:Null<Float> = Reflect.hasField(options, "backgroundFrameRate") ? options.backgroundFrameRate : null;
+		NativeCFFI.lime_application_set_background_frame_rate(handle, backgroundFrameRate != null ? backgroundFrameRate : 30);
 		#end
 	}
 

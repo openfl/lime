@@ -340,6 +340,54 @@ class IOSPlatform extends PlatformTarget
 			context.IOS_MICROPHONE_USAGE_DESCRIPTION = StringTools.htmlEscape(project.config.getString("ios.microphone-usage-description"), true);
 		}
 
+		// ProMotion iPhones run Core Animation above 60 Hz only with this key, which iPads
+		// don't need. It is set when a window asks for more than 60 frames a second, so an
+		// application at 60 isn't woken at 120 for frames it skips.
+		var highFrameRate = false;
+
+		for (window in project.windows)
+		{
+			if (window.fps != null && window.fps > 60) highFrameRate = true;
+		}
+
+		context.IOS_HIGH_FRAME_RATE = project.config.getBool("ios.high-frame-rate", highFrameRate);
+
+		// The privacy manifest gives App Store Connect a reason for each required reason
+		// API the application calls: Lime's frame clock reads the system boot time, and
+		// hxcpp's sys.FileSystem file timestamps. An application adds its own with
+		// <config:ios privacy-accessed-api="TYPE REASON..." />.
+		var privacyTypes:Array<{type:String, reasons:Array<String>}> = [
+			{type: "NSPrivacyAccessedAPICategorySystemBootTime", reasons: ["35F9.1"]},
+			{type: "NSPrivacyAccessedAPICategoryFileTimestamp", reasons: ["C617.1"]}
+		];
+
+		for (entry in project.config.getArrayString("ios.privacy-accessed-api"))
+		{
+			var words = [for (word in ~/\s+/g.split(StringTools.trim(entry))) if (word != "") word];
+			if (words.length < 2) continue;
+
+			var type = words.shift();
+			var existing = null;
+
+			for (privacyType in privacyTypes)
+			{
+				if (privacyType.type == type) existing = privacyType;
+			}
+
+			if (existing == null)
+			{
+				existing = {type: type, reasons: []};
+				privacyTypes.push(existing);
+			}
+
+			for (reason in words)
+			{
+				if (existing.reasons.indexOf(reason) == -1) existing.reasons.push(reason);
+			}
+		}
+
+		context.IOS_PRIVACY_ACCESSED_API_TYPES = privacyTypes;
+
 		switch (project.window.orientation)
 		{
 			case PORTRAIT:
