@@ -3800,6 +3800,8 @@ class NativeCFFI
 
 	@:cffi private static function lime_al_get_sourcei(source:CFFIPointer, param:Int):Dynamic;
 
+	@:cffi private static function lime_al_get_sourcei_int(source:CFFIPointer, param:Int):Int;
+
 	@:cffi private static function lime_al_get_sourceiv(source:CFFIPointer, param:Int, count:Int):Array<Int>;
 
 	@:cffi private static function lime_al_get_string(param:Int):Dynamic;
@@ -4001,6 +4003,7 @@ class NativeCFFI
 	private static var lime_al_get_sourcefv = new cpp.Callable<cpp.Object->Int->Int->cpp.Object>(cpp.Prime._loadPrime("lime", "lime_al_get_sourcefv", "oiio",
 		false));
 	private static var lime_al_get_sourcei = new cpp.Callable<cpp.Object->Int->cpp.Object>(cpp.Prime._loadPrime("lime", "lime_al_get_sourcei", "oio", false));
+	private static var lime_al_get_sourcei_int = new cpp.Callable<cpp.Object->Int->Int>(cpp.Prime._loadPrime("lime", "lime_al_get_sourcei_int", "oii", false));
 	private static var lime_al_get_sourceiv = new cpp.Callable<cpp.Object->Int->Int->cpp.Object>(cpp.Prime._loadPrime("lime", "lime_al_get_sourceiv", "oiio",
 		false));
 	private static var lime_al_get_string = new cpp.Callable<Int->cpp.Object>(cpp.Prime._loadPrime("lime", "lime_al_get_string", "io", false));
@@ -4150,6 +4153,7 @@ class NativeCFFI
 	private static var lime_al_get_sourcef = CFFI.load("lime", "lime_al_get_sourcef", 2);
 	private static var lime_al_get_sourcefv = CFFI.load("lime", "lime_al_get_sourcefv", 3);
 	private static var lime_al_get_sourcei = CFFI.load("lime", "lime_al_get_sourcei", 2);
+	private static var lime_al_get_sourcei_int = CFFI.load("lime", "lime_al_get_sourcei_int", 2);
 	private static var lime_al_get_sourceiv = CFFI.load("lime", "lime_al_get_sourceiv", 3);
 	private static var lime_al_get_string = CFFI.load("lime", "lime_al_get_string", 1);
 	private static var lime_al_is_buffer = CFFI.load("lime", "lime_al_is_buffer", 1);
@@ -4422,6 +4426,11 @@ class NativeCFFI
 	@:hlNative("lime", "hl_al_get_sourcei") private static function lime_al_get_sourcei(source:CFFIPointer, param:Int):Dynamic
 	{
 		return null;
+	}
+
+	@:hlNative("lime", "hl_al_get_sourcei_int") private static function lime_al_get_sourcei_int(source:CFFIPointer, param:Int):Int
+	{
+		return 0;
 	}
 
 	@:hlNative("lime", "hl_al_get_sourceiv") private static function lime_al_get_sourceiv(source:CFFIPointer, param:Int, count:Int):hl.NativeArray<Int>
@@ -5617,6 +5626,8 @@ class NativeCFFI
 
 	@:cffi private static function lime_curl_easy_duphandle(handle:CFFIPointer):CFFIPointer;
 
+	@:cffi private static function lime_curl_easy_errorbuffer(handle:CFFIPointer):Dynamic;
+
 	@:cffi private static function lime_curl_easy_escape(curl:CFFIPointer, url:String, length:Int):Dynamic;
 
 	@:cffi private static function lime_curl_easy_flush(curl:CFFIPointer):Void;
@@ -5669,6 +5680,8 @@ class NativeCFFI
 	private static var lime_curl_easy_cleanup = new cpp.Callable<cpp.Object->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_curl_easy_cleanup", "ov", false));
 	private static var lime_curl_easy_duphandle = new cpp.Callable<cpp.Object->cpp.Object>(cpp.Prime._loadPrime("lime", "lime_curl_easy_duphandle", "oo",
 		false));
+	private static var lime_curl_easy_errorbuffer = new cpp.Callable<cpp.Object->cpp.Object>(cpp.Prime._loadPrime("lime", "lime_curl_easy_errorbuffer",
+		"oo", false));
 	private static var lime_curl_easy_escape = new cpp.Callable<cpp.Object->String->Int->cpp.Object>(cpp.Prime._loadPrime("lime", "lime_curl_easy_escape",
 		"osio", false));
 	private static var lime_curl_easy_flush = new cpp.Callable<cpp.Object->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_curl_easy_flush", "ov", false));
@@ -5712,6 +5725,7 @@ class NativeCFFI
 	private static var lime_curl_version_info = CFFI.load("lime", "lime_curl_version_info", 1);
 	private static var lime_curl_easy_cleanup = CFFI.load("lime", "lime_curl_easy_cleanup", 1);
 	private static var lime_curl_easy_duphandle = CFFI.load("lime", "lime_curl_easy_duphandle", 1);
+	private static var lime_curl_easy_errorbuffer = CFFI.load("lime", "lime_curl_easy_errorbuffer", 1);
 	private static var lime_curl_easy_escape = CFFI.load("lime", "lime_curl_easy_escape", 3);
 	private static var lime_curl_easy_flush = CFFI.load("lime", "lime_curl_easy_flush", 1);
 	private static var lime_curl_easy_getinfo = CFFI.load("lime", "lime_curl_easy_getinfo", 2);
@@ -5762,6 +5776,11 @@ class NativeCFFI
 	@:hlNative("lime", "hl_curl_easy_cleanup") private static function lime_curl_easy_cleanup(handle:CFFIPointer):Void {}
 
 	@:hlNative("lime", "hl_curl_easy_duphandle") private static function lime_curl_easy_duphandle(handle:CFFIPointer):CFFIPointer
+	{
+		return null;
+	}
+
+	@:hlNative("lime", "hl_curl_easy_errorbuffer") private static function lime_curl_easy_errorbuffer(handle:CFFIPointer):hl.Bytes
 	{
 		return null;
 	}

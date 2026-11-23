@@ -2451,8 +2451,9 @@ namespace lime {
 		#ifdef LIME_FREETYPE
 		Font *font = (Font*)val_data (fontHandle);
 		wchar_t *name = font->GetFamilyName ();
+		if (!name) return alloc_null ();
 		value result = alloc_wstring (name);
-		delete name;
+		free (name);
 		return result;
 		#else
 		return alloc_null ();
@@ -2469,7 +2470,7 @@ namespace lime {
 		if (!name)
 			return nullptr;
 		vbyte* const result = hl_wstring_to_utf8_bytes (name);
-		delete name;
+		free (name);
 		return result;
 		#else
 		return 0;

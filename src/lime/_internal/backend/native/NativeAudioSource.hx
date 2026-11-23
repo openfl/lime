@@ -1146,7 +1146,7 @@ class NativeAudioSource
 		if (buffers == null)
 		{
 			lockState();
-			var buffersProcessed:Int = AL.getSourcei(handle, AL.BUFFERS_PROCESSED);
+			var buffersProcessed:Int = AL.__getSourceInt(handle, AL.BUFFERS_PROCESSED);
 
 			if (buffersProcessed > 0)
 			{
@@ -1323,7 +1323,7 @@ class NativeAudioSource
 		// of data, which happens if the feeding falls behind (or, without
 		// a feeding thread, the main thread freezes).
 		// If AL is supposed to be playing but isn't, restart it here.
-		if (restartStarved && playing && handle != null && queuedBufferCount > 0 && AL.getSourcei(handle, AL.SOURCE_STATE) == AL.STOPPED)
+		if (restartStarved && playing && handle != null && queuedBufferCount > 0 && AL.__getSourceInt(handle, AL.SOURCE_STATE) == AL.STOPPED)
 		{
 			AL.sourcePlay(handle);
 			#if lime_audio_test_hooks if (onTestStart != null) onTestStart(parent, "starved"); #end
@@ -1353,7 +1353,7 @@ class NativeAudioSource
 	{
 		stopFeeding();
 
-		if (playing && handle != null && AL.getSourcei(handle, AL.SOURCE_STATE) == AL.PLAYING)
+		if (playing && handle != null && AL.__getSourceInt(handle, AL.SOURCE_STATE) == AL.PLAYING)
 		{
 			AL.sourceStop(handle);
 		}
@@ -1416,7 +1416,7 @@ class NativeAudioSource
 			&& streamExhausted
 			&& queuedBufferCount == 0
 			&& handle != null
-			&& AL.getSourcei(handle, AL.SOURCE_STATE) != AL.PLAYING)
+			&& AL.__getSourceInt(handle, AL.SOURCE_STATE) != AL.PLAYING)
 		{
 			if (length == null && parent.buffer.__srcSDLSoundDuration <= 0)
 			{
@@ -1477,7 +1477,7 @@ class NativeAudioSource
 			{
 				// A stream whose last buffer OpenAL has played stops with its offset back at 0, a moment before the refill
 				// timer marks it completed; it has played to the end
-				if (playing && streamExhausted && AL.getSourcei(handle, AL.SOURCE_STATE) == AL.STOPPED) return getLength();
+				if (playing && streamExhausted && AL.__getSourceInt(handle, AL.SOURCE_STATE) == AL.STOPPED) return getLength();
 
 				// The blocks hold the start times of the last buffers read, the newest last; the source plays the oldest
 				// one still queued, which is no longer the first block once the stream has run out and the queue shrinks
@@ -1492,9 +1492,9 @@ class NativeAudioSource
 			{
 				// A source OpenAL has stopped by reaching its end rewinds its offset to 0, a moment before the timer
 				// marks it completed; it has played to the end
-				if (playing && AL.getSourcei(handle, AL.SOURCE_STATE) == AL.STOPPED) return getLength();
+				if (playing && AL.__getSourceInt(handle, AL.SOURCE_STATE) == AL.STOPPED) return getLength();
 
-				var offset = AL.getSourcei(handle, AL.BYTE_OFFSET);
+				var offset = AL.__getSourceInt(handle, AL.BYTE_OFFSET);
 				var ratio = (offset / dataLength);
 				var totalSeconds = samples / parent.buffer.sampleRate;
 
