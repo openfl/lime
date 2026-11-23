@@ -1576,9 +1576,7 @@ jobs:
     needs: package-haxelib
     strategy:
       matrix:
-        # macOS runners are scarce: pull requests build the samples on Windows and Linux,
-        # and the long-lived branches on macOS too
-        os: ${{ fromJSON(github.event_name == 'pull_request' && '["windows-latest", "ubuntu-22.04"]' || '["windows-latest", "ubuntu-22.04", "macos-15"]') }}
+        os: [windows-latest, ubuntu-22.04, macos-15]
     runs-on: ${{ matrix.os }}
     steps:
 
@@ -1649,9 +1647,7 @@ jobs:
     needs: package-haxelib
     strategy:
       matrix:
-        # macOS runners are scarce: pull requests build the samples on Windows and Linux,
-        # and the long-lived branches on macOS too
-        os: ${{ fromJSON(github.event_name == 'pull_request' && '["windows-latest", "ubuntu-22.04"]' || '["windows-latest", "ubuntu-22.04", "macos-15"]') }}
+        os: [windows-latest, ubuntu-22.04, macos-15]
     runs-on: ${{ matrix.os }}
     steps:
 
@@ -1810,9 +1806,7 @@ jobs:
     strategy:
       matrix:
         haxe-version: [3.4.7, 4.2.5]
-        # macOS runners are scarce: pull requests build the samples on Windows and Linux,
-        # and the long-lived branches on macOS too
-        os: ${{ fromJSON(github.event_name == 'pull_request' && '["windows-latest", "ubuntu-22.04"]' || '["windows-latest", "ubuntu-22.04", "macos-15"]') }}
+        os: [windows-latest, ubuntu-22.04, macos-15]
     runs-on: ${{ matrix.os }}
     steps:
 
