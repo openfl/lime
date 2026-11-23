@@ -19,6 +19,50 @@ class FontTest extends Test
 	}
 
 	#if (lime_cffi && !macro)
+	public function testAFontWithoutAFullNameIsNamedAfterItsFamily():Void
+	{
+		// BDF isn't SFNT, so it has no name records, only the family FreeType reads
+		var bdf = [
+			"STARTFONT 2.1",
+			"FONT -lime-test-medium-r-normal--8-80-75-75-c-80-iso10646-1",
+			"SIZE 8 75 75",
+			"FONTBOUNDINGBOX 8 8 0 0",
+			"STARTPROPERTIES 3",
+			"FAMILY_NAME \"Lime Test\"",
+			"FONT_ASCENT 8",
+			"FONT_DESCENT 0",
+			"ENDPROPERTIES",
+			"CHARS 1",
+			"STARTCHAR A",
+			"ENCODING 65",
+			"SWIDTH 500 0",
+			"DWIDTH 8 0",
+			"BBX 8 8 0 0",
+			"BITMAP",
+			"18", "24", "42", "42", "7E", "42", "42", "00",
+			"ENDCHAR",
+			"ENDFONT",
+			""
+		].join("\n");
+
+		var font = Font.fromBytes(lime.utils.Bytes.ofString(bdf));
+		Assert.notNull(font, "the BDF font did not open");
+		if (font != null) Assert.equals("Lime Test", font.name);
+	}
+
+	public function testDecomposeGivesTheFontsName():Void
+	{
+		var font = Font.fromFile(PATH);
+		Assert.notNull(font, "cannot open " + PATH);
+		if (font == null) return;
+
+		Assert.isTrue(font.name != null && font.name.length > 0, "the font has no name");
+
+		var data = font.decompose();
+		Assert.notNull(data, "decompose() gave nothing");
+		if (data != null) Assert.equals(font.name, data.family_name);
+	}
+
 	private function variableFont():Font
 	{
 		var font = Font.fromFile(VARIABLE_PATH);
