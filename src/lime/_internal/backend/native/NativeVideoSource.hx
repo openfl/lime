@@ -624,7 +624,7 @@ class NativeVideoSource
 		// has not started yet, and Lime pausing the device while the window is
 		// hidden, are not stalls.
 		if (!playing || isWaitingForFrame() || audioSkipping || bufferTimes.length == 0 || AudioManager.__suspended
-			|| AL.getSourcei(handle, AL.SOURCE_STATE) == AL.INITIAL)
+			|| AL.__getSourceInt(handle, AL.SOURCE_STATE) == AL.INITIAL)
 		{
 			audioCheckStamp = -1;
 			return;
@@ -676,7 +676,7 @@ class NativeVideoSource
 		// have been more than a tenth of a second apart for a quarter of a
 		// second while the sound plays
 		if (!playing || audioSkipping || bufferTimes.length == 0 || AudioManager.__suspended
-			|| AL.getSourcei(handle, AL.SOURCE_STATE) != AL.PLAYING
+			|| AL.__getSourceInt(handle, AL.SOURCE_STATE) != AL.PLAYING
 			|| Math.abs(getAudioPosition() - getTime()) <= AUDIO_DRIFT_SECONDS)
 		{
 			audioDriftStamp = -1;
@@ -937,11 +937,11 @@ class NativeVideoSource
 	{
 		// Stereo is balanced as it is buffered, so what the output has yet to play
 		// is queued again with the new balance, from the sample it is at
-		unqueueBuffers(AL.getSourcei(handle, AL.BUFFERS_PROCESSED));
+		unqueueBuffers(AL.__getSourceInt(handle, AL.BUFFERS_PROCESSED));
 		if (bufferTimes.length == 0 || bufferSounds[0] == null) return;
 
-		var playing = AL.getSourcei(handle, AL.SOURCE_STATE) == AL.PLAYING;
-		var skip = AL.getSourcei(handle, AL.SAMPLE_OFFSET) * blockAlign;
+		var playing = AL.__getSourceInt(handle, AL.SOURCE_STATE) == AL.PLAYING;
+		var skip = AL.__getSourceInt(handle, AL.SAMPLE_OFFSET) * blockAlign;
 		var times = bufferTimes;
 		var sounds = bufferSounds;
 
@@ -984,7 +984,7 @@ class NativeVideoSource
 	@:noCompletion private function followAudio(position:Float):Float
 	{
 		var now = getStamp();
-		var running = playing && !AudioManager.__suspended && AL.getSourcei(handle, AL.SOURCE_STATE) == AL.PLAYING;
+		var running = playing && !AudioManager.__suspended && AL.__getSourceInt(handle, AL.SOURCE_STATE) == AL.PLAYING;
 
 		// The audio position moves each time the output mixes, at some point since
 		// the clock last read it, taken as halfway. Reads further apart cannot
@@ -1117,7 +1117,7 @@ class NativeVideoSource
 		else
 		#end
 		{
-			offset = AL.getSourcei(handle, AL.SAMPLE_OFFSET) / decoder.audioSampleRate;
+			offset = AL.__getSourceInt(handle, AL.SAMPLE_OFFSET) / decoder.audioSampleRate;
 		}
 
 		audioMixPosition = bufferTimes[0] + offset;
@@ -1437,7 +1437,7 @@ class NativeVideoSource
 
 		if (handle != null)
 		{
-			unqueueBuffers(AL.getSourcei(handle, AL.BUFFERS_PROCESSED));
+			unqueueBuffers(AL.__getSourceInt(handle, AL.BUFFERS_PROCESSED));
 
 			if (audioStalled && playing && getStamp() >= audioRetryStamp)
 			{
@@ -1458,7 +1458,7 @@ class NativeVideoSource
 
 			if (playing && bufferTimes.length > 0 && !isWaitingForFrame())
 			{
-				var state = AL.getSourcei(handle, AL.SOURCE_STATE);
+				var state = AL.__getSourceInt(handle, AL.SOURCE_STATE);
 				var start = true;
 
 				if (state == AL.INITIAL && clockMode == MONOTONIC)
@@ -1569,7 +1569,7 @@ class NativeVideoSource
 
 		if (handle != null && decoder != null && !audioSkipping && !audioStalled)
 		{
-			unqueueBuffers(AL.getSourcei(handle, AL.BUFFERS_PROCESSED));
+			unqueueBuffers(AL.__getSourceInt(handle, AL.BUFFERS_PROCESSED));
 			fillBuffers();
 		}
 
