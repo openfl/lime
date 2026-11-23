@@ -1,14 +1,21 @@
 package ui;
 
+import haxe.Int64;
+import haxe.Timer;
+import haxe.crypto.Base64;
+import haxe.io.Bytes;
 import lime.app.Application;
+import lime.app.Event;
 import lime.system.System;
 import lime.ui.KeyCode;
 import lime.ui.KeyModifier;
 import lime.ui.Menu;
 import lime.ui.MenuItem;
 import lime.ui.MouseButton;
+import lime.ui.Touch;
 import lime.ui.Window;
 import utest.Assert;
+import utest.Async;
 import utest.Test;
 
 /**
@@ -17,7 +24,8 @@ import utest.Test;
 	what SDL reports for them: the key code and SDL_Keymod bits of a key, the
 	position, button and click count of a mouse button, the position and the
 	relative motion of a mouse move, the steps of a wheel, the text typed or
-	being composed, and the path of a dropped file.
+	being composed, and the path of a dropped file. Key, mouse and touch events
+	carry the time SDL took them in, as `Event.timestamp`.
 
 	The fullscreen shortcut, Alt+Enter on Windows and Linux and Ctrl+Command+F
 	on macOS, is the default action of its key press, so a listener that cancels
@@ -37,6 +45,9 @@ class InputEventTest extends Test
 	private static inline var MOUSE_UP = 1;
 	private static inline var MOUSE_MOVE = 2;
 	private static inline var MOUSE_WHEEL = 3;
+	private static inline var TOUCH_START = 0;
+	private static inline var TOUCH_END = 1;
+	private static inline var TOUCH_MOVE = 2;
 	private static inline var TEXT_INPUT = 0;
 	private static inline var TEXT_EDIT = 1;
 
@@ -46,9 +57,18 @@ class InputEventTest extends Test
 	private var window:Window;
 	private var other:Window;
 	private var reported:Bool = false;
+	private var touchListeners:Array<Touch->Void> = [];
 
 	public function teardown():Void
 	{
+		for (listener in touchListeners)
+		{
+			Touch.onStart.remove(listener);
+			Touch.onMove.remove(listener);
+			Touch.onEnd.remove(listener);
+		}
+		touchListeners = [];
+
 		for (opened in [window, other])
 		{
 			if (opened == null) continue;
@@ -171,11 +191,11 @@ class InputEventTest extends Test
 		key(KEY_DOWN, window.id, KeyCode.A, KeyModifier.NONE, 1234);
 		key(KEY_UP, window.id, KeyCode.A, KeyModifier.NONE, 1300);
 
-		Assert.equals("1234,1300", times.join(","));
+		Assert.equals(t(1234) + "," + t(1300), times.join(","));
 
 		// The time can still be read once the listeners have returned
-		Assert.equals(1234, window.onKeyDown.timestamp);
-		Assert.equals(1300, window.onKeyUp.timestamp);
+		Assert.equals(t(1234), window.onKeyDown.timestamp);
+		Assert.equals(t(1300), window.onKeyUp.timestamp);
 	}
 
 	public function testAKeyReachesOnlyTheWindowItNames():Void
@@ -490,20 +510,165 @@ class InputEventTest extends Test
 		Assert.equals("2,-3|0.5,-0.75", scrolls.join("|"));
 	}
 
-	public function testMouseEventsCarryTheTimeTheyWereDispatched():Void
+	public function testMouseEventsCarryTheTimeOfTheInput():Void
 	{
 		var window = open();
 		if (window == null) return;
 
-		var time = -1;
-		window.onMouseDown.add(function(x:Float, y:Float, button:MouseButton) time = window.onMouseDown.timestamp);
+		var times = [];
+		window.onMouseDown.add(function(x:Float, y:Float, button:MouseButton) times.push("down " + window.onMouseDown.timestamp));
+		window.onMouseUp.add(function(x:Float, y:Float, button:Int) times.push("up " + window.onMouseUp.timestamp));
+		window.onMouseMove.add(function(x:Float, y:Float) times.push("move " + window.onMouseMove.timestamp));
+		window.onMouseMoveRelative.add(function(x:Float, y:Float) times.push("move by " + window.onMouseMoveRelative.timestamp));
+		window.onMouseWheel.add(function(deltaX:Float, deltaY:Float, mode) times.push("wheel " + window.onMouseWheel.timestamp));
+
+		mouse(MOUSE_DOWN, window.id, 1, 2, MouseButton.LEFT, 0, 0, 1, 1234);
+		mouse(MOUSE_MOVE, window.id, 3, 4, 0, 2, 2, 0, 1250);
+		mouse(MOUSE_UP, window.id, 3, 4, MouseButton.LEFT, 0, 0, 1, 1300);
+		mouse(MOUSE_WHEEL, window.id, 0, 1, 0, 0, 0.5, 0, 1400);
+		window.preciseMouseWheel = true;
+		mouse(MOUSE_WHEEL, window.id, 0, 1, 0, 0, 0.5, 0, 1450);
+
+		Assert.equals("down " + t(1234) + "|move " + t(1250) + "|move by " + t(1250) + "|up " + t(1300) + "|wheel " + t(1400) + "|wheel " + t(1450), times.join("|"));
+
+		// The time can still be read once the listeners have returned
+		Assert.equals(t(1234), window.onMouseDown.timestamp);
+		Assert.equals(t(1250), window.onMouseMove.timestamp);
+		Assert.equals(t(1300), window.onMouseUp.timestamp);
+	}
+
+	public function testTouchEventsCarryTheTimeOfTheInput():Void
+	{
+		var times = [];
+		listenToTouch(Touch.onStart, function(touch:Touch) times.push("start " + Touch.onStart.timestamp));
+		listenToTouch(Touch.onMove, function(touch:Touch) times.push("move " + Touch.onMove.timestamp));
+		listenToTouch(Touch.onEnd, function(touch:Touch) times.push("end " + Touch.onEnd.timestamp));
+
+		touch(TOUCH_START, 0.25, 0.5, 7, 2000);
+		touch(TOUCH_MOVE, 0.3, 0.5, 7, 2016);
+		touch(TOUCH_END, 0.3, 0.5, 7, 2040);
+
+		Assert.equals("start " + t(2000) + "|move " + t(2016) + "|end " + t(2040), times.join("|"));
+		Assert.equals(t(2000), Touch.onStart.timestamp);
+	}
+
+	#if windows
+	/**
+		Mouse messages are posted to the window while the application waits, so
+		SDL takes them in together. The first move holds up the rest, so they
+		are dispatched well after SDL took them, and the times must be SDL's.
+	**/
+	@:timeout(20000)
+	public function testRealMouseEventsCarryTheTimeSDLTookThem(async:Async):Void
+	{
+		var window = open();
+		if (window == null)
+		{
+			async.done();
+			return;
+		}
+
+		var heard = [];
+		var times = [];
+		var dispatched = [];
+
+		window.onMouseMove.add(function(x:Float, y:Float)
+		{
+			heard.push("move " + x + "," + y);
+			times.push(window.onMouseMove.timestamp);
+			dispatched.push(System.getTimer());
+			if (heard.length == 1) Sys.sleep(0.1);
+		});
+		window.onMouseDown.add(function(x:Float, y:Float, button:MouseButton)
+		{
+			heard.push("down " + x + "," + y);
+			times.push(window.onMouseDown.timestamp);
+			dispatched.push(System.getTimer());
+		});
+		window.onMouseUp.add(function(x:Float, y:Float, button:Int)
+		{
+			heard.push("up " + x + "," + y);
+			times.push(window.onMouseUp.timestamp);
+			dispatched.push(System.getTimer());
+		});
 
 		var before = System.getTimer();
-		mouse(MOUSE_DOWN, window.id, 0, 0, MouseButton.LEFT, 0, 0, 1);
-		var after = System.getTimer();
 
-		Assert.isTrue(time >= before && time <= after, "a press dispatched from " + before + " to " + after + " was timed " + time);
+		if (!postMouseMessages(window))
+		{
+			Assert.fail("the mouse messages could not be posted");
+			async.done();
+			return;
+		}
+
+		Timer.delay(function()
+		{
+			// The real cursor is not over the window, so SDL may also move to its
+			// edge when Windows says the mouse has left
+			Assert.equals("move 10,20|move 30,40|down 30,40|up 30,40", heard.slice(0, 4).join("|"));
+
+			if (times.length >= 4)
+			{
+				for (i in 0...4)
+				{
+					// Compared by the time between them, which stays right where the timer wraps
+					Assert.isTrue(timeBetween(before, times[i]) >= 0 && timeBetween(times[i], dispatched[i]) >= 0,
+						heard[i] + " was timed " + times[i] + ", posted from " + before + " and dispatched at " + dispatched[i]);
+				}
+
+				// Dispatch times would be 100 ms or more after the first move
+				Assert.isTrue(timeBetween(times[0], times[3]) < 50, "the times were " + times.join(", ") + " and the dispatches " + dispatched.join(", "));
+			}
+
+			async.done();
+		}, 1000);
 	}
+
+	// The milliseconds from one System.getTimer() reading to a later one, as an
+	// Int32 difference, which stays right where the timer wraps past 2^31
+	private static function timeBetween(earlier:Int, later:Int):Int
+	{
+		return (later : haxe.Int32) - (earlier : haxe.Int32);
+	}
+
+	/**
+		Posts two moves and a click of the left button to the window, through
+		PowerShell, and returns once they are in its message queue.
+	**/
+	private static function postMouseMessages(window:Window):Bool
+	{
+		var hwnd = Int64.toStr(window.nativeHandle.window);
+		var post = "[LimeTest.User32]::PostMessage($h, ";
+		var script = "Add-Type -Namespace LimeTest -Name User32 -MemberDefinition '[DllImport(\"user32.dll\")] public static extern bool PostMessage(IntPtr hWnd, uint msg, IntPtr wParam, IntPtr lParam);'\n"
+			+ "$h = [IntPtr][Int64]" + hwnd + "\n"
+			// WM_MOUSEMOVE, WM_MOUSEMOVE, WM_LBUTTONDOWN, WM_LBUTTONUP, each with y in the high word of lParam
+			+ "$ok = " + post + "0x0200, [IntPtr]0, [IntPtr](10 + (20 -shl 16)))\n"
+			+ "$ok = " + post + "0x0200, [IntPtr]0, [IntPtr](30 + (40 -shl 16))) -and $ok\n"
+			+ "$ok = " + post + "0x0201, [IntPtr]1, [IntPtr](30 + (40 -shl 16))) -and $ok\n"
+			+ "$ok = " + post + "0x0202, [IntPtr]0, [IntPtr](30 + (40 -shl 16))) -and $ok\n"
+			+ "if (-not $ok) { exit 1 }\n";
+
+		// An encoded command is UTF-16, and needs no quoting
+		var utf16 = Bytes.alloc(script.length * 2);
+		for (i in 0...script.length)
+		{
+			utf16.setUInt16(i * 2, StringTools.fastCodeAt(script, i));
+		}
+
+		var process = new sys.io.Process(powerShell(), ["-NoProfile", "-NonInteractive", "-EncodedCommand", Base64.encode(utf16)]);
+		var exitCode = process.exitCode();
+		process.close();
+		return exitCode == 0;
+	}
+
+	private static function powerShell():String
+	{
+		// HashLink starts a process by its path, without looking through PATH
+		var root = Sys.getEnv("SystemRoot");
+		var path = root != null ? root + "\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" : null;
+		return path != null && sys.FileSystem.exists(path) ? path : "powershell";
+	}
+	#end
 
 	public function testTheMouseReachesOnlyTheWindowItNames():Void
 	{
@@ -737,6 +902,13 @@ class InputEventTest extends Test
 		window.onMouseWheel.add(function(deltaX:Float, deltaY:Float, mode) heard.push(name + " wheel"));
 	}
 
+	// The time an event with this native input time is given, which -Dsimulate_uptime
+	// moves on as it does System.getTimer()
+	private static function t(timestamp:Int):Int
+	{
+		return @:privateAccess lime._internal.backend.native.NativeApplication.__inputTime(timestamp);
+	}
+
 	private static function key(type:Int, windowID:Int, keyCode:KeyCode, modifier:KeyModifier, timestamp:Int = 0):Void
 	{
 		// The event as native code fills it in, then the handler it calls
@@ -750,7 +922,8 @@ class InputEventTest extends Test
 		@:privateAccess backend.handleKeyEvent();
 	}
 
-	private static function mouse(type:Int, windowID:Int, x:Float, y:Float, button:Int, movementX:Float, movementY:Float, clickCount:Int):Void
+	private static function mouse(type:Int, windowID:Int, x:Float, y:Float, button:Int, movementX:Float, movementY:Float, clickCount:Int,
+			timestamp:Int = 0):Void
 	{
 		var backend = @:privateAccess Application.current.__backend;
 		var info = @:privateAccess backend.mouseEventInfo;
@@ -762,7 +935,31 @@ class InputEventTest extends Test
 		info.movementX = movementX;
 		info.movementY = movementY;
 		info.clickCount = clickCount;
+		info.timestamp = timestamp;
 		@:privateAccess backend.handleMouseEvent();
+	}
+
+	private function listenToTouch(event:Event<Touch->Void>, listener:Touch->Void):Void
+	{
+		event.add(listener);
+		touchListeners.push(listener);
+	}
+
+	private static function touch(type:Int, x:Float, y:Float, id:Int, timestamp:Int):Void
+	{
+		// Touch events name no window
+		var backend = @:privateAccess Application.current.__backend;
+		var info = @:privateAccess backend.touchEventInfo;
+		info.type = cast type;
+		info.x = x;
+		info.y = y;
+		info.id = id;
+		info.dx = 0;
+		info.dy = 0;
+		info.pressure = 1;
+		info.device = 0;
+		info.timestamp = timestamp;
+		@:privateAccess backend.handleTouchEvent();
 	}
 
 	private static function text(type:Int, windowID:Int, text:String, start:Int, length:Int):Void

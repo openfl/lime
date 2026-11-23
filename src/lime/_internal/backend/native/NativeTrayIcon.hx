@@ -70,6 +70,7 @@ class NativeTrayIcon
 			#end
 
 			trayIconsByID.remove(id);
+			NativeMenu.setInstalled(NativeMenu.SOURCE_TRAY_ICON, id, null, null);
 			handle = null;
 			menuItems = null;
 		}
@@ -118,6 +119,7 @@ class NativeTrayIcon
 			#if (!macro && lime_cffi)
 			var items = [];
 			var data = NativeMenu.encode(menu, items);
+			NativeMenu.setPopup(NativeMenu.SOURCE_TRAY_ICON, id, menu, items);
 			var item = NativeMenu.getItem(items, NativeCFFI.lime_tray_icon_popup_menu(handle, data));
 			if (item != null) item.__select();
 			#end
@@ -141,7 +143,7 @@ class NativeTrayIcon
 			#if (!macro && lime_cffi)
 			if (menu != null)
 			{
-				var items = [];
+				var items = NativeMenu.newItems(NativeMenu.SOURCE_TRAY_ICON, id, menu);
 				var data = NativeMenu.encode(menu, items);
 				menuItems = items;
 				menuShownByPlatform = NativeCFFI.lime_tray_icon_set_menu(handle, data);
@@ -151,6 +153,8 @@ class NativeTrayIcon
 				menuItems = null;
 				menuShownByPlatform = NativeCFFI.lime_tray_icon_set_menu(handle, null);
 			}
+
+			NativeMenu.setInstalled(NativeMenu.SOURCE_TRAY_ICON, id, menuItems != null ? menu : null, menuItems);
 			#end
 		}
 	}

@@ -33,12 +33,12 @@ jobs:
 
       - name: Install Haxe dependencies
         run: |
-          haxelib install native-desktop 1.1.0 --quiet
+          haxelib install native-desktop 1.2.1 --quiet
           haxelib install native-ipc 1.0.0 --quiet
           haxelib install wsproto 1.0.0 --quiet
           haxelib install crossbyte 1.0.1 --quiet
           haxelib --global update haxelib --quiet
-          haxelib install StageWebView 1.0.1 --quiet
+          haxelib install StageWebView 1.1.0 --quiet
           haxelib git libhxcpp https://github.com/openfl/libhxcpp --quiet
           haxelib run libhxcpp setup
           haxe --cwd "$(haxelib libpath libhxcpp)/tools/hxcpp" compile.hxml
@@ -61,6 +61,9 @@ jobs:
           haxelib run lime setup -alias -y -nocffi
 
       - name: Rebuild Lime (Linux)
+        # A rebuild takes up to about 30 minutes (iOS). libhxcpp can leave a failed build running, so
+        # a compile error would otherwise hold the runner until the job times out after 6 hours
+        timeout-minutes: 90
         run: |
           lime rebuild linux -32 -release -nocolor -verbose -nocffi
           lime rebuild linux -64 -release -nocolor -verbose -nocffi
@@ -234,12 +237,12 @@ jobs:
 
       - name: Install Haxe dependencies
         run: |
-          haxelib install native-desktop 1.1.0 --quiet
+          haxelib install native-desktop 1.2.1 --quiet
           haxelib install native-ipc 1.0.0 --quiet
           haxelib install wsproto 1.0.0 --quiet
           haxelib install crossbyte 1.0.1 --quiet
           haxelib --global update haxelib --quiet
-          haxelib install StageWebView 1.0.1 --quiet
+          haxelib install StageWebView 1.1.0 --quiet
           haxelib git libhxcpp https://github.com/openfl/libhxcpp --quiet
           haxelib run libhxcpp setup
           haxe --cwd "$(haxelib libpath libhxcpp)/tools/hxcpp" compile.hxml
@@ -254,6 +257,7 @@ jobs:
           haxelib run lime setup -alias -y -nocffi
 
       - name: Rebuild Lime (Linux ARM64)
+        timeout-minutes: 90
         run: |
           lime rebuild linux -release -nocolor -verbose -nocffi
 
@@ -364,12 +368,12 @@ jobs:
 
       - name: Install Haxe dependencies
         run: |
-          haxelib install native-desktop 1.1.0 --quiet
+          haxelib install native-desktop 1.2.1 --quiet
           haxelib install native-ipc 1.0.0 --quiet
           haxelib install wsproto 1.0.0 --quiet
           haxelib install crossbyte 1.0.1 --quiet
           haxelib --global update haxelib --quiet
-          haxelib install StageWebView 1.0.1 --quiet
+          haxelib install StageWebView 1.1.0 --quiet
           haxelib git libhxcpp https://github.com/openfl/libhxcpp --quiet
           haxelib run libhxcpp setup
           haxe --cwd "$(haxelib libpath libhxcpp)/tools/hxcpp" compile.hxml
@@ -387,6 +391,7 @@ jobs:
           haxelib run lime setup -alias -y -nocffi
 
       - name: Rebuild Lime (Linux default Vulkan)
+        timeout-minutes: 90
         run: |
           lime rebuild linux -64 -release -nocolor -verbose -nocffi
 
@@ -422,9 +427,9 @@ jobs:
 
       - name: Install Haxe dependencies
         run: |
-          haxelib install native-desktop 1.1.0 --quiet
+          haxelib install native-desktop 1.2.1 --quiet
           haxelib install native-ipc 1.0.0 --quiet
-          haxelib install StageWebView 1.0.1 --quiet
+          haxelib install StageWebView 1.1.0 --quiet
           haxelib install wsproto 1.0.0 --quiet
           haxelib install crossbyte 1.0.1 --quiet
           haxelib git libhxcpp https://github.com/openfl/libhxcpp --quiet
@@ -441,6 +446,7 @@ jobs:
           haxelib run lime setup -alias -y -nocffi
 
       - name: Rebuild Lime (macOS)
+        timeout-minutes: 90
         run: |
           lime rebuild macos -clean -release -arm64 -nocolor -verbose -nocffi
 
@@ -566,9 +572,9 @@ jobs:
 
       - name: Install Haxe dependencies
         run: |
-          haxelib install native-desktop 1.1.0 --quiet
+          haxelib install native-desktop 1.2.1 --quiet
           haxelib install native-ipc 1.0.0 --quiet
-          haxelib install StageWebView 1.0.1 --quiet
+          haxelib install StageWebView 1.1.0 --quiet
           haxelib install wsproto 1.0.0 --quiet
           haxelib install crossbyte 1.0.1 --quiet
           haxelib git libhxcpp https://github.com/openfl/libhxcpp --quiet
@@ -588,10 +594,12 @@ jobs:
           haxelib run lime setup -alias -y -nocffi
 
       - name: Rebuild Lime (macOS)
+        timeout-minutes: 90
         run: |
           lime rebuild macos -clean -release -x86_64 -nocolor -verbose -nocffi
 
       - name: Rebuild Lime (HashLink macOS)
+        timeout-minutes: 90
         run: |
           lime rebuild hl -clean -release -nocolor -verbose -nocffi
 
@@ -681,9 +689,9 @@ jobs:
 
       - name: Install Haxe dependencies
         run: |
-          haxelib install native-desktop 1.1.0 --quiet
+          haxelib install native-desktop 1.2.1 --quiet
           haxelib install native-ipc 1.0.0 --quiet
-          haxelib install StageWebView 1.0.1 --quiet
+          haxelib install StageWebView 1.1.0 --quiet
           haxelib install wsproto 1.0.0 --quiet
           haxelib install crossbyte 1.0.1 --quiet
           haxelib install lime-mesa 1.0.0 --quiet
@@ -705,6 +713,7 @@ jobs:
           haxelib run lime config AIR_SDK ${{ env.AIR_HOME }} -eval
 
       - name: Rebuild Lime (Windows)
+        timeout-minutes: 90
         run: |
           lime rebuild windows -32 -release -nocolor -verbose -nocffi
           lime rebuild windows -64 -release -nocolor -verbose -nocffi
@@ -838,6 +847,7 @@ jobs:
           lime build SimpleVideo windows -release -verbose -nocolor
 
       - name: Rebuild Lime (Windows, Mingw)
+        timeout-minutes: 90
         run: |
           rm ndll/Windows64/*
           lime rebuild windows -Dmingw -D MINGW_ROOT=C:\mingw64 -64 -clean -release -nocolor -verbose -nocffi
@@ -874,9 +884,9 @@ jobs:
 
       - name: Install Haxe dependencies
         run: |
-          haxelib install native-desktop 1.1.0 --quiet
+          haxelib install native-desktop 1.2.1 --quiet
           haxelib install native-ipc 1.0.0 --quiet
-          haxelib install StageWebView 1.0.1 --quiet
+          haxelib install StageWebView 1.1.0 --quiet
           haxelib install wsproto 1.0.0 --quiet
           haxelib git libhxcpp https://github.com/openfl/libhxcpp --quiet
           haxelib run libhxcpp setup
@@ -895,6 +905,7 @@ jobs:
           lime config -eval
 
       - name: Rebuild Lime (WebAssembly)
+        timeout-minutes: 90
         run: |
           lime rebuild webassembly -release -nocolor -verbose -nocffi -eval
 
@@ -959,9 +970,9 @@ jobs:
 
       - name: Install Haxe dependencies
         run: |
-          haxelib install native-desktop 1.1.0 --quiet
+          haxelib install native-desktop 1.2.1 --quiet
           haxelib install native-ipc 1.0.0 --quiet
-          haxelib install StageWebView 1.0.1 --quiet
+          haxelib install StageWebView 1.1.0 --quiet
           haxelib install wsproto 1.0.0 --quiet
           haxelib git libhxcpp https://github.com/openfl/libhxcpp --quiet
           haxelib run libhxcpp setup
@@ -985,6 +996,7 @@ jobs:
           LIME_NDK_ROOT: ${{ matrix.ndk-version == 'stable' && '$ANDROID_NDK_ROOT' || steps.setup-ndk.outputs.ndk-path }}
 
       - name: Rebuild Lime (Android)
+        timeout-minutes: 90
         run: |
           lime rebuild android -release -nocolor -verbose -nocffi -eval
 
@@ -1009,6 +1021,23 @@ jobs:
         run: |
           lime create HelloWorld -verbose -nocolor -eval
           lime build HelloWorld android -release -verbose -nocolor -eval
+
+      # 64-bit devices with 16 KB pages need every LOAD segment aligned to 16 KB
+      - name: Check 64-bit libraries are 16 KB aligned (Android)
+        run: |
+          ndk=${{ matrix.ndk-version == 'stable' && '$ANDROID_NDK_ROOT' || steps.setup-ndk.outputs.ndk-path }}
+          readelf="$ndk/toolchains/llvm/prebuilt/linux-x86_64/bin/llvm-readelf"
+          files=$(ls ndll/Android/liblime-64.so ndll/Android/liblime-x86_64.so 2>/dev/null; find HelloWorld/Export/android/bin/app/src/main/jniLibs \( -path '*/arm64-v8a/*' -o -path '*/x86_64/*' \) -name '*.so')
+          [ -n "$files" ] || { echo "No 64-bit libraries found"; exit 1; }
+          failed=0
+          for file in $files; do
+            aligns=$("$readelf" -lW "$file" | awk '$1 == "LOAD" { print $NF }')
+            echo "$file: $aligns"
+            for align in $aligns; do
+              [ $((align)) -ge 16384 ] || failed=1
+            done
+          done
+          exit $failed
 
       - name: Build SimpleImage sample
         run: |
@@ -1048,9 +1077,9 @@ jobs:
 
       - name: Install Haxe dependencies
         run: |
-          haxelib install native-desktop 1.1.0 --quiet
+          haxelib install native-desktop 1.2.1 --quiet
           haxelib install native-ipc 1.0.0 --quiet
-          haxelib install StageWebView 1.0.1 --quiet
+          haxelib install StageWebView 1.1.0 --quiet
           haxelib install wsproto 1.0.0 --quiet
           haxelib git libhxcpp https://github.com/openfl/libhxcpp --quiet
           haxelib run libhxcpp setup
@@ -1064,6 +1093,7 @@ jobs:
           haxelib run lime setup -alias -y -nocffi -eval
 
       - name: Rebuild Lime (iOS)
+        timeout-minutes: 90
         run: |
           lime rebuild ios -clean -release -verbose -nocolor -eval
 
@@ -1122,9 +1152,9 @@ jobs:
 
       - name: Install Haxe dependencies
         run: |
-          haxelib install native-desktop 1.1.0 --quiet
+          haxelib install native-desktop 1.2.1 --quiet
           haxelib install native-ipc 1.0.0 --quiet
-          haxelib install StageWebView 1.0.1 --quiet
+          haxelib install StageWebView 1.1.0 --quiet
           haxelib install wsproto 1.0.0 --quiet
           haxelib install crossbyte 1.0.1 --quiet
           haxelib git libhxcpp https://github.com/openfl/libhxcpp --quiet
@@ -1255,9 +1285,9 @@ jobs:
 
       - name: Install Haxe dependencies
         run: |
-          haxelib install native-desktop 1.1.0 --quiet
+          haxelib install native-desktop 1.2.1 --quiet
           haxelib install native-ipc 1.0.0 --quiet
-          haxelib install StageWebView 1.0.1 --quiet
+          haxelib install StageWebView 1.1.0 --quiet
           haxelib install wsproto 1.0.0 --quiet
           haxelib install dox --quiet
           haxelib dev lime ${{ github.workspace }}
@@ -1289,9 +1319,9 @@ jobs:
 
       - name: Install Haxe dependencies
         run: |
-          haxelib install native-desktop 1.1.0 --quiet
+          haxelib install native-desktop 1.2.1 --quiet
           haxelib install native-ipc 1.0.0 --quiet
-          haxelib install StageWebView 1.0.1 --quiet
+          haxelib install StageWebView 1.1.0 --quiet
           haxelib install wsproto 1.0.0 --quiet
           haxelib install format --quiet
           haxelib install hxp --quiet
@@ -1348,9 +1378,9 @@ jobs:
 
       - name: Install Haxe dependencies
         run: |
-          haxelib install native-desktop 1.1.0 --quiet
+          haxelib install native-desktop 1.2.1 --quiet
           haxelib install native-ipc 1.0.0 --quiet
-          haxelib install StageWebView 1.0.1 --quiet
+          haxelib install StageWebView 1.1.0 --quiet
           haxelib install wsproto 1.0.0 --quiet
           haxelib git libhxcpp https://github.com/openfl/libhxcpp --quiet
           haxelib run libhxcpp setup
@@ -1407,9 +1437,9 @@ jobs:
 
       - name: Install Haxe dependencies
         run: |
-          haxelib install native-desktop 1.1.0 --quiet
+          haxelib install native-desktop 1.2.1 --quiet
           haxelib install native-ipc 1.0.0 --quiet
-          haxelib install StageWebView 1.0.1 --quiet
+          haxelib install StageWebView 1.1.0 --quiet
           haxelib install wsproto 1.0.0 --quiet
           haxelib git lime-samples https://github.com/openfl/lime-samples --quiet
 
@@ -1466,9 +1496,9 @@ jobs:
 
       - name: Install Haxe dependencies
         run: |
-          haxelib install native-desktop 1.1.0 --quiet
+          haxelib install native-desktop 1.2.1 --quiet
           haxelib install native-ipc 1.0.0 --quiet
-          haxelib install StageWebView 1.0.1 --quiet
+          haxelib install StageWebView 1.1.0 --quiet
           haxelib install wsproto 1.0.0 --quiet
           haxelib git lime-samples https://github.com/openfl/lime-samples --quiet
 
@@ -1522,9 +1552,9 @@ jobs:
 
       - name: Install Haxe dependencies
         run: |
-          haxelib install native-desktop 1.1.0 --quiet
+          haxelib install native-desktop 1.2.1 --quiet
           haxelib install native-ipc 1.0.0 --quiet
-          haxelib install StageWebView 1.0.1 --quiet
+          haxelib install StageWebView 1.1.0 --quiet
           haxelib install wsproto 1.0.0 --quiet
           haxelib install genes --quiet
           haxelib git lime-samples https://github.com/openfl/lime-samples --quiet
@@ -1607,9 +1637,9 @@ jobs:
 
       - name: Install Haxe dependencies
         run: |
-          haxelib install native-desktop 1.1.0 --quiet
+          haxelib install native-desktop 1.2.1 --quiet
           haxelib install native-ipc 1.0.0 --quiet
-          haxelib install StageWebView 1.0.1 --quiet
+          haxelib install StageWebView 1.1.0 --quiet
           haxelib install wsproto 1.0.0 --quiet
           haxelib git lime-samples https://github.com/openfl/lime-samples --quiet
 

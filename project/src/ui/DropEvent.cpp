@@ -48,10 +48,9 @@ namespace lime {
 
 				DropEvent* eventObject = (DropEvent*)DropEvent::eventObject->Get ();
 
+				// In memory the collector owns, which a malloc copy was not, so every event leaked it
 				int length = strlen ((const char*)event->file);
-				char* file = (char*)malloc (length + 1);
-				strcpy (file, (const char*)event->file);
-				eventObject->file = (vbyte*)file;
+				eventObject->file = hl_copy_bytes ((const vbyte*)event->file, length + 1);
 				eventObject->type = event->type;
 				eventObject->windowID = event->windowID;
 
