@@ -22,7 +22,7 @@ Changelog
 - Added `Window.nativeHandle`, the system's own window and display, for native code that works with them directly.
 - Added input event timestamps without changing listener signatures.
 - Added `Promise.completeAsync()`.
-- Added explicit font rendering flags, DPI-aware glyph rendering, unhinted font decomposition, and HarfBuzz FT font change notifications.
+- Added explicit font rendering flags and DPI-aware glyph rendering with `Font.renderGlyphWithLoadFlags()`, unhinted font decomposition with `Font.decomposeUnhinted()`, and HarfBuzz FT font change notifications.
 - Added `Font.isBold` and `Font.isItalic`.
 - Added `Font.setVariation()` to set the axes of variable fonts.
 - Added `Font.stemDarkening` and `Font.stemDarkeningParameters` to make text more readable.
@@ -72,6 +72,8 @@ Changelog
 - Changed `Window.alert()` to also request attention on macOS and Linux.
 - Changed Windows to show input methods' own composition and candidate windows.
 - Changed `FrameProfile.UNCAPPED` to uncap the frame loop.
+- Changed the default Android target SDK to 36, which Google Play requires, with Android Gradle plugin 8.9.1 and Gradle 8.11.1. On Android 16, the back gesture and back key still reach the application as `APP_CONTROL_BACK`, and an Android application is a game by default (`android:appCategory="game"`), so it keeps its orientation on large screens.
+- Fixed Android windows that aren't fullscreen drawing under the status and navigation bars on Android 15 and later, which draw applications that target API 35 or later edge to edge.
 - Changed native HTTP requests to look up names on a thread of their own on every platform.
 - Changed native HTTPS requests to check the server's certificate, against the system's trusted certificates (Mozilla's on iOS and tvOS). Set `HTTPRequest.verifyCertificates` to `false`, or define `lime-insecure-https`, for servers with self-signed certificates.
 - Changed static builds to use Lime's own mbedTLS rather than the one bundled with hxcpp.
@@ -107,6 +109,7 @@ Changelog
 - Fixed `VideoDecoder` leaking a texture each time a `TEXTURE` video was read with another window's context current.
 - Fixed collected `GLSync` and `GLTransformFeedback` objects never being deleted.
 - Fixed collected framebuffers, vertex arrays, transform feedbacks and queries being deleted in whichever window's OpenGL context was current, and found by name in another window's.
+- Fixed 64-bit Android libraries built with NDK r27 or older and hxcpp 4.3.2 not being aligned for devices with 16 KB pages.
 - Fixed `::ANDROID_INSTALL_LOCATION::` in Android manifest templates copied from Lime 8.3 and earlier.
 - Fixed HTML5 gamepad connect and disconnect events.
 - Fixed `projectFilePath` for HXP projects.
@@ -134,6 +137,7 @@ Changelog
 - Fixed exceptions thrown in event listeners losing their original call site.
 - Fixed `Event` skipping a listener, or calling one again, when a listener adds or removes listeners while it runs.
 - Fixed constructing `Bytes` with no arguments on HashLink.
+- Fixed `Bytes.compress()` and `Bytes.decompress()` with LZMA on HTML5, and `Bytes.decompress()` on HTML5 accepting truncated ZLIB, GZIP and DEFLATE data, ZLIB data as GZIP and GZIP as ZLIB, and reading only the first member of a GZIP file.
 - Fixed `FileDialog` wildcard filters.
 - Fixed the Windows icon resource not being rebuilt when the icon changes.
 - Fixed template assets failing to copy when their destination directory doesn't exist.
@@ -142,6 +146,7 @@ Changelog
 - Fixed HashLink/C builds on macOS with newer Xcode versions.
 - Fixed WebAssembly builds with newer Emscripten versions.
 - Fixed loading an `HTTPRequest` again using a curl handle that had been freed, so the load never reached the server, or changed another request.
+- Fixed `CURLOption.ERRORBUFFER` handing libcurl a string to write errors to, which corrupted memory when a transfer failed. The handle now has a buffer of its own, read with `CURL.getErrorBuffer()`.
 - Fixed a `VorbisFile` opened from bytes reading them after they were collected.
 - Fixed a small memory leak for each `VorbisFile`.
 - Fixed `Font` glyph lookups for characters beyond U+FFFF, such as emoji, and for UTF-8 led by the bytes 0xE0, 0xED, and 0xF0, such as Devanagari and Thai.
