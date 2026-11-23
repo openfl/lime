@@ -12,6 +12,16 @@ class FlashVideoSource
 
 	public function dispose():Void {}
 
+	public function getBytesLoaded():Float
+	{
+		return 0;
+	}
+
+	public function getBytesTotal():Float
+	{
+		return 0;
+	}
+
 	public function getClockMode():VideoClockMode
 	{
 		return SMOOTH;
@@ -40,6 +50,11 @@ class FlashVideoSource
 	public function getDropLateFrames():Bool
 	{
 		return true;
+	}
+
+	public function getFrameRate():Float
+	{
+		return 0;
 	}
 
 	public function getGain():Float
