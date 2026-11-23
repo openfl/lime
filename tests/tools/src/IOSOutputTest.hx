@@ -8,6 +8,7 @@ import utest.Test;
 class IOSOutputTest extends Test
 {
 	private static inline var INFO_PLIST = "MyApplication/MyApplication-Info.plist";
+	private static inline var PRIVACY_MANIFEST = "MyApplication/PrivacyInfo.xcprivacy";
 
 	private var fixture:Fixture;
 	private var output:PlatformFixture;
@@ -67,6 +68,61 @@ class IOSOutputTest extends Test
 		</project>');
 
 		Assert.isFalse(infoPlist().exists("CADisableMinimumFrameDurationOnPhone"));
+	}
+
+	// App Store Connect refuses apps whose privacy manifest doesn't give a reason for each
+	// required reason API they call. Lime's frame clock reads the system boot time, and
+	// hxcpp's sys.FileSystem reads file timestamps.
+	public function testThePrivacyManifestDeclaresTheAPIsLimeUses():Void
+	{
+		output.update('<project>
+			<app main="Main" file="MyApplication" />
+		</project>');
+
+		var types = accessedAPITypes();
+		Fixture.assertSame(["35F9.1"], types.get("NSPrivacyAccessedAPICategorySystemBootTime"));
+		Fixture.assertSame(["C617.1"], types.get("NSPrivacyAccessedAPICategoryFileTimestamp"));
+
+		var manifest = Plist.parse(output.read(PRIVACY_MANIFEST));
+		Assert.equals(false, manifest.get("NSPrivacyTracking"));
+
+		// It is copied into the application, as the Xcode project's resources
+		var project = output.read("MyApplication.xcodeproj/project.pbxproj");
+		var phase = project.substring(project.indexOf("/* Begin PBXResourcesBuildPhase section */"), project.indexOf("/* End PBXResourcesBuildPhase section */"));
+		Assert.isTrue(phase.indexOf("PrivacyInfo.xcprivacy in Resources") > -1, "the privacy manifest is not among the application's resources");
+		Assert.isTrue(project.indexOf('path = "MyApplication/PrivacyInfo.xcprivacy"') > -1);
+	}
+
+	// <config:ios privacy-accessed-api="NSPrivacyAccessedAPICategoryUserDefaults CA92.1" />
+	public function testAnApplicationCanDeclareAPIsOfItsOwn():Void
+	{
+		output.update('<project>
+			<app main="Main" file="MyApplication" />
+			<config:ios privacy-accessed-api="NSPrivacyAccessedAPICategoryUserDefaults CA92.1" />
+			<config:ios privacy-accessed-api="NSPrivacyAccessedAPICategoryFileTimestamp 3B52.1" />
+		</project>');
+
+		var types = accessedAPITypes();
+		Fixture.assertSame(["CA92.1"], types.get("NSPrivacyAccessedAPICategoryUserDefaults"));
+		Fixture.assertSame(["C617.1", "3B52.1"], types.get("NSPrivacyAccessedAPICategoryFileTimestamp"));
+		Fixture.assertSame(["35F9.1"], types.get("NSPrivacyAccessedAPICategorySystemBootTime"));
+	}
+
+	private function accessedAPITypes():Map<String, Array<String>>
+	{
+		var types = new Map<String, Array<String>>();
+		var manifest = Plist.parse(output.read(PRIVACY_MANIFEST));
+		var entries:Array<Dynamic> = manifest.get("NSPrivacyAccessedAPITypes");
+
+		for (entry in entries)
+		{
+			var dict:Map<String, Dynamic> = entry;
+			var reasons:Array<Dynamic> = dict.get("NSPrivacyAccessedAPITypeReasons");
+			Assert.isFalse(types.exists(dict.get("NSPrivacyAccessedAPIType")), dict.get("NSPrivacyAccessedAPIType") + " is listed twice");
+			types.set(dict.get("NSPrivacyAccessedAPIType"), [for (reason in reasons) (reason : String)]);
+		}
+
+		return types;
 	}
 
 	private function infoPlist():Map<String, Dynamic>
