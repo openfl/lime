@@ -1,5 +1,6 @@
 package lime._internal.backend.flash;
 
+import lime.ui.FocusDirection;
 import lime.app.Future;
 import lime.app.Promise;
 import lime.graphics.Image;
@@ -42,7 +43,7 @@ class FlashWebView
 		return cast Future.withError("The view is not available");
 	}
 
-	public function focus():Void {}
+	public function focus(direction:FocusDirection):Void {}
 
 	public function getCanGoBack():Bool
 	{

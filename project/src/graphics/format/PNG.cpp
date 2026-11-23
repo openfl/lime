@@ -79,7 +79,8 @@ namespace lime {
 		int bit_depth, color_type, interlace_type;
 
 		FILE_HANDLE* file = NULL;
-		Bytes* data = NULL;
+		// Set after setjmp, and read on the path libpng jumps back to, so volatile
+		Bytes* volatile data = NULL;
 		ReadBuffer buffer (NULL, 0);
 
 		if (resource->path) {
@@ -126,6 +127,7 @@ namespace lime {
 
 			png_destroy_read_struct (&png_ptr, &info_ptr, (png_infopp)NULL);
 			if (file) lime::fclose (file);
+			if (data) delete data;
 			return false;
 
 		}
@@ -155,6 +157,9 @@ namespace lime {
 
 		png_read_info (png_ptr, info_ptr);
 		png_get_IHDR (png_ptr, info_ptr, &width, &height, &bit_depth, &color_type, &interlace_type, NULL, NULL);
+
+		// Only the colour types with alpha, or any with a tRNS chunk, can be transparent
+		imageBuffer->transparent = (color_type & PNG_COLOR_MASK_ALPHA) != 0 || png_get_valid (png_ptr, info_ptr, PNG_INFO_tRNS) != 0;
 
 		if (decodeData) {
 

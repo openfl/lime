@@ -29,6 +29,9 @@ namespace lime {
 			bool TestContextReplacement (bool create);
 			#endif
 			virtual void Focus ();
+			virtual bool OrderRelative (Window* other, bool above);
+			virtual bool OrderToBack ();
+			virtual bool StartMoveResize (int edges);
 			virtual void* GetContext ();
 			virtual const char* GetContextType ();
 			// virtual Cursor GetCursor ();
@@ -82,6 +85,7 @@ namespace lime {
 			virtual void GetVulkanDrawableSize (int* width, int* height);
 			virtual bool GetVulkanInstanceExtensions (unsigned int* count, const char** names);
 			virtual void* GetVulkanInstanceProcAddr ();
+			virtual void NoteVulkanPresent ();
 			SDL_Renderer* sdlRenderer;
 			SDL_Texture* sdlTexture;
 			SDL_Window* sdlWindow;

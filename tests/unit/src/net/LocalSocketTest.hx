@@ -354,6 +354,239 @@ class LocalSocketTest extends Test
 	{
 		return "lime-test-" + what + "-" + Std.random(0x3FFFFFFF) + "-" + (++counter);
 	}
+	#elseif (js && html5)
+	// Pages of the same origin, and objects in the same page, share a
+	// BroadcastChannel, so the server and its clients are all in this page.
+	public function testIsSupported():Void
+	{
+		var supported = js.Syntax.code("typeof BroadcastChannel !== 'undefined'");
+		Assert.equals(supported, LocalSocket.isSupported);
+		Assert.equals(supported, LocalServer.isSupported);
+	}
+
+	public function testNothingIsSentBeforeConnecting():Void
+	{
+		Assert.isFalse(new LocalSocket().send(Bytes.ofString("early")));
+	}
+
+	@:timeout(10000)
+	public function testMessagesArriveWholeAndInOrderBothWays(async:utest.Async):Void
+	{
+		var name = uniqueName("order");
+		var server = new LocalServer();
+		var taken:LocalSocket = null;
+		var received:Array<Bytes> = [];
+		server.onConnect.add(function(socket)
+		{
+			taken = socket;
+			socket.onData.add(function(data) received.push(data));
+		});
+		Assert.isTrue(server.listen(name), "the server did not listen: " + server.error);
+		Assert.isTrue(server.listening);
+
+		var client = new LocalSocket();
+		var connected = false;
+		var replies:Array<Bytes> = [];
+		client.onConnect.add(function() connected = true);
+		client.onData.add(function(data) replies.push(data));
+		client.connect(name, 3000);
+
+		// Sent before the connection is made: goes once it is, in order
+		var sent = [pattern(10, 1), Bytes.alloc(0), pattern(1, 2), pattern(70000, 3)];
+		for (message in sent)
+		{
+			Assert.isTrue(client.send(message));
+		}
+
+		var data = Bytes.ofString("0123456789");
+		Assert.isTrue(client.send(data, 2, 5));
+		Assert.isFalse(client.send(data, 8, 5), "a range past the end was sent");
+		Assert.isFalse(client.send(data, -1, 2), "a negative offset was sent");
+		Assert.isFalse(client.send(null));
+		sent.push(Bytes.ofString("23456"));
+
+		waitUntil(function() return connected && received.length == sent.length, function(done)
+		{
+			Assert.isTrue(done, "the messages did not all arrive: " + received.length + " of " + sent.length);
+			Assert.isTrue(client.connected);
+
+			for (i in 0...sent.length)
+			{
+				if (i < received.length) Assert.equals(0, sent[i].compare(received[i]), "message " + i + " arrived changed");
+			}
+
+			if (taken == null)
+			{
+				Assert.fail("the server did not take the connection");
+				finish(async, [client], [server]);
+				return;
+			}
+
+			Assert.isTrue(taken.connected);
+			Assert.equals(name, taken.name);
+			Assert.isTrue(taken.send(Bytes.ofString("reply")));
+
+			waitUntil(function() return replies.length == 1, function(_)
+			{
+				if (replies.length == 1) Assert.equals("reply", replies[0].toString());
+				else Assert.fail("the reply did not arrive");
+				finish(async, [client, taken], [server]);
+			});
+		});
+	}
+
+	@:timeout(10000)
+	public function testClosingOneEndClosesTheOther(async:utest.Async):Void
+	{
+		var name = uniqueName("close");
+		var server = new LocalServer();
+		var taken:Array<LocalSocket> = [];
+		var serverClosed = 0;
+		server.onConnect.add(function(socket)
+		{
+			taken.push(socket);
+			socket.onClose.add(function() serverClosed++);
+		});
+		server.listen(name);
+
+		var client = new LocalSocket();
+		var clientClosed = false;
+		client.onClose.add(function() clientClosed = true);
+		client.connect(name, 3000);
+
+		waitUntil(function() return taken.length == 1 && client.connected, function(_)
+		{
+			client.close();
+
+			waitUntil(function() return serverClosed == 1, function(seen)
+			{
+				Assert.isTrue(seen, "the server's end did not see the client go");
+				Assert.isFalse(clientClosed, "onClose was dispatched for close()");
+				if (taken.length > 0) Assert.isFalse(taken[0].connected);
+
+				// And the other way
+				var second = new LocalSocket();
+				var secondClosed = false;
+				second.onClose.add(function() secondClosed = true);
+				second.connect(name, 3000);
+
+				waitUntil(function() return taken.length == 2 && second.connected, function(_)
+				{
+					if (taken.length == 2) taken[1].close();
+
+					waitUntil(function() return secondClosed, function(seen)
+					{
+						Assert.isTrue(seen, "the client did not see the server's end go");
+						Assert.isFalse(second.connected);
+						finish(async, [second], [server]);
+					});
+				});
+			});
+		});
+	}
+
+	@:timeout(10000)
+	public function testANameInUseIsRefusedOnceTheServerAnswers(async:utest.Async):Void
+	{
+		var name = uniqueName("inuse");
+		var first = new LocalServer();
+		var second = new LocalServer();
+
+		Assert.isTrue(first.listen(name));
+		// The listening server answers on the channel, which comes later
+		Assert.isTrue(second.listen(name));
+
+		waitUntil(function() return !second.listening, function(refused)
+		{
+			Assert.isTrue(refused, "the second server kept listening on a name in use");
+			Assert.equals(LocalSocketError.NAME_IN_USE, second.error);
+			Assert.isTrue(first.listening);
+
+			// Free again once closed
+			first.close();
+			var third = new LocalServer();
+			Assert.isTrue(third.listen(name));
+
+			Timer.delay(function()
+			{
+				Assert.isTrue(third.listening, "a name freed by close() was refused");
+				Assert.equals(LocalSocketError.NONE, third.error);
+				finish(async, [], [second, third]);
+			}, 600);
+		});
+	}
+
+	@:timeout(10000)
+	public function testAConnectNothingTakesEndsAtItsTimeout(async:utest.Async):Void
+	{
+		var client = new LocalSocket();
+		var heard = [];
+		client.onError.add(function(error) heard.push("error " + error));
+		client.onClose.add(function() heard.push("close"));
+
+		var start = Timer.stamp();
+		client.connect(uniqueName("nobody"), 400);
+
+		waitUntil(function() return heard.indexOf("close") > -1, function(_)
+		{
+			var took = Timer.stamp() - start;
+			Assert.same(["error " + LocalSocketError.TIMEOUT, "close"], heard);
+			Assert.isFalse(client.connected);
+			Assert.isTrue(took >= 0.3 && took < 2, "a connect with a 400 ms timeout took " + took + " s");
+			Assert.isFalse(client.send(Bytes.ofString("late")));
+			async.done();
+		});
+	}
+
+	private static function finish(async:utest.Async, sockets:Array<LocalSocket>, servers:Array<LocalServer>):Void
+	{
+		for (socket in sockets)
+		{
+			if (socket != null) socket.close();
+		}
+
+		for (server in servers)
+		{
+			server.close();
+		}
+
+		async.done();
+	}
+
+	private static function pattern(length:Int, seed:Int):Bytes
+	{
+		var bytes = Bytes.alloc(length);
+		for (i in 0...length)
+		{
+			bytes.set(i, (i * 131 + seed * 7) & 0xFF);
+		}
+		return bytes;
+	}
+
+	private static function uniqueName(what:String):String
+	{
+		return "lime-test-" + what + "-" + Std.random(0x3FFFFFFF) + "-" + (++counter);
+	}
+
+	private static function waitUntil(condition:Void->Bool, then:Bool->Void, seconds:Float = 5):Void
+	{
+		var deadline = Timer.stamp() + seconds;
+		var timer = new Timer(10);
+		var ended = false;
+		timer.run = function()
+		{
+			// A run already queued can come after stop()
+			if (ended) return;
+			var met = condition();
+
+			if (met || Timer.stamp() >= deadline)
+			{
+				ended = true;
+				timer.stop();
+				then(met);
+			}
+		};
+	}
 	#else
 	public function testIsNotSupported():Void
 	{

@@ -10,7 +10,7 @@ package lime.net;
 #end
 class URIParser
 {
-	public static var URI_REGEX = ~/^(?:([^:\/?#]+):)?(?:\/\/((?:(([^:@]*)(?::([^:@]*))?)?@)?([^:\/?#]*)(?::(\d*))?))?((((?:[^?#\/]*\/)*)([^?#]*))(?:\?([^#]*))?(?:#(.*))?)/;
+	public static var URI_REGEX = ~/^(?:([^:\/?#]+):)?(?:\/\/((?:(([^:\/?#]*)(?::([^\/?#]*))?)@)?(\[[^\]\/?#]*\]|[^:\/?#]*)(?::(\d*))?)(?=[\/?#]|$))?((((?:[^?#\/]*\/)*)([^?#]*))(?:\?([^#]*))?(?:#(.*))?)/;
 	public static var QUERY_REGEX = ~/(?:^|&)([^&=]*)=?([^&]*)/;
 
 	/**
@@ -57,6 +57,7 @@ class URIParser
 	/**
 		Hostname (domain/IP) found in this URI.
 		In `"https://subdomain.example.com:443/index.html"` this would be `"subdomain.example.com"`
+		An IPv6 address keeps its brackets: in `"http://[::1]:8080/"` this would be `"[::1]"`.
 		`null` if unspecified or malformed.
 	**/
 	public var host:String;
@@ -137,6 +138,8 @@ class URIParser
 	**/
 	public function new(uri:String)
 	{
+		queryArray = [];
+
 		if (URI_REGEX.match(uri))
 		{
 			source = uri;
@@ -154,7 +157,7 @@ class URIParser
 			query = URI_REGEX.matched(12);
 			anchor = URI_REGEX.matched(13);
 
-			if (query != null && query.length > 0)
+			if (query != null)
 			{
 				queryArray = parseQuery(query);
 			}
@@ -165,12 +168,19 @@ class URIParser
 		}
 	}
 
+	/**
+		Splits a query string into its key-value pairs, in order. Each pair is split at its first `=`,
+		and a key without one is given an empty value. Empty pairs are skipped, as `URLSearchParams`
+		does, so an empty query gives an empty array.
+	**/
 	public static function parseQuery(query:String):Array<KVPair>
 	{
 		var result:Array<KVPair> = [];
 
 		for (str in query.split("&"))
 		{
+			if (str == "") continue;
+
 			if (QUERY_REGEX.match(str))
 			{
 				result.push({k: QUERY_REGEX.matched(1), v: QUERY_REGEX.matched(2)});

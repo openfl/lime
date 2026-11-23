@@ -40,6 +40,7 @@ namespace lime {
 			virtual void Init ();
 			virtual int Quit ();
 			virtual void SetMainLoop (int profile, double frameRate, int timePrecision, int busyWait, int uncapMode);
+			virtual void SetBackgroundFrameRate (double frameRate);
 			virtual void SetFrameRate (double frameRate);
 			virtual void SetIdleEvents (bool enabled);
 			virtual bool SetMenu (const unsigned char* data, int length);
@@ -53,6 +54,7 @@ namespace lime {
 #if defined(HX_WINDOWS) && !defined(HX_WINRT)
 			static void EnterNativeModalLoop ();
 			static void ExitNativeModalLoop ();
+			static void RunPendingModalFrame ();
 			void SetModalCallbacks (ValuePointer* update, ValuePointer* render, ValuePointer* window, ValuePointer* rethrow);
 			void DeferModalException ();
 #endif
@@ -61,7 +63,9 @@ namespace lime {
 
 			void AdvanceNextUpdate ();
 			void ApplyMainLoopSettings ();
+			void UpdateWindowsHidden (bool apply);
 			void CalibrateSleepGuard (bool force = false);
+			bool CalibrateSleepGuardBefore (double remaining);
 			void DispatchFrame (double now, bool renderFrame = true);
 			void DispatchIdle (double remaining);
 			double GetCurrentTimeMs () const;
@@ -71,7 +75,7 @@ namespace lime {
 			bool IsFrameDue (double now) const;
 			bool IsIdleDue (double now) const;
 			bool IsSchedulerUnthrottled () const;
-			void PaceFrameAfterRender (bool swapped);
+			void PaceFrameAfterRender (bool swapped, double renderMs);
 			void RefreshVSyncState ();
 #if defined(HX_WINDOWS) && !defined(HX_WINRT)
 			void PumpOneFrameFromWatch (SDL_Event* watchEvent = 0);
@@ -94,6 +98,10 @@ namespace lime {
 			bool PrepareResizeEvent (SDL_Event* event, bool currentSize);
 #endif
 			void UpdateSleepGuard (Uint32 requestedMs, Uint32 elapsedMs);
+			bool SleepsOutTheRemainder () const;
+#if defined(HX_WINDOWS) && !defined(HX_WINRT)
+			bool WaitOnFrameTimer (double ms);
+#endif
 			int WaitEvent (SDL_Event* event);
 
 			static void UpdateFrame ();
@@ -163,6 +171,12 @@ namespace lime {
 			KeyEvent keyEvent;
 			double lastUpdate;
 			Uint32 lastSleepCalibration;
+			// Whether the loop settings have been applied, so a later change can keep the schedule
+			bool mainLoopApplied;
+#if defined(HX_WINDOWS) && !defined(HX_WINRT)
+			// A high-resolution waitable timer, when Windows can make one
+			void* frameTimer;
+#endif
 			MenuEvent menuEvent;
 			MouseEvent mouseEvent;
 			bool mouseCaptureRequested;
@@ -175,7 +189,11 @@ namespace lime {
 			mutable Uint32 clockLastTicks;
 			mutable Uint64 clockElapsedTicks;
 			bool realVSyncActive;
+			// Every window is minimised or hidden
+			bool windowsHidden;
 			int requestedBusyWaitMode;
+			// The most frames a second while every window is minimised or hidden, or 0 for no limit
+			double requestedBackgroundFrameRate;
 			double requestedFrameRate;
 			int requestedProfile;
 			int requestedTimePrecisionMode;
@@ -187,6 +205,11 @@ namespace lime {
 			double sleepGuardMs;
 			// Unthrottled because each swap waits for the display
 			bool swapPaced;
+			// Swap paced, but the swaps were seen not to wait, so frames are timed until one does
+			bool swapFallback;
+			// Swapped frames in a row that came well under a refresh period apart
+			int shortSwaps;
+			double lastSwapFrame;
 			TextEvent textEvent;
 			TouchEvent touchEvent;
 			TrayIconEvent trayIconEvent;
@@ -198,6 +221,8 @@ namespace lime {
 			bool modalWatchInstalled;
 			ValuePointer* modalCallbacks[4];
 			bool modalExceptionPending;
+			SDL_Event modalFrameEvent;
+			bool modalFramePending;
 			std::exception_ptr modalNativeException;
 			Uint32 mainThreadID;
 			std::map<Uint32, std::pair<int, int>> dispatchedWindowSizes;

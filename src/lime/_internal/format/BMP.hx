@@ -30,6 +30,11 @@ class BMP
 		var infoHeaderLength = 40;
 		var pixelValuesLength = (image.width * image.height * 4);
 
+		// 24-bit rows are padded to a multiple of 4 bytes, and an icon's 1-bit
+		// AND mask has rows padded to 32 bits
+		var rgbStride = ((image.width * 3 + 3) >> 2) << 2;
+		var maskStride = ((image.width + 31) >> 5) * 4;
+
 		switch (type)
 		{
 			case BITFIELD:
@@ -37,10 +42,10 @@ class BMP
 
 			case ICO:
 				fileHeaderLength = 0;
-				pixelValuesLength += image.width * image.height;
+				pixelValuesLength += maskStride * image.height;
 
 			case RGB:
-				pixelValuesLength = ((image.width * 3) + ((image.width * 3) % 4)) * image.height;
+				pixelValuesLength = rgbStride * image.height;
 
 			default:
 		}
@@ -136,8 +141,8 @@ class BMP
 				}
 
 			case ICO:
-				var andMask = Bytes.alloc(image.width * image.height);
-				var maskPosition = 0;
+				var andMask = Bytes.alloc(maskStride * image.height);
+				andMask.fill(0, andMask.length, 0);
 
 				for (y in 0...image.height)
 				{
@@ -155,19 +160,16 @@ class BMP
 						data.set(position++, r);
 						data.set(position++, a);
 
-						// if (a < 128) {
-
-						// andMask.writeByte (1);
-
-						// } else {
-
-						andMask.set(maskPosition++, 0);
-
-						// }
+						// A set bit leaves what is behind the icon showing
+						if (a < 128)
+						{
+							var maskPosition = y * maskStride + (x >> 3);
+							andMask.set(maskPosition, andMask.get(maskPosition) | (0x80 >> (x & 7)));
+						}
 					}
 				}
 
-				data.blit(position, andMask, 0, image.width * image.height);
+				data.blit(position, andMask, 0, andMask.length);
 
 			case RGB:
 				for (y in 0...image.height)
@@ -186,7 +188,7 @@ class BMP
 						data.set(position++, r);
 					}
 
-					for (i in 0...((image.width * 3) % 4))
+					for (i in 0...(rgbStride - image.width * 3))
 					{
 						data.set(position++, 0);
 					}

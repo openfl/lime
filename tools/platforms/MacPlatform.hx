@@ -101,7 +101,8 @@ class MacPlatform extends PlatformTarget
 
 		for (i in 1...project.windows.length)
 		{
-			defaults.windows.push(defaults.window);
+			// A copy each, as merge() copies each project window into its own default
+			defaults.windows.push(hxp.ObjectTools.copyFields(defaults.window, {}));
 		}
 
 		defaults.merge(project);
@@ -410,9 +411,15 @@ class MacPlatform extends PlatformTarget
 		context.CPP_DIR = targetDirectory + "/obj/";
 		context.BUILD_DIR = project.app.path + "/mac" + dirSuffix.toLowerCase();
 
+		if (project.config.exists("mac.camera-usage-description"))
+		{
+			context.MAC_CAMERA_USAGE_DESCRIPTION = StringTools.htmlEscape(project.config.getString("mac.camera-usage-description"), true);
+		}
+
 		if (project.config.exists("mac.microphone-usage-description"))
 		{
-			context.MAC_MICROPHONE_USAGE_DESCRIPTION = project.config.getString("mac.microphone-usage-description");
+			// Info.plist is XML, so a description with & or < would break it
+			context.MAC_MICROPHONE_USAGE_DESCRIPTION = StringTools.htmlEscape(project.config.getString("mac.microphone-usage-description"), true);
 		}
 
 		return context;
