@@ -3,6 +3,7 @@ package org.haxe.lime;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.res.AssetManager;
 import android.net.Uri;
@@ -42,6 +43,10 @@ public class GameActivity extends SDLActivity {
 	private static OrientationEventListener orientationListener;
 	private static HaxeObject deviceOrientationListener;
 	private static int deviceOrientation = SDL_ORIENTATION_UNKNOWN;
+	private static String pendingPermission;
+
+	private static final int LIME_PERMISSION_REQUEST = 0x4C4D;
+	private static final String LIME_PERMISSION_PREFERENCES = "org.haxe.lime.permissions";
 
 	public Handler handler;
 
@@ -405,6 +410,31 @@ public class GameActivity extends SDLActivity {
 	::if (ANDROID_TARGET_SDK_VERSION >= 23)::
 	@Override public void onRequestPermissionsResult (int requestCode, String permissions[], int[] grantResults) {
 
+		if (requestCode == LIME_PERMISSION_REQUEST) {
+
+			// Without this, a refusal looks the same as never having asked
+			SharedPreferences.Editor editor = getSharedPreferences (LIME_PERMISSION_PREFERENCES, Context.MODE_PRIVATE).edit ();
+
+			// The list is empty when the dialog is dismissed, which counts as a refusal
+			if (permissions.length == 0 && pendingPermission != null) {
+
+				editor.putBoolean (pendingPermission, true);
+
+			}
+
+			for (String permission : permissions) {
+
+				editor.putBoolean (permission, true);
+
+			}
+
+			pendingPermission = null;
+
+			editor.apply ();
+			return;
+
+		}
+
 		for (Extension extension : extensions) {
 
 			if (!extension.onRequestPermissionsResult (requestCode, permissions, grantResults)) {
@@ -577,6 +607,57 @@ public class GameActivity extends SDLActivity {
 			@Override public void run () {
 
 				Lime.onCallback (handle);
+
+			}
+
+		});
+
+	}
+
+
+	// 0 when the user has not been asked, 1 when granted and 2 when refused
+	public static int getPermissionStatus (String permission) {
+
+		if (mSingleton == null) {
+
+			return 0;
+
+		}
+
+		if (mSingleton.checkPermission (permission, android.os.Process.myPid (), android.os.Process.myUid ()) == PackageManager.PERMISSION_GRANTED) {
+
+			return 1;
+
+		}
+
+		if (Build.VERSION.SDK_INT < 23) {
+
+			// Granted at install or not at all, from the manifest
+			return 2;
+
+		}
+
+		boolean asked = mSingleton.getSharedPreferences (LIME_PERMISSION_PREFERENCES, Context.MODE_PRIVATE).getBoolean (permission, false);
+		return (asked || mSingleton.shouldShowRequestPermissionRationale (permission)) ? 2 : 0;
+
+	}
+
+
+	// The answer is read back with getPermissionStatus once onRequestPermissionsResult records it
+	public static void requestPermission (final String permission) {
+
+		if (mSingleton == null || Build.VERSION.SDK_INT < 23) {
+
+			return;
+
+		}
+
+		mSingleton.runOnUiThread (new Runnable () {
+
+			@Override public void run () {
+
+				pendingPermission = permission;
+				mSingleton.requestPermissions (new String[] { permission }, LIME_PERMISSION_REQUEST);
 
 			}
 

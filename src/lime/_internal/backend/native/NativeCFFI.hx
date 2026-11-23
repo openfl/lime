@@ -375,6 +375,10 @@ class NativeCFFI
 
 	@:cffi private static function lime_system_get_device_orientation():Int;
 
+	@:cffi private static function lime_audio_input_get_permission_status():Int;
+
+	@:cffi private static function lime_audio_input_request_permission():Void;
+
 	@:cffi private static function lime_system_get_platform_label():Dynamic;
 
 	@:cffi private static function lime_system_get_platform_name():Dynamic;
@@ -1175,6 +1179,10 @@ class NativeCFFI
 	private static var lime_system_get_num_displays = new cpp.Callable<Void->Int>(cpp.Prime._loadPrime("lime", "lime_system_get_num_displays", "i", false));
 	private static var lime_system_get_device_orientation = new cpp.Callable<Void->Int>(cpp.Prime._loadPrime("lime", "lime_system_get_device_orientation",
 		"i", false));
+	private static var lime_audio_input_get_permission_status = new cpp.Callable<Void->Int>(cpp.Prime._loadPrime("lime",
+		"lime_audio_input_get_permission_status", "i", false));
+	private static var lime_audio_input_request_permission = new cpp.Callable<Void->cpp.Void>(cpp.Prime._loadPrime("lime",
+		"lime_audio_input_request_permission", "v", false));
 	private static var lime_system_get_platform_label = new cpp.Callable<Void->cpp.Object>(cpp.Prime._loadPrime("lime", "lime_system_get_platform_label", "o",
 		false));
 	private static var lime_system_get_platform_name = new cpp.Callable<Void->cpp.Object>(cpp.Prime._loadPrime("lime", "lime_system_get_platform_name", "o",
@@ -1725,6 +1733,8 @@ class NativeCFFI
 	private static var lime_system_get_ios_tablet = CFFI.load("lime", "lime_system_get_ios_tablet", 0);
 	private static var lime_system_get_num_displays = CFFI.load("lime", "lime_system_get_num_displays", 0);
 	private static var lime_system_get_device_orientation = CFFI.load("lime", "lime_system_get_device_orientation", 0);
+	private static var lime_audio_input_get_permission_status = CFFI.load("lime", "lime_audio_input_get_permission_status", 0);
+	private static var lime_audio_input_request_permission = CFFI.load("lime", "lime_audio_input_request_permission", 0);
 	private static var lime_system_get_platform_label = CFFI.load("lime", "lime_system_get_platform_label", 0);
 	private static var lime_system_get_platform_name = CFFI.load("lime", "lime_system_get_platform_name", 0);
 	private static var lime_system_get_platform_version = CFFI.load("lime", "lime_system_get_platform_version", 0);
@@ -2612,6 +2622,13 @@ class NativeCFFI
 	{
 		return 0;
 	}
+
+	@:hlNative("lime", "hl_audio_input_get_permission_status") private static function lime_audio_input_get_permission_status():Int
+	{
+		return 0;
+	}
+
+	@:hlNative("lime", "hl_audio_input_request_permission") private static function lime_audio_input_request_permission():Void {}
 
 	@:hlNative("lime", "hl_system_get_platform_label") private static function lime_system_get_platform_label():hl.Bytes
 	{
