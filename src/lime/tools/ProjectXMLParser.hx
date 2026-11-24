@@ -135,6 +135,16 @@ class ProjectXMLParser extends HXProject
 		}
 	}
 
+	/**
+		The value a `<set>` or `<define>` gives a name. Without a value, it only says the name is defined:
+		a value the name already has, such as the version a haxelib's name is defined to, is kept.
+	**/
+	private static function valueOrExisting(values:Map<String, Dynamic>, name:String, value:Null<String>):String
+	{
+		if (value != null) return value;
+		return values.exists(name) ? Std.string(values.get(name)) : "";
+	}
+
 	private static function changeValue(values:Map<String, Dynamic>, changes:Map<String, Null<String>>, name:String, value:Null<String>):Void
 	{
 		if (value == null)
@@ -988,23 +998,18 @@ class ProjectXMLParser extends HXProject
 			{
 				case "set":
 					var name = element.att.name;
-					var value = "";
-
-					if (element.has.value)
-					{
-						value = substitute(element.att.value);
-					}
+					var value:Null<String> = element.has.value ? substitute(element.att.value) : null;
 
 					switch (name)
 					{
-						case "BUILD_DIR": app.path = value;
-						case "SWF_VERSION": app.swfVersion = Std.parseFloat(value);
-						case "PRERENDERED_ICON": config.set("ios.prerenderedIcon", value);
-						case "ANDROID_INSTALL_LOCATION": config.set("android.install-location", value);
+						case "BUILD_DIR": app.path = valueOrExisting(defines, name, value);
+						case "SWF_VERSION": app.swfVersion = Std.parseFloat(valueOrExisting(defines, name, value));
+						case "PRERENDERED_ICON": config.set("ios.prerenderedIcon", valueOrExisting(defines, name, value));
+						case "ANDROID_INSTALL_LOCATION": config.set("android.install-location", valueOrExisting(defines, name, value));
 					}
 
-					changeValue(defines, changedDefines, name, value);
-					changeValue(environment, changedEnvironment, name, value);
+					changeValue(defines, changedDefines, name, valueOrExisting(defines, name, value));
+					changeValue(environment, changedEnvironment, name, valueOrExisting(environment, name, value));
 
 				case "unset":
 					changeValue(defines, changedDefines, element.att.name, null);
@@ -1012,16 +1017,11 @@ class ProjectXMLParser extends HXProject
 
 				case "define":
 					var name = element.att.name;
-					var value = "";
+					var value:Null<String> = element.has.value ? substitute(element.att.value) : null;
 
-					if (element.has.value)
-					{
-						value = substitute(element.att.value);
-					}
-
-					changeValue(defines, changedDefines, name, value);
-					changeValue(haxedefs, changedHaxedefs, name, value);
-					changeValue(environment, changedEnvironment, name, value);
+					changeValue(defines, changedDefines, name, valueOrExisting(defines, name, value));
+					changeValue(haxedefs, changedHaxedefs, name, valueOrExisting(haxedefs, name, value));
+					changeValue(environment, changedEnvironment, name, valueOrExisting(environment, name, value));
 
 				case "undefine":
 					changeValue(defines, changedDefines, element.att.name, null);
