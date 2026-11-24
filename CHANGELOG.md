@@ -226,6 +226,7 @@ Changelog
 - Fixed `HTTPRequest` error statuses losing the response body, text responses keeping a BOM, and `responseHeaders` coming from an earlier response of a redirect and splitting values at every colon.
 - Fixed the last progress report of a native `HTTPRequest` missing the end of the body, and a new request waiting up to a second while others waited on their servers.
 - Fixed a PUT without data reading its body from standard input, and text POST and PUT bodies, such as OpenFL's `URLLoader` sends by default, going out chunked and with their line endings changed outside Windows.
+- Fixed native `HTTPRequest` sending no body for PATCH, DELETE, OPTIONS and other methods besides POST and PUT, so a server saw their data, or their form data, as empty.
 - Fixed `CURL.getInfo()` with string and 64-bit infos, cookies not being kept between requests on HashLink, `CURL.escape()` and `unescape()` with UTF-8, `CURLOption` and `CURLInfo` values that didn't match curl's, cloned handles sharing their original's headers and data, and `POSTFIELDS` freed before the transfer.
 - Fixed races between threads using CURL multi handles, and finalizing CURL handles deadlocking the collector.
 - Fixed `AL.getString()` with an unknown name ending the process on HashLink, refused vector queries giving uninitialized values, the three-value getters filling the wrong elements, and creating buffers and sources clearing an error the application hadn't read.

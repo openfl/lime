@@ -237,13 +237,17 @@ class NativeHTTPRequest
 				}
 
 			case _:
-				curl.setOption(CUSTOMREQUEST, Std.string(method));
-
 				if (data != null)
 				{
+					// curl only sends a body for a request it posts or uploads, so the
+					// data goes as a POST's would, under the request's own method
+					curl.setOption(POST, true);
 					curl.setOption(INFILE, data);
 					curl.setOption(INFILESIZE, data.length);
+					curl.setOption(POSTFIELDSIZE, data.length);
 				}
+
+				curl.setOption(CUSTOMREQUEST, Std.string(method));
 		}
 
 		// A request whose method a redirect can change follows redirects itself, as curl
