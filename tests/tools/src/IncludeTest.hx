@@ -202,6 +202,43 @@ class IncludeTest extends Test
 		Assert.equals("dark", project.defines.get("copy"));
 	}
 
+	// A <set> or <define> without a value says the name is defined: it keeps a value the name already has
+	public function testAnIncludedSetWithoutAValueKeepsAnEarlierValue():Void
+	{
+		fixture.write("named.xml", '<project>
+			<set name="shade" />
+			<define name="flag" />
+		</project>');
+
+		var project = fixture.parse('<project>
+			<set name="shade" value="light" />
+			<define name="flag" value="on" />
+			<include path="named.xml" />
+		</project>');
+
+		Assert.equals("light", project.defines.get("shade"));
+		Assert.equals("on", project.defines.get("flag"));
+	}
+
+	// A haxelib's name is defined to its version, which ${lime < 8.0.2} style checks in OpenFL's include.xml read,
+	// and Lime's own include.xml has <set name="lime" />
+	public function testAHaxelibKeepsItsVersionWhenItsIncludeSetsItsName():Void
+	{
+		fixture.addHaxelib("toolstest-versioned", '<extension>
+			<set name="toolstest-versioned" />
+		</extension>');
+
+		var project = fixture.parse('<project>
+			<haxelib name="toolstest-versioned" />
+			<set name="copy" value="$${toolstest-versioned}" />
+			<set name="too-old" if="$${toolstest-versioned < 0.9.0}" />
+		</project>');
+
+		Assert.equals("1.0.0", project.defines.get("toolstest-versioned"));
+		Assert.equals("1.0.0", project.defines.get("copy"));
+		Assert.isFalse(project.defines.exists("too-old"));
+	}
+
 	// "Unsets a previously defined flag." / a removed value "is treated as false"
 	public function testAnIncludedUndefineRemovesAnEarlierDefine():Void
 	{
