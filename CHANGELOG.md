@@ -129,6 +129,7 @@ Changelog
 - Updated FreeType to 2.14.3, libpng to 1.6.59, zlib to 1.3.2, HarfBuzz to 14.6.0, libjpeg-turbo to 2.1.5.1 and libwebm to 1.0.0.32, for security fixes in reading fonts, images, compressed data and WebM files. FreeType's auto-hinter and hinting changed between versions, so some hinted glyphs and auto-hinted outlines can differ by a few pixels.
 - Updated HashLink to 1.16.
 - Fixed an asset embedding regression.
+- Fixed `lime test` on Linux stopping with an xdg-open error instead of opening the browser, after starting the test server or for projects with an `app.url`. xdg-open now runs in the background.
 - Fixed HashLink on macOS boxing a `false` returned by a native function as `true`, as in a `Future` result: Lime's HashLink runtime clears the upper bits of a `Bool` before boxing it, as HashLink's newer JIT does.
 - Fixed Windows cpp icon resource handling when no icon is generated.
 - Fixed GL cleanup and desktop GL object collection.

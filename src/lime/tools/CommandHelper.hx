@@ -30,6 +30,27 @@ class CommandHelper
 		}
 	}
 
+	/**
+		Opens `url` in the default browser without waiting for the browser.
+
+		On Linux, hxp 1.3.1's `System.openURL()` passes a literal "&" to
+		xdg-open, which exits with an error and stops the tools. Until Lime
+		depends on an hxp with that fixed, xdg-open is run through the shell
+		here instead, in the background, with its output discarded.
+	**/
+	public static function openURL(url:String):Void
+	{
+		if (System.hostPlatform == WINDOWS || System.hostPlatform == MAC)
+		{
+			System.openURL(url);
+		}
+		else
+		{
+			var quotedURL = "'" + StringTools.replace(url, "'", "'\\''") + "'";
+			System.runCommand("", "xdg-open " + quotedURL + " > /dev/null 2>&1 &", null, true, true);
+		}
+	}
+
 	public static function interpretHaxe(mainFile:String):CLICommand
 	{
 		return new CLICommand("haxe", ["-main", mainFile, "--interp"]);
