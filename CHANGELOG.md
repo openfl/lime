@@ -100,7 +100,6 @@ Changelog
 - Changed native desktop applications to update and render at no more than 30 frames a second while every window is minimised or hidden. Set `FrameOptions.backgroundFrameRate` to another rate, or to `0` to keep the full rate.
 - Changed libraries made from asset bundles to decode images, sounds and fonts when they are first asked for, or at `load()` when marked to preload, and to stream music from the bundle. Reading a bundle lets go of each compressed file once it is inflated.
 - Changed the default Android target SDK to 36, which Google Play requires, with Android Gradle plugin 8.9.1 and Gradle 8.11.1. On Android 16, the back gesture and back key still reach the application as `APP_CONTROL_BACK`, and an Android application is a game by default (`android:appCategory="game"`), so it keeps its orientation on large screens.
-- Fixed Android windows that aren't fullscreen drawing under the status and navigation bars on Android 15 and later, which draw applications that target API 35 or later edge to edge.
 - Changed native HTTP requests to look up names on a thread of their own on every platform.
 - Changed native HTTPS requests to check the server's certificate, against the system's trusted certificates (Mozilla's on iOS and tvOS). Set `HTTPRequest.verifyCertificates` to `false`, or define `lime-insecure-https`, for servers with self-signed certificates.
 - Changed static builds to use Lime's own mbedTLS rather than the one bundled with hxcpp.
@@ -120,6 +119,13 @@ Changelog
 - Changed desktop applications to take a quit request, such as Ctrl+C, SIGTERM or Cmd+Q, as a close request on every window, so `Window.onClose` runs and can cancel it, and `Application.onExit` follows.
 - Changed `-terser` to run terser through the system's `npx`, as `-npx` did, since Lime no longer bundles Node.js. It needs Node.js installed, and says so when it is not.
 - Changed `lime setup` to install libhxcpp, the continuation of hxcpp, in place of hxcpp, and to run its setup, which points the `hxcpp` haxelib at it so the compiler and every library that asks for hxcpp use it. Stock hxcpp, if installed, is left in place, and `haxelib run libhxcpp off` goes back to it. An `hxcpp` set with `haxelib dev` to a folder of your own is left as it is.
+- Changed the default iOS deployment target to 15.0, the oldest current Xcode versions build for.
+- Changed PNG and JPEG encoding on native targets to let the garbage collector run while it works, so an encode on another thread no longer holds up every collection until it finishes.
+- Changed Windows file dialogs to open on a worker thread again, as on the other platforms, so the application keeps drawing while one is open, and a dialog over a borderless fullscreen window no longer stays hidden behind it.
+- Changed native OpenGL windows to ask for a 24-bit depth buffer, rather than at least 8 bits.
+- Changed an OpenGL window whose pixel format the driver refuses, as over Remote Desktop, to try again with a basic one, and an application whose first window still can't be made to show why in a message box and exit, rather than run on with nothing on screen.
+- Changed setting `Window.frameRate` to the rate it already has to do nothing, and setting a new rate to keep the next frame's time rather than draw a frame at once.
+- Changed live resizing on Windows to draw each size the window takes, rather than stretch the last frame.
 - Updated pixman and platform config for LLVM assembly fixes, ARM NEON, Android NDKs, and Apple platforms.
 - Updated MojoAL and gamepad mappings.
 - Updated SDL submodule to version 2.32.10.
@@ -185,6 +191,62 @@ Changelog
 - Fixed `Window.maxWidth` setting the minimum size.
 - Fixed `Window.maximized` staying `true` after the system restores a maximized window, from its title bar or a keyboard shortcut.
 - Fixed the AIR `DNSResolverEvent` extern giving `bubbles` a String default, which failed builds that use it.
+- Fixed Android windows that aren't fullscreen drawing under the status and navigation bars on Android 15 and later, which draw applications that target API 35 or later edge to edge.
+- Fixed natively decoded PNG and JPEG images always being marked as transparent, JPEGs included, so OpenFL drew opaque bitmaps with blending.
+- Fixed a leak when a PNG fails to decode, and JPEG decoding reading past the end of its data when a marker claims more than is left.
+- Fixed PNG and JPEG `encode()` of an image that is part of a larger buffer encoding more than the image, and BMP `encode()` leaving 24-bit rows unpadded and writing ICO masks a byte per pixel.
+- Fixed `Image.resize()` truncating its colours, and wrapping the right and bottom edges' colours onto the left and top when scaling up.
+- Fixed `Image.getPixels()` and `setPixels()` without a format not using RGBA32 on every target.
+- Fixed `Image.copyPixels()` and `fillRect()` taking whole-image shortcuts where they give a different result.
+- Fixed `Image.merge()`, `copyChannel()` and `threshold()` with a destination point or rectangle past an edge shifting pixels and changing their arguments, and `copyPixels()` reading the alpha image from the wrong point.
+- Fixed `Image.floodFill()` not filling a lone pixel, reading a start point outside the image, and filling past an image that is part of a larger buffer.
+- Fixed `Image.threshold()` comparing the masked pixel with the whole threshold, and comparing colours byte by byte rather than as ARGB numbers.
+- Fixed writing a premultiplied colour changing the caller's colour, and native code premultiplying with different rounding.
+- Fixed `ARGB.readUInt8()` reading some formats' bytes into the wrong channels.
+- Fixed `ImageBuffer.clone()` on Flash sharing the original's pixel data.
+- Fixed `Font.renderGlyph()` and `renderGlyphs()` rendering a font's embedded bitmaps as LCD.
+- Fixed `Font.fromFile()` returning null on Windows for paths with characters outside the system's code page, such as a user name in it.
+- Fixed fonts without a full name having no family name, and font names freed the wrong way.
+- Fixed `CairoImageSurface.fromImage()` of an image that is part of a larger buffer drawing into the buffer's top left, `CairoImageSurface.data` on HashLink, `Cairo.showText(null)` ending the process on HashLink, `Cairo.fontOptions` always being null, and colour stops on patterns that aren't gradients.
+- Fixed a HarfBuzz font made from a `Font` reading its face after the `Font` was collected, `HBBlob.data` giving 0 on C++, and HarfBuzz getters that gave the wrong value.
+- Fixed `Matrix3.transformRect()` placing its result at the wrong position.
+- Fixed `Matrix4.createPerspective()` not taking the vertical field of view in degrees, `appendRotation()` and `prependRotation()` not turning about the pivot point, and `pointAt()`, `deltaTransformVector()` and `interpolate()` not doing what Flash's `Matrix3D` does.
+- Fixed `ColorMatrix.concat()` ignoring the second matrix's offsets.
+- Fixed `Vector4.angleBetween()` giving NaN for parallel and opposite vectors.
+- Fixed typed arrays on native targets throwing when made from another type, copying past the view, writing `set()` at the wrong offset, and taking `subarray()` indices outside the view, and `UInt8ClampedArray` not clamping negative values to 0 on every CPU. Element access outside a view is ignored in debug builds.
+- Fixed the `WebGL2RenderContext` overloads that take `srcOffset`, `srcLength` or `length` counting bytes rather than elements on native targets.
+- Fixed `GL.getUniform()` on native targets reading another uniform, or with the wrong type, where the driver's locations differ from the indices.
+- Fixed a crash when OpenGL objects are made or deleted while another thread collects.
+- Fixed `Bytes.decompress()` on native targets accepting truncated ZLIB, GZIP and DEFLATE data and reading only the first member of a GZIP file, and LZMA ending the process for empty or short data and failing on streams of unknown size.
+- Fixed `GZip.compress()` and `decompress()` on Flash, and empty streams and concatenated GZIP members on Flash and AIR.
+- Fixed `Bytes` made in native code having a trailing zero on Neko, and `Bytes.fromFile()` giving null for an empty file.
+- Fixed `UTF8String` counting bytes rather than code points on Neko with Haxe 4.
+- Fixed `HTTPRequest.timeout` being ignored on native targets, so a server that never answered was waited on for good.
+- Fixed `HTTPRequest.cancel()` not stopping the transfer, and a redirect that turns a request into a GET keeping its content.
+- Fixed `HTTPRequest` error statuses losing the response body, text responses keeping a BOM, and `responseHeaders` coming from an earlier response of a redirect and splitting values at every colon.
+- Fixed the last progress report of a native `HTTPRequest` missing the end of the body, and a new request waiting up to a second while others waited on their servers.
+- Fixed a PUT without data reading its body from standard input, and text POST and PUT bodies, such as OpenFL's `URLLoader` sends by default, going out chunked and with their line endings changed outside Windows.
+- Fixed `CURL.getInfo()` with string and 64-bit infos, cookies not being kept between requests on HashLink, `CURL.escape()` and `unescape()` with UTF-8, `CURLOption` and `CURLInfo` values that didn't match curl's, cloned handles sharing their original's headers and data, and `POSTFIELDS` freed before the transfer.
+- Fixed races between threads using CURL multi handles, and finalizing CURL handles deadlocking the collector.
+- Fixed `AL.getString()` with an unknown name ending the process on HashLink, refused vector queries giving uninitialized values, the three-value getters filling the wrong elements, and creating buffers and sources clearing an error the application hadn't read.
+- Fixed Ogg Vorbis decoding writing past its buffer.
+- Fixed `AudioBuffer.dispose()` keeping the decoded samples and their OpenAL buffer on native targets.
+- Fixed a streamed `AudioSource` seeked before it plays replaying its first buffers, a seek starting it early, a `currentTime` set before `play()` being lost, and `currentTime` jumping to 0 at the end of a sound.
+- Fixed asset libraries not preloading again on `load()` after `unload()`, `isLocal()` and `Assets.list()` giving ids that don't work, a corrupt manifest or bundle ending the application rather than failing `loadLibrary()`, `AssetManifest.parse()` losing the version and absolute paths, `AssetBundle.fromFile()` with a file it can't read, and `PackedAssetLibrary` `unload()`, `loadText()` with zip packs, and loaders run before the pack loads.
+- Fixed project.xml `<haxelib path>` not being relative to its file, nested `<assets>` directories and `<binary>` and `<text>` types, `<window>` x, y and display, `if` and `unless` inside `<config>`, included files being read more than once, and an included file's defines not replacing earlier ones.
+- Fixed asset include and exclude patterns matching part of a file name, `if="js"` being false in HTML5 builds, WebAssembly embedding assets not marked to embed, project windows sharing their settings, and gzip packs.
+- Fixed titles and meta values with `&`, `<` or quotes breaking generated files, Android Gradle plugin versions of 10 and later, merged config lists losing values, and SVG icons sized only by a viewBox.
+- Fixed defining `AIR_SDK` with `-D` or `<define>` crashing the tools unless the environment variable was set too.
+- Fixed `-static` desktop builds failing to link.
+- Fixed an exception thrown in a `Future.then()` callback not failing the chain, `Future.ofEvents()` forwarding only the first progress update, and a second `Promise.complete()` or `error()` replacing the first.
+- Fixed a `once` listener still being a listener while it runs.
+- Fixed `ObjectPool.release()` corrupting the pool in release builds for an object that isn't active in it.
+- Fixed `URIParser` with an `@` after the host, and with IPv6 hosts.
+- Fixed `ThreadPool.cancelJob()` cancelling another job, and jobs taken before `cancel()` going uncounted.
+- Fixed dropped files reaching every window's `onDropFile`, cloned mouse events naming window 0, `Window.onFullscreen` listeners reading `fullscreen` as `false`, and each window resize being dispatched twice on macOS, Linux and mobile.
+- Fixed setting the desktop's own display mode making every later fullscreen exclusive.
+- Fixed `vsync="adaptive"` and `vsync="auto"` in project.xml asking for plain vertical sync.
+- Fixed HashLink leaking the text of each text input event and dropped file path, and `sys.io.Process` failing for every command on HashLink on Windows.
 
 8.3.2 (05/13/2026)
 ------------------
