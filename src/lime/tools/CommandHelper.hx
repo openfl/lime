@@ -18,7 +18,9 @@ class CommandHelper
 	{
 		if (System.hostPlatform == WINDOWS)
 		{
-			return new CLICommand("start", [file]);
+			// Haxe quotes an argument with a slash or space in it, and start takes
+			// its first quoted argument as the title of a new console window
+			return new CLICommand("start", ["", file]);
 		}
 		else if (System.hostPlatform == MAC)
 		{
@@ -27,6 +29,24 @@ class CommandHelper
 		else
 		{
 			return new CLICommand("/usr/bin/xdg-open", [file]);
+		}
+	}
+
+	/**
+		Opens `url` in the default browser. hxp's `System.openURL()` hands it to
+		`start` on Windows as it is, which opens a console window titled with the
+		URL instead, as Haxe quotes it for the slashes in it.
+	**/
+	public static function openURL(url:String):Void
+	{
+		if (System.hostPlatform == WINDOWS)
+		{
+			Log.info("", " - \x1b[1mOpening:\x1b[0m " + url);
+			Sys.command("start", ["", url]);
+		}
+		else
+		{
+			System.openURL(url);
 		}
 	}
 
