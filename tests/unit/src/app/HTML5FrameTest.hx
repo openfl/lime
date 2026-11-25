@@ -2,6 +2,7 @@ package app;
 
 #if (js && html5)
 import lime.app.Application;
+import lime.ui.Gamepad;
 import lime.ui.Joystick;
 #end
 import utest.Assert;
@@ -162,7 +163,84 @@ class HTML5FrameTest extends Test
 		});
 	}
 
+	@Ignored("Waiting on #2445")
+	@:timeout(10000)
+	public function testAGamepadThatConnectsAgainAtItsIndexStartsAfresh(async:Async):Void
+	{
+		// A browser can leave a pad that has gone out of getGamepads(), as Chrome does, so its index
+		// reads null, and gamepaddisconnected is how the page hears it went. A pad that connects at the
+		// same index after it is a new pad: what was pressed on the one before is nothing to it, so it
+		// hears only its own buttons.
+		var first = standardPad();
+		var pads:Array<Dynamic> = [first];
+		var restore = spyOnGamepadList(function() return pads);
+		var heard = [];
+		var onConnect = function(gamepad:Gamepad)
+		{
+			heard.push("connect " + gamepad.id);
+			gamepad.onButtonDown.add(function(button) heard.push("down " + (button : Int)));
+			gamepad.onButtonUp.add(function(button) heard.push("up " + (button : Int)));
+			gamepad.onDisconnect.add(function() heard.push("disconnect " + gamepad.id));
+		};
+		Gamepad.onConnect.add(onConnect);
+
+		gamepadEvent("gamepadconnected", first);
+		waitFrames(3, function()
+		{
+			// A held down as the pad goes
+			first.buttons[0] = {pressed: true, value: 1.0};
+
+			waitFrames(3, function()
+			{
+				first.connected = false;
+				pads = [null];
+				gamepadEvent("gamepaddisconnected", first);
+
+				waitFrames(3, function()
+				{
+					var again = standardPad();
+					pads = [again];
+					gamepadEvent("gamepadconnected", again);
+
+					waitFrames(3, function()
+					{
+						again.buttons[0] = {pressed: true, value: 1.0};
+
+						waitFrames(3, function()
+						{
+							Gamepad.onConnect.remove(onConnect);
+							again.connected = false;
+							pads = [null];
+							gamepadEvent("gamepaddisconnected", again);
+
+							waitFrames(2, function()
+							{
+								restore();
+								Assert.equals("connect 0|down 0|disconnect 0|connect 0|down 0|disconnect 0", heard.join("|"));
+								async.done();
+							});
+						});
+					});
+				});
+			});
+		});
+	}
+
 	// Helpers
+
+	/** A pad with the standard mapping at index 0, none of its buttons pressed **/
+	private static function standardPad():Dynamic
+	{
+		return {
+			index: 0,
+			id: "Lime Test Pad",
+			connected: true,
+			mapping: "standard",
+			axes: [0.0, 0.0, 0.0, 0.0],
+			buttons: [for (i in 0...17) {pressed: false, value: 0.0}],
+			timestamp: 0
+		};
+	}
 
 	/** The tests start before the application has made its window **/
 	private static function withWindow(done:Void->Void):Void
@@ -218,6 +296,13 @@ class HTML5FrameTest extends Test
 			js.Syntax.code("delete navigator.getGamepads;");
 			return count;
 		};
+	}
+
+	/** Has navigator.getGamepads give what `pads` gives each time, until the returned function is called **/
+	private static function spyOnGamepadList(pads:Void->Array<Dynamic>):Void->Void
+	{
+		js.Syntax.code("navigator.getGamepads = function () { return {0}(); };", pads);
+		return function() js.Syntax.code("delete navigator.getGamepads;");
 	}
 
 	private static function gamepadEvent(type:String, pad:Dynamic):Void
