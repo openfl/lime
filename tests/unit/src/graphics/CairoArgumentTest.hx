@@ -28,8 +28,8 @@ class CairoArgumentTest extends Test
 
 	// Doubles that a 32-bit float rounds
 	private static var AWKWARD = [0.1, 1e-7, -3.3333333333333335, 1234567.891, 0.30000000000000004, -2.5e-5];
-	// As Matrix3 holds them
-	private static inline var STORED = "0.100000001490116 1.0000000116861e-07 -3.33333325386047 1234567.875 0.300000011920929 -2.49999993684469e-05";
+	// As Matrix3 holds them, each rounded to a 32-bit float
+	private static var STORED:Array<Float> = [for (value in AWKWARD) (haxe.io.FPHelper.i32ToFloat(haxe.io.FPHelper.floatToI32(value)) : Float)];
 	#end
 
 	public function new()
@@ -44,7 +44,7 @@ class CairoArgumentTest extends Test
 		fixture.cairo.transform(matrix(AWKWARD));
 
 		// Multiplied by the identity, which changes nothing
-		Assert.equals(STORED, values(fixture.cairo.matrix));
+		assertExactly(STORED, values(fixture.cairo.matrix));
 	}
 
 	public function testSettingAndReadingTheMatrixKeepsEveryDigit():Void
@@ -52,7 +52,7 @@ class CairoArgumentTest extends Test
 		var fixture = new CairoFixture(4, 4);
 		fixture.cairo.matrix = matrix(AWKWARD);
 
-		Assert.equals(STORED, values(fixture.cairo.matrix));
+		assertExactly(STORED, values(fixture.cairo.matrix));
 	}
 
 	public function testAPatternMatrixKeepsEveryDigit():Void
@@ -60,11 +60,11 @@ class CairoArgumentTest extends Test
 		var pattern = CairoPattern.createLinear(0, 0, 4, 0);
 		pattern.matrix = matrix(AWKWARD);
 
-		Assert.equals(STORED, values(pattern.matrix));
+		assertExactly(STORED, values(pattern.matrix));
 
 		// Set again with other values, the old ones are gone
 		pattern.matrix = new Matrix3(2, 0, 0, 0.5, -1, 3);
-		Assert.equals("2 0 0 0.5 -1 3", values(pattern.matrix));
+		assertExactly([2, 0, 0, 0.5, -1, 3], values(pattern.matrix));
 	}
 
 	public function testTheCurrentPointKeepsEveryDigit():Void
@@ -72,14 +72,14 @@ class CairoArgumentTest extends Test
 		var fixture = new CairoFixture(4, 4);
 		// To the nearest 256th of a pixel
 		fixture.cairo.moveTo(0.1, 1 / 3);
-		Assert.equals("0.1015625 0.33203125", point(fixture));
+		assertExactly([0.1015625, 0.33203125], point(fixture));
 
 		// A power of two scales exactly both ways
 		fixture.cairo.scale(2, 0.25);
 		fixture.cairo.moveTo(1e-7, -1234567.891);
-		Assert.equals("0 -1234567.890625", point(fixture));
+		assertExactly([0, -1234567.890625], point(fixture));
 		fixture.cairo.relLineTo(0.75, 3.3);
-		Assert.equals("0.75 -1234564.59375", point(fixture));
+		assertExactly([0.75, -1234564.59375], point(fixture));
 	}
 
 	public function testATransformedPatternDrawsAsItsMatrixSays():Void
@@ -173,15 +173,27 @@ class CairoArgumentTest extends Test
 		return new Matrix3(values[0], values[1], values[2], values[3], values[4], values[5]);
 	}
 
-	private static function values(matrix:Matrix3):String
+	private static function values(matrix:Matrix3):Array<Float>
 	{
-		return matrix == null ? "null" : [matrix.a, matrix.b, matrix.c, matrix.d, matrix.tx, matrix.ty].join(" ");
+		return matrix == null ? [] : [matrix.a, matrix.b, matrix.c, matrix.d, matrix.tx, matrix.ty];
 	}
 
-	private static function point(fixture:CairoFixture):String
+	private static function point(fixture:CairoFixture):Array<Float>
 	{
 		var point = fixture.cairo.currentPoint;
-		return point == null ? "null" : point.x + " " + point.y;
+		return point == null ? [] : [point.x, point.y];
+	}
+
+	/** Compares every value exactly, as numbers, since targets print doubles to different numbers of digits **/
+	private static function assertExactly(expected:Array<Float>, actual:Array<Float>, ?pos:haxe.PosInfos):Void
+	{
+		var same = expected.length == actual.length;
+		for (i in 0...expected.length)
+		{
+			if (same && expected[i] != actual[i]) same = false;
+		}
+
+		Assert.isTrue(same, "expected " + expected.join(" ") + " but it is " + actual.join(" "), pos);
 	}
 
 	private static function font():Font
