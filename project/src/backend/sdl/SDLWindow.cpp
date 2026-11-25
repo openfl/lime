@@ -1210,12 +1210,16 @@ namespace lime {
 
 		if (context && !sdlRenderer) {
 
+			SDLApplication::EnterSwapBlocking ();
 			SDL_GL_SwapWindow (sdlWindow);
+			SDLApplication::ExitSwapBlocking ();
 			SDLApplication::NoteContextFlip ();
 
 		} else if (sdlRenderer) {
 
+			SDLApplication::EnterSwapBlocking ();
 			SDL_RenderPresent (sdlRenderer);
+			SDLApplication::ExitSwapBlocking ();
 			SDLApplication::NoteContextFlip ();
 
 		}
