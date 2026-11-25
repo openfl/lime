@@ -48,6 +48,7 @@ class TestMain extends Application
 		runner.addCase(new media.OpenALStateTest());
 		runner.addCase(new media.OpenALTest());
 		runner.addCase(new media.VideoBytesTest());
+		runner.addCase(new media.VideoConversionTest());
 		runner.addCase(new media.VideoDecoderTest());
 		runner.addCase(new media.VideoTextureOpenGLTest());
 		runner.addCase(new media.VideoInputTest());
