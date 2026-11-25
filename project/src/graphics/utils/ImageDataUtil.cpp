@@ -410,7 +410,7 @@ namespace lime {
 	}
 
 
-	void ImageDataUtil::GetPixels (Image* image, Rectangle* rect, PixelFormat format, Bytes* pixels) {
+	void ImageDataUtil::GetPixels (Image* image, Rectangle* rect, PixelFormat format, Bytes* pixels, Endian endian) {
 
 		int length = int (rect->width * rect->height);
 		pixels->Resize (length * 4);
@@ -433,6 +433,19 @@ namespace lime {
 
 				pixel.ReadUInt8 (data, position, sourceFormat, premultiplied, LIME_BIG_ENDIAN);
 				pixel.WriteUInt8 (destData, destPosition, format, false);
+
+				// Little endian is each pixel's bytes in reverse, as SetPixels reads them
+				if (endian == LIME_LITTLE_ENDIAN) {
+
+					uint8_t* bytes = destData + destPosition;
+					uint8_t swap = bytes[0];
+					bytes[0] = bytes[3];
+					bytes[3] = swap;
+					swap = bytes[1];
+					bytes[1] = bytes[2];
+					bytes[2] = swap;
+
+				}
 
 				position += 4;
 				destPosition += 4;

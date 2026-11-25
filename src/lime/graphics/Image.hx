@@ -842,9 +842,12 @@ class Image
 		Gets a region of pixels from the `Image`, as `Bytes`
 		@param	rect	The source `Rectangle` to read from
 		@param	format	(Optional) The `PixelFormat` to use when writing to the `Bytes` object (default is `RGBA`)
+		@param	endian	(Optional) The endianness of the outgoing bytes (default is `BIG_ENDIAN`, which writes each
+		pixel's bytes in the order the format names them). `LITTLE_ENDIAN` writes them in reverse, as
+		`setPixels()` reads them with that endianness.
 		@return	A `Bytes` object representing the region, or `null` if it is not possible to read
 	**/
-	public function getPixels(rect:Rectangle, format:PixelFormat = null):Bytes
+	public function getPixels(rect:Rectangle, format:PixelFormat = null, endian:Endian = null):Bytes
 	{
 		if (buffer == null || rect == null) return null;
 
@@ -854,17 +857,18 @@ class Image
 
 		// Set here, as the native code takes it as an Int, and on Neko null isn't RGBA32
 		if (format == null) format = RGBA32;
+		if (endian == null) endian = BIG_ENDIAN;
 		switch (type)
 		{
 			case CANVAS:
-				return ImageCanvasUtil.getPixels(this, rect, format);
+				return ImageCanvasUtil.getPixels(this, rect, format, endian);
 
 			case DATA:
 				#if (js && html5)
 				ImageCanvasUtil.convertToData(this);
 				#end
 
-				return ImageDataUtil.getPixels(this, rect, format);
+				return ImageDataUtil.getPixels(this, rect, format, endian);
 
 			case FLASH:
 				#if flash
@@ -899,6 +903,23 @@ class Image
 						}
 
 						byteArray.position = 0;
+				}
+
+				if (endian == LITTLE_ENDIAN)
+				{
+					// Each pixel's bytes in reverse
+					var length = Std.int(byteArray.length / 4);
+
+					for (i in 0...length)
+					{
+						var value = byteArray.readUnsignedInt();
+						byteArray.position -= 4;
+						byteArray.endian = flash.utils.Endian.LITTLE_ENDIAN;
+						byteArray.writeUnsignedInt(value);
+						byteArray.endian = flash.utils.Endian.BIG_ENDIAN;
+					}
+
+					byteArray.position = 0;
 				}
 
 				return Bytes.ofData(byteArray);
