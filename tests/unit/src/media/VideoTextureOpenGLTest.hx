@@ -58,6 +58,98 @@ class VideoTextureOpenGLTest extends Test
 		for (texture in alternating) Assert.isFalse(gl.isTexture(texture), "texture " + @:privateAccess texture.id + " is still alive");
 	}
 
+	public function testTextureFramesShowWhatColorFramesDo():Void
+	{
+		// The GPU converts texture frames, so they are compared with the frames Lime converts, near enough,
+		// rather than byte for byte, and the test video's red and blue blocks are checked where they are
+		var main = getMainWindow();
+		if (main == null) return;
+
+		makeCurrent(main);
+		var gl = main.context.gl;
+		var decoder = VideoDecoder.isSupported ? VideoDecoder.fromFile(PATH, VideoFrameFormat.TEXTURE) : null;
+		var color = VideoDecoder.isSupported ? VideoDecoder.fromFile(PATH, VideoFrameFormat.RGBA) : null;
+
+		if (decoder == null || color == null)
+		{
+			trace("Cannot decode H.264 here, so texture frames were not tested");
+			Assert.pass();
+			return;
+		}
+
+		decoder.dropLateFrames = false;
+		color.dropLateFrames = false;
+
+		var frame = new VideoFrame();
+		var reference = new VideoFrame();
+		var compared = 0;
+
+		for (i in 0...6)
+		{
+			if (!nextFrame(decoder, frame) || !nextFrame(color, reference)) break;
+
+			if (frame.texture == null)
+			{
+				trace("The decoder gives no texture frames here, so their pixels were not tested");
+				Assert.pass();
+				break;
+			}
+
+			Assert.equals(reference.time, frame.time, "the texture and color frames are not the same frame");
+
+			var pixels = new lime.utils.UInt8Array(frame.width * frame.height * 4);
+			var framebuffer = gl.createFramebuffer();
+			gl.bindFramebuffer(gl.FRAMEBUFFER, framebuffer);
+			gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, frame.texture, 0);
+			var status = gl.checkFramebufferStatus(gl.FRAMEBUFFER);
+			if (status == gl.FRAMEBUFFER_COMPLETE) gl.readPixels(0, 0, frame.width, frame.height, gl.RGBA, gl.UNSIGNED_BYTE, pixels);
+			gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+			gl.deleteFramebuffer(framebuffer);
+
+			Assert.equals(gl.FRAMEBUFFER_COMPLETE, status, "the texture can't be read through a framebuffer");
+			if (status != gl.FRAMEBUFFER_COMPLETE) break;
+
+			// Row 0 of a texture read back is whichever row the texture holds first
+			var flipped = difference(pixels, reference, true) < difference(pixels, reference, false);
+			var mean = difference(pixels, reference, flipped);
+			Assert.isTrue(mean < 3, "frame " + i + " differs from the color frame by " + mean + " a channel on average" + (flipped ? ", upside down" : ""));
+			compared++;
+		}
+
+		makeCurrent(main);
+		decoder.close();
+		color.close();
+
+		if (compared == 0) Assert.pass();
+	}
+
+	/** The mean difference a channel between the texture's pixels and the color frame's, over every fourth pixel **/
+	private static function difference(pixels:lime.utils.UInt8Array, frame:VideoFrame, flipped:Bool):Float
+	{
+		var total = 0.0;
+		var count = 0;
+
+		for (y in 0...frame.height)
+		{
+			if (y % 2 == 1) continue;
+			var row = flipped ? frame.height - 1 - y : y;
+
+			for (x in 0...frame.width)
+			{
+				if (x % 2 == 1) continue;
+				for (channel in 0...3)
+				{
+					var a:Int = pixels[(row * frame.width + x) * 4 + channel];
+					var b:Int = frame.data[(y * frame.width + x) * 4 + channel];
+					total += a > b ? a - b : b - a;
+					count++;
+				}
+			}
+		}
+
+		return Math.round(total / count * 100) / 100;
+	}
+
 	// Reads FRAMES texture frames, making each window's context current in turn,
 	// and returns the textures that the frames used
 	private static function readTextures(windows:Array<Window>):Array<GLTexture>

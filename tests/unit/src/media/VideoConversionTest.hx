@@ -50,6 +50,67 @@ class VideoConversionTest extends Test
 		assertConverted("assets/video-odd.mp4", ARGB);
 	}
 
+	#if target.threaded
+	public function testClosingWhileAnotherThreadReadsIsSafe():Void
+	{
+		// Frames and audio are read on threads of their own while the decoder is closed under them, at a
+		// different moment each time, as a copy outside the decoder's lock could still be running
+		var closed = 0;
+
+		for (round in 0...6)
+		{
+			if (!VideoDecoder.isSupported) break;
+
+			var decoder = new VideoDecoder();
+			decoder.dropLateFrames = false;
+			if (!decoder.open("assets/video.mp4", round % 2 == 0 ? RGBA : NV12))
+			{
+				trace("Cannot decode assets/video.mp4 here, so closing while reading was not tested");
+				Assert.pass();
+				return;
+			}
+
+			var running = true;
+			var done = new sys.thread.Deque<Bool>();
+
+			sys.thread.Thread.create(function()
+			{
+				var frame = new VideoFrame();
+				while (running)
+				{
+					decoder.readFrame(frame);
+					// A safe point for the collector, which a loop of native calls alone never reaches on C++
+					Sys.sleep(0.0005);
+				}
+				done.add(true);
+			});
+			sys.thread.Thread.create(function()
+			{
+				var audio = haxe.io.Bytes.alloc(4096);
+				while (running)
+				{
+					decoder.readAudio(audio, 0, audio.length);
+					Sys.sleep(0.0005);
+				}
+				done.add(true);
+			});
+
+			Sys.sleep(0.02 + round * 0.015);
+			decoder.close();
+			Sys.sleep(0.02);
+			running = false;
+			done.pop(true);
+			done.pop(true);
+
+			// A closed decoder reads nothing
+			Assert.isFalse(decoder.readFrame(new VideoFrame()));
+			closed++;
+		}
+
+		Assert.isTrue(closed > 0 || !VideoDecoder.isSupported);
+	}
+	#end
+
 	// Helpers
 
 	private static function assertConverted(path:String, format:VideoFrameFormat, ?pos:haxe.PosInfos):Void
