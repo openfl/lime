@@ -435,7 +435,7 @@ class HTML5Application
 
 		for (window in parent.__windows)
 		{
-			window.__backend.updateSize();
+			window.__backend.updateSizeForFrame();
 		}
 
 		updateGameDevices();
