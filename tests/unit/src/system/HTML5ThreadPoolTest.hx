@@ -16,8 +16,13 @@ import utest.Test;
 	work function is called at most about 250 times a second however little it does. The job's progress
 	and completion still have to arrive in order.
 
-	These run only in a browser, built with `-Dlime-threads`, which CI doesn't do. The first job a page
-	sends to a worker never completes there today, so each test sends one that it doesn't wait for first.
+	These run only in a browser, built with `-Dlime-threads`, which CI doesn't do.
+
+	An application can start a job in its constructor, which runs before `ApplicationMain` sets the
+	application's meta, `file` included, and the worker's script is found from that name, so such a job
+	never completes today (#2453). TestMain starts one there, as such an application would, before the
+	tests run. utest runs the first test in TestMain's constructor too, so until #2453 is fixed each test
+	sends a job that it doesn't wait for first.
 **/
 class HTML5ThreadPoolTest extends Test
 {
@@ -27,6 +32,41 @@ class HTML5ThreadPoolTest extends Test
 	}
 
 	#if (js && html5 && lime_threads)
+	private static var constructorJob:lime.app.Future<Dynamic>;
+
+	/** Starts a job as TestMain is constructed, as an application may in its own constructor **/
+	public static function startAJobInTheConstructor():Void
+	{
+		var promise = new lime.app.Promise<Dynamic>();
+		var pool = new ThreadPool(0, 1, MULTI_THREADED);
+		pool.onComplete.add(function(message) promise.complete(message));
+		pool.onError.add(function(error) promise.error(error));
+		pool.run(countToFive, {count: 0});
+		constructorJob = promise.future;
+	}
+
+	@Ignored("Waiting on #2453")
+	@:timeout(10000)
+	public function testAJobStartedInTheApplicationsConstructorCompletes(async:Async):Void
+	{
+		if (constructorJob == null)
+		{
+			Assert.fail("TestMain started no job in its constructor");
+			async.done();
+			return;
+		}
+
+		constructorJob.onComplete(function(message)
+		{
+			Assert.equals("5", Std.string(message), "the job's completion");
+			async.done();
+		}).onError(function(error)
+		{
+			Assert.fail("the job failed: " + error);
+			async.done();
+		});
+	}
+
 	@:timeout(10000)
 	public function testAWorkerJobsProgressAndCompletionArriveInOrder(async:Async):Void
 	{

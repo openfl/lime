@@ -8,6 +8,11 @@ class TestMain extends Application
 	{
 		super();
 
+		#if (js && html5 && lime_threads)
+		// An application may start a job in its constructor, before ApplicationMain sets its meta
+		system.HTML5ThreadPoolTest.startAJobInTheConstructor();
+		#end
+
 		var runner = new Runner();
 		runner.addCase(new app.ApplicationTest());
 		runner.addCase(new app.EventTest());
