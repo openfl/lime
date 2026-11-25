@@ -129,8 +129,11 @@ abstract CairoPattern(CFFIPointer) from CFFIPointer to CFFIPointer
 		#if hl
 		return NativeCFFI.lime_cairo_pattern_get_matrix(this, new CairoMatrix3());
 		#else
-		var m:Dynamic = NativeCFFI.lime_cairo_pattern_get_matrix(this);
-		return new Matrix3(m.a, m.b, m.c, m.d, m.tx, m.ty);
+		// Written into bytes of its own, rather than an object of boxed Floats
+		var values = haxe.io.Bytes.alloc(48);
+		NativeCFFI.lime_cairo_pattern_get_matrix(this, values);
+		return new Matrix3(values.getDouble(0), values.getDouble(8), values.getDouble(16), values.getDouble(24), values.getDouble(32),
+			values.getDouble(40));
 		#end
 		#else
 		return null;
@@ -140,7 +143,11 @@ abstract CairoPattern(CFFIPointer) from CFFIPointer to CFFIPointer
 	@:noCompletion private function set_matrix(value:Matrix3):Matrix3
 	{
 		#if (lime_cffi && lime_cairo && !macro)
+		#if hl
 		NativeCFFI.lime_cairo_pattern_set_matrix(this, value.toCairoMatrix3());
+		#else
+		NativeCFFI.lime_cairo_pattern_set_matrix(this, value.a, value.b, value.c, value.d, value.tx, value.ty);
+		#end
 		#end
 
 		return value;
