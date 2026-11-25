@@ -137,8 +137,6 @@ namespace lime {
 
 			if (blend) {
 
-				int destAlphaOffset = (destFormat == ARGB32 ? 0 : 3);
-
 				for (int y = 0; y < destView.height; y++) {
 
 					sourcePosition = sourceView.Row (y);
@@ -149,8 +147,7 @@ namespace lime {
 						sourcePixel.ReadUInt8 (sourceData, sourcePosition, sourceFormat, sourcePremultiplied, LIME_BIG_ENDIAN);
 
 						// An opaque pixel blends to itself, and a transparent one leaves
-						// the destination as it is, but for clearing a transparent one,
-						// so only the others are blended
+						// the destination as it is, so only the others are blended
 						if (sourcePixel.a == 0xFF) {
 
 							sourcePixel.WriteUInt8 (destData, destPosition, destFormat, destPremultiplied);
@@ -170,10 +167,6 @@ namespace lime {
 							destPixel.a = __clamp[int (0.5 + blendAlpha * 255.0)];
 
 							destPixel.WriteUInt8 (destData, destPosition, destFormat, destPremultiplied);
-
-						} else if (destData[destPosition + destAlphaOffset] == 0) {
-
-							memset (&destData[destPosition], 0, 4);
 
 						}
 

@@ -356,8 +356,6 @@ class ImageDataUtil
 				{
 					if (blend)
 					{
-						var destAlphaOffset = destFormat == ARGB32 ? 0 : 3;
-
 						for (y in 0...destView.height)
 						{
 							sourcePosition = sourceView.row(y);
@@ -368,8 +366,7 @@ class ImageDataUtil
 								sourcePixel.readUInt8(sourceData, sourcePosition, sourceFormat, sourcePremultiplied);
 
 								// An opaque pixel blends to itself, and a transparent one leaves
-								// the destination as it is, but for clearing a transparent one,
-								// so only the others are blended
+								// the destination as it is, so only the others are blended
 								if (sourcePixel.a == 0xFF)
 								{
 									sourcePixel.writeUInt8(destData, destPosition, destFormat, destPremultiplied);
@@ -395,13 +392,6 @@ class ImageDataUtil
 									destPixel.a = RGBA.__clamp[Math.round(blendAlpha * 255.0)];
 
 									destPixel.writeUInt8(destData, destPosition, destFormat, destPremultiplied);
-								}
-								else if (destData[destPosition + destAlphaOffset] == 0)
-								{
-									destData[destPosition] = 0;
-									destData[destPosition + 1] = 0;
-									destData[destPosition + 2] = 0;
-									destData[destPosition + 3] = 0;
 								}
 
 								sourcePosition += 4;
