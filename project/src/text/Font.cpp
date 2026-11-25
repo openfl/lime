@@ -15,6 +15,8 @@
 #include FT_TRUETYPE_TABLES_H
 #include FT_GLYPH_H
 #include FT_OUTLINE_H
+#include FT_MODULE_H
+#include FT_MULTIPLE_MASTERS_H
 #endif
 
 #ifdef GetGlyphIndices
@@ -97,9 +99,9 @@ unsigned long readNextChar (const char*& p)
 				c1 = ptr[0];
 				c2 = ptr[1];
 
+				// E0 needs A0-BF (no overlong forms), ED needs 80-9F (no surrogates)
 				if (((c1 == 0xE0) && !IS_IN_RANGE(c2, 0xA0, 0xBF)) ||
-					 ((c1 == 0xED) && !IS_IN_RANGE(c2, 0x80, 0x9F)) ||
-					 (!IS_IN_RANGE(c1, 0xE1, 0xEC) && !IS_IN_RANGE(c1, 0xEE, 0xEF))) {
+					 ((c1 == 0xED) && !IS_IN_RANGE(c2, 0x80, 0x9F))) {
 
 					 // malformed data, do something !!!
 					 return (unsigned long) -1;
@@ -111,9 +113,10 @@ unsigned long readNextChar (const char*& p)
 				c1 = ptr[0];
 				c2 = ptr[1];
 
+				// F0 needs 90-BF (no overlong forms), F4 needs 80-8F (nothing past U+10FFFF)
 				if (((c1 == 0xF0) && !IS_IN_RANGE(c2, 0x90, 0xBF)) ||
 					 ((c1 == 0xF4) && !IS_IN_RANGE(c2, 0x80, 0x8F)) ||
-					 !IS_IN_RANGE(c1, 0xF1, 0xF3)) {
+					 (c1 > 0xF4)) {
 
 					 // malformed data, do something !!!
 					 return (unsigned long) -1;
@@ -272,6 +275,9 @@ namespace {
 namespace lime {
 
 
+	// In ExternalInterface.cpp
+	vbyte* hl_wstring_to_utf8_bytes (const std::wstring& val);
+
 	static int id_buffer;
 	static int id_charCode;
 	static int id_codepoint;
@@ -331,6 +337,7 @@ namespace lime {
 		this->library = 0;
 		this->face = 0;
 		this->faceMemory = 0;
+		this->mReferences = 1;
 
 		if (resource) {
 
@@ -360,11 +367,18 @@ namespace lime {
 
 					}
 
+					#ifndef HX_WINDOWS
 					if (file->isFile ()) {
 
 						error = FT_New_Face (library, resource->path, faceIndex, &face);
 
-					} else {
+					} else
+					#endif
+					{
+
+						// On Windows, FreeType opens a path with fopen, which reads it in the ANSI
+						// code page: a UTF-8 path with other characters, such as a user name in the
+						// path, does not open. lime::fopen converts it, so read the font through it.
 
 						Bytes data;
 						data.ReadFile (resource->path);
@@ -401,25 +415,11 @@ namespace lime {
 
 					/* Set charmap
 					 *
-					 * See http://www.microsoft.com/typography/otspec/name.htm for a list of
-					 * some possible platform-encoding pairs.  We're interested in 0-3 aka 3-1
-					 * - UCS-2.  Otherwise, fail. If a font has some unicode map, but lacks
-					 * UCS-2 - it is a broken or irrelevant font. What exactly Freetype will
-					 * select on face load (it promises most wide unicode, and if that will be
-					 * slower that UCS-2 - left as an excercise to check.
+					 * FT_Select_Charmap prefers a full Unicode map (UCS-4: 3-10, 0-4, 0-6) over a
+					 * BMP-only one (UCS-2: 3-1, 0-3), so characters beyond U+FFFF such as emoji
+					 * resolve. Fonts without a Unicode map keep the charmap FreeType chose on load.
 					 */
-					for (int i = 0; i < ((FT_Face)face)->num_charmaps; i++) {
-
-						FT_UShort pid = ((FT_Face)face)->charmaps[i]->platform_id;
-						FT_UShort eid = ((FT_Face)face)->charmaps[i]->encoding_id;
-
-						if (((pid == 0) && (eid == 3)) || ((pid == 3) && (eid == 1))) {
-
-							FT_Set_Charmap ((FT_Face)face, ((FT_Face)face)->charmaps[i]);
-
-						}
-
-					}
+					FT_Select_Charmap ((FT_Face)face, FT_ENCODING_UNICODE);
 
 				} else {
 
@@ -451,7 +451,25 @@ namespace lime {
 	}
 
 
-	void* Font::Decompose (bool useCFFIValue, int em) {
+	void Font::Retain () {
+
+		mReferences++;
+
+	}
+
+
+	void Font::Release () {
+
+		if (--mReferences == 0) {
+
+			delete this;
+
+		}
+
+	}
+
+
+	void* Font::Decompose (bool useCFFIValue, int em, bool forceAutoHint) {
 
 		int result, i, j;
 
@@ -476,9 +494,16 @@ namespace lime {
 
 		char_code = FT_Get_First_Char ((FT_Face)face, &glyph_index);
 
+		int loadFlags = FT_LOAD_NO_BITMAP | FT_LOAD_DEFAULT;
+		if (forceAutoHint) {
+			loadFlags |= FT_LOAD_FORCE_AUTOHINT;
+		} else {
+			loadFlags |= FT_LOAD_NO_HINTING;
+		}
+
 		while (glyph_index != 0) {
 
-			if (FT_Load_Glyph ((FT_Face)face, glyph_index, FT_LOAD_NO_BITMAP | FT_LOAD_FORCE_AUTOHINT | FT_LOAD_DEFAULT) == 0) {
+			if (FT_Load_Glyph ((FT_Face)face, glyph_index, loadFlags) == 0) {
 
 				glyph *g = new glyph;
 				result = FT_Outline_Decompose (&((FT_Face)face)->glyph->outline, &ofn, g);
@@ -638,14 +663,14 @@ namespace lime {
 			alloc_field (ret, val_id ("is_italic"), alloc_bool (((FT_Face)face)->style_flags & FT_STYLE_FLAG_ITALIC));
 			alloc_field (ret, val_id ("is_bold"), alloc_bool (((FT_Face)face)->style_flags & FT_STYLE_FLAG_BOLD));
 			alloc_field (ret, val_id ("num_glyphs"), alloc_int (num_glyphs));
-			alloc_field (ret, val_id ("family_name"), family_name == NULL ? alloc_string (((FT_Face)face)->family_name) : alloc_wstring (family_name));
+			alloc_field (ret, val_id ("family_name"), family_name == NULL ? alloc_null () : alloc_wstring (family_name));
 			alloc_field (ret, val_id ("style_name"), alloc_string (((FT_Face)face)->style_name));
 			alloc_field (ret, val_id ("em_size"), alloc_int (((FT_Face)face)->units_per_EM));
 			alloc_field (ret, val_id ("ascend"), alloc_int (calculatedAscender));
 			alloc_field (ret, val_id ("descend"), alloc_int (calculatedDescender));
 			alloc_field (ret, val_id ("height"), alloc_int (calculatedHeight));
 
-			delete family_name;
+			free (family_name);
 
 			// 'glyphs' field
 			value neko_glyphs = alloc_array (num_glyphs);
@@ -716,26 +741,18 @@ namespace lime {
 			hl_dyn_seti (ret, hl_hash_utf8 ("is_bold"), &hlt_bool, ((FT_Face)face)->style_flags & FT_STYLE_FLAG_BOLD);
 			hl_dyn_seti (ret, hl_hash_utf8 ("num_glyphs"), &hlt_i32, num_glyphs);
 
-			char* _family_name = NULL;
+			// UTF-8, as lime_font_get_family_name gives it, in memory the collector owns
+			vbyte* _family_name = NULL;
 
 			if (family_name != NULL) {
 
-				int length = std::wcslen (family_name);
-				char* result = (char*)malloc (length + 1);
-				std::wcstombs (result, family_name, length);
-				result[length] = '\0';
-				delete family_name;
-
-			} else {
-
-				int length = strlen (((FT_Face)face)->family_name);
-				_family_name = (char*)malloc (length + 1);
-				strcpy (_family_name, ((FT_Face)face)->family_name);
+				_family_name = hl_wstring_to_utf8_bytes (family_name);
+				free (family_name);
 
 			}
 
-			char* style_name = (char*)malloc(strlen(((FT_Face)face)->style_name) + 1);
-			strcpy(style_name, ((FT_Face)face)->style_name);
+			const char* _style_name = ((FT_Face)face)->style_name;
+			vbyte* style_name = _style_name ? hl_copy_bytes ((const vbyte*)_style_name, strlen (_style_name) + 1) : NULL;
 
 			hl_dyn_setp (ret, hl_hash_utf8 ("family_name"), &hlt_bytes, _family_name);
 			hl_dyn_setp (ret, hl_hash_utf8 ("style_name"), &hlt_bytes, style_name);
@@ -992,14 +1009,17 @@ namespace lime {
 
 					if (sfnt_name.platform_id == TT_PLATFORM_MACINTOSH) {
 
+						// The string isn't terminated, and mbstowcs stops part way at
+						// a byte the locale doesn't know, so each byte is copied
 						len = sfnt_name.string_len;
-						family_name = new wchar_t[len + 1];
-						#if defined(ANDROID) && !defined(HXCPP_CLANG)
-						// Fix some devices (Android 4.x or older) that have a bad stdc implementation
-						_mbsrtowcs (family_name, (const char**)&sfnt_name.string, len, 0);
-						#else
-						mbstowcs (family_name, (const char*)sfnt_name.string, len);
-						#endif
+						family_name = (wchar_t*)malloc ((len + 1) * sizeof (wchar_t));
+
+						for (i = 0; i < len; i++) {
+
+							family_name[i] = (wchar_t)sfnt_name.string[i];
+
+						}
+
 						family_name[len] = L'\0';
 						return family_name;
 
@@ -1022,6 +1042,25 @@ namespace lime {
 				}
 
 			}
+
+		}
+
+		// No full name, as in fonts that aren't SFNT, such as BDF and Type 1
+		const char* freetype_name = ((FT_Face)face)->family_name;
+
+		if (freetype_name) {
+
+			len = strlen (freetype_name);
+			family_name = (wchar_t*)malloc ((len + 1) * sizeof (wchar_t));
+
+			for (i = 0; i < len; i++) {
+
+				family_name[i] = (wchar_t)(unsigned char)freetype_name[i];
+
+			}
+
+			family_name[len] = L'\0';
+			return family_name;
 
 		}
 
@@ -1306,16 +1345,164 @@ namespace lime {
 	}
 
 
-	int Font::RenderGlyph(int index, Bytes *bytes, int offset)
+	bool Font::IsBold () {
+
+		return ((FT_Face)face)->style_flags & FT_STYLE_FLAG_BOLD;
+
+	}
+
+
+	bool Font::IsItalic () {
+
+		return ((FT_Face)face)->style_flags & FT_STYLE_FLAG_ITALIC;
+
+	}
+
+
+	// subpixelX (1/64 pixel) shifts the outline before rasterizing, so a glyph drawn at a whole
+	// pixel shows where it falls between pixels; bitmap_left stays the whole-pixel origin
+	static int LoadGlyphShifted(void* face, int index, int loadFlags, int subpixelX)
 	{
-		if (FT_Load_Glyph((FT_Face)face, index, FT_LOAD_FORCE_AUTOHINT | FT_LOAD_DEFAULT) == 0)
+		if (subpixelX != 0)
+		{
+			FT_Vector delta;
+			delta.x = subpixelX;
+			delta.y = 0;
+			FT_Set_Transform((FT_Face)face, NULL, &delta);
+		}
+
+		int loaded = FT_Load_Glyph((FT_Face)face, index, loadFlags);
+
+		if (subpixelX != 0)
+		{
+			FT_Set_Transform((FT_Face)face, NULL, NULL);
+		}
+
+		return loaded;
+	}
+
+
+	int Font::RenderGlyph(int index, Bytes *bytes, int offset, int subpixelX)
+	{
+		if (LoadGlyphShifted(face, index, FT_LOAD_FORCE_AUTOHINT | FT_LOAD_DEFAULT, subpixelX) == 0)
 		{
 			if (FT_Render_Glyph(((FT_Face)face)->glyph, FT_RENDER_MODE_LCD) == 0)
 			{
 				FT_Bitmap bitmap = ((FT_Face)face)->glyph->bitmap;
 
+				// An outline is rendered as LCD, three bytes a pixel. A font's
+				// embedded bitmap, which FreeType loads instead where the font has
+				// one at this size, is left as it is: 1-bit, 8-bit grey or BGRA.
 				int height = bitmap.rows;
-				int width = bitmap.width / 3; //Due to each pixel now has 3 components (R, G, B)
+				int width;
+				int pitch = bitmap.pitch;
+
+				switch (bitmap.pixel_mode)
+				{
+					case FT_PIXEL_MODE_LCD:
+						width = bitmap.width / 3;
+						break;
+
+					case FT_PIXEL_MODE_MONO:
+					case FT_PIXEL_MODE_GRAY:
+					case FT_PIXEL_MODE_BGRA:
+						width = bitmap.width;
+						break;
+
+					default:
+						return 0;
+				}
+
+				if (width == 0 || height == 0)
+					return 0;
+
+				//We calculate the size needed for the glyph image, including metadata and 24-bit RGB color data
+				uint32_t size = sizeof(GlyphImage) + (width * height * 4);
+
+				if (bytes->length < size + offset)
+				{
+					bytes->Resize(size + offset);
+				}
+
+				GlyphImage *data = (GlyphImage *)(bytes->b + offset);
+
+				//We should initialize the GlyphImage struct here with zero to avoid uninitialized values
+				memset(data, 0, sizeof(GlyphImage));
+
+				data->index = index;
+				data->width = width;
+				data->height = height;
+				data->x = ((FT_Face)face)->glyph->bitmap_left;
+				data->y = ((FT_Face)face)->glyph->bitmap_top;
+
+				unsigned char *position = &data->data;
+
+				//Copy the bitmap data row by row, as RGBA, the alpha of LCD pixels being the mean of their three components
+				for (int i = 0; i < height; i++)
+				{
+					// A negative pitch has the bottom row first
+					const unsigned char *row = pitch >= 0 ? bitmap.buffer + i * pitch : bitmap.buffer + (height - 1 - i) * -pitch;
+
+					for (int j = 0; j < width; j++)
+					{
+						unsigned char r, g, b, a;
+
+						switch (bitmap.pixel_mode)
+						{
+							case FT_PIXEL_MODE_LCD:
+								r = row[j * 3 + 0];
+								g = row[j * 3 + 1];
+								b = row[j * 3 + 2];
+								a = (r + g + b) / 3;
+								break;
+
+							case FT_PIXEL_MODE_MONO:
+								r = g = b = a = (row[j >> 3] & (0x80 >> (j & 7))) ? 255 : 0;
+								break;
+
+							case FT_PIXEL_MODE_GRAY:
+								r = g = b = a = row[j];
+								break;
+
+							default: // FT_PIXEL_MODE_BGRA
+								b = row[j * 4 + 0];
+								g = row[j * 4 + 1];
+								r = row[j * 4 + 2];
+								a = row[j * 4 + 3];
+								break;
+						}
+
+						//Red
+						position[(i * width + j) * 4 + 0] = r;
+						//Green
+						position[(i * width + j) * 4 + 1] = g;
+						//Blue
+						position[(i * width + j) * 4 + 2] = b;
+						//Alpha
+						position[(i * width + j) * 4 + 3] = a;
+					}
+				}
+
+				return size;
+			}
+		}
+
+		return 0;
+	}
+
+
+	int Font::RenderGlyphWithFlags(int index, int loadFlags, Bytes *bytes, int offset, int subpixelX)
+	{
+		int resolvedLoadFlags = FT_LOAD_NO_BITMAP | FT_LOAD_DEFAULT | loadFlags;
+
+		if (LoadGlyphShifted(face, index, resolvedLoadFlags, subpixelX) == 0)
+		{
+			if (FT_Render_Glyph(((FT_Face)face)->glyph, FT_RENDER_MODE_NORMAL) == 0)
+			{
+				FT_Bitmap bitmap = ((FT_Face)face)->glyph->bitmap;
+
+				int height = bitmap.rows;
+				int width = bitmap.width;
 				int pitch = bitmap.pitch;
 
 				if (width == 0 || height == 0)
@@ -1347,17 +1534,14 @@ namespace lime {
 				{
 					for (int j = 0; j < width; j++)
 					{
-						unsigned char r = bitmap.buffer[i * pitch + j * 3 + 0];
-						unsigned char g = bitmap.buffer[i * pitch + j * 3 + 1];
-						unsigned char b = bitmap.buffer[i * pitch + j * 3 + 2];
-						unsigned char a = (r + g + b) / 3;
+						unsigned char a = bitmap.buffer[i * pitch + j];
 
 						//Red
-						position[(i * width + j) * 4 + 0] = r;
+						position[(i * width + j) * 4 + 0] = 255;
 						//Green
-						position[(i * width + j) * 4 + 1] = g;
+						position[(i * width + j) * 4 + 1] = 255;
 						//Blue
-						position[(i * width + j) * 4 + 2] = b;
+						position[(i * width + j) * 4 + 2] = 255;
 						//Alpha
 						position[(i * width + j) * 4 + 3] = a;
 					}
@@ -1373,15 +1557,36 @@ namespace lime {
 
 	int Font::RenderGlyphs (value indices, Bytes *bytes) {
 
+		int numIndices = val_array_size (indices);
+		std::vector<int> indexList (numIndices);
+
+		for (int i = 0; i < numIndices; i++) {
+
+			indexList[i] = val_int (val_array_i (indices, i));
+
+		}
+
+		return RenderGlyphs (indexList.data (), numIndices, bytes);
+
+	}
+
+
+	int Font::RenderGlyphs (hl_varray* indices, Bytes *bytes) {
+
+		return RenderGlyphs (hl_aptr (indices, int), indices->size, bytes);
+
+	}
+
+
+	int Font::RenderGlyphs (const int* indices, int numIndices, Bytes *bytes) {
+
 		int offset = 0;
 		int totalOffset = 4;
 		uint32_t count = 0;
 
-		int numIndices = val_array_size (indices);
-
 		for (int i = 0; i < numIndices; i++) {
 
-			offset = RenderGlyph (val_int (val_array_i (indices, i)), bytes, totalOffset);
+			offset = RenderGlyph (indices[i], bytes, totalOffset);
 
 			if (offset > 0) {
 
@@ -1418,6 +1623,63 @@ namespace lime {
 			vdpi								//Vertical DPI
 		);
 		mSize = size;
+
+	}
+
+
+	bool Font::SetVariation (int tag, double coordinate)
+	{
+		FT_MM_Var* axes = 0;
+		if (!face || FT_Get_MM_Var((FT_Face)face, &axes) != 0 || !axes) return false;
+		std::vector<FT_Fixed> coordinates(axes->num_axis);
+		if (FT_Get_Var_Design_Coordinates((FT_Face)face, axes->num_axis, coordinates.data()) != 0) {
+			for (FT_UInt i = 0; i < axes->num_axis; ++i) coordinates[i] = axes->axis[i].def;
+		}
+		bool found = false;
+		for (FT_UInt i = 0; i < axes->num_axis; ++i) {
+			if (axes->axis[i].tag != (FT_ULong)(unsigned int)tag) continue;
+			double fixed = coordinate * 65536.0;
+			fixed = std::max((double)axes->axis[i].minimum, std::min((double)axes->axis[i].maximum, fixed));
+			coordinates[i] = (FT_Fixed)fixed;
+			found = true;
+			break;
+		}
+		bool applied = found && FT_Set_Var_Design_Coordinates((FT_Face)face, axes->num_axis, coordinates.data()) == 0;
+		if (applied) {
+			FT_Face nativeFace = (FT_Face)face;
+			bool hasWeight = false, hasItalic = false, bold = false, italic = false;
+			for (FT_UInt i = 0; i < axes->num_axis; ++i) {
+				if (axes->axis[i].tag == FT_MAKE_TAG('w','g','h','t')) { hasWeight = true; bold = coordinates[i] >= 600 * 65536; }
+				if (axes->axis[i].tag == FT_MAKE_TAG('i','t','a','l')) { hasItalic = true; italic = italic || coordinates[i] >= 32768; }
+				if (axes->axis[i].tag == FT_MAKE_TAG('s','l','n','t')) { hasItalic = true; italic = italic || coordinates[i] != 0; }
+			}
+			if (hasWeight) nativeFace->style_flags = bold ? nativeFace->style_flags | FT_STYLE_FLAG_BOLD : nativeFace->style_flags & ~FT_STYLE_FLAG_BOLD;
+			if (hasItalic) nativeFace->style_flags = italic ? nativeFace->style_flags | FT_STYLE_FLAG_ITALIC : nativeFace->style_flags & ~FT_STYLE_FLAG_ITALIC;
+		}
+		FT_Done_MM_Var((FT_Library)library, axes);
+		return applied;
+	}
+
+	void Font::SetStemDarkening (bool enable)
+	{
+
+		FT_Bool no_darkening = enable ? 0 : 1;
+
+		FT_Property_Set((FT_Library)library, "cff", "no-stem-darkening", &no_darkening);
+		FT_Property_Set((FT_Library)library, "autofitter", "no-stem-darkening", &no_darkening);
+		FT_Property_Set((FT_Library)library, "t1cid", "no-stem-darkening", &no_darkening);
+		FT_Property_Set((FT_Library)library, "type1", "no-stem-darkening", &no_darkening);
+
+	}
+
+
+	void Font::SetStemDarkeningParameters (int params[])
+	{
+
+		FT_Property_Set((FT_Library)library, "cff", "darkening-parameters", params);
+		FT_Property_Set((FT_Library)library, "autofitter", "darkening-parameters", params);
+		FT_Property_Set((FT_Library)library, "t1cid", "darkening-parameters", params);
+		FT_Property_Set((FT_Library)library, "type1", "darkening-parameters", params);
 
 	}
 

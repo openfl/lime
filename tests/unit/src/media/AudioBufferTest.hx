@@ -1,0 +1,367 @@
+package media;
+
+#if (lime_cffi && !macro)
+import haxe.crypto.Crc32;
+import haxe.io.Bytes;
+import haxe.io.BytesOutput;
+import lime.app.Future;
+import lime.media.AudioBuffer;
+import lime.media.AudioSource;
+import lime.utils.Bytes as LimeBytes;
+#end
+#if (lime_cffi && !macro && sys)
+import lime.system.System;
+import sys.FileSystem;
+import sys.io.File;
+#end
+import utest.Assert;
+import utest.Test;
+
+class AudioBufferTest extends Test
+{
+	#if (lime_cffi && !macro)
+	private static inline var SAMPLE_RATE = 22050;
+
+	// What today's native decoders give for the sound files in assets/: the format, and a CRC-32 of the
+	// samples. These pin current native output for the work on releasing the collector while sound
+	// decodes, so a change that is meant to change the output updates them in the same commit.
+	private static var DECODED:Array<{path:String, samples:String}> = [
+		{path: "assets/tone.wav", samples: "1 channels, 22050 Hz, 16-bit, 4410 bytes, crc 26551E63"},
+		// Vorbis decodes in floating point, so its samples can differ in the last bit between CPU architectures:
+		// only its format and length are pinned, and each way of decoding it must agree on this machine
+		{path: "assets/tone.ogg", samples: "1 channels, 22050 Hz, 16-bit, 4410 bytes"}
+	];
+	#end
+
+	public function new()
+	{
+		super();
+	}
+
+	#if (lime_cffi && !macro)
+	public function testWAVBytesDecodeToTheirSamples():Void
+	{
+		var samples = tone(2205);
+
+		assertDecodedAs(AudioBuffer.fromBytes(createWAV(samples)), samples);
+	}
+
+	public function testWAVBytesThatEndQuietlyDecodeAsWAV():Void
+	{
+		// Bytes carry no file extension, so unless SDL_sound is told the format, it tries its MP3 decoder
+		// before its WAV decoder, and that decoder takes the quiet tail for 44.1 kHz stereo frames
+		var samples = tone(2205).concat(quietTail());
+
+		assertDecodedAs(AudioBuffer.fromBytes(createWAV(samples)), samples);
+	}
+
+	public function testWAVBytesWithAPaddedChunkDecodeAsWAV():Void
+	{
+		var samples = tone(2205).concat(quietTail());
+
+		assertDecodedAs(AudioBuffer.fromBytes(createWAV(samples, true)), samples);
+	}
+
+	#if sys
+	public function testWAVFileWithAPaddedChunkDecodesAsWAV():Void
+	{
+		var samples = tone(2205).concat(quietTail());
+		var path = scratchDirectory() + "/padded.wav";
+		File.saveBytes(path, createWAV(samples, true));
+
+		assertDecodedAs(AudioBuffer.fromFile(path), samples);
+		FileSystem.deleteFile(path);
+	}
+
+	public function testWAVFileWithoutAnExtensionDecodesAsWAV():Void
+	{
+		// With no extension to go by, the file's signature names its format
+		var samples = tone(2205).concat(quietTail());
+		var path = scratchDirectory() + "/quiet";
+		File.saveBytes(path, createWAV(samples));
+
+		assertDecodedAs(AudioBuffer.fromFile(path), samples);
+		FileSystem.deleteFile(path);
+	}
+	#end
+
+	public function testWAVFileKeepsItsDecodedSamples():Void
+	{
+		assertKeepsItsSamples(DECODED[0]);
+	}
+
+	public function testVorbisFileKeepsItsDecodedSamples():Void
+	{
+		assertKeepsItsSamples(DECODED[1]);
+	}
+
+	public function testLoadFromFilesGivesTheSameSamplesWhileTheMainThreadCollects():Void
+	{
+		// AudioBuffer.loadFromFiles decodes on a worker thread, so collections here run alongside the decodes
+		var futures:Array<Future<AudioBuffer>> = [];
+		var expected = [];
+
+		for (round in 0...4)
+		{
+			for (sound in DECODED)
+			{
+				futures.push(AudioBuffer.loadFromFiles([sound.path]));
+				// The same file decoded on this thread, so the comparison is exact even where the pin isn't
+				expected.push({path: sound.path, samples: describeSamples(AudioBuffer.fromFile(sound.path))});
+			}
+		}
+
+		var deadline = haxe.Timer.stamp() + 10;
+		var waiting = firstUnfinished(futures);
+
+		while (waiting != null && haxe.Timer.stamp() < deadline)
+		{
+			var garbage = [for (i in 0...32) Bytes.alloc(4096)];
+			forceCollection();
+			// Takes in what the worker has finished, as the application's loop would
+			waiting.ready(0);
+			waiting = firstUnfinished(futures);
+		}
+
+		for (i in 0...futures.length)
+		{
+			var future = futures[i];
+			Assert.isTrue(future.isComplete, expected[i].path + " did not finish decoding");
+			if (future.isComplete) assertSamples(expected[i].samples, describeSamples(future.value), expected[i].path + ", load " + i);
+		}
+	}
+
+	private static function assertKeepsItsSamples(sound:{path:String, samples:String}, ?pos:haxe.PosInfos):Void
+	{
+		var bytes = LimeBytes.fromFile(sound.path);
+		Assert.notNull(bytes, sound.path + " is missing", pos);
+		if (bytes == null) return;
+
+		var fromFile = describeSamples(AudioBuffer.fromFile(sound.path));
+		assertSamples(sound.samples, fromFile, sound.path + " through AudioBuffer.fromFile", pos);
+		assertSamples(fromFile, describeSamples(AudioBuffer.fromBytes(bytes)), sound.path + " through AudioBuffer.fromBytes", pos);
+	}
+
+	private static function assertSamples(expected:String, actual:String, name:String, ?pos:haxe.PosInfos):Void
+	{
+		// A pin without a CRC is compared on its format and length alone
+		var compared = (expected.indexOf(", crc ") == -1 && actual.indexOf(", crc ") > -1) ? actual.substr(0, actual.indexOf(", crc ")) : actual;
+		Assert.equals(expected, compared, name + " gave " + actual + ", pinned " + expected, pos);
+	}
+
+	/** The buffer's format, and a CRC-32 of its samples **/
+	private static function describeSamples(buffer:AudioBuffer):String
+	{
+		if (buffer == null || buffer.data == null) return "null";
+
+		var data = buffer.data;
+		var samples = data.toBytes().sub(data.byteOffset, data.byteLength);
+		return buffer.channels + " channels, " + buffer.sampleRate + " Hz, " + buffer.bitsPerSample + "-bit, " + samples.length + " bytes, crc "
+			+ StringTools.hex(Crc32.make(samples), 8);
+	}
+
+	private static function firstUnfinished(futures:Array<Future<AudioBuffer>>):Future<AudioBuffer>
+	{
+		for (future in futures)
+		{
+			if (!future.isComplete && !future.isError) return future;
+		}
+
+		return null;
+	}
+
+	private static function forceCollection():Void
+	{
+		#if cpp
+		cpp.vm.Gc.run(true);
+		#elseif neko
+		neko.vm.Gc.run(true);
+		#elseif hl
+		hl.Gc.major();
+		#end
+	}
+
+	#if lime_sdl_sound
+	public function testWAVBytesThatEndQuietlyStreamAsWAV():Void
+	{
+		var buffer = AudioBuffer.fromBytesStream(createWAV(tone(2205).concat(quietTail())));
+
+		Assert.notNull(buffer);
+		if (buffer == null) return;
+
+		Assert.equals(1, buffer.channels);
+		Assert.equals(SAMPLE_RATE, buffer.sampleRate);
+		Assert.equals(16, buffer.bitsPerSample);
+	}
+
+	public function testAStreamReadsOnAfterItsBufferIsDisposed():Void
+	{
+		var samples = tone(SAMPLE_RATE);
+		var buffer = AudioBuffer.fromBytesStream(createWAV(samples));
+		var source = new AudioSource(buffer);
+		buffer.dispose();
+		buffer = null;
+
+		// The stream reads the file's bytes where they are, so once the buffer lets go of them they are
+		// collected, and the memory goes to new bytes, unless the source keeps them
+		collectAndReuse(samples.length * 2 + 44);
+
+		var backend = @:privateAccess source.__backend;
+		var read = @:privateAccess backend.readSDLSoundBuffer(samples.length * 2);
+		var data = @:privateAccess backend.readBuffer;
+
+		Assert.equals(samples.length * 2, read);
+		var firstDifference = -1;
+
+		for (i in 0...Std.int(Math.min(read, samples.length * 2) / 2))
+		{
+			if (((data.getUInt16(i * 2) << 16) >> 16) != samples[i])
+			{
+				firstDifference = i;
+				break;
+			}
+		}
+
+		Assert.equals(-1, firstDifference);
+		source.dispose();
+	}
+
+	#if sys
+	public function testAStreamNeverAsksForPartOfASampleFrame():Void
+	{
+		// Vorbis decodes to float and the stream is read as 16-bit, so SDL_sound converts it; a request for part of a
+		// frame made the conversion fail, which ended the stream with an error. tone.ogg is mono, 2 bytes a frame.
+		var buffer = AudioBuffer.fromBytesStream(File.getBytes("assets/tone.ogg"));
+		Assert.notNull(buffer);
+		if (buffer == null) return;
+
+		var source = new AudioSource(buffer);
+		var backend = @:privateAccess source.__backend;
+
+		// The stream's own requests are whole frames: what's left near its end can be less than one
+		Assert.equals(0, @:privateAccess backend.alignStreamRequestLength(1));
+		Assert.equals(2, @:privateAccess backend.alignStreamRequestLength(3));
+
+		// Less than a frame reads nothing, and the stream reads on afterwards
+		Assert.equals(0, @:privateAccess backend.readSDLSoundBuffer(1));
+		Assert.isTrue(@:privateAccess backend.readSDLSoundBuffer(4096) > 0, "the stream stopped after a request for part of a frame");
+
+		source.dispose();
+	}
+	#end
+
+	private static function collectAndReuse(length:Int):Void
+	{
+		var garbage = [];
+
+		for (i in 0...4)
+		{
+			collect();
+
+			for (j in 0...16)
+			{
+				var bytes = Bytes.alloc(length);
+				bytes.fill(0, length, 0x55);
+				garbage.push(bytes);
+			}
+		}
+	}
+
+	private static function collect():Void
+	{
+		#if cpp
+		cpp.vm.Gc.run(true);
+		#elseif neko
+		neko.vm.Gc.run(true);
+		#elseif hl
+		hl.Gc.major();
+		#end
+	}
+	#end
+
+	private function assertDecodedAs(buffer:AudioBuffer, samples:Array<Int>):Void
+	{
+		Assert.notNull(buffer);
+		if (buffer == null) return;
+
+		Assert.equals(1, buffer.channels);
+		Assert.equals(SAMPLE_RATE, buffer.sampleRate);
+		Assert.equals(16, buffer.bitsPerSample);
+		Assert.equals(samples.length * 2, buffer.data.length);
+		if (buffer.data.length != samples.length * 2) return;
+
+		var firstDifference = -1;
+
+		for (i in 0...samples.length)
+		{
+			var value:Int = buffer.data[i * 2] | (buffer.data[i * 2 + 1] << 8);
+
+			if (((value << 16) >> 16) != samples[i])
+			{
+				firstDifference = i;
+				break;
+			}
+		}
+
+		Assert.equals(-1, firstDifference);
+	}
+
+	#if sys
+	private static function scratchDirectory():String
+	{
+		var directory = System.applicationStorageDirectory + "audio-test";
+		if (!FileSystem.exists(directory)) FileSystem.createDirectory(directory);
+		return directory;
+	}
+	#end
+
+	// When padded, the format chunk has an empty extension, making it 18 bytes long, and an odd-sized
+	// LIST chunk before the data is padded to an even length, as RIFF requires
+	public static function createWAV(samples:Array<Int>, padded:Bool = false):Bytes
+	{
+		var output = new BytesOutput();
+		output.writeString("RIFF");
+		output.writeInt32((padded ? 52 : 36) + samples.length * 2);
+		output.writeString("WAVE");
+		output.writeString("fmt ");
+		output.writeInt32(padded ? 18 : 16);
+		output.writeUInt16(1);
+		output.writeUInt16(1);
+		output.writeInt32(SAMPLE_RATE);
+		output.writeInt32(SAMPLE_RATE * 2);
+		output.writeUInt16(2);
+		output.writeUInt16(16);
+
+		if (padded)
+		{
+			output.writeUInt16(0);
+			output.writeString("LIST");
+			output.writeInt32(5);
+			output.writeString("INFOx");
+			output.writeByte(0);
+		}
+
+		output.writeString("data");
+		output.writeInt32(samples.length * 2);
+
+		for (sample in samples)
+		{
+			output.writeInt16(sample);
+		}
+
+		return output.getBytes();
+	}
+
+	// A fade out that ends in an occasional -1, as many recordings do. As bytes, -1 then 0 is FF FF 00 00,
+	// which is also the header of an MPEG-1 Layer I frame, so evenly spaced they look like MP3 frames.
+	private static function quietTail():Array<Int>
+	{
+		return [for (i in 0...4660) i % 233 == 0 ? -1 : 0];
+	}
+
+	public static function tone(length:Int):Array<Int>
+	{
+		return [for (i in 0...length) Std.int(Math.sin(i * 2 * Math.PI * 440 / SAMPLE_RATE) * 16384)];
+	}
+	#end
+}

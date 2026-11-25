@@ -1,0 +1,8 @@
+# Builds with -lib lime alone, as projects that skip Lime's tools do, so
+# only extraParams.hxml and DefineMacro set the defines, not include.xml
+-cp src
+-lib lime
+-main Main
+-hl bin/hlboot.dat
+# Compile every native so HashLink checks all of their signatures on load
+lime._internal.backend.native.NativeCFFI

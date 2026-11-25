@@ -30,6 +30,7 @@ namespace lime {
 		TouchEventType type;
 		double x;
 		double y;
+		int timestamp;
 
 		static ValuePointer* callback;
 		static ValuePointer* eventObject;

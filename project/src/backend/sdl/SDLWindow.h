@@ -3,6 +3,7 @@
 
 
 #include <SDL.h>
+#include <SDL_vulkan.h>
 #include <graphics/ImageBuffer.h>
 #include <ui/Cursor.h>
 #include <ui/Window.h>
@@ -24,7 +25,13 @@ namespace lime {
 			virtual void* ContextLock (bool useCFFIValue);
 			virtual void ContextMakeCurrent ();
 			virtual void ContextUnlock ();
+			#ifdef LIME_CONTEXT_RECOVERY_TESTS
+			bool TestContextReplacement (bool create);
+			#endif
 			virtual void Focus ();
+			virtual bool OrderRelative (Window* other, bool above);
+			virtual bool OrderToBack ();
+			virtual bool StartMoveResize (int edges);
 			virtual void* GetContext ();
 			virtual const char* GetContextType ();
 			// virtual Cursor GetCursor ();
@@ -32,14 +39,21 @@ namespace lime {
 			virtual void GetDisplayMode (DisplayMode* displayMode);
 			virtual int GetHeight ();
 			virtual uint32_t GetID ();
+			virtual bool Flash (int mode);
+			virtual bool GetKeyboardGrab ();
 			virtual bool GetMouseLock ();
+			virtual bool GetMouseRect (int* x, int* y, int* width, int* height);
+			virtual int GetNativeHandle (void** handle, void** display);
+			static int GetNativeHandle (SDL_Window* window, void** handle, void** display);
 			virtual float GetOpacity ();
 			virtual double GetScale ();
 			virtual bool GetTextInputEnabled ();
+			virtual bool GetTransparent ();
 			virtual int GetWidth ();
 			virtual int GetX ();
 			virtual int GetY ();
 			virtual void Move (int x, int y);
+			virtual int PopupMenu (const unsigned char* data, int length, int x, int y, bool atCursor);
 			virtual void ReadPixels (ImageBuffer *buffer, Rectangle *rect);
 			virtual void Resize (int width, int height);
 			virtual void SetMinimumSize (int width, int height);
@@ -50,24 +64,44 @@ namespace lime {
 			virtual bool SetFullscreen (bool fullscreen);
 			virtual void SetIcon (ImageBuffer *imageBuffer);
 			virtual bool SetMaximized (bool maximized);
+			virtual bool SetMenu (const unsigned char* data, int length);
 			virtual bool SetMinimized (bool minimized);
+			virtual void SetKeyboardGrab (bool keyboardGrab);
 			virtual void SetMouseLock (bool mouseLock);
+			virtual void SetMouseRect (int x, int y, int width, int height);
 			virtual void SetOpacity (float opacity);
 			virtual bool SetResizable (bool resizable);
 			virtual void SetTextInputEnabled (bool enabled);
 			virtual void SetTextInputRect (Rectangle *rect);
 			virtual const char* SetTitle (const char* title);
+			virtual void SetVSyncMode (int vsyncMode);
+			virtual bool SetAlwaysOnTop (bool alwaysOnTop);
 			virtual bool SetVisible (bool visible);
 			virtual void WarpMouse (int x, int y);
+			virtual int GetVSyncInterval () const;
+			virtual int GetRequestedVSyncMode () const;
+			virtual double GetRefreshRate () const;
+			virtual uint64_t CreateVulkanSurface (uintptr_t instance);
+			virtual void GetVulkanDrawableSize (int* width, int* height);
+			virtual bool GetVulkanInstanceExtensions (unsigned int* count, const char** names);
+			virtual void* GetVulkanInstanceProcAddr ();
+			virtual void NoteVulkanPresent ();
 			SDL_Renderer* sdlRenderer;
 			SDL_Texture* sdlTexture;
 			SDL_Window* sdlWindow;
 
 		private:
 
+			void CreateOpenGLContext ();
+
+			int activeSwapInterval;
 			SDL_GLContext context;
 			int contextHeight;
 			int contextWidth;
+			bool displayModeSet;
+			int requestedVSyncMode;
+			bool transparent;
+			bool useVulkan;
 
 	};
 

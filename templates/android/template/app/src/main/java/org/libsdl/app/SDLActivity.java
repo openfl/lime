@@ -60,8 +60,8 @@ import java.util.Locale;
 public class SDLActivity extends Activity implements View.OnSystemUiVisibilityChangeListener {
     private static final String TAG = "SDL";
     private static final int SDL_MAJOR_VERSION = 2;
-    private static final int SDL_MINOR_VERSION = 30;
-    private static final int SDL_MICRO_VERSION = 12;
+    private static final int SDL_MINOR_VERSION = 32;
+    private static final int SDL_MICRO_VERSION = 10;
 /*
     // Display InputType.SOURCE/CLASS of events and devices
     //
@@ -789,6 +789,9 @@ public class SDLActivity extends Activity implements View.OnSystemUiVisibilityCh
                                 window.addFlags(WindowManager.LayoutParams.FLAG_FORCE_NOT_FULLSCREEN);
                                 window.clearFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
                                 SDLActivity.mFullscreenModeActive = false;
+                            }
+                            if (Build.VERSION.SDK_INT >= 28 /* Android 9 (Pie) */) {
+                                window.getAttributes().layoutInDisplayCutoutMode = WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES;
                             }
                         }
                     } else {
@@ -2005,16 +2008,14 @@ class SDLInputConnection extends BaseInputConnection {
 
     @Override
     public boolean deleteSurroundingText(int beforeLength, int afterLength) {
-        if (Build.VERSION.SDK_INT <= 29 /* Android 10.0 (Q) */) {
-            // Workaround to capture backspace key. Ref: http://stackoverflow.com/questions>/14560344/android-backspace-in-webview-baseinputconnection
-            // and https://bugzilla.libsdl.org/show_bug.cgi?id=2265
-            if (beforeLength > 0 && afterLength == 0) {
-                // backspace(s)
-                while (beforeLength-- > 0) {
-                    nativeGenerateScancodeForUnichar('\b');
-                }
-                return true;
-           }
+        // Workaround to capture backspace key. Ref: http://stackoverflow.com/questions>/14560344/android-backspace-in-webview-baseinputconnection
+        // and https://bugzilla.libsdl.org/show_bug.cgi?id=2265
+        if (beforeLength > 0 && afterLength == 0) {
+            // backspace(s)
+            while (beforeLength-- > 0) {
+                nativeGenerateScancodeForUnichar('\b');
+            }
+            return true;
         }
 
         if (!super.deleteSurroundingText(beforeLength, afterLength)) {

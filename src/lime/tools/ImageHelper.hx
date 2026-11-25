@@ -21,6 +21,61 @@ class ImageHelper
 		#if (lime && lime_cffi && !macro)
 		if (path == null) return null;
 
+		// An SVG sized only by its viewBox is drawn by svg.n at a default size, so most of the icon
+		// lands outside the image. Rasterize a copy given the viewBox's width and height instead.
+		var sizedPath = sizeFromViewBox(path);
+		var image = rasterizeSVGFile(sizedPath != null ? sizedPath : path, width, height, backgroundColor);
+
+		if (sizedPath != null)
+		{
+			try
+			{
+				FileSystem.deleteFile(sizedPath);
+			}
+			catch (e:Dynamic) {}
+		}
+
+		return image;
+		#else
+		return null;
+		#end
+	}
+
+	/**
+		Returns a temporary copy of the SVG at `path` with `width` and `height` taken from its
+		`viewBox`, or null when the root sets either one or has no usable `viewBox`.
+	**/
+	private static function sizeFromViewBox(path:String):String
+	{
+		try
+		{
+			var xml = Xml.parse(File.getContent(path));
+			var root = xml.firstElement();
+			if (root == null || root.get("width") != null || root.get("height") != null) return null;
+
+			var viewBox = root.get("viewBox");
+			if (viewBox == null) return null;
+
+			var values = [for (value in ~/[\s,]+/g.split(StringTools.trim(viewBox))) Std.parseFloat(value)];
+			if (values.length != 4 || Math.isNaN(values[2]) || Math.isNaN(values[3]) || values[2] <= 0 || values[3] <= 0) return null;
+
+			root.set("width", Std.string(values[2]));
+			root.set("height", Std.string(values[3]));
+
+			var sized = System.getTemporaryFile(".svg");
+			File.saveContent(sized, xml.toString());
+			return sized;
+		}
+		catch (e:Dynamic)
+		{
+			return null;
+		}
+	}
+
+	private static function rasterizeSVGFile(path:String, width:Int, height:Int,
+			backgroundColor:Int = null):#if (lime && lime_cffi && !macro) Image #else Dynamic #end
+	{
+		#if (lime && lime_cffi && !macro)
 		var temp = System.getTemporaryFile(".png");
 
 		try

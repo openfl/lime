@@ -79,8 +79,7 @@ abstract ARGB(#if (flash && !lime_doc_gen) Int #else UInt #end) from Int to Int 
 		}
 		else if (a != 0xFF)
 		{
-			a16 = RGBA.__alpha16[a];
-			set(a, (r * a16) >> 16, (g * a16) >> 16, (b * a16) >> 16);
+			set(a, RGBA.__multiply(r, a), RGBA.__multiply(g, a), RGBA.__multiply(b, a));
 		}
 	}
 
@@ -96,13 +95,13 @@ abstract ARGB(#if (flash && !lime_doc_gen) Int #else UInt #end) from Int to Int 
 		switch (format)
 		{
 			case BGRA32:
-				set(data[offset + 1], data[offset], data[offset + 3], data[offset + 2]);
+				set(data[offset + 3], data[offset + 2], data[offset + 1], data[offset]);
 
 			case RGBA32:
-				set(data[offset + 1], data[offset + 2], data[offset + 3], data[offset]);
+				set(data[offset + 3], data[offset], data[offset + 1], data[offset + 2]);
 
 			case ARGB32:
-				set(data[offset + 2], data[offset + 3], data[offset], data[offset + 1]);
+				set(data[offset], data[offset + 1], data[offset + 2], data[offset + 3]);
 		}
 
 		if (premultiplied)
@@ -130,8 +129,7 @@ abstract ARGB(#if (flash && !lime_doc_gen) Int #else UInt #end) from Int to Int 
 	{
 		if (a != 0 && a != 0xFF)
 		{
-			unmult = 255.0 / a;
-			set(a, RGBA.__clamp[Math.floor(r * unmult)], RGBA.__clamp[Math.floor(g * unmult)], RGBA.__clamp[Math.floor(b * unmult)]);
+			set(a, RGBA.__unmultiply(r, a), RGBA.__unmultiply(g, a), RGBA.__unmultiply(b, a));
 		}
 	}
 
@@ -144,30 +142,33 @@ abstract ARGB(#if (flash && !lime_doc_gen) Int #else UInt #end) from Int to Int 
 	**/
 	public inline function writeUInt8(data:UInt8Array, offset:Int, format:PixelFormat = RGBA32, premultiplied:Bool = false):Void
 	{
+		// A copy, so that writing leaves the color as it was
+		var color:ARGB = this;
+
 		if (premultiplied)
 		{
-			multiplyAlpha();
+			color.multiplyAlpha();
 		}
 
 		switch (format)
 		{
 			case BGRA32:
-				data[offset] = b;
-				data[offset + 1] = g;
-				data[offset + 2] = r;
-				data[offset + 3] = a;
+				data[offset] = color.b;
+				data[offset + 1] = color.g;
+				data[offset + 2] = color.r;
+				data[offset + 3] = color.a;
 
 			case RGBA32:
-				data[offset] = r;
-				data[offset + 1] = g;
-				data[offset + 2] = b;
-				data[offset + 3] = a;
+				data[offset] = color.r;
+				data[offset + 1] = color.g;
+				data[offset + 2] = color.b;
+				data[offset + 3] = color.a;
 
 			case ARGB32:
-				data[offset] = a;
-				data[offset + 1] = r;
-				data[offset + 2] = g;
-				data[offset + 3] = b;
+				data[offset] = color.a;
+				data[offset + 1] = color.r;
+				data[offset + 2] = color.g;
+				data[offset + 3] = color.b;
 		}
 	}
 

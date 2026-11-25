@@ -98,6 +98,10 @@ class NativeOpenGLRenderContext
 	public var DEPTH_TEST = 0x0B71;
 	public var SCISSOR_TEST = 0x0C11;
 	public var POLYGON_OFFSET_FILL = 0x8037;
+	public var POINT = 0x1B00;
+	public var LINE = 0x1B01;
+	public var FILL = 0x1B02;
+	public var POLYGON_MODE = 0x0B40;
 	public var SAMPLE_ALPHA_TO_COVERAGE = 0x809E;
 	public var SAMPLE_COVERAGE = 0x80A0;
 	public var NO_ERROR = 0;
@@ -957,6 +961,15 @@ class NativeOpenGLRenderContext
 	{
 		#if (lime_cffi && (lime_opengl || lime_opengles) && !macro)
 		NativeCFFI.lime_gl_copy_buffer_sub_data(readTarget, writeTarget, readOffset, writeOffset, size);
+		#end
+	}
+
+	public function copyImageSubData(srcName:GLTexture, srcTarget:Int, srcLevel:Int, srcX:Int, srcY:Int, srcZ:Int, dstName:GLTexture, dstTarget:Int,
+			dstLevel:Int, dstX:Int, dstY:Int, dstZ:Int, srcWidth:Int, srcHeight:Int, srcDepth:Int):Void
+	{
+		#if (lime_cffi && (lime_opengl || lime_opengles) && !macro)
+		NativeCFFI.lime_gl_copy_image_sub_data(__getObjectID(srcName), srcTarget, srcLevel, srcX, srcY, srcZ, __getObjectID(dstName), dstTarget, dstLevel,
+			dstX, dstY, dstZ, srcWidth, srcHeight, srcDepth);
 		#end
 	}
 
@@ -2109,6 +2122,13 @@ class NativeOpenGLRenderContext
 					}
 				}
 			}
+
+			#if emscripten
+			if (__supportedExtensions.indexOf("EXT_texture_format_BGRA8888") < 0)
+			{
+				__supportedExtensions.push("EXT_texture_format_BGRA8888");
+			}
+			#end
 		}
 
 		return __supportedExtensions;
@@ -2206,9 +2226,40 @@ class NativeOpenGLRenderContext
 		#end
 	}
 
+	// getActiveUniform takes an index, not a location, and drivers choose the
+	// locations, so this finds the active uniform, or the element of an array
+	// uniform, that has the location
+	@:noCompletion private function __getActiveUniformAt(program:GLProgram, location:GLUniformLocation):GLActiveInfo
+	{
+		var count:Int = getProgramParameter(program, GL.ACTIVE_UNIFORMS);
+
+		for (i in 0...count)
+		{
+			var info = getActiveUniform(program, i);
+			if (info == null) continue;
+
+			if (info.size > 1 && StringTools.endsWith(info.name, "[0]"))
+			{
+				var name = info.name.substr(0, info.name.length - 3);
+
+				for (j in 0...info.size)
+				{
+					if (getUniformLocation(program, name + "[" + j + "]") == location) return info;
+				}
+			}
+			else if (getUniformLocation(program, info.name) == location)
+			{
+				return info;
+			}
+		}
+
+		return null;
+	}
+
 	public function getUniform(program:GLProgram, location:GLUniformLocation):Dynamic
 	{
-		var info = getActiveUniform(program, location);
+		var info = __getActiveUniformAt(program, location);
+		if (info == null) return null;
 
 		var bools = 0;
 		var ints = 0;
@@ -2243,21 +2294,21 @@ class NativeOpenGLRenderContext
 			case GL.FLOAT_MAT2:
 				floats = 4;
 			case GL.FLOAT_MAT2x3:
-				floats = 12;
+				floats = 6;
 			case GL.FLOAT_MAT2x4:
-				floats = 16;
+				floats = 8;
 			case GL.FLOAT_MAT3:
 				floats = 9;
 			case GL.FLOAT_MAT3x2:
-				floats = 18;
+				floats = 6;
 			case GL.FLOAT_MAT3x4:
-				floats = 36;
+				floats = 12;
 			case GL.FLOAT_MAT4:
 				floats = 16;
 			case GL.FLOAT_MAT4x2:
-				floats = 32;
+				floats = 8;
 			case GL.FLOAT_MAT4x3:
-				floats = 48;
+				floats = 12;
 			case GL.SAMPLER_2D, GL.SAMPLER_3D, GL.SAMPLER_CUBE, GL.SAMPLER_2D_SHADOW:
 				ints = 1;
 			default:
@@ -2278,14 +2329,15 @@ class NativeOpenGLRenderContext
 		}
 		else if (bools > 0)
 		{
-			var params = Bytes.alloc(bools);
+			// GL writes an int for each
+			var params = new Int32Array(bools);
 			getUniformiv(program, location, params);
 
 			var data = new Array<Bool>();
 
 			for (i in 0...bools)
 			{
-				data[i] = params.get(i) != 0;
+				data[i] = params[i] != 0;
 			}
 
 			return data;
@@ -2609,6 +2661,13 @@ class NativeOpenGLRenderContext
 	{
 		#if (lime_cffi && (lime_opengl || lime_opengles) && !macro)
 		NativeCFFI.lime_gl_line_width(width);
+		#end
+	}
+
+	public function polygonMode(face:Int, mode:Int):Void
+	{
+		#if (lime_cffi && lime_opengl && !macro)
+		if (type == OPENGL) NativeCFFI.lime_gl_polygon_mode(face, mode);
 		#end
 	}
 

@@ -13,6 +13,7 @@ namespace lime {
 		public:
 
 			static std::string* GetSystemLocale ();
+			static std::string* GetPreferredLocales ();
 
 
 	};

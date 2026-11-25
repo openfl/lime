@@ -4,6 +4,8 @@
 
 #define HL_NAME(n) lime_##n
 #include <hl.h>
+// avoid conflicts with windows.h use of _GUID
+#undef _GUID
 #undef DEFINE_PRIM
 #define DEFINE_HL_PRIM(t, name, args) DEFINE_PRIM_WITH_NAME(t, name, args, name)
 

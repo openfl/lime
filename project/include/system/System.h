@@ -34,6 +34,7 @@ namespace lime {
 			static std::wstring* GetDeviceModel ();
 			static std::wstring* GetDeviceVendor ();
 			static std::wstring* GetDirectory (SystemDirectory type, const char* company, const char* title);
+			static double GetAvailableSpace (const char* path);
 			static void* GetDisplay (bool useCFFIValue, int id);
 			#ifdef IPHONE
 			static std::wstring* GetIOSDirectory (SystemDirectory type);
@@ -41,6 +42,7 @@ namespace lime {
 			#endif
 			static int GetNumDisplays ();
 			static int GetDeviceOrientation ();
+			static bool GetSecureRandomBytes (unsigned char* data, int length);
 			static std::wstring* GetPlatformLabel ();
 			static std::wstring* GetPlatformName ();
 			static std::wstring* GetPlatformVersion ();
@@ -48,6 +50,12 @@ namespace lime {
 			#if defined(HX_WINDOWS) && !defined (HX_WINRT)
 			static int GetWindowsConsoleMode (int handleType);
 			#endif
+			static bool IsSymbolicLink (const char* path);
+			// Through native-desktop, where Lime has it; any thread may call it
+			static bool MoveToTrash (const char* path);
+			// Through native-desktop, where Lime has it. Each volume is its root directory, name, file system type,
+			// drive, and 1 or 0 for removable and writable, separated by 0x1F, with 0x1E after each volume.
+			static bool GetStorageVolumes (std::string* volumes);
 			static void OpenFile (const char* path);
 			static void OpenURL (const char* url, const char* target);
 			static bool SetAllowScreenTimeout (bool allow);
@@ -90,7 +98,7 @@ namespace lime {
 }
 
 
-#ifndef HX_WINDOWS
+#if !defined(HX_WINDOWS) || defined(__MINGW32__)
 #include <stdint.h>
 #else
 

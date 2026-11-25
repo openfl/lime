@@ -9,6 +9,14 @@ import lime.system.JNI;
 abstract Locale(String) from String to String
 {
 	@:isVar public static var currentLocale(get, set):Locale;
+
+	/**
+		The languages the user prefers, most preferred first, such as `en-US` or
+		`fr`. It is read each time, as the user can change it while the
+		application runs, and is empty where the platform doesn't say.
+	**/
+	public static var preferredLocales(get, never):Array<Locale>;
+
 	public static var systemLocale(get, never):Locale;
 	private static var __systemLocale:Locale;
 
@@ -45,6 +53,11 @@ abstract Locale(String) from String to String
 	}
 
 	#if hl
+	@:hlNative("lime", "hl_locale_get_preferred_locales") private static function lime_locale_get_preferred_locales():hl.Bytes
+	{
+		return null;
+	}
+
 	@:hlNative("lime", "hl_locale_get_system_locale") private static function lime_locale_get_system_locale():hl.Bytes
 	{
 		return null;
@@ -161,6 +174,46 @@ abstract Locale(String) from String to String
 		__init();
 
 		return currentLocale = value;
+	}
+
+	private static function get_preferredLocales():Array<Locale>
+	{
+		var locales:Array<Locale> = [];
+
+		#if flash
+		#if air
+		for (language in Capabilities.languages)
+		{
+			locales.push(language);
+		}
+		#else
+		locales.push(Capabilities.language);
+		#end
+		#elseif (js && html5)
+		var languages:Array<String> = untyped navigator.languages;
+		if (languages == null) languages = [untyped navigator.language];
+
+		for (language in languages)
+		{
+			if (language != null) locales.push(language);
+		}
+		#elseif (lime_cffi && !macro)
+		#if hl
+		var list = CFFI.stringValue(lime_locale_get_preferred_locales());
+		#else
+		var list:String = CFFI.load("lime", "lime_locale_get_preferred_locales", 0)();
+		#end
+
+		if (list != null && list != "")
+		{
+			for (language in list.split(","))
+			{
+				locales.push(language);
+			}
+		}
+		#end
+
+		return locales;
 	}
 
 	private static function get_systemLocale():Locale

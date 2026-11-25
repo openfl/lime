@@ -3,6 +3,12 @@ package lime._internal.backend.native;
 import haxe.Timer;
 import lime._internal.backend.native.NativeCFFI;
 import lime.app.Application;
+import lime.app.BusyWaitMode;
+import lime.app.FrameOptions;
+import lime.app.FrameProfile;
+import lime.app.TimePrecision;
+import lime.app.UncapMode;
+import lime.app.VSyncMode;
 import lime.graphics.opengl.GL;
 import lime.graphics.OpenGLRenderContext;
 import lime.graphics.RenderContext;
@@ -17,17 +23,33 @@ import lime.system.Orientation;
 import lime.system.Sensor;
 import lime.system.SensorType;
 import lime.system.System;
+import lime.ui.DragData;
+import lime.ui.DropAction;
 import lime.ui.Gamepad;
 import lime.ui.Joystick;
 import lime.ui.JoystickHatPosition;
 import lime.ui.KeyCode;
 import lime.ui.KeyModifier;
+import lime.ui.Menu;
+import lime.ui.MenuItem;
 import lime.ui.Touch;
 import lime.ui.Window;
 
 #if !lime_debug
 @:fileXml('tags="haxe,release"')
 @:noDebug
+#end
+#if android
+// 64-bit devices with 16 KB pages need the application's LOAD segments aligned to 16 KB.
+// NDK r28 and later do that by default, and hxcpp 4.3.2 doesn't ask older ones to. The NDK
+// is found before the toolchain is read, as in project/Build.xml, to know its version here.
+@:buildXml('
+<setup name="androidNdk" />
+<linker id="dll" unless="NDKV28+">
+	<flag value="-Wl,-z,max-page-size=16384" if="HXCPP_ARM64 || HXCPP_X86_64" />
+	<flag value="-Wl,-z,common-page-size=16384" if="HXCPP_ARM64 || HXCPP_X86_64" />
+</linker>
+')
 #end
 @:access(haxe.Timer)
 @:access(lime._internal.backend.native.NativeCFFI)
@@ -39,34 +61,66 @@ import lime.ui.Window;
 @:access(lime.graphics.Renderer)
 @:access(lime.system.Clipboard)
 @:access(lime.system.Sensor)
+@:access(lime.system.System)
+@:access(lime.ui.DragData)
 @:access(lime.ui.Gamepad)
 @:access(lime.ui.Joystick)
+@:access(lime.ui.MenuItem)
 @:access(lime.ui.Window)
 class NativeApplication
 {
 	private var applicationEventInfo = new ApplicationEventInfo(UPDATE);
 	private var clipboardEventInfo = new ClipboardEventInfo();
 	private var currentTouches = new Map<Int, Touch>();
+	private var dragEventInfo = new DragEventInfo();
 	private var dropEventInfo = new DropEventInfo();
 	private var gamepadEventInfo = new GamepadEventInfo();
 	private var joystickEventInfo = new JoystickEventInfo();
 	private var keyEventInfo = new KeyEventInfo();
+	private var localSocketEventInfo = new LocalSocketEventInfo();
+	private var menuEventInfo = new MenuEventInfo();
 	private var orientationEventInfo = new OrientationEventInfo();
+
+	/**
+		Whether a window allows high DPI, which Windows is told as the application
+		is created, before any window is. Set by ApplicationMain.
+	**/
+	@:noCompletion private static var __allowHighDPI:Bool = false;
+
+	// TODO: Fold these update hooks into one list when a third subsystem needs one
+	/**
+		Reads and writes every WebSocket, once a frame. Set by NativeWebSocket
+		once there is one, so an application without any compiles none of it.
+	**/
+	@:noCompletion private static var __updateWebSockets:Void->Void = null;
+
+	/**
+		Delivers what every WebView reported, once a frame. Set by NativeWebView
+		once there is one, so an application without any compiles none of it.
+	**/
+	@:noCompletion private static var __updateWebViews:Void->Void = null;
+	// Called in the time left before a frame is due
+	@:noCompletion private var __idleCallback:Void->Void;
 	private var mouseEventInfo = new MouseEventInfo();
 	private var renderEventInfo = new RenderEventInfo(RENDER);
 	private var sensorEventInfo = new SensorEventInfo();
 	private var textEventInfo = new TextEventInfo();
 	private var touchEventInfo = new TouchEventInfo();
+	private var trayIconEventInfo = new TrayIconEventInfo();
 	private var unusedTouchesPool = new List<Touch>();
 	private var windowEventInfo = new WindowEventInfo();
+	#if (!macro && lime_cffi && windows && !winrt)
+	private var modalException:Dynamic;
+	private var modalExceptionPending = false;
+	#end
 
 	public var handle:Dynamic;
 
 	#if android
 	private var deviceOrientationListener:OrientationChangeListener;
 	#end
-
-	private var pauseTimer:Int;
+	private var menuItems:Array<MenuItem>;
+	private var pauseTimer:Float;
 	private var parent:Application;
 	private var toggleFullscreen:Bool;
 
@@ -82,22 +136,23 @@ class NativeApplication
 		this.parent = parent;
 		pauseTimer = -1;
 		toggleFullscreen = true;
-
 		AudioManager.init();
 
 		#if (ios || android || tvos)
 		Sensor.registerSensor(SensorType.ACCELEROMETER, 0);
 		#end
-
 		#if android
 		var setDeviceOrientationListener = JNI.createStaticMethod("org/haxe/lime/GameActivity", "setDeviceOrientationListener",
 			"(Lorg/haxe/lime/HaxeObject;)V");
 		deviceOrientationListener = new OrientationChangeListener(handleJNIOrientationEvent);
 		setDeviceOrientationListener(deviceOrientationListener);
 		#end
-
 		#if (!macro && lime_cffi)
+		if (__allowHighDPI) NativeCFFI.lime_application_allow_high_dpi();
 		handle = NativeCFFI.lime_application_create();
+		#if (cpp && libhxcpp && HXCPP_GC_INCREMENTAL && !no_idle_gc)
+		__setIdleCallback(__stepCollector);
+		#end
 		#end
 	}
 
@@ -106,7 +161,7 @@ class NativeApplication
 		#if (lime_cffi && !macro)
 		if (pauseTimer > -1)
 		{
-			var offset = System.getTimer() - pauseTimer;
+			var offset = System.__getTimer() - pauseTimer;
 			for (timer in Timer.sRunningTimers)
 			{
 				if (timer.mRunning) timer.mFireAt += offset;
@@ -122,26 +177,36 @@ class NativeApplication
 		#if lime_cffi
 		NativeCFFI.lime_application_event_manager_register(handleApplicationEvent, applicationEventInfo);
 		NativeCFFI.lime_clipboard_event_manager_register(handleClipboardEvent, clipboardEventInfo);
+		NativeCFFI.lime_drag_event_manager_register(handleDragEvent, dragEventInfo);
 		NativeCFFI.lime_drop_event_manager_register(handleDropEvent, dropEventInfo);
 		NativeCFFI.lime_gamepad_event_manager_register(handleGamepadEvent, gamepadEventInfo);
 		NativeCFFI.lime_joystick_event_manager_register(handleJoystickEvent, joystickEventInfo);
 		NativeCFFI.lime_key_event_manager_register(handleKeyEvent, keyEventInfo);
+		NativeCFFI.lime_local_socket_event_manager_register(handleLocalSocketEvent, localSocketEventInfo);
+		NativeCFFI.lime_menu_event_manager_register(handleMenuEvent, menuEventInfo);
+		NativeMenu.init();
 		NativeCFFI.lime_mouse_event_manager_register(handleMouseEvent, mouseEventInfo);
 		NativeCFFI.lime_render_event_manager_register(handleRenderEvent, renderEventInfo);
+
 		NativeCFFI.lime_text_event_manager_register(handleTextEvent, textEventInfo);
 		NativeCFFI.lime_touch_event_manager_register(handleTouchEvent, touchEventInfo);
+		NativeCFFI.lime_tray_icon_event_manager_register(handleTrayIconEvent, trayIconEventInfo);
 		NativeCFFI.lime_window_event_manager_register(handleWindowEvent, windowEventInfo);
-		#if (ios || android)
-		NativeCFFI.lime_orientation_event_manager_register(handleOrientationEvent, orientationEventInfo);
+		#if (windows && !winrt)
+		NativeCFFI.lime_application_set_modal_callbacks(handle,
+			function() runModalCallback(handleApplicationEvent),
+			function() runModalCallback(handleRenderEvent),
+			function() runModalCallback(handleWindowEvent), rethrowModalException);
 		#end
+
+		// Also carries the display connect, disconnect and move events of desktop targets
+		NativeCFFI.lime_orientation_event_manager_register(handleOrientationEvent, orientationEventInfo);
 		#if (ios || android || tvos)
 		NativeCFFI.lime_sensor_event_manager_register(handleSensorEvent, sensorEventInfo);
 		#end
 		#end
-
 		#if (nodejs && lime_cffi)
 		NativeCFFI.lime_application_init(handle);
-
 		var eventLoop = function()
 		{
 			var active = NativeCFFI.lime_application_update(handle);
@@ -156,7 +221,6 @@ class NativeApplication
 				untyped setImmediate(eventLoop);
 			}
 		}
-
 		untyped setImmediate(eventLoop);
 		return 0;
 		#elseif lime_cffi
@@ -169,14 +233,14 @@ class NativeApplication
 		return result;
 		#end
 		#end
-
 		return 0;
 	}
 
 	public function exit():Void
 	{
+		// Tray icons would otherwise remain in the notification area on some platforms
+		NativeTrayIcon.closeAll();
 		AudioManager.shutdown();
-
 		#if (!macro && lime_cffi)
 		NativeCFFI.lime_application_quit(handle);
 		#end
@@ -191,6 +255,70 @@ class NativeApplication
 		#end
 	}
 
+	public function configureFrameTiming(profile:FrameProfile, frameRate:Float, options:FrameOptions):Void
+	{
+		#if (!macro && lime_cffi)
+		NativeCFFI.lime_application_set_main_loop(handle, __convertFrameProfile(profile), frameRate, __convertTimePrecision(options.timePrecision),
+			__convertBusyWaitMode(options.busyWait), __convertUncapMode(options.uncapMode));
+		var backgroundFrameRate:Null<Float> = Reflect.hasField(options, "backgroundFrameRate") ? options.backgroundFrameRate : null;
+		NativeCFFI.lime_application_set_background_frame_rate(handle, backgroundFrameRate != null ? backgroundFrameRate : 30);
+		#end
+	}
+
+	public function setMenu(menu:Menu):Void
+	{
+		#if (!macro && lime_cffi)
+		if (handle == null) return;
+
+		if (menu != null)
+		{
+			var items = NativeMenu.newItems(NativeMenu.SOURCE_APPLICATION, 0, menu);
+			var data = NativeMenu.encode(menu, items);
+			menuItems = NativeCFFI.lime_application_set_menu(handle, data) ? items : null;
+		}
+		else
+		{
+			NativeCFFI.lime_application_set_menu(handle, null);
+			menuItems = null;
+		}
+
+		NativeMenu.setInstalled(NativeMenu.SOURCE_APPLICATION, 0, menuItems != null ? menu : null, menuItems);
+		#end
+	}
+
+	public function setVSyncMode(mode:VSyncMode):Void
+	{
+		#if (!macro && lime_cffi)
+		NativeCFFI.lime_application_set_vsync_mode(handle, __convertVSyncMode(mode));
+		#end
+	}
+
+	#if (!macro && lime_cffi && windows && !winrt)
+	private function runModalCallback(callback:Void->Void):Void
+	{
+		if (modalExceptionPending) return;
+		try
+		{
+			callback();
+		}
+		catch (exception:Dynamic)
+		{
+			// Keep the value rooted in Haxe; do not unwind through SDL/Win32.
+			modalException = exception;
+			modalExceptionPending = true;
+			NativeCFFI.lime_application_defer_modal_exception(handle);
+		}
+	}
+
+	private function rethrowModalException():Void
+	{
+		var exception = modalException;
+		modalException = null;
+		modalExceptionPending = false;
+		throw exception;
+	}
+	#end
+
 	private function handleApplicationEvent():Void
 	{
 		switch (applicationEventInfo.type)
@@ -198,46 +326,255 @@ class NativeApplication
 			case UPDATE:
 				updateTimer();
 
-				parent.onUpdate.dispatch(applicationEventInfo.deltaTime);
+				// WebSockets are read and written once a frame, once there are any
+				if (__updateWebSockets != null) __updateWebSockets();
+				if (__updateWebViews != null) __updateWebViews();
 
+				parent.onUpdate.dispatch(applicationEventInfo.deltaTime);
+			case IDLE:
+				if (__idleCallback != null) __idleCallback();
 			default:
 		}
 	}
+
+	// The time SDL took an input, on the clock of System.getTimer(). SDL's clock is
+	// that clock already, but -Dsimulate_uptime moves getTimer() on, so the input
+	// times move with it, wrapping as getTimer() does
+	private static inline function __inputTime(timestamp:Int):Int
+	{
+		#if (simulate_uptime && !macro)
+		var time = (timestamp < 0 ? timestamp + 4294967296.0 : timestamp) + Std.parseFloat(haxe.macro.Compiler.getDefine("simulate_uptime"));
+		time = time % 4294967296.0;
+		return Std.int(time < 2147483648.0 ? time : time - 4294967296.0);
+		#else
+		return timestamp;
+		#end
+	}
+
+	private function __setIdleCallback(callback:Void->Void):Void
+	{
+		__idleCallback = callback;
+
+		#if (!macro && lime_cffi)
+		NativeCFFI.lime_application_set_idle_events(handle, callback != null);
+		#end
+	}
+
+	#if (cpp && libhxcpp && HXCPP_GC_INCREMENTAL && !no_idle_gc)
+	private function __stepCollector():Void
+	{
+		// With no cycle to advance, a step would start one
+		if (hxcpp.gc.Incremental.isActive()) hxcpp.gc.Incremental.step();
+	}
+	#end
 
 	private function handleClipboardEvent():Void
 	{
 		Clipboard.__update();
 	}
 
+	private inline function __convertBusyWaitMode(value:BusyWaitMode):Int
+	{
+		return switch (value)
+		{
+			case OFF: 1;
+			case ON: 2;
+
+			default: 0;
+		};
+	}
+
+	private inline function __convertFrameProfile(value:FrameProfile):Int
+	{
+		return switch (value)
+		{
+			case PRECISION: 1;
+			case LOW_ENERGY: 2;
+			case UNCAPPED: 3;
+
+			default: 0;
+		};
+	}
+
+	private inline function __convertTimePrecision(value:TimePrecision):Int
+	{
+		return switch (value)
+		{
+			case MILLISECOND: 1;
+
+			case HIGH_RESOLUTION: 2;
+			default: 0;
+		};
+	}
+
+	private inline function __convertUncapMode(value:UncapMode):Int
+	{
+		return switch (value)
+		{
+			case SOFT: 1;
+			case HARD: 2;
+			default: 0;
+		};
+	}
+
+	private inline function __convertVSyncMode(value:VSyncMode):Int
+	{
+		return switch (value)
+		{
+			case ON: 1;
+			case ADAPTIVE: 2;
+			case AUTO: 3;
+			default: 0;
+		};
+	}
+
+	// Dispatched while the system waits for the action a drop would take, which is read back from dragEventInfo
+	private function handleDragEvent():Void
+	{
+		var info = dragEventInfo;
+
+		if (info.type == DRAG_COMPLETE)
+		{
+			// A drag out ended, with the ID it started with
+			var promise = NativeWindow.dragPromises.get(info.windowID);
+
+			if (promise != null)
+			{
+				NativeWindow.dragPromises.remove(info.windowID);
+				promise.complete(info.action);
+			}
+
+			return;
+		}
+
+		var window = parent.__windowByID.get(info.windowID);
+		var allowedActions:DropAction = info.allowedActions;
+		info.action = DropAction.NONE;
+		if (window == null) return;
+
+		switch (info.type)
+		{
+			case DRAG_ENTER:
+				window.dropAction = DropAction.NONE;
+
+				var data = DragData.__fromSystem(allowedActions);
+				window.onDragEnter.dispatch(data, info.x, info.y);
+				data.__active = false;
+
+			case DRAG_OVER:
+				window.onDragOver.dispatch(info.x, info.y);
+
+			case DRAG_LEAVE:
+				window.onDragLeave.dispatch();
+				return;
+
+			case DRAG_DROP:
+				var data = DragData.__fromSystem(allowedActions);
+				window.onDrop.dispatch(data, info.x, info.y);
+
+				if ((window.dropAction : Int) & (allowedActions : Int) != 0)
+				{
+					// The window takes drops in place of SDL, so its file and text drops are dispatched from here
+					var files:Array<String> = data.getData(FILE_LIST);
+					var text:String = files == null || files.length == 0 ? data.getData(TEXT) : null;
+
+					if ((files != null && files.length > 0) || text != null)
+					{
+						window.onDropStart.dispatch();
+
+						if (files != null && files.length > 0)
+						{
+							for (file in files)
+							{
+								window.onDropFile.dispatch(file);
+							}
+						}
+						else
+						{
+							window.onDropText.dispatch(text);
+						}
+
+						window.onDropEnd.dispatch();
+					}
+				}
+
+				data.__active = false;
+
+			default:
+		}
+
+		info.action = (window.dropAction : Int) & (allowedActions : Int);
+	}
+
 	private function handleDropEvent():Void
 	{
-		for (window in parent.windows)
+		var text = CFFI.stringValue(dropEventInfo.file);
+		var window = parent.__windowByID.get(dropEventInfo.windowID);
+
+		if (window != null)
 		{
-			window.onDropFile.dispatch(CFFI.stringValue(dropEventInfo.file));
+			dispatchDropEvent(window, dropEventInfo.type, text);
+		}
+		else
+		{
+			// SDL doesn't always know the window, as for a file dropped on the application's icon
+			for (window in parent.windows)
+			{
+				dispatchDropEvent(window, dropEventInfo.type, text);
+			}
+		}
+	}
+
+	private function dispatchDropEvent(window:Window, type:DropEventType, text:String):Void
+	{
+		switch (type)
+		{
+			case DROP_TEXT:
+				window.onDropText.dispatch(text);
+			case DROP_BEGIN:
+				window.onDropStart.dispatch();
+			case DROP_COMPLETE:
+				window.onDropEnd.dispatch();
+			default:
+				window.onDropFile.dispatch(text);
 		}
 	}
 
 	private function handleGamepadEvent():Void
 	{
 		switch (gamepadEventInfo.type)
+
 		{
 			case AXIS_MOVE:
 				var gamepad = Gamepad.devices.get(gamepadEventInfo.id);
-				if (gamepad != null) gamepad.onAxisMove.dispatch(gamepadEventInfo.axis, gamepadEventInfo.axisValue);
-
+				if (gamepad != null) @:privateAccess gamepad.onAxisMove.__dispatchWithTimestamp(__inputTime(gamepadEventInfo.timestamp), gamepadEventInfo.axis,
+					gamepadEventInfo.axisValue);
 			case BUTTON_DOWN:
 				var gamepad = Gamepad.devices.get(gamepadEventInfo.id);
-				if (gamepad != null) gamepad.onButtonDown.dispatch(gamepadEventInfo.button);
-
+				if (gamepad != null) @:privateAccess gamepad.onButtonDown.__dispatchWithTimestamp(__inputTime(gamepadEventInfo.timestamp), gamepadEventInfo.button);
 			case BUTTON_UP:
 				var gamepad = Gamepad.devices.get(gamepadEventInfo.id);
-				if (gamepad != null) gamepad.onButtonUp.dispatch(gamepadEventInfo.button);
-
+				if (gamepad != null) @:privateAccess gamepad.onButtonUp.__dispatchWithTimestamp(__inputTime(gamepadEventInfo.timestamp), gamepadEventInfo.button);
 			case CONNECT:
 				Gamepad.__connect(gamepadEventInfo.id);
 
 			case DISCONNECT:
 				Gamepad.__disconnect(gamepadEventInfo.id);
+
+			case SENSOR_UPDATE:
+				// The sensor comes in axis, and its readings in x, y and z
+				var gamepad = Gamepad.devices.get(gamepadEventInfo.id);
+				if (gamepad != null) @:privateAccess gamepad.onSensorUpdate.__dispatchWithTimestamp(__inputTime(gamepadEventInfo.timestamp), gamepadEventInfo.axis,
+					gamepadEventInfo.x, gamepadEventInfo.y, gamepadEventInfo.z);
+
+			case TOUCHPAD_DOWN, TOUCHPAD_MOVE, TOUCHPAD_UP:
+				// The finger comes in button, and where it is in x and y
+				var gamepad = Gamepad.devices.get(gamepadEventInfo.id);
+				if (gamepad != null)
+				{
+					var event = gamepadEventInfo.type == TOUCHPAD_DOWN ? gamepad.onTouchpadDown : (gamepadEventInfo.type == TOUCHPAD_MOVE ? gamepad.onTouchpadMove : gamepad.onTouchpadUp);
+					@:privateAccess event.__dispatchWithTimestamp(__inputTime(gamepadEventInfo.timestamp), gamepadEventInfo.button, gamepadEventInfo.x, gamepadEventInfo.y);
+				}
 		}
 	}
 
@@ -248,7 +585,6 @@ class NativeApplication
 			case AXIS_MOVE:
 				var joystick = Joystick.devices.get(joystickEventInfo.id);
 				if (joystick != null) joystick.onAxisMove.dispatch(joystickEventInfo.index, joystickEventInfo.x);
-
 			case HAT_MOVE:
 				var joystick = Joystick.devices.get(joystickEventInfo.id);
 				if (joystick != null) joystick.onHatMove.dispatch(joystickEventInfo.index, joystickEventInfo.eventValue);
@@ -256,14 +592,11 @@ class NativeApplication
 			case BUTTON_DOWN:
 				var joystick = Joystick.devices.get(joystickEventInfo.id);
 				if (joystick != null) joystick.onButtonDown.dispatch(joystickEventInfo.index);
-
 			case BUTTON_UP:
 				var joystick = Joystick.devices.get(joystickEventInfo.id);
 				if (joystick != null) joystick.onButtonUp.dispatch(joystickEventInfo.index);
-
 			case CONNECT:
 				Joystick.__connect(joystickEventInfo.id);
-
 			case DISCONNECT:
 				Joystick.__disconnect(joystickEventInfo.id);
 		}
@@ -272,10 +605,10 @@ class NativeApplication
 	private function handleKeyEvent():Void
 	{
 		var window = parent.__windowByID.get(keyEventInfo.windowID);
-
 		if (window != null)
 		{
 			var type:KeyEventType = keyEventInfo.type;
+
 			var int32:Float = keyEventInfo.keyCode;
 			var keyCode:KeyCode = Std.int(int32);
 			var modifier:KeyModifier = keyEventInfo.modifier;
@@ -283,10 +616,11 @@ class NativeApplication
 			switch (type)
 			{
 				case KEY_DOWN:
-					window.onKeyDown.dispatch(keyCode, modifier);
-
+					// Key equivalents of the menu bar take priority, like native accelerators
+					if (window.__backend.handleMenuKeyEquivalent(keyCode, modifier)) return;
+					@:privateAccess window.onKeyDown.__dispatchWithTimestamp(__inputTime(keyEventInfo.timestamp), keyCode, modifier);
 				case KEY_UP:
-					window.onKeyUp.dispatch(keyCode, modifier);
+					@:privateAccess window.onKeyUp.__dispatchWithTimestamp(__inputTime(keyEventInfo.timestamp), keyCode, modifier);
 			}
 
 			#if (windows || linux)
@@ -297,7 +631,6 @@ class NativeApplication
 					if (toggleFullscreen && modifier.altKey && (!modifier.ctrlKey && !modifier.shiftKey && !modifier.metaKey))
 					{
 						toggleFullscreen = false;
-
 						if (!window.onKeyDown.canceled)
 						{
 							window.fullscreen = !window.fullscreen;
@@ -324,7 +657,6 @@ class NativeApplication
 					if (toggleFullscreen && (modifier.ctrlKey && modifier.metaKey) && (!modifier.altKey && !modifier.shiftKey))
 					{
 						toggleFullscreen = false;
-
 						if (!window.onKeyDown.canceled)
 						{
 							window.fullscreen = !window.fullscreen;
@@ -341,10 +673,69 @@ class NativeApplication
 			{
 				var mainActivity = JNI.createStaticField("org/haxe/extension/Extension", "mainActivity", "Landroid/app/Activity;");
 				var moveTaskToBack = JNI.createMemberMethod("android/app/Activity", "moveTaskToBack", "(Z)Z");
-
 				moveTaskToBack(mainActivity.get(), true);
 			}
 			#end
+		}
+	}
+
+	private function handleLocalSocketEvent():Void
+	{
+		switch (localSocketEventInfo.type)
+		{
+			case LOCAL_SOCKET_ACCEPT:
+				var server = NativeLocalServer.getServer(localSocketEventInfo.id);
+				if (server != null) server.handleAccept();
+
+			case LOCAL_SOCKET_CLOSE:
+				var socket = NativeLocalSocket.getSocket(localSocketEventInfo.id);
+				if (socket != null) socket.handleClose();
+
+			case LOCAL_SOCKET_CONNECT:
+				var socket = NativeLocalSocket.getSocket(localSocketEventInfo.id);
+				if (socket != null) socket.handleConnect();
+
+			case LOCAL_SOCKET_DATA:
+				var socket = NativeLocalSocket.getSocket(localSocketEventInfo.id);
+				if (socket != null) socket.handleData(localSocketEventInfo.length);
+
+			case LOCAL_SOCKET_ERROR:
+				var socket = NativeLocalSocket.getSocket(localSocketEventInfo.id);
+				if (socket != null) socket.handleError(localSocketEventInfo.error);
+		}
+	}
+
+	private function handleMenuEvent():Void
+	{
+		switch (menuEventInfo.type)
+		{
+			case MENU_DOCK_SELECT:
+				NativeDockIcon.handleMenuSelect(menuEventInfo.id);
+
+			case MENU_CLOSE_WINDOW:
+				NativeMenu.handleClose(NativeMenu.SOURCE_WINDOW, menuEventInfo.windowID, menuEventInfo.id);
+
+			case MENU_CLOSE_TRAY_ICON:
+				NativeMenu.handleClose(NativeMenu.SOURCE_TRAY_ICON, menuEventInfo.windowID, menuEventInfo.id);
+
+			case MENU_CLOSE_APPLICATION:
+				NativeMenu.handleClose(NativeMenu.SOURCE_APPLICATION, menuEventInfo.windowID, menuEventInfo.id);
+
+			case MENU_CLOSE_DOCK:
+				NativeMenu.handleClose(NativeMenu.SOURCE_DOCK, menuEventInfo.windowID, menuEventInfo.id);
+
+			case MENU_SELECT:
+				if (menuEventInfo.windowID == 0)
+				{
+					// Application menu
+					var item = NativeMenu.getItem(menuItems, menuEventInfo.id);
+					if (item != null) item.__select();
+				}
+				else
+				{
+					var window = parent.__windowByID.get(menuEventInfo.windowID);
+					if (window != null) window.__backend.handleMenuSelect(menuEventInfo.id);
+				}
 		}
 	}
 
@@ -358,21 +749,24 @@ class NativeApplication
 			{
 				case MOUSE_DOWN:
 					window.clickCount = mouseEventInfo.clickCount;
-					window.onMouseDown.dispatch(mouseEventInfo.x, mouseEventInfo.y, mouseEventInfo.button);
-					window.clickCount = 0;
 
+					@:privateAccess window.onMouseDown.__dispatchWithTimestamp(__inputTime(mouseEventInfo.timestamp), mouseEventInfo.x, mouseEventInfo.y, mouseEventInfo.button);
+					window.clickCount = 0;
 				case MOUSE_UP:
 					window.clickCount = mouseEventInfo.clickCount;
-					window.onMouseUp.dispatch(mouseEventInfo.x, mouseEventInfo.y, mouseEventInfo.button);
+					@:privateAccess window.onMouseUp.__dispatchWithTimestamp(__inputTime(mouseEventInfo.timestamp), mouseEventInfo.x, mouseEventInfo.y, mouseEventInfo.button);
+
 					window.clickCount = 0;
-
 				case MOUSE_MOVE:
-					window.onMouseMove.dispatch(mouseEventInfo.x, mouseEventInfo.y);
-					window.onMouseMoveRelative.dispatch(mouseEventInfo.movementX, mouseEventInfo.movementY);
+					@:privateAccess window.onMouseMove.__dispatchWithTimestamp(__inputTime(mouseEventInfo.timestamp), mouseEventInfo.x, mouseEventInfo.y);
 
+					@:privateAccess window.onMouseMoveRelative.__dispatchWithTimestamp(__inputTime(mouseEventInfo.timestamp), mouseEventInfo.movementX, mouseEventInfo.movementY);
 				case MOUSE_WHEEL:
-					window.onMouseWheel.dispatch(mouseEventInfo.x, mouseEventInfo.y, UNKNOWN);
-
+					// The fractions of a step come in movementX and movementY
+					if (window.preciseMouseWheel) @:privateAccess window.onMouseWheel.__dispatchWithTimestamp(__inputTime(mouseEventInfo.timestamp), mouseEventInfo.movementX,
+						mouseEventInfo.movementY, UNKNOWN);
+					else
+						@:privateAccess window.onMouseWheel.__dispatchWithTimestamp(__inputTime(mouseEventInfo.timestamp), mouseEventInfo.x, mouseEventInfo.y, UNKNOWN);
 				default:
 			}
 		}
@@ -388,6 +782,13 @@ class NativeApplication
 				parent.onDisplayOrientationChange.dispatch(display, orientation);
 			case DEVICE_ORIENTATION_CHANGE:
 				parent.onDeviceOrientationChange.dispatch(orientation);
+			case DISPLAY_CONNECT:
+				var connected = System.getDisplay(display);
+				if (connected != null) Display.onConnect.dispatch(connected);
+			case DISPLAY_DISCONNECT:
+				Display.onDisconnect.dispatch(display);
+			case DISPLAY_MOVE:
+				Display.onMove.dispatch(display);
 		}
 	}
 
@@ -402,18 +803,19 @@ class NativeApplication
 	private function handleRenderEvent():Void
 	{
 		// TODO: Allow windows to render independently
-
 		for (window in parent.__windows)
 		{
 			if (window == null) continue;
-
 			// parent.renderer = renderer;
-
 			switch (renderEventInfo.type)
 			{
 				case RENDER:
+					#if lime_skip_invisible_windows
+					if (!window.visible) continue;
+					#end
 					if (window.context != null)
 					{
+						NativeWindow.rendering = window;
 						window.__backend.render();
 						window.onRender.dispatch(window.context);
 
@@ -421,6 +823,8 @@ class NativeApplication
 						{
 							window.__backend.contextFlip();
 						}
+
+						NativeWindow.rendering = null;
 					}
 
 				case RENDER_CONTEXT_LOST:
@@ -431,17 +835,16 @@ class NativeApplication
 							case OPENGL, OPENGLES, WEBGL:
 								#if (lime_cffi && (lime_opengl || lime_opengles) && !display)
 								var gl = window.context.gl;
+
 								(gl : NativeOpenGLRenderContext).__contextLost();
 								if (GL.context == gl) GL.context = null;
 								#end
-
 							default:
 						}
 
 						window.context = null;
 						window.onRenderContextLost.dispatch();
 					}
-
 				case RENDER_CONTEXT_RESTORED:
 					if (window.__backend.useHardware)
 					{
@@ -452,12 +855,19 @@ class NativeApplication
 					}
 			}
 		}
+
+		if (renderEventInfo.type == RENDER)
+		{
+			// Each window made its own context current, so the main one is made current again
+			// for what the application does with OpenGL until the next render
+			var mainWindow = NativeWindow.getMainOpenGLWindow(parent);
+			if (mainWindow != null) mainWindow.__backend.contextMakeCurrent();
+		}
 	}
 
 	private function handleSensorEvent():Void
 	{
 		var sensor = Sensor.sensorByID.get(sensorEventInfo.id);
-
 		if (sensor != null)
 		{
 			sensor.onUpdate.dispatch(sensorEventInfo.x, sensorEventInfo.y, sensorEventInfo.z);
@@ -471,13 +881,12 @@ class NativeApplication
 		if (window != null)
 		{
 			switch (textEventInfo.type)
+
 			{
 				case TEXT_INPUT:
 					window.onTextInput.dispatch(CFFI.stringValue(textEventInfo.text));
-
 				case TEXT_EDIT:
 					window.onTextEdit.dispatch(CFFI.stringValue(textEventInfo.text), textEventInfo.start, textEventInfo.length);
-
 				default:
 			}
 		}
@@ -489,7 +898,6 @@ class NativeApplication
 		{
 			case TOUCH_START:
 				var touch = unusedTouchesPool.pop();
-
 				if (touch == null)
 				{
 					touch = new Touch(touchEventInfo.x, touchEventInfo.y, touchEventInfo.id, touchEventInfo.dx, touchEventInfo.dy, touchEventInfo.pressure,
@@ -503,13 +911,12 @@ class NativeApplication
 					touch.dx = touchEventInfo.dx;
 					touch.dy = touchEventInfo.dy;
 					touch.pressure = touchEventInfo.pressure;
+
 					touch.device = touchEventInfo.device;
 				}
-
 				currentTouches.set(touch.id, touch);
 
-				Touch.onStart.dispatch(touch);
-
+				@:privateAccess Touch.onStart.__dispatchWithTimestamp(__inputTime(touchEventInfo.timestamp), touch);
 			case TOUCH_END:
 				var touch = currentTouches.get(touchEventInfo.id);
 
@@ -518,37 +925,58 @@ class NativeApplication
 					touch.x = touchEventInfo.x;
 					touch.y = touchEventInfo.y;
 					touch.dx = touchEventInfo.dx;
+
 					touch.dy = touchEventInfo.dy;
 					touch.pressure = touchEventInfo.pressure;
 
-					Touch.onEnd.dispatch(touch);
-
+					@:privateAccess Touch.onEnd.__dispatchWithTimestamp(__inputTime(touchEventInfo.timestamp), touch);
 					currentTouches.remove(touchEventInfo.id);
 					unusedTouchesPool.add(touch);
 				}
 
 			case TOUCH_MOVE:
 				var touch = currentTouches.get(touchEventInfo.id);
-
 				if (touch != null)
 				{
 					touch.x = touchEventInfo.x;
 					touch.y = touchEventInfo.y;
 					touch.dx = touchEventInfo.dx;
+
 					touch.dy = touchEventInfo.dy;
 					touch.pressure = touchEventInfo.pressure;
-
-					Touch.onMove.dispatch(touch);
+					@:privateAccess Touch.onMove.__dispatchWithTimestamp(__inputTime(touchEventInfo.timestamp), touch);
 				}
-
 			default:
+		}
+	}
+
+	private function handleTrayIconEvent():Void
+	{
+		var trayIcon = NativeTrayIcon.getTrayIcon(trayIconEventInfo.id);
+
+		if (trayIcon != null)
+		{
+			switch (trayIconEventInfo.type)
+			{
+				case TRAY_ICON_CLICK:
+					trayIcon.handleClick(trayIconEventInfo.x, trayIconEventInfo.y);
+				case TRAY_ICON_MENU_SELECT:
+					trayIcon.handleMenuSelect(trayIconEventInfo.itemID);
+				case TRAY_ICON_RIGHT_CLICK:
+					trayIcon.handleRightClick(trayIconEventInfo.x, trayIconEventInfo.y);
+				case TRAY_ICON_MOUSE_DOWN:
+					trayIcon.handleMouseDown(trayIconEventInfo.x, trayIconEventInfo.y, trayIconEventInfo.itemID);
+				case TRAY_ICON_MOUSE_UP:
+					trayIcon.handleMouseUp(trayIconEventInfo.x, trayIconEventInfo.y, trayIconEventInfo.itemID);
+				case TRAY_ICON_DOUBLE_CLICK:
+					trayIcon.handleDoubleClick(trayIconEventInfo.x, trayIconEventInfo.y, trayIconEventInfo.itemID);
+			}
 		}
 	}
 
 	private function handleWindowEvent():Void
 	{
 		var window = parent.__windowByID.get(windowEventInfo.windowID);
-
 		if (window != null)
 		{
 			switch (windowEventInfo.type)
@@ -557,27 +985,22 @@ class NativeApplication
 					advanceTimer();
 					window.onActivate.dispatch();
 					AudioManager.resume();
-
 				case WINDOW_CLOSE:
 					window.close();
 
 				case WINDOW_DEACTIVATE:
 					window.onDeactivate.dispatch();
 					AudioManager.suspend();
-					pauseTimer = System.getTimer();
-
+					pauseTimer = System.__getTimer();
 				case WINDOW_ENTER:
 					window.onEnter.dispatch();
-
 				case WINDOW_EXPOSE:
 					window.onExpose.dispatch();
-
 				case WINDOW_FOCUS_IN:
 					window.onFocusIn.dispatch();
 
 				case WINDOW_FOCUS_OUT:
 					window.onFocusOut.dispatch();
-
 				case WINDOW_LEAVE:
 					window.onLeave.dispatch();
 
@@ -599,18 +1022,29 @@ class NativeApplication
 					window.onMove.dispatch(windowEventInfo.x, windowEventInfo.y);
 
 				case WINDOW_RESIZE:
+					#if !lime_disable_window_scale_change
+					#if (lime_cffi && !macro)
+					// SDL2 reports scale changes as window resizes
+					var newScale = NativeCFFI.lime_window_get_scale(window.__backend.handle);
+					if (window.__scale != newScale)
+					{
+						window.__scale = newScale;
+						window.onDisplayScaleChange.dispatch();
+					}
+					#end
+					#end
 					window.__width = windowEventInfo.width;
 					window.__height = windowEventInfo.height;
 					window.onResize.dispatch(windowEventInfo.width, windowEventInfo.height);
 
 				case WINDOW_RESTORE:
 					window.__fullscreen = false;
+					window.__maximized = false;
 					window.__minimized = false;
 					window.onRestore.dispatch();
 
 				case WINDOW_SHOW:
 					window.onShow.dispatch();
-
 				case WINDOW_HIDE:
 					window.onHide.dispatch();
 			}
@@ -622,9 +1056,9 @@ class NativeApplication
 		#if (lime_cffi && !macro)
 		if (Timer.sRunningTimers.length > 0)
 		{
-			var currentTime = System.getTimer();
-			var foundStopped = false;
+			var currentTime = System.__getTimer();
 
+			var foundStopped = false;
 			for (timer in Timer.sRunningTimers)
 			{
 				if (timer.mRunning)
@@ -649,7 +1083,6 @@ class NativeApplication
 				});
 			}
 		}
-
 		#if (haxe_ver >= 4.2)
 		#if target.threaded
 		sys.thread.Thread.current().events.progress();
@@ -686,6 +1119,7 @@ class NativeApplication
 {
 	var UPDATE = 0;
 	var EXIT = 1;
+	var IDLE = 2;
 }
 
 @:keep /*private*/ class ClipboardEventInfo
@@ -708,26 +1142,66 @@ class NativeApplication
 	var UPDATE = 0;
 }
 
+@:keep /*private*/ class DragEventInfo
+{
+	// In the order of lime::DragEvent, for HashLink
+	public var action:Int;
+	public var allowedActions:Int;
+	public var type:DragEventType;
+	public var windowID:Int;
+	public var x:Float;
+	public var y:Float;
+
+	public function new(type:DragEventType = null, windowID:Int = 0, x:Float = 0, y:Float = 0, allowedActions:Int = 0, action:Int = 0)
+	{
+		this.type = type;
+		this.windowID = windowID;
+		this.x = x;
+		this.y = y;
+		this.allowedActions = allowedActions;
+		this.action = action;
+	}
+
+	public function clone():DragEventInfo
+	{
+		return new DragEventInfo(type, windowID, x, y, allowedActions, action);
+	}
+}
+
+#if (haxe_ver >= 4.0) private enum #else @:enum private #end abstract DragEventType(Int)
+{
+	var DRAG_ENTER = 1;
+	var DRAG_OVER = 2;
+	var DRAG_LEAVE = 3;
+	var DRAG_DROP = 4;
+	var DRAG_COMPLETE = 5;
+}
+
 @:keep /*private*/ class DropEventInfo
 {
 	public var file:#if hl hl.Bytes #else String #end;
 	public var type:DropEventType;
+	public var windowID:Int;
 
-	public function new(type:DropEventType = null, file = null)
+	public function new(type:DropEventType = null, file = null, windowID:Int = 0)
 	{
 		this.type = type;
 		this.file = file;
+		this.windowID = windowID;
 	}
 
 	public function clone():DropEventInfo
 	{
-		return new DropEventInfo(type, file);
+		return new DropEventInfo(type, file, windowID);
 	}
 }
 
 #if (haxe_ver >= 4.0) private enum #else @:enum private #end abstract DropEventType(Int)
 {
 	var DROP_FILE = 0;
+	var DROP_TEXT = 1;
+	var DROP_BEGIN = 2;
+	var DROP_COMPLETE = 3;
 }
 
 @:keep /*private*/ class GamepadEventInfo
@@ -737,19 +1211,28 @@ class NativeApplication
 	public var id:Int;
 	public var type:GamepadEventType;
 	public var axisValue:Float;
+	public var timestamp:Int;
+	public var x:Float;
+	public var y:Float;
+	public var z:Float;
 
-	public function new(type:GamepadEventType = null, id:Int = 0, button:Int = 0, axis:Int = 0, value:Float = 0)
+	public function new(type:GamepadEventType = null, id:Int = 0, button:Int = 0, axis:Int = 0, value:Float = 0, timestamp:Int = 0, x:Float = 0, y:Float = 0,
+			z:Float = 0)
 	{
 		this.type = type;
 		this.id = id;
 		this.button = button;
 		this.axis = axis;
 		this.axisValue = value;
+		this.timestamp = timestamp;
+		this.x = x;
+		this.y = y;
+		this.z = z;
 	}
 
 	public function clone():GamepadEventInfo
 	{
-		return new GamepadEventInfo(type, id, button, axis, axisValue);
+		return new GamepadEventInfo(type, id, button, axis, axisValue, timestamp, x, y, z);
 	}
 }
 
@@ -760,6 +1243,10 @@ class NativeApplication
 	var BUTTON_UP = 2;
 	var CONNECT = 3;
 	var DISCONNECT = 4;
+	var SENSOR_UPDATE = 5;
+	var TOUCHPAD_DOWN = 6;
+	var TOUCHPAD_MOVE = 7;
+	var TOUCHPAD_UP = 8;
 }
 
 @:keep /*private*/ class JoystickEventInfo
@@ -776,6 +1263,7 @@ class NativeApplication
 		this.type = type;
 		this.id = id;
 		this.index = index;
+
 		this.eventValue = value;
 		this.x = x;
 		this.y = y;
@@ -803,18 +1291,20 @@ class NativeApplication
 	public var modifier:Int;
 	public var type:KeyEventType;
 	public var windowID:Int;
+	public var timestamp:Int;
 
-	public function new(type:KeyEventType = null, windowID:Int = 0, keyCode:Float = 0, modifier:Int = 0)
+	public function new(type:KeyEventType = null, windowID:Int = 0, keyCode:Float = 0, modifier:Int = 0, timestamp:Int = 0)
 	{
 		this.type = type;
 		this.windowID = windowID;
 		this.keyCode = keyCode;
 		this.modifier = modifier;
+		this.timestamp = timestamp;
 	}
 
 	public function clone():KeyEventInfo
 	{
-		return new KeyEventInfo(type, windowID, keyCode, modifier);
+		return new KeyEventInfo(type, windowID, keyCode, modifier, timestamp);
 	}
 }
 
@@ -822,6 +1312,65 @@ class NativeApplication
 {
 	var KEY_DOWN = 0;
 	var KEY_UP = 1;
+}
+
+@:keep /*private*/ class LocalSocketEventInfo
+{
+	public var error:Int;
+	public var id:Int;
+	public var length:Int;
+	public var type:LocalSocketEventType;
+
+	public function new(type:LocalSocketEventType = null, id:Int = 0, length:Int = 0, error:Int = 0)
+	{
+		this.type = type;
+		this.id = id;
+		this.length = length;
+		this.error = error;
+	}
+
+	public function clone():LocalSocketEventInfo
+	{
+		return new LocalSocketEventInfo(type, id, length, error);
+	}
+}
+
+#if (haxe_ver >= 4.0) private enum #else @:enum private #end abstract LocalSocketEventType(Int)
+{
+	var LOCAL_SOCKET_ACCEPT = 0;
+	var LOCAL_SOCKET_CLOSE = 1;
+	var LOCAL_SOCKET_CONNECT = 2;
+	var LOCAL_SOCKET_DATA = 3;
+	var LOCAL_SOCKET_ERROR = 4;
+}
+
+@:keep /*private*/ class MenuEventInfo
+{
+	public var id:Int;
+	public var type:MenuEventType;
+	public var windowID:Int;
+
+	public function new(type:MenuEventType = null, windowID:Int = 0, id:Int = 0)
+	{
+		this.type = type;
+		this.windowID = windowID;
+		this.id = id;
+	}
+
+	public function clone():MenuEventInfo
+	{
+		return new MenuEventInfo(type, windowID, id);
+	}
+}
+
+#if (haxe_ver >= 4.0) private enum #else @:enum private #end abstract MenuEventType(Int)
+{
+	var MENU_SELECT = 0;
+	var MENU_DOCK_SELECT = 1;
+	var MENU_CLOSE_WINDOW = 2;
+	var MENU_CLOSE_TRAY_ICON = 3;
+	var MENU_CLOSE_APPLICATION = 4;
+	var MENU_CLOSE_DOCK = 5;
 }
 
 @:keep /*private*/ class MouseEventInfo
@@ -834,23 +1383,26 @@ class NativeApplication
 	public var x:Float;
 	public var y:Float;
 	public var clickCount:Int;
+	public var timestamp:Int;
 
 	public function new(type:MouseEventType = null, windowID:Int = 0, x:Float = 0, y:Float = 0, button:Int = 0, movementX:Float = 0, movementY:Float = 0,
-			clickCount:Int = 0)
+			clickCount:Int = 0, timestamp:Int = 0)
 	{
 		this.type = type;
-		this.windowID = 0;
+		this.windowID = windowID;
+
 		this.x = x;
 		this.y = y;
 		this.button = button;
 		this.movementX = movementX;
 		this.movementY = movementY;
 		this.clickCount = clickCount;
+		this.timestamp = timestamp;
 	}
 
 	public function clone():MouseEventInfo
 	{
-		return new MouseEventInfo(type, windowID, x, y, button, movementX, movementY, clickCount);
+		return new MouseEventInfo(type, windowID, x, y, button, movementX, movementY, clickCount, timestamp);
 	}
 }
 
@@ -897,6 +1449,7 @@ class NativeApplication
 		this.type = type;
 		this.id = id;
 		this.x = x;
+
 		this.y = y;
 		this.z = z;
 	}
@@ -952,22 +1505,26 @@ class NativeApplication
 	public var type:TouchEventType;
 	public var x:Float;
 	public var y:Float;
+	public var timestamp:Int;
 
-	public function new(type:TouchEventType = null, x:Float = 0, y:Float = 0, id:Int = 0, dx:Float = 0, dy:Float = 0, pressure:Float = 0, device:Int = 0)
+	public function new(type:TouchEventType = null, x:Float = 0, y:Float = 0, id:Int = 0, dx:Float = 0, dy:Float = 0, pressure:Float = 0, device:Int = 0,
+			timestamp:Int = 0)
 	{
 		this.type = type;
 		this.x = x;
+
 		this.y = y;
 		this.id = id;
 		this.dx = dx;
 		this.dy = dy;
 		this.pressure = pressure;
 		this.device = device;
+		this.timestamp = timestamp;
 	}
 
 	public function clone():TouchEventInfo
 	{
-		return new TouchEventInfo(type, x, y, id, dx, dy, pressure, device);
+		return new TouchEventInfo(type, x, y, id, dx, dy, pressure, device, timestamp);
 	}
 }
 
@@ -976,6 +1533,39 @@ class NativeApplication
 	var TOUCH_START = 0;
 	var TOUCH_END = 1;
 	var TOUCH_MOVE = 2;
+}
+
+@:keep /*private*/ class TrayIconEventInfo
+{
+	public var id:Int;
+	public var itemID:Int;
+	public var type:TrayIconEventType;
+	public var x:Int;
+	public var y:Int;
+
+	public function new(type:TrayIconEventType = null, id:Int = 0, itemID:Int = 0, x:Int = 0, y:Int = 0)
+	{
+		this.type = type;
+		this.id = id;
+		this.itemID = itemID;
+		this.x = x;
+		this.y = y;
+	}
+
+	public function clone():TrayIconEventInfo
+	{
+		return new TrayIconEventInfo(type, id, itemID, x, y);
+	}
+}
+
+#if (haxe_ver >= 4.0) private enum #else @:enum private #end abstract TrayIconEventType(Int)
+{
+	var TRAY_ICON_CLICK = 0;
+	var TRAY_ICON_MENU_SELECT = 1;
+	var TRAY_ICON_RIGHT_CLICK = 2;
+	var TRAY_ICON_MOUSE_DOWN = 3;
+	var TRAY_ICON_MOUSE_UP = 4;
+	var TRAY_ICON_DOUBLE_CLICK = 5;
 }
 
 @:keep /*private*/ class WindowEventInfo
@@ -1045,6 +1635,9 @@ class NativeApplication
 {
 	var DISPLAY_ORIENTATION_CHANGE = 0;
 	var DEVICE_ORIENTATION_CHANGE = 1;
+	var DISPLAY_CONNECT = 2;
+	var DISPLAY_DISCONNECT = 3;
+	var DISPLAY_MOVE = 4;
 }
 
 #if android

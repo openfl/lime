@@ -4,6 +4,7 @@ package lime.media.openal;
 import lime._internal.backend.native.NativeCFFI;
 import lime.system.CFFI;
 import lime.system.CFFIPointer;
+import haxe.io.Bytes;
 
 #if !lime_debug
 @:fileXml('tags="haxe,release"')
@@ -33,6 +34,17 @@ class ALC
 	public static inline var ENUMERATE_ALL_EXT:Int = 1;
 	public static inline var DEFAULT_ALL_DEVICES_SPECIFIER:Int = 0x1012;
 	public static inline var ALL_DEVICES_SPECIFIER:Int = 0x1013;
+	public static inline var CAPTURE_DEVICE_SPECIFIER:Int = 0x310;
+	public static inline var CAPTURE_DEFAULT_DEVICE_SPECIFIER:Int = 0x311;
+	public static inline var CAPTURE_SAMPLES:Int = 0x312;
+	public static inline var CONNECTED:Int = 0x313;
+	public static inline var PLAYBACK_DEVICE_SOFT:Int = 0x19D4;
+	public static inline var CAPTURE_DEVICE_SOFT:Int = 0x19D5;
+	public static inline var EVENT_TYPE_DEFAULT_DEVICE_CHANGED_SOFT:Int = 0x19D6;
+	public static inline var EVENT_TYPE_DEVICE_ADDED_SOFT:Int = 0x19D7;
+	public static inline var EVENT_TYPE_DEVICE_REMOVED_SOFT:Int = 0x19D8;
+	public static inline var EVENT_SUPPORTED_SOFT:Int = 0x19D9;
+	public static inline var EVENT_NOT_SUPPORTED_SOFT:Int = 0x19DA;
 
 	public static function closeDevice(device:ALDevice):Bool
 	{
@@ -71,6 +83,21 @@ class ALC
 	{
 		#if (lime_cffi && lime_openal && !macro)
 		NativeCFFI.lime_alc_destroy_context(context);
+		#end
+	}
+
+	/**
+		Returns `EVENT_SUPPORTED_SOFT` if OpenAL can report `eventType`, one of the
+		`EVENT_TYPE_*_SOFT` values, for `deviceType`, which is `PLAYBACK_DEVICE_SOFT`
+		or `CAPTURE_DEVICE_SOFT`, on this system. Returns `EVENT_NOT_SUPPORTED_SOFT`
+		otherwise, and without the `ALC_SOFT_system_events` extension of OpenAL Soft.
+	**/
+	public static function eventIsSupported(eventType:Int, deviceType:Int):Int
+	{
+		#if (lime_cffi && lime_openal && !macro)
+		return NativeCFFI.lime_alc_event_is_supported(eventType, deviceType);
+		#else
+		return EVENT_NOT_SUPPORTED_SOFT;
 		#end
 	}
 
@@ -152,6 +179,29 @@ class ALC
 		#end
 	}
 
+	/**
+		Returns the strings OpenAL gives for `param`, one for each device when `device`
+		is `null` and `param` is `DEVICE_SPECIFIER`, `CAPTURE_DEVICE_SPECIFIER` or
+		`ALL_DEVICES_SPECIFIER`. `getString()` returns only the first of those.
+	**/
+	public static function getStringList(device:ALDevice, param:Int):Array<String>
+	{
+		#if (lime_cffi && lime_openal && !macro)
+		var result = NativeCFFI.lime_alc_get_string_list(device, param);
+		#if hl
+		if (result == null) return [];
+		var _result = [];
+		for (i in 0...result.length)
+			_result[i] = CFFI.stringValue(result[i]);
+		return _result;
+		#else
+		return result;
+		#end
+		#else
+		return null;
+		#end
+	}
+
 	public static function makeContextCurrent(context:ALContext):Bool
 	{
 		#if (lime_cffi && lime_openal && !macro)
@@ -189,6 +239,36 @@ class ALC
 		#end
 	}
 
+	/**
+		Moves the playback `device` to the output named `deviceName`, or to the
+		default output when `deviceName` is `null`, keeping its contexts, sources and
+		buffers. Sources that were playing carry on from where they were.
+
+		`attributes` are the same as for `createContext()`, ending with `0`, or
+		`null` for the defaults. Needs the `ALC_SOFT_reopen_device` extension of
+		OpenAL Soft. Returns `false` if the output could not be opened, and the
+		device then keeps the output it had.
+	**/
+	public static function reopenDevice(device:ALDevice, deviceName:String = null, attributes:Array<Int> = null):Bool
+	{
+		#if (lime_cffi && lime_openal && !macro)
+		if (device == null) return false;
+		#if hl
+		var _attributes = null;
+		if (attributes != null)
+		{
+			_attributes = new hl.NativeArray<Int>(attributes.length);
+			for (i in 0...attributes.length)
+				_attributes[i] = attributes[i];
+		}
+		var attributes = _attributes;
+		#end
+		return NativeCFFI.lime_alc_reopen_device(device, deviceName, attributes);
+		#else
+		return false;
+		#end
+	}
+
 	public static function resumeDevice(device:ALDevice):Void
 	{
 		#if (lime_cffi && lime_openal && !macro)
@@ -200,6 +280,104 @@ class ALC
 	{
 		#if (lime_cffi && lime_openal && !macro)
 		NativeCFFI.lime_alc_suspend_context(context);
+		#end
+	}
+
+	public static function isExtensionPresent(device:ALDevice, extname:String):Bool
+	{
+		if (extname == null)
+		{
+			return false;
+		}
+
+		#if (lime_cffi && lime_openal && !macro)
+		return NativeCFFI.lime_alc_is_extension_present(device, extname);
+		#else
+		return false;
+		#end
+	}
+
+	public static function captureOpenDevice(deviceName:String = null, frequency:Int, format:Int, bufferSize:Int):ALDevice
+	{
+		#if (lime_cffi && lime_openal && !macro)
+		var handle = NativeCFFI.lime_alc_capture_open_device(deviceName, frequency, format, bufferSize);
+
+		if (handle != null)
+		{
+			return new ALDevice(handle);
+		}
+		#end
+
+		return null;
+	}
+
+	public static function captureCloseDevice(device:ALDevice):Bool
+	{
+		#if (lime_cffi && lime_openal && !macro)
+		return NativeCFFI.lime_alc_capture_close_device(device);
+		#end
+
+		return false;
+	}
+
+	public static function captureStart(device:ALDevice):Void
+	{
+		#if (lime_cffi && lime_openal && !macro)
+		NativeCFFI.lime_alc_capture_start(device);
+		#end
+	}
+
+	public static function captureStop(device:ALDevice):Void
+	{
+		#if (lime_cffi && lime_openal && !macro)
+		NativeCFFI.lime_alc_capture_stop(device);
+		#end
+	}
+
+	public static function captureSamples(device:ALDevice, buffer:Bytes, samples:Int):Void
+	{
+		#if (lime_cffi && lime_openal && !macro)
+		NativeCFFI.lime_alc_capture_samples(device, buffer, samples);
+		#end
+	}
+
+	// OpenAL Soft takes one event callback for the whole process. Lime keeps it and
+	// queues the events, since they arrive on OpenAL's threads, and AudioManager
+	// reads them on the main thread.
+	@:allow(lime.media.AudioManager)
+	private static function __eventControl(events:Array<Int>, enable:Bool):Bool
+	{
+		#if (lime_cffi && lime_openal && !macro)
+		#if hl
+		var _events = new hl.NativeArray<Int>(events.length);
+		for (i in 0...events.length)
+			_events[i] = events[i];
+		return NativeCFFI.lime_alc_event_control(_events, enable);
+		#else
+		return NativeCFFI.lime_alc_event_control(events, enable);
+		#end
+		#else
+		return false;
+		#end
+	}
+
+	// Returns the queued events as pairs of event type and device type
+	@:allow(lime.media.AudioManager)
+	private static function __pollEvents():Array<Int>
+	{
+		#if (lime_cffi && lime_openal && !macro)
+		var result = NativeCFFI.lime_alc_poll_events();
+		#if hl
+		if (result == null) return [];
+		var _result = [];
+		for (i in 0...result.length)
+			_result[i] = result[i];
+		return _result;
+		#else
+		return result;
+		#end
+		#else
+		return [];
 		#end
 	}
 }

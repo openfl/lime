@@ -5,6 +5,14 @@
 namespace lime {
 
 
+	// RIFF pads a chunk with an odd size to an even length
+	inline size_t paddedChunkSize (unsigned int size) {
+
+		return (size_t)size + (size & 1);
+
+	}
+
+
 	template<typename T>
 	inline const char* readStruct (T& dest, const char*& ptr) {
 
@@ -12,7 +20,7 @@ namespace lime {
 		memcpy (&dest, ptr, sizeof (T));
 		ptr += sizeof (WAVE_Data);
 		ret = ptr;
-		ptr += dest.subChunkSize;
+		ptr += paddedChunkSize (dest.subChunkSize);
 		return ret;
 
 	}
@@ -33,7 +41,7 @@ namespace lime {
 
 			}
 
-			ptr += sizeof (WAVE_Data) + chunk.subChunkSize;
+			ptr += sizeof (WAVE_Data) + paddedChunkSize (chunk.subChunkSize);
 
 		}
 
@@ -86,11 +94,10 @@ namespace lime {
 
 				}
 
-				if (wave_format.subChunkID[0] != 'f' || wave_format.subChunkID[1] != 'm' || wave_format.subChunkID[2] != 't' || wave_format.subChunkID[3] != ' ') {
+				// The format chunk can be longer than WAVE_Format, so every chunk is skipped by its size
+				lime::fseek (file, currentHead + sizeof (WAVE_Data) + paddedChunkSize (wave_format.subChunkSize), SEEK_SET);
 
-					lime::fseek (file, currentHead + sizeof (WAVE_Data) + wave_format.subChunkSize, SEEK_SET);
-
-				} else {
+				if (wave_format.subChunkID[0] == 'f' && wave_format.subChunkID[1] == 'm' && wave_format.subChunkID[2] == 't' && wave_format.subChunkID[3] == ' ') {
 
 					foundFormat = true;
 
@@ -115,7 +122,7 @@ namespace lime {
 
 				if (wave_data.subChunkID[0] != 'd' || wave_data.subChunkID[1] != 'a' || wave_data.subChunkID[2] != 't' || wave_data.subChunkID[3] != 'a') {
 
-					lime::fseek (file, currentHead + sizeof (WAVE_Data) + wave_data.subChunkSize, SEEK_SET);
+					lime::fseek (file, currentHead + sizeof (WAVE_Data) + paddedChunkSize (wave_data.subChunkSize), SEEK_SET);
 
 				} else {
 

@@ -1,0 +1,10 @@
+<xml>
+
+	<depend name="${LIME_MBEDTLS_CONFIG}/lime_mbedtls_config.h" dateOnly="true" />
+	<depend name="${LIME_MBEDTLS_CONFIG}/lime_mbedtls_prefix.h" dateOnly="true" />
+
+	<compilerflag value="-I${LIME_MBEDTLS_INCLUDE}" />
+	<compilerflag value="-I${LIME_MBEDTLS_CONFIG}" />
+	<compilerflag value="-DMBEDTLS_USER_CONFIG_FILE=&lt;lime_mbedtls_config.h&gt;" />
+
+</xml>

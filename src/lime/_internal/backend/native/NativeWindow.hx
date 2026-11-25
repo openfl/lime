@@ -1,8 +1,12 @@
 package lime._internal.backend.native;
 
+import haxe.Int64;
 import haxe.io.Bytes;
 import lime._internal.backend.native.NativeCFFI;
 import lime.app.Application;
+import lime.app.Future;
+import lime.app.Promise;
+import lime.app.VSyncMode;
 import lime.graphics.cairo.Cairo;
 import lime.graphics.cairo.CairoFormat;
 import lime.graphics.cairo.CairoImageSurface;
@@ -13,15 +17,24 @@ import lime.graphics.Image;
 import lime.graphics.ImageBuffer;
 import lime.graphics.OpenGLRenderContext;
 import lime.graphics.RenderContext;
+import lime.graphics.VulkanRenderContext;
 import lime.math.Rectangle;
 import lime.math.Vector2;
 import lime.system.CFFI;
+import lime.system.Clipboard;
 import lime.system.Display;
 import lime.system.DisplayMode;
 import lime.system.JNI;
 import lime.system.System;
+import lime.ui.DragData;
+import lime.ui.DropAction;
+import lime.ui.KeyCode;
+import lime.ui.KeyModifier;
+import lime.ui.Menu;
+import lime.ui.MenuItem;
 import lime.ui.MouseCursor;
 import lime.ui.Window;
+import lime.ui.WindowHandle;
 import lime.utils.UInt8Array;
 
 #if !lime_debug
@@ -29,6 +42,7 @@ import lime.utils.UInt8Array;
 @:noDebug
 #end
 @:access(lime._internal.backend.native.NativeCFFI)
+@:access(lime.ui.WindowHandle)
 @:access(lime._internal.backend.native.NativeOpenGLRenderContext)
 @:access(lime.app.Application)
 @:access(lime.graphics.cairo.Cairo)
@@ -36,15 +50,28 @@ import lime.utils.UInt8Array;
 @:access(lime.graphics.OpenGLRenderContext)
 @:access(lime.graphics.RenderContext)
 @:access(lime.system.DisplayMode)
+@:access(lime.ui.DragData)
+@:access(lime.ui.MenuItem)
 @:access(lime.ui.Window)
 class NativeWindow
 {
+	/**
+		The window that renders now, whose context stays current while other windows are made or closed.
+	**/
+	public static var rendering:Window;
+
+	// Drags out that end after doDragDrop returns, as on macOS and X11, by ID
+	private static var dragPromises:Map<Int, Promise<DropAction>> = new Map();
+	private static var nextDragID:Int = 1;
+
 	public var handle:Dynamic;
 
 	private var closing:Bool;
 	private var cursor:MouseCursor;
 	private var displayMode:DisplayMode;
+	private var dropTarget:Bool = false;
 	private var frameRate:Float;
+	private var menuItems:Array<MenuItem>;
 	private var mouseLock:Bool;
 	private var parent:Window;
 	private var useHardware:Bool;
@@ -57,37 +84,57 @@ class NativeWindow
 	public function new(parent:Window)
 	{
 		this.parent = parent;
-
 		cursor = DEFAULT;
 		displayMode = new DisplayMode(0, 0, 0, 0);
-
 		var attributes = parent.__attributes;
 		var contextAttributes = Reflect.hasField(attributes, "context") ? attributes.context : {};
+
+		var resolvedFrameRate = parent.application.__resolveFrameRate(attributes);
+		var resolvedVSyncMode = parent.application.__resolveVSyncMode(attributes);
 		var title = Reflect.hasField(attributes, "title") ? attributes.title : "Lime Application";
 		var flags = 0;
-
+		var transparent = Reflect.hasField(attributes, "transparent") && attributes.transparent;
 		if (!Reflect.hasField(contextAttributes, "antialiasing")) contextAttributes.antialiasing = 0;
-		if (!Reflect.hasField(contextAttributes, "background")) contextAttributes.background = 0;
-		if (!Reflect.hasField(contextAttributes, "colorDepth")) contextAttributes.colorDepth = 24;
+		if (transparent) contextAttributes.background = null;
+		else if (!Reflect.hasField(contextAttributes, "background")) contextAttributes.background = 0;
+		if (!Reflect.hasField(contextAttributes, "colorDepth")) contextAttributes.colorDepth = transparent ? 32 : 24;
+		else if (transparent && contextAttributes.colorDepth < 32) contextAttributes.colorDepth = 32;
 		if (!Reflect.hasField(contextAttributes, "depth")) contextAttributes.depth = true;
 		if (!Reflect.hasField(contextAttributes, "hardware")) contextAttributes.hardware = true;
 		if (!Reflect.hasField(contextAttributes, "stencil")) contextAttributes.stencil = true;
 		if (!Reflect.hasField(contextAttributes, "vsync")) contextAttributes.vsync = false;
+		if (!Reflect.hasField(contextAttributes, "vsyncMode")
+			|| contextAttributes.vsyncMode == null) contextAttributes.vsyncMode = resolvedVSyncMode;
+		contextAttributes.vsync = (resolvedVSyncMode != VSyncMode.OFF);
+
+		#if vulkan
+		// Windows that name no type use Vulkan, unless they ask for software rendering
+		if ((!Reflect.hasField(contextAttributes, "type") || contextAttributes.type == null) && contextAttributes.hardware)
+		{
+			contextAttributes.type = VULKAN;
+		}
+		#end
 
 		#if (cairo || (!lime_opengl && !lime_opengles))
-		contextAttributes.type = CAIRO;
+		if (!Reflect.hasField(contextAttributes, "type") || contextAttributes.type != VULKAN)
+		{
+			contextAttributes.type = CAIRO;
+		}
 		#end
 		if (Reflect.hasField(contextAttributes, "type") && contextAttributes.type == CAIRO) contextAttributes.hardware = false;
-
+		if (Reflect.hasField(contextAttributes, "type") && contextAttributes.type == VULKAN) contextAttributes.hardware = true;
 		if (Reflect.hasField(attributes, "allowHighDPI") && attributes.allowHighDPI) flags |= cast WindowFlags.WINDOW_FLAG_ALLOW_HIGHDPI;
+
 		if (Reflect.hasField(attributes, "alwaysOnTop") && attributes.alwaysOnTop) flags |= cast WindowFlags.WINDOW_FLAG_ALWAYS_ON_TOP;
 		if (Reflect.hasField(attributes, "borderless") && attributes.borderless) flags |= cast WindowFlags.WINDOW_FLAG_BORDERLESS;
 		if (Reflect.hasField(attributes, "fullscreen") && attributes.fullscreen) flags |= cast WindowFlags.WINDOW_FLAG_FULLSCREEN;
+		if (transparent) flags |= cast WindowFlags.WINDOW_FLAG_TRANSPARENT;
+
 		if (Reflect.hasField(attributes, "hidden") && attributes.hidden) flags |= cast WindowFlags.WINDOW_FLAG_HIDDEN;
 		if (Reflect.hasField(attributes, "maximized") && attributes.maximized) flags |= cast WindowFlags.WINDOW_FLAG_MAXIMIZED;
 		if (Reflect.hasField(attributes, "minimized") && attributes.minimized) flags |= cast WindowFlags.WINDOW_FLAG_MINIMIZED;
-		if (Reflect.hasField(attributes, "resizable") && attributes.resizable) flags |= cast WindowFlags.WINDOW_FLAG_RESIZABLE;
 
+		if (Reflect.hasField(attributes, "resizable") && attributes.resizable) flags |= cast WindowFlags.WINDOW_FLAG_RESIZABLE;
 		if (contextAttributes.antialiasing >= 4)
 		{
 			flags |= cast WindowFlags.WINDOW_FLAG_HW_AA_HIRES;
@@ -99,83 +146,106 @@ class NativeWindow
 
 		if (contextAttributes.colorDepth == 32) flags |= cast WindowFlags.WINDOW_FLAG_COLOR_DEPTH_32_BIT;
 		if (contextAttributes.depth) flags |= cast WindowFlags.WINDOW_FLAG_DEPTH_BUFFER;
+
 		if (contextAttributes.hardware) flags |= cast WindowFlags.WINDOW_FLAG_HARDWARE;
+		if (Reflect.hasField(contextAttributes, "type") && contextAttributes.type == VULKAN) flags |= cast WindowFlags.WINDOW_FLAG_VULKAN;
 		if (contextAttributes.stencil) flags |= cast WindowFlags.WINDOW_FLAG_STENCIL_BUFFER;
 		if (contextAttributes.vsync) flags |= cast WindowFlags.WINDOW_FLAG_VSYNC;
+		#if software_gl
+		flags |= cast WindowFlags.WINDOW_FLAG_SOFTWARE_OPENGL;
+		#end
 
 		var width = Reflect.hasField(attributes, "width") ? attributes.width : #if desktop 800 #else 0 #end;
-		var height = Reflect.hasField(attributes, "height") ? attributes.height : #if desktop 600 #else 0 #end;
 
+		var height = Reflect.hasField(attributes, "height") ? attributes.height : #if desktop 600 #else 0 #end;
 		#if (!macro && lime_cffi)
+		// A new context shares textures, buffers and shaders with the one current as it is
+		// made, so that is the main window's
+		var mainWindow = getMainOpenGLWindow(parent.application, parent);
+		if (mainWindow != null) mainWindow.__backend.contextMakeCurrent();
+
 		handle = NativeCFFI.lime_window_create(parent.application.__backend.handle, width, height, flags, title);
 
-		if (handle != null)
+		if (handle == null)
 		{
-			parent.__width = NativeCFFI.lime_window_get_width(handle);
-			parent.__height = NativeCFFI.lime_window_get_height(handle);
-			parent.__x = NativeCFFI.lime_window_get_x(handle);
-			parent.__y = NativeCFFI.lime_window_get_y(handle);
-			parent.__hidden = (Reflect.hasField(attributes, "hidden") && attributes.hidden);
-			parent.id = NativeCFFI.lime_window_get_id(handle);
+			parent.application.__windowCreationError = CFFI.stringValue(NativeCFFI.lime_window_get_creation_error());
+			// A context made and deleted on the way leaves none current
+			restoreCurrentContext(parent.application, parent);
+			return;
 		}
 
+		parent.__width = NativeCFFI.lime_window_get_width(handle);
+
+		parent.__height = NativeCFFI.lime_window_get_height(handle);
+		parent.__x = NativeCFFI.lime_window_get_x(handle);
+		parent.__y = NativeCFFI.lime_window_get_y(handle);
+		parent.__hidden = (Reflect.hasField(attributes, "hidden") && attributes.hidden);
+		parent.__fullscreen = (flags & cast WindowFlags.WINDOW_FLAG_FULLSCREEN) != 0;
+
+		parent.id = NativeCFFI.lime_window_get_id(handle);
 		parent.__scale = NativeCFFI.lime_window_get_scale(handle);
+		// Transparency can be refused, as with Vulkan or without a compositor
+		parent.transparent = NativeCFFI.lime_window_get_transparent(handle);
 
 		var context = new RenderContext();
 		context.window = parent;
-
 		var contextType:String = CFFI.stringValue(NativeCFFI.lime_window_get_context_type(handle));
-
 		switch (contextType)
+
 		{
 			case "opengl":
 				var gl = new NativeOpenGLRenderContext();
-
 				useHardware = true;
-				contextAttributes.hardware = true;
 
+				// The new context is current. It may draw in software, as software-gl falls back
+				// to, or as a machine without a GPU does
+				contextAttributes.hardware = !isSoftwareRenderer(gl.getString(gl.RENDERER));
 				#if lime_opengl
 				context.gl = gl;
 				#end
-
 				context.gles2 = gl;
 				context.webgl = gl;
 				context.type = gl.type;
-				context.version = Std.string(gl.version);
 
+				context.version = Std.string(gl.version);
 				if (gl.type == OPENGLES && gl.version >= 3)
 				{
 					context.gles3 = gl;
 					context.webgl2 = gl;
 				}
-
 				if (GL.context == null)
 				{
 					GL.context = gl;
 				}
-
+			case "vulkan":
+				useHardware = true;
+				contextAttributes.hardware = true;
+				context.vulkan = new VulkanRenderContext(handle);
+				context.type = VULKAN;
+				context.version = Reflect.hasField(contextAttributes, "version")
+					&& contextAttributes.version != null ? contextAttributes.version : "";
 			default:
 				useHardware = false;
-				contextAttributes.hardware = false;
 
+				contextAttributes.hardware = false;
 				#if lime_cairo
 				context.cairo = cairo;
 				context.type = CAIRO;
 				context.version = "";
-
 				parent.context = context;
 				render();
 				#end
+
 				context.type = CAIRO;
 		}
-
 		contextAttributes.type = context.type;
 		context.attributes = contextAttributes;
 		parent.context = context;
 
-		setFrameRate(Reflect.hasField(attributes, "frameRate") ? attributes.frameRate : 60);
-		#end
+		restoreCurrentContext(parent.application, parent);
 
+		frameRate = resolvedFrameRate;
+		#end
 		// SDL 2 enables text input events by default, but we want them only
 		// when requested. otherwise, we might get weird behavior like IME
 		// candidate windows appearing unexpectedly when holding down a key.
@@ -200,15 +270,20 @@ class NativeWindow
 		{
 			closing = true;
 			parent.onClose.dispatch();
-
 			if (!parent.onClose.canceled)
 			{
 				if (handle != null)
 				{
 					#if (!macro && lime_cffi)
+					// The system keeps a drop target registered until it is given back
+					if (dropTarget) setDropTarget(false);
 					NativeCFFI.lime_window_close(handle);
 					#end
+
 					handle = null;
+
+					// Closing the window whose context was current leaves none current
+					restoreCurrentContext(parent.application, parent);
 				}
 			}
 			else
@@ -221,6 +296,9 @@ class NativeWindow
 	public function contextFlip():Void
 	{
 		#if (!macro && lime_cffi)
+		// The window may have been closed while it rendered
+		if (handle == null) return;
+
 		if (!useHardware)
 		{
 			#if lime_cairo
@@ -231,9 +309,33 @@ class NativeWindow
 			#end
 			NativeCFFI.lime_window_context_unlock(handle);
 		}
-
 		NativeCFFI.lime_window_context_flip(handle);
 		#end
+	}
+
+	public function orderRelative(other:Window, above:Bool):Bool
+	{
+		#if (!macro && lime_cffi)
+		var otherHandle:Dynamic = other != null ? other.__backend.handle : null;
+		if (handle != null && otherHandle != null) return NativeCFFI.lime_window_order_relative(handle, otherHandle, above);
+		#end
+		return false;
+	}
+
+	public function orderToBack():Bool
+	{
+		#if (!macro && lime_cffi)
+		if (handle != null) return NativeCFFI.lime_window_order_to_back(handle);
+		#end
+		return false;
+	}
+
+	public function startMoveResize(edges:Int):Bool
+	{
+		#if (!macro && lime_cffi)
+		if (handle != null) return NativeCFFI.lime_window_start_move_resize(handle, edges);
+		#end
+		return false;
 	}
 
 	public function focus():Void
@@ -264,7 +366,6 @@ class NativeWindow
 			}
 			#end
 		}
-
 		return null;
 	}
 
@@ -290,7 +391,61 @@ class NativeWindow
 
 	public function getFrameRate():Float
 	{
-		return frameRate;
+		return (parent.application != null) ? parent.application.__getFrameRate() : frameRate;
+	}
+
+	public function flash(mode:Int):Bool
+	{
+		#if (!macro && lime_cffi)
+		if (handle != null)
+		{
+			return NativeCFFI.lime_window_flash(handle, mode);
+		}
+		#end
+		return false;
+	}
+
+	public function getDropTarget():Bool
+	{
+		return dropTarget;
+	}
+
+	public function getKeyboardGrab():Bool
+	{
+		#if (!macro && lime_cffi)
+		if (handle != null)
+		{
+			return NativeCFFI.lime_window_get_keyboard_grab(handle);
+		}
+		#end
+		return false;
+	}
+
+	public function getMouseRect():Rectangle
+	{
+		#if (!macro && lime_cffi)
+		if (handle != null)
+		{
+			var rect:Dynamic = NativeCFFI.lime_window_get_mouse_rect(handle);
+			if (rect != null) return new Rectangle(rect.x, rect.y, rect.width, rect.height);
+		}
+		#end
+		return null;
+	}
+
+	public function getNativeHandle():WindowHandle
+	{
+		#if (!macro && lime_cffi)
+		if (handle != null)
+		{
+			var info:Dynamic = NativeCFFI.lime_window_get_native_handle(handle);
+			if (info != null)
+			{
+				return new WindowHandle(info.type, Int64.make(info.window.high, info.window.low), Int64.make(info.display.high, info.display.low));
+			}
+		}
+		#end
+		return null;
 	}
 
 	public function getMouseLock():Bool
@@ -301,7 +456,6 @@ class NativeWindow
 			mouseLock = NativeCFFI.lime_window_get_mouse_lock(handle);
 			#end
 		}
-
 		return mouseLock;
 	}
 
@@ -313,7 +467,6 @@ class NativeWindow
 			return NativeCFFI.lime_window_get_opacity(handle);
 			#end
 		}
-
 		return 1.0;
 	}
 
@@ -325,8 +478,22 @@ class NativeWindow
 			return NativeCFFI.lime_window_get_text_input_enabled(handle);
 			#end
 		}
-
 		return false;
+	}
+
+	public function handleMenuKeyEquivalent(keyCode:KeyCode, modifier:KeyModifier):Bool
+	{
+		var item = NativeMenu.getKeyEquivalentItem(menuItems, keyCode, modifier);
+		if (item == null) return false;
+
+		item.__select();
+		return true;
+	}
+
+	public function handleMenuSelect(id:Int):Void
+	{
+		var item = NativeMenu.getItem(menuItems, id);
+		if (item != null) item.__select();
 	}
 
 	public function move(x:Int, y:Int):Void
@@ -339,25 +506,44 @@ class NativeWindow
 		}
 	}
 
+	public function popupMenu(menu:Menu, x:Null<Float>, y:Null<Float>):Void
+	{
+		if (handle != null && menu != null)
+		{
+			#if (!macro && lime_cffi)
+			var items = [];
+			var data = NativeMenu.encode(menu, items);
+			var atCursor = (x == null || y == null);
+			NativeMenu.setPopup(NativeMenu.SOURCE_WINDOW, parent.id, menu, items);
+			var id = NativeCFFI.lime_window_popup_menu(handle, data, atCursor ? 0 : Std.int(x), atCursor ? 0 : Std.int(y), atCursor);
+
+			var item = NativeMenu.getItem(items, id);
+			if (item != null) item.__select();
+			#end
+		}
+	}
+
 	public function readPixels(rect:Rectangle):Image
 	{
 		var imageBuffer:ImageBuffer = null;
 
 		switch (parent.context.type)
+
 		{
 			case OPENGL, OPENGLES, WEBGL:
 				var gl = parent.context.webgl;
 				var windowWidth = Std.int(parent.__width * parent.__scale);
-				var windowHeight = Std.int(parent.__height * parent.__scale);
 
+				var windowHeight = Std.int(parent.__height * parent.__scale);
 				var x:Int;
 				var y:Int;
+
 				var width:Int;
 				var height:Int;
-
 				if (rect != null)
 				{
 					x = Std.int(rect.x);
+
 					y = Std.int((windowHeight - rect.y) - rect.height);
 					width = Std.int(rect.width);
 					height = Std.int(rect.height);
@@ -365,17 +551,14 @@ class NativeWindow
 				else
 				{
 					x = 0;
+
 					y = 0;
 					width = windowWidth;
 					height = windowHeight;
 				}
-
 				var data = new UInt8Array(width * height * 4);
-
 				gl.readPixels(x, y, width, height, gl.RGBA, gl.UNSIGNED_BYTE, data);
-
 				#if !js // TODO
-
 				var rowLength = width * 4;
 				var srcPosition = (height - 1) * rowLength;
 				var destPosition = 0;
@@ -383,7 +566,6 @@ class NativeWindow
 				var temp = Bytes.alloc(rowLength);
 				var buffer = data.buffer;
 				var rows = Std.int(height / 2);
-
 				while (rows-- > 0)
 				{
 					temp.blit(0, buffer, destPosition, rowLength);
@@ -394,15 +576,14 @@ class NativeWindow
 					srcPosition -= rowLength;
 				}
 				#end
-
 				imageBuffer = new ImageBuffer(data, width, height, 32, RGBA32);
-
 			default:
 				#if (!macro && lime_cffi)
 				#if !cs
 				imageBuffer = NativeCFFI.lime_window_read_pixels(handle, rect, new ImageBuffer(new UInt8Array(Bytes.alloc(0))));
 				#else
 				var data:Dynamic = NativeCFFI.lime_window_read_pixels(handle, rect, null);
+
 				if (data != null)
 				{
 					imageBuffer = new ImageBuffer(new UInt8Array(@:privateAccess new Bytes(data.data.length, data.data.b)), data.width, data.height,
@@ -410,36 +591,85 @@ class NativeWindow
 				}
 				#end
 				#end
-
 				if (imageBuffer != null)
 				{
 					imageBuffer.format = RGBA32;
 				}
 		}
-
 		if (imageBuffer != null)
 		{
 			return new Image(imageBuffer);
+		}
+		return null;
+	}
+
+	public function contextMakeCurrent():Void
+	{
+		#if (!macro && lime_cffi)
+		if (handle != null) NativeCFFI.lime_window_context_make_current(handle);
+		#end
+	}
+
+	/**
+		The window whose OpenGL context is current outside of rendering: the main
+		window, or the first other window open with one.
+	**/
+	public static function getMainOpenGLWindow(application:Application, except:Window = null):Window
+	{
+		if (hasOpenGLContext(application.window, except)) return application.window;
+
+		for (window in application.__windows)
+		{
+			if (hasOpenGLContext(window, except)) return window;
 		}
 
 		return null;
 	}
 
+	/**
+		Makes current the context of the window that renders now, or outside of rendering, the
+		main window's.
+	**/
+	private static function restoreCurrentContext(application:Application, except:Window):Void
+	{
+		var window = hasOpenGLContext(rendering, except) ? rendering : getMainOpenGLWindow(application, except);
+		if (window != null) window.__backend.contextMakeCurrent();
+	}
+
+	private static function isSoftwareRenderer(renderer:String):Bool
+	{
+		if (renderer == null) return false;
+
+		renderer = renderer.toLowerCase();
+
+		for (name in ["llvmpipe", "softpipe", "swiftshader", "apple software renderer", "gdi generic", "microsoft basic render driver"])
+		{
+			if (renderer.indexOf(name) > -1) return true;
+		}
+
+		return false;
+	}
+
+	private static function hasOpenGLContext(window:Window, except:Window):Bool
+	{
+		return window != null && window != except && window.__backend.handle != null && window.context != null
+			&& (window.context.type == OPENGL || window.context.type == OPENGLES);
+	}
+
 	public function render():Void
 	{
 		#if (!macro && lime_cffi)
-		NativeCFFI.lime_window_context_make_current(handle);
+		if (handle == null) return;
 
+		contextMakeCurrent();
 		if (!useHardware)
 		{
 			#if lime_cairo
 			var lock:Dynamic = NativeCFFI.lime_window_context_lock(handle);
-
 			if (lock != null
 				&& (cacheLock == null || cacheLock.pixels != lock.pixels || cacheLock.width != lock.width || cacheLock.height != lock.height))
 			{
 				primarySurface = CairoImageSurface.create(lock.pixels, CairoFormat.ARGB32, lock.width, lock.height, lock.pitch);
-
 				if (cairo != null)
 				{
 					cairo.recreate(primarySurface);
@@ -448,10 +678,8 @@ class NativeWindow
 				{
 					cairo = new Cairo(primarySurface);
 				}
-
 				parent.context.cairo = cairo;
 			}
-
 			cacheLock = lock;
 			#else
 			parent.context = null;
@@ -521,15 +749,16 @@ class NativeWindow
 					case MOVE: MOVE;
 					case POINTER: POINTER;
 					case RESIZE_NESW: RESIZE_NESW;
+
 					case RESIZE_NS: RESIZE_NS;
 					case RESIZE_NWSE: RESIZE_NWSE;
 					case RESIZE_WE: RESIZE_WE;
+
 					case TEXT: TEXT;
 					case WAIT: WAIT;
 					case WAIT_ARROW: WAIT_ARROW;
 					default: DEFAULT;
 				}
-
 				#if (!macro && lime_cffi)
 				NativeCFFI.lime_window_set_cursor(handle, type);
 				#end
@@ -550,6 +779,7 @@ class NativeWindow
 			NativeCFFI.lime_window_set_display_mode(handle, value, displayMode);
 			#else
 			var data:Dynamic = NativeCFFI.lime_window_set_display_mode(handle, value);
+
 			displayMode.width = data.width;
 			displayMode.height = data.height;
 			displayMode.pixelFormat = data.pixelFormat;
@@ -557,8 +787,83 @@ class NativeWindow
 			#end
 			#end
 		}
-
 		return displayMode;
+	}
+
+	public function doDragDrop(data:DragData, image:Image, offsetX:Int, offsetY:Int, actions:DropAction):Future<DropAction>
+	{
+		#if (!macro && lime_cffi)
+		if (handle != null)
+		{
+			var imageBytes:Bytes = null;
+
+			if (image != null)
+			{
+				var pixels = image.getPixels(image.rect, RGBA32);
+				imageBytes = Bytes.alloc(8 + pixels.length);
+				imageBytes.setInt32(0, image.width);
+				imageBytes.setInt32(4, image.height);
+				imageBytes.blit(8, pixels, 0, pixels.length);
+			}
+
+			var id = nextDragID++;
+			var promise = new Promise<DropAction>();
+			dragPromises.set(id, promise);
+
+			var result = NativeCFFI.lime_window_start_drag(handle, @:privateAccess Clipboard.__encodeItems(data.__items), imageBytes, offsetX, offsetY,
+				actions, id);
+
+			// -1 when the drag ends later, with a complete event carrying id
+			if (result >= 0)
+			{
+				dragPromises.remove(id);
+				promise.complete(result);
+			}
+
+			return promise.future;
+		}
+		#end
+		return Future.withValue(DropAction.NONE);
+	}
+
+	public function setDropTarget(value:Bool):Bool
+	{
+		#if (!macro && lime_cffi)
+		if (handle != null && value != dropTarget && NativeCFFI.lime_window_set_drag_target(handle, value))
+		{
+			dropTarget = value;
+		}
+		#end
+		return dropTarget;
+	}
+
+	public function setKeyboardGrab(value:Bool):Bool
+	{
+		#if (!macro && lime_cffi)
+		if (handle != null)
+		{
+			NativeCFFI.lime_window_set_keyboard_grab(handle, value);
+		}
+		#end
+		return getKeyboardGrab();
+	}
+
+	public function setMouseRect(value:Rectangle):Void
+	{
+		#if (!macro && lime_cffi)
+		if (handle != null)
+		{
+			// A negative size lets the cursor move freely
+			if (value != null)
+			{
+				NativeCFFI.lime_window_set_mouse_rect(handle, Std.int(value.x), Std.int(value.y), Std.int(value.width), Std.int(value.height));
+			}
+			else
+			{
+				NativeCFFI.lime_window_set_mouse_rect(handle, 0, 0, -1, -1);
+			}
+		}
+		#end
 	}
 
 	public function setMouseLock(value:Bool):Bool
@@ -568,10 +873,8 @@ class NativeWindow
 			#if (!macro && lime_cffi)
 			NativeCFFI.lime_window_set_mouse_lock(handle, value);
 			#end
-
 			mouseLock = value;
 		}
-
 		return mouseLock;
 	}
 
@@ -583,7 +886,6 @@ class NativeWindow
 			NativeCFFI.lime_window_set_text_input_enabled(handle, value);
 			#end
 		}
-
 		return value;
 	}
 
@@ -601,37 +903,36 @@ class NativeWindow
 
 	public function setFrameRate(value:Float):Float
 	{
-		// TODO: Support multiple independent frame rates per window
-
-		if (handle != null)
-		{
-			#if (!macro && lime_cffi)
-			NativeCFFI.lime_application_set_frame_rate(parent.application.__backend.handle, value);
-			#end
-		}
-
-		return frameRate = value;
+		frameRate = (parent.application != null) ? parent.application.__setFrameRateFromWindow(value) : value;
+		return frameRate;
 	}
 
 	public function setFullscreen(value:Bool):Bool
 	{
 		if (handle != null)
 		{
+			var wasFullscreen = parent.__fullscreen;
+
 			#if (!macro && lime_cffi)
 			value = NativeCFFI.lime_window_set_fullscreen(handle, value);
-
 			parent.__width = NativeCFFI.lime_window_get_width(handle);
 			parent.__height = NativeCFFI.lime_window_get_height(handle);
 			parent.__x = NativeCFFI.lime_window_get_x(handle);
 			parent.__y = NativeCFFI.lime_window_get_y(handle);
 			#end
 
-			if (value)
+			// Set before the events, so their listeners read the new state
+			parent.__fullscreen = value;
+
+			if (value && !wasFullscreen)
 			{
 				parent.onFullscreen.dispatch();
 			}
+			else if (!value && wasFullscreen)
+			{
+				parent.onRestore.dispatch();
+			}
 		}
-
 		return value;
 	}
 
@@ -655,6 +956,28 @@ class NativeWindow
 		}
 
 		return value;
+	}
+
+	public function setMenu(menu:Menu):Void
+	{
+		if (handle != null)
+		{
+			#if (!macro && lime_cffi)
+			if (menu != null)
+			{
+				var items = NativeMenu.newItems(NativeMenu.SOURCE_WINDOW, parent.id, menu);
+				var data = NativeMenu.encode(menu, items);
+				menuItems = NativeCFFI.lime_window_set_menu(handle, data) ? items : null;
+			}
+			else
+			{
+				NativeCFFI.lime_window_set_menu(handle, null);
+				menuItems = null;
+			}
+
+			NativeMenu.setInstalled(NativeMenu.SOURCE_WINDOW, parent.id, menuItems != null ? menu : null, menuItems);
+			#end
+		}
 	}
 
 	public function setMinimized(value:Bool):Bool
@@ -687,13 +1010,28 @@ class NativeWindow
 			NativeCFFI.lime_window_set_resizable(handle, value);
 
 			// TODO: remove need for workaround
-
 			NativeCFFI.lime_window_set_borderless(handle, !parent.__borderless);
 			NativeCFFI.lime_window_set_borderless(handle, parent.__borderless);
 			#end
 		}
-
 		return value;
+	}
+
+	public function setAppearance(value:lime.ui.WindowAppearance):Void
+	{
+		#if (lime_cffi && !macro)
+		if (handle != null) NativeCFFI.lime_window_set_appearance(handle, switch value { case LIGHT: 1; case DARK: 2; default: 0; });
+		#end
+	}
+
+	public function getAppearance():lime.ui.WindowAppearance
+	{
+		#if (lime_cffi && !macro)
+		if (handle != null) return switch NativeCFFI.lime_window_get_appearance(handle) {
+			case 1: LIGHT; case 2: DARK; default: SYSTEM;
+		};
+		#end
+		return SYSTEM;
 	}
 
 	public function setTitle(value:String):String
@@ -704,7 +1042,6 @@ class NativeWindow
 			return NativeCFFI.lime_window_set_title(handle, value);
 			#end
 		}
-
 		return value;
 	}
 
@@ -716,7 +1053,17 @@ class NativeWindow
 			NativeCFFI.lime_window_set_visible(handle, value);
 			#end
 		}
+		return value;
+	}
 
+	public function setAlwaysOnTop(value:Bool):Bool
+	{
+		if (handle != null)
+		{
+			#if (!macro && lime_cffi)
+			NativeCFFI.lime_window_set_always_on_top(handle, value);
+			#end
+		}
 		return value;
 	}
 
@@ -764,4 +1111,7 @@ class NativeWindow
 	var WINDOW_FLAG_MAXIMIZED = 0x00004000;
 	var WINDOW_FLAG_ALWAYS_ON_TOP = 0x00008000;
 	var WINDOW_FLAG_COLOR_DEPTH_32_BIT = 0x00010000;
+	var WINDOW_FLAG_VULKAN = 0x00020000;
+	var WINDOW_FLAG_TRANSPARENT = 0x00040000;
+	var WINDOW_FLAG_SOFTWARE_OPENGL = 0x00080000;
 }

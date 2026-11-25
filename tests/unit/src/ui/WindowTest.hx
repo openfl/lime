@@ -1,0 +1,483 @@
+package ui;
+
+import haxe.Timer;
+import lime.app.Application;
+import lime.math.Rectangle;
+import lime.ui.Window;
+import lime.ui.WindowAppearance;
+import lime.ui.WindowHandleType;
+import utest.Assert;
+import utest.Async;
+import utest.Test;
+
+#if (cpp && windows)
+@:cppFileCode("#include <windows.h>")
+#end
+/**
+	Windows are checked for what the platform made of them, as the attributes
+	only say what was asked for.
+**/
+class WindowTest extends Test
+{
+	public function new()
+	{
+		super();
+	}
+
+	#if (lime_cffi && !macro && (windows || mac || linux) && !rpi)
+	public function testAppearancePreferenceAndInvalidValues():Void
+	{
+		var window = create(false);
+		if (window == null) { canCreateWindows(); return; }
+		Assert.equals(WindowAppearance.SYSTEM, window.appearance);
+		window.appearance = WindowAppearance.DARK;
+		Assert.equals(WindowAppearance.DARK, window.appearance);
+		var applied = window.effectiveAppearance;
+		window.appearance = cast "invalid";
+		Assert.equals(WindowAppearance.DARK, window.appearance);
+		Assert.equals(applied, window.effectiveAppearance);
+		window.appearance = null;
+		Assert.equals(WindowAppearance.DARK, window.appearance);
+		window.appearance = WindowAppearance.SYSTEM;
+		Assert.equals(WindowAppearance.SYSTEM, window.appearance);
+	}
+
+	public function testAppearanceChangesArePerWindow():Void
+	{
+		var dark = create(false), light = create(false);
+		if (dark == null || light == null) { canCreateWindows(); return; }
+		dark.appearance = WindowAppearance.DARK;
+		light.appearance = WindowAppearance.LIGHT;
+		Assert.equals(WindowAppearance.DARK, dark.appearance);
+		Assert.equals(WindowAppearance.LIGHT, light.appearance);
+		// Unsupported decorations retain the preference and report System.
+		if (dark.effectiveAppearance == WindowAppearance.SYSTEM || light.effectiveAppearance == WindowAppearance.SYSTEM) {
+			Assert.pass();
+			return;
+		}
+		Assert.equals(WindowAppearance.DARK, dark.effectiveAppearance);
+		Assert.equals(WindowAppearance.LIGHT, light.effectiveAppearance);
+		dark.appearance = WindowAppearance.LIGHT;
+		Assert.equals(WindowAppearance.LIGHT, dark.effectiveAppearance);
+		Assert.equals(WindowAppearance.LIGHT, light.effectiveAppearance);
+		dark.appearance = WindowAppearance.SYSTEM;
+		Assert.equals(WindowAppearance.LIGHT, light.effectiveAppearance);
+	}
+
+	public function testAppearanceCreationAttribute():Void
+	{
+		var window = Application.current.createWindow({width:64, height:64, hidden:true, appearance:WindowAppearance.DARK});
+		if (window == null) { canCreateWindows(); return; }
+		Assert.equals(WindowAppearance.DARK, window.appearance);
+		if (window.effectiveAppearance != WindowAppearance.SYSTEM)
+			Assert.equals(WindowAppearance.DARK, window.effectiveAppearance);
+	}
+
+	public function testAlwaysOnTopCreationAttribute():Void
+	{
+		var window = Application.current.createWindow({width:64, height:64, hidden:true, alwaysOnTop:true});
+		if (window == null) { canCreateWindows(); return; }
+		Assert.isTrue(window.alwaysOnTop);
+	}
+
+	public function testTransparentWindowsAreTransparent():Void
+	{
+		var window = create(true);
+
+		if (window == null)
+		{
+			if (canCreateWindows()) Assert.fail("a transparent window could not be created");
+			return;
+		}
+
+		Assert.isTrue(isTransparent(window), "a window created transparent was made opaque");
+		Assert.equals(isTransparent(window), window.transparent);
+	}
+
+	public function testWindowsAfterATransparentOneAreOpaque():Void
+	{
+		// Linux chooses a transparent window's visual through a setting that
+		// would otherwise hold for every window created after it
+		create(true);
+		var second = create(false);
+
+		if (second == null)
+		{
+			canCreateWindows();
+			return;
+		}
+
+		Assert.isFalse(isTransparent(second), "a window created after a transparent one was made transparent too");
+	}
+
+	public function testEachSizeLimitSetsOnlyItself():Void
+	{
+		var window = create(false);
+
+		if (window == null)
+		{
+			canCreateWindows();
+			return;
+		}
+
+		window.minWidth = 40;
+		window.minHeight = 30;
+		window.maxWidth = 800;
+		window.maxHeight = 600;
+
+		Assert.equals("40,30,800,600", [window.minWidth, window.minHeight, window.maxWidth, window.maxHeight].join(","));
+	}
+
+	public function testTheFrameRateOutlastsOtherFrameSettings():Void
+	{
+		// The first window created becomes the application's own
+		if (create(false) == null)
+		{
+			canCreateWindows();
+			return;
+		}
+
+		var application = Application.current;
+		var window = application.window;
+		var rate = window.frameRate;
+		window.frameRate = 30;
+
+		// Each of these applies every frame setting again, from the rate the application keeps
+		application.vsyncMode = application.vsyncMode;
+		application.frameProfile = application.frameProfile;
+
+		Assert.equals(30.0, window.frameRate);
+		window.frameRate = rate;
+	}
+
+	public function testAWindowCanBeClosedWhileItRenders():Void
+	{
+		// Closing the last window of the application ends it, so another stays open
+		if (create(false) == null)
+		{
+			canCreateWindows();
+			return;
+		}
+
+		var window = create(false);
+		window.onRender.add(function(_) window.close());
+
+		var backend = @:privateAccess Application.current.__backend;
+		@:privateAccess backend.renderEventInfo.type = RENDER;
+		@:privateAccess backend.handleRenderEvent();
+
+		Assert.isNull(@:privateAccess window.__backend.handle, "the window was not closed");
+	}
+
+	public function testFlashing():Void
+	{
+		var window = create(false);
+
+		if (window == null)
+		{
+			canCreateWindows();
+			return;
+		}
+
+		Assert.isTrue(window.flash(BRIEFLY), "the window could not be flashed");
+		Assert.isTrue(window.flash(UNTIL_FOCUSED), "the window could not be flashed until focused");
+		Assert.isTrue(window.flash(CANCEL), "the window's flashing could not be cancelled");
+	}
+
+	public function testMouseRectKeepsTheCursorWhereItIsSet():Void
+	{
+		var window = create(false);
+
+		if (window == null)
+		{
+			canCreateWindows();
+			return;
+		}
+
+		Assert.isNull(window.mouseRect, "a new window kept the cursor to an area");
+
+		window.mouseRect = new Rectangle(4, 8, 20, 24);
+		var rect = window.mouseRect;
+		Assert.notNull(rect, "the cursor was not kept to the area set");
+
+		if (rect != null)
+		{
+			Assert.equals("4,8,20,24", [rect.x, rect.y, rect.width, rect.height].join(","));
+		}
+
+		window.mouseRect = null;
+		Assert.isNull(window.mouseRect, "the cursor was still kept to an area after it was freed");
+	}
+
+	public function testKeyboardGrabIsKeptUntilReleased():Void
+	{
+		var window = create(false);
+
+		if (window == null)
+		{
+			canCreateWindows();
+			return;
+		}
+
+		Assert.isFalse(window.keyboardGrab, "a new window grabbed the keyboard");
+
+		// The keys are only taken while the window has the focus, but the grab
+		// is kept for when it does
+		window.keyboardGrab = true;
+		Assert.isTrue(window.keyboardGrab, "the keyboard grab was not kept");
+
+		window.keyboardGrab = false;
+		Assert.isFalse(window.keyboardGrab, "the keyboard grab was not released");
+	}
+
+	public function testNativeHandleIsTheSystemsOwnWindow():Void
+	{
+		var first = create(false), second = create(false);
+		if (first == null || second == null) { canCreateWindows(); return; }
+
+		var handle = first.nativeHandle;
+		Assert.notNull(handle);
+		Assert.equals(#if windows WindowHandleType.WINDOWS #elseif mac WindowHandleType.COCOA #else WindowHandleType.X11 #end, handle.type);
+		Assert.isTrue(handle.window != 0);
+		Assert.equals(#if linux true #else false #end, handle.display != 0);
+
+		// The same window each time, and each window its own
+		Assert.isTrue(handle.window == first.nativeHandle.window);
+		Assert.isTrue(handle.window != second.nativeHandle.window);
+
+		first.close();
+		Assert.isNull(first.nativeHandle);
+	}
+
+	public function testPreciseMouseWheelGivesFractionsOfAStep():Void
+	{
+		var window = create(false);
+
+		if (window == null)
+		{
+			canCreateWindows();
+			return;
+		}
+
+		var deltas = [];
+		window.onMouseWheel.add(function(deltaX, deltaY, mode) deltas.push(deltaX + "," + deltaY));
+
+		// A touchpad scrolls a quarter of a step at a time, which SDL adds up into
+		// a whole one
+		wheel(window, 0, -1, 0, -0.25);
+		window.preciseMouseWheel = true;
+		wheel(window, 0, -1, 0, -0.25);
+
+		Assert.equals("0,-1|0,-0.25", deltas.join("|"));
+	}
+
+	#if (cpp && windows)
+	@:timeout(5000)
+	public function testEachSizeTheWindowTakesWhileResizedIsDrawn(async:Async):Void
+	{
+		// Only a window that can be resized has a sizing loop
+		var window = Application.current.createWindow({width: 64, height: 64, hidden: true, resizable: true, title: "WindowTest"});
+		if (window == null) { canCreateWindows(); async.done(); return; }
+
+		// The sizing loop only draws once the application's own loop runs
+		Timer.delay(function()
+		{
+			var application = Application.current;
+			var backend = @:privateAccess application.__backend;
+			// Frames a second apart: none is due while the window is resized, so only resizing draws one
+			backend.configureFrameTiming(application.frameProfile, 1, application.frameOptions);
+
+			var reported = [], expected = [], drawn = [], renders = 0;
+			window.onResize.add(function(width, height) reported.push(width + "x" + height));
+			window.onRender.add(function(_) renders++);
+
+			var hwnd = window.nativeHandle.window;
+			sendWindowMessage(hwnd, 0x0231 /* WM_ENTERSIZEMOVE */);
+			for (step in 1...4)
+			{
+				var before = renders;
+				resizeWindow(hwnd, 320 + step * 40, 240 + step * 20);
+				expected.push(window.width + "x" + window.height);
+				drawn.push(renders > before);
+			}
+			sendWindowMessage(hwnd, 0x0232 /* WM_EXITSIZEMOVE */);
+			backend.configureFrameTiming(application.frameProfile, @:privateAccess application.__frameRate, application.frameOptions);
+
+			Assert.equals(expected.join(","), reported.join(","), "the window took " + expected.join(",") + " but reported " + reported.join(","));
+			Assert.equals("true,true,true", drawn.join(","), "sizes drawn before the next: " + drawn.join(","));
+			async.done();
+		}, 1);
+	}
+
+	// A frame drawn while the window is resized used to run inside SDL's event watch, with SDL's
+	// event lock held, so a thread pushing an event waited for the frame to end. native-ipc's
+	// threads push one to wake the application when a local socket's message is queued, and
+	// closing that socket joins its thread, so closing it in such a frame waited forever.
+	@:timeout(10000)
+	public function testClosingALocalSocketInAFrameDrawnWhileResizedReturns(async:Async):Void
+	{
+		var name = "lime-test-resize-" + Std.random(0x3FFFFFFF);
+		var server = new lime.net.LocalServer();
+		var taken:lime.net.LocalSocket = null;
+		server.onConnect.add(function(socket) taken = socket);
+		Assert.isTrue(server.listen(name), "the server did not listen: " + server.error);
+
+		var client = new lime.net.LocalSocket();
+		client.connect(name, 3000);
+
+		var window = Application.current.createWindow({width: 64, height: 64, hidden: true, resizable: true, title: "WindowTest"});
+		if (window == null)
+		{
+			canCreateWindows();
+			client.close();
+			server.close();
+			async.done();
+			return;
+		}
+
+		// The application's loop dispatches the connection, then the window is resized
+		var deadline = Timer.stamp() + 5;
+		var resize:Void->Void = null;
+		var wait:Void->Void = null;
+		wait = function()
+		{
+			if (taken != null && client.connected)
+			{
+				resize();
+			}
+			else if (Timer.stamp() > deadline)
+			{
+				Assert.fail("the local socket did not connect");
+				client.close();
+				server.close();
+				window.close();
+				async.done();
+			}
+			else
+			{
+				Timer.delay(wait, 10);
+			}
+		};
+
+		resize = function()
+		{
+			var application = Application.current;
+			var backend = @:privateAccess application.__backend;
+			// Frames a second apart: none is due while the window is resized, so only resizing draws one
+			backend.configureFrameTiming(application.frameProfile, 1, application.frameOptions);
+
+			var resizing = false;
+			var closed = false;
+			window.onRender.add(function(_)
+			{
+				if (!resizing || closed) return;
+
+				// The taken end's thread queues the message and wakes the application, then is joined
+				client.send(haxe.io.Bytes.ofString("wake"));
+				Sys.sleep(0.2);
+				taken.close();
+				closed = true;
+			});
+
+			var hwnd = window.nativeHandle.window;
+			resizing = true;
+			sendWindowMessage(hwnd, 0x0231 /* WM_ENTERSIZEMOVE */);
+			resizeWindow(hwnd, 360, 260);
+			sendWindowMessage(hwnd, 0x0232 /* WM_EXITSIZEMOVE */);
+			resizing = false;
+			backend.configureFrameTiming(application.frameProfile, @:privateAccess application.__frameRate, application.frameOptions);
+
+			Assert.isTrue(closed, "no frame was drawn while the window was resized");
+			client.close();
+			server.close();
+			window.close();
+			async.done();
+		};
+
+		Timer.delay(wait, 1);
+	}
+
+	@:timeout(5000)
+	public function testASizeOnlyProposedWhileResizedIsNotLaidOut(async:Async):Void
+	{
+		// Only a window that can be resized has a sizing loop
+		var window = Application.current.createWindow({width: 64, height: 64, hidden: true, resizable: true, title: "WindowTest"});
+		if (window == null) { canCreateWindows(); async.done(); return; }
+
+		Timer.delay(function()
+		{
+			var reported = [];
+			window.onResize.add(function(width, height) reported.push(width + "x" + height));
+
+			// Windows proposes a size with WM_SIZING before the window has it, and may change it before it does
+			var hwnd = window.nativeHandle.window;
+			sendWindowMessage(hwnd, 0x0231 /* WM_ENTERSIZEMOVE */);
+			proposeWindowSize(hwnd, 300, 200);
+			sendWindowMessage(hwnd, 0x0232 /* WM_EXITSIZEMOVE */);
+
+			Assert.equals("", reported.join(","), "a size Windows only proposed was reported: " + reported.join(","));
+			async.done();
+		}, 1);
+	}
+
+	private static function sendWindowMessage(hwnd:haxe.Int64, message:Int):Void
+	{
+		untyped __cpp__("SendMessageW ((HWND)(intptr_t){0}, (UINT){1}, 0, 0)", hwnd, message);
+	}
+
+	private static function resizeWindow(hwnd:haxe.Int64, width:Int, height:Int):Void
+	{
+		// As Windows does at each step of a resize: the window takes the size, and is sent WM_SIZE
+		untyped __cpp__("SetWindowPos ((HWND)(intptr_t){0}, NULL, 0, 0, {1}, {2}, SWP_NOMOVE | SWP_NOZORDER | SWP_NOACTIVATE)", hwnd, width, height);
+	}
+
+	private static function proposeWindowSize(hwnd:haxe.Int64, width:Int, height:Int):Void
+	{
+		untyped __cpp__("{ RECT proposed; GetWindowRect ((HWND)(intptr_t){0}, &proposed); proposed.right = proposed.left + {1}; proposed.bottom = proposed.top + {2}; SendMessageW ((HWND)(intptr_t){0}, WM_SIZING, WMSZ_BOTTOMRIGHT, (LPARAM)&proposed); }", hwnd, width, height);
+	}
+	#end
+
+	private static function wheel(window:Window, x:Float, y:Float, preciseX:Float, preciseY:Float):Void
+	{
+		// The event as native code fills it in, then the handler it calls
+		var backend = @:privateAccess Application.current.__backend;
+		var info = @:privateAccess backend.mouseEventInfo;
+		info.type = cast 3;
+		info.windowID = window.id;
+		info.x = x;
+		info.y = y;
+		info.movementX = preciseX;
+		info.movementY = preciseY;
+		@:privateAccess backend.handleMouseEvent();
+	}
+
+	private static function create(transparent:Bool):Window
+	{
+		// The windows are left open, hidden, as closing the last window of the
+		// application ends it, and the tests run before its own window opens
+		return Application.current.createWindow({
+			width: 64,
+			height: 64,
+			hidden: true,
+			title: "WindowTest",
+			transparent: transparent
+		});
+	}
+
+	private static function canCreateWindows():Bool
+	{
+		// Without a display, as on the Linux runners, no window can be created
+		if (create(false) != null) return true;
+
+		// utest takes a warning as a failure, so the test passes, saying why
+		trace("No window can be created here, so windows were not tested");
+		Assert.pass();
+		return false;
+	}
+
+	private static function isTransparent(window:Window):Bool
+	{
+		return @:privateAccess lime._internal.backend.native.NativeCFFI.lime_window_get_transparent(window.__backend.handle);
+	}
+	#end
+}

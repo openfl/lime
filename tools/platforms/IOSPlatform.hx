@@ -99,7 +99,8 @@ class IOSPlatform extends PlatformTarget
 
 		for (i in 1...project.windows.length)
 		{
-			defaults.windows.push(defaults.window);
+			// A copy each, as merge() copies each project window into its own default
+			defaults.windows.push(hxp.ObjectTools.copyFields(defaults.window, {}));
 		}
 
 		defaults.merge(project);
@@ -129,14 +130,6 @@ class IOSPlatform extends PlatformTarget
 			{
 				IOSHelper.sign(project, targetDirectory + "/bin");
 			}
-		}
-	}
-
-	public override function clean():Void
-	{
-		if (FileSystem.exists(targetDirectory))
-		{
-			System.removeDirectory(targetDirectory);
 		}
 	}
 
@@ -324,7 +317,7 @@ class IOSPlatform extends PlatformTarget
 			case "ipad": "2";
 			default: "1,2";
 		}
-		context.DEPLOYMENT = project.config.getString("ios.deployment", "13.6");
+		context.DEPLOYMENT = project.config.getString("ios.deployment", "15.0");
 
 		if (project.config.getString("ios.compiler") == "llvm" || project.config.getString("ios.compiler", "clang") == "clang")
 		{
@@ -340,6 +333,65 @@ class IOSPlatform extends PlatformTarget
 
 		context.IOS_LINKER_FLAGS = ["-stdlib=libc++"].concat(project.config.getArrayString("ios.linker-flags"));
 		context.IOS_NON_EXEMPT_ENCRYPTION = project.config.getBool("ios.non-exempt-encryption", false);
+
+		if (project.config.exists("ios.camera-usage-description"))
+		{
+			context.IOS_CAMERA_USAGE_DESCRIPTION = StringTools.htmlEscape(project.config.getString("ios.camera-usage-description"), true);
+		}
+
+		if (project.config.exists("ios.microphone-usage-description"))
+		{
+			// Info.plist is XML, so a description with & or < would break it
+			context.IOS_MICROPHONE_USAGE_DESCRIPTION = StringTools.htmlEscape(project.config.getString("ios.microphone-usage-description"), true);
+		}
+
+		// ProMotion iPhones run Core Animation above 60 Hz only with this key, which iPads
+		// don't need. It is set when a window asks for more than 60 frames a second, so an
+		// application at 60 isn't woken at 120 for frames it skips.
+		var highFrameRate = false;
+
+		for (window in project.windows)
+		{
+			if (window.fps != null && window.fps > 60) highFrameRate = true;
+		}
+
+		context.IOS_HIGH_FRAME_RATE = project.config.getBool("ios.high-frame-rate", highFrameRate);
+
+		// The privacy manifest gives App Store Connect a reason for each required reason
+		// API the application calls: Lime's frame clock reads the system boot time, and
+		// hxcpp's sys.FileSystem file timestamps. An application adds its own with
+		// <config:ios privacy-accessed-api="TYPE REASON..." />.
+		var privacyTypes:Array<{type:String, reasons:Array<String>}> = [
+			{type: "NSPrivacyAccessedAPICategorySystemBootTime", reasons: ["35F9.1"]},
+			{type: "NSPrivacyAccessedAPICategoryFileTimestamp", reasons: ["C617.1"]}
+		];
+
+		for (entry in project.config.getArrayString("ios.privacy-accessed-api"))
+		{
+			var words = [for (word in ~/\s+/g.split(StringTools.trim(entry))) if (word != "") word];
+			if (words.length < 2) continue;
+
+			var type = words.shift();
+			var existing = null;
+
+			for (privacyType in privacyTypes)
+			{
+				if (privacyType.type == type) existing = privacyType;
+			}
+
+			if (existing == null)
+			{
+				existing = {type: type, reasons: []};
+				privacyTypes.push(existing);
+			}
+
+			for (reason in words)
+			{
+				if (existing.reasons.indexOf(reason) == -1) existing.reasons.push(reason);
+			}
+		}
+
+		context.IOS_PRIVACY_ACCESSED_API_TYPES = privacyTypes;
 
 		switch (project.window.orientation)
 		{
@@ -417,7 +469,7 @@ class IOSPlatform extends PlatformTarget
 
 		if (allowInsecureHTTP != "*" && allowInsecureHTTP != "true")
 		{
-			var sites:Array<{domain: String}> = [];
+			var sites:Array<{domain:String}> = [];
 
 			if (allowInsecureHTTP != "false")
 			{
@@ -446,7 +498,7 @@ class IOSPlatform extends PlatformTarget
 		return context;
 	}
 
-	private function getDisplayHXML():HXML
+	private override function getDisplayHXML():HXML
 	{
 		var path = targetDirectory + "/" + project.app.file + "/haxe/Build.hxml";
 
@@ -454,7 +506,8 @@ class IOSPlatform extends PlatformTarget
 		// modified more recently than the .hxml, then the .hxml cannot be
 		// considered valid anymore. it may cause errors in editors like vscode.
 		if (FileSystem.exists(path)
-			&& (project.projectFilePath == null || !FileSystem.exists(project.projectFilePath)
+			&& (project.projectFilePath == null
+				|| !FileSystem.exists(project.projectFilePath)
 				|| (FileSystem.stat(path).mtime.getTime() > FileSystem.stat(project.projectFilePath).mtime.getTime())))
 		{
 			return File.getContent(path);
@@ -524,23 +577,14 @@ class IOSPlatform extends PlatformTarget
 
 		// project = project.clone ();
 
-		for (asset in project.assets)
-		{
-			if (asset.embed && asset.sourcePath == "")
-			{
-				var path = Path.combine(targetDirectory + "/" + project.app.file + "/obj/tmp", asset.targetPath);
-				System.mkdir(Path.directory(path));
-				AssetHelper.copyAsset(asset, path);
-				asset.sourcePath = path;
-			}
-		}
-
 		// var manifest = new Asset ();
 		// manifest.id = "__manifest__";
 		// manifest.data = AssetHelper.createManifest (project).serialize ();
 		// manifest.resourceName = manifest.flatName = manifest.targetPath = "manifest";
 		// manifest.type = AssetType.TEXT;
 		// project.assets.push (manifest);
+
+		prepareEmbeddedAssets();
 
 		var context = generateContext();
 		context.OUTPUT_DIR = targetDirectory;
@@ -857,30 +901,7 @@ class IOSPlatform extends PlatformTarget
 			}
 		}
 
-		System.mkdir(projectDirectory + "/assets");
-
-		for (asset in project.assets)
-		{
-			if (asset.type != AssetType.TEMPLATE)
-			{
-				var targetPath = Path.combine(projectDirectory + "/assets/", asset.resourceName);
-
-				// var sourceAssetPath:String = projectDirectory + "haxe/" + asset.sourcePath;
-
-				System.mkdir(Path.directory(targetPath));
-				AssetHelper.copyAssetIfNewer(asset, targetPath);
-
-				// System.mkdir (Path.directory (sourceAssetPath));
-				// System.linkFile (flatAssetPath, sourceAssetPath, true, true);
-			}
-			else
-			{
-				var targetPath = Path.combine(projectDirectory, asset.targetPath);
-
-				System.mkdir(Path.directory(targetPath));
-				AssetHelper.copyAsset(asset, targetPath, context);
-			}
-		}
+		copyProjectAssets(projectDirectory, "assets");
 
 		if (project.targetFlags.exists("xcode") && System.hostPlatform == MAC && command == "update")
 		{
@@ -907,21 +928,6 @@ class IOSPlatform extends PlatformTarget
 		context.HAS_LAUNCH_IMAGE = has_launch_image;
 
 	}*/
-	public override function watch():Void
-	{
-		var hxml = getDisplayHXML();
-		var dirs = hxml.getClassPaths(true);
-
-		var outputPath = Path.combine(Sys.getCwd(), project.app.path);
-		dirs = dirs.filter(function(dir)
-		{
-			return (!Path.startsWith(dir, outputPath));
-		});
-
-		var command = ProjectHelper.getCurrentCommand();
-		System.watch(command, dirs);
-	}
-
 	@ignore public override function install():Void {}
 
 	@ignore public override function trace():Void {}

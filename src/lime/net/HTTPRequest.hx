@@ -40,6 +40,16 @@ public var responseStatus:Int;
 public var timeout:Int;
 public var uri:String;
 public var userAgent:String;
+
+/**
+	Whether native targets check that an HTTPS server's certificate is valid
+	and issued for its address, against the system's trusted certificates.
+	Defaults to `true`, or to `false` with `-D lime-insecure-https`. Turn it
+	off only for servers you control, such as one with a self-signed
+	certificate; browsers and Flash always check.
+**/
+public var verifyCertificates:Bool;
+
 public var withCredentials:Bool;
 public var manageCookies:Bool;
 #if !doc_gen
@@ -59,6 +69,7 @@ public function new(uri:String = null)
 	timeout = #if lime_default_timeout Std.parseInt(Compiler.getDefine("lime-default-timeout")) #else 30000 #end;
 	withCredentials = false;
 	manageCookies = true;
+	verifyCertificates = #if lime_insecure_https false #else true #end;
 
 	#if !doc_gen
 	__backend = new HTTPRequestBackend();
@@ -160,10 +171,13 @@ public function load(uri:String = null):Future<T>
 	}
 }
 
-@:noCompletion class _HTTPRequestErrorResponse<T> {
+@:noCompletion class _HTTPRequestErrorResponse<T>
+{
 	public var error:Dynamic;
 	public var responseData:T;
-	public function new(error:Dynamic, responseData:T) {
+
+	public function new(error:Dynamic, responseData:T)
+	{
 		this.error = error;
 		this.responseData = responseData;
 	}
@@ -184,6 +198,7 @@ public function load(uri:String = null):Future<T>
 	public var timeout:Int;
 	public var uri:String;
 	public var userAgent:String;
+	public var verifyCertificates:Bool;
 	public var withCredentials:Bool;
 	public var manageCookies:Bool;
 	public function cancel():Void;
@@ -193,6 +208,8 @@ public function load(uri:String = null):Future<T>
 private typedef HTTPRequestBackend = lime._internal.backend.flash.FlashHTTPRequest;
 #elseif (js && html5)
 private typedef HTTPRequestBackend = lime._internal.backend.html5.HTML5HTTPRequest;
+#elseif emscripten
+private typedef HTTPRequestBackend = lime._internal.backend.emscripten.EmscriptenHTTPRequest;
 #else
 private typedef HTTPRequestBackend = lime._internal.backend.native.NativeHTTPRequest;
 #end

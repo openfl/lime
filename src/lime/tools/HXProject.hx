@@ -50,6 +50,7 @@ class HXProject extends Script
 	public var platformType:PlatformType;
 	public var postBuildCallbacks:Array<CLICommand>;
 	public var preBuildCallbacks:Array<CLICommand>;
+	@:noCompletion public var processedHaxelibIncludes:Array<String>;
 	public var samplePaths:Array<String>;
 	public var sources:Array<String>;
 	public var splashScreens:Array<SplashScreen>;
@@ -67,6 +68,7 @@ class HXProject extends Script
 	public static var _command:String;
 	public static var _debug:Bool;
 	public static var _environment:Map<String, String>;
+	public static var _projectFilePath:String;
 	public static var _target:Platform;
 	public static var _targetFlags:Map<String, String>;
 	public static var _templatePaths:Array<String>;
@@ -93,6 +95,7 @@ class HXProject extends Script
 		HXProject._templatePaths = inputData.templatePaths;
 		HXProject._userDefines = inputData.userDefines;
 		HXProject._environment = inputData.environment;
+		HXProject._projectFilePath = inputData.projectFile;
 		Log.verbose = inputData.logVerbose;
 		Log.enableColor = inputData.logEnableColor;
 
@@ -107,7 +110,7 @@ class HXProject extends Script
 		var classRef = Type.resolveClass(inputData.name);
 		if (classRef == null)
 		{
-			Log.error('Unable to find class ${ inputData.name } in ${ inputData.projectFile }');
+			Log.error('Unable to find class ${inputData.name} in ${inputData.projectFile}');
 			return;
 		}
 		var instance = Type.createInstance(classRef, []);
@@ -189,10 +192,28 @@ class HXProject extends Script
 		else
 		{
 			environment = Sys.environment();
-			for (conflict in ["air", "android", "cpp", "flash", "hl", "html5", "ios", "linux", "mac", "neko", "webassembly", "windows"])
+			for (conflict in [
+				"air",
+				"android",
+				"cpp",
+				"flash",
+				"hl",
+				"html5",
+				"ios",
+				"linux",
+				"mac",
+				"neko",
+				"webassembly",
+				"windows"
+			])
 			{
 				environment.remove(conflict);
 			}
+		}
+
+		if (_projectFilePath != null)
+		{
+			projectFilePath = _projectFilePath;
 		}
 
 		haxedefs = new Map<String, Dynamic>();
@@ -207,10 +228,16 @@ class HXProject extends Script
 		ndlls = new Array<NDLL>();
 		postBuildCallbacks = new Array<CLICommand>();
 		preBuildCallbacks = new Array<CLICommand>();
+		processedHaxelibIncludes = new Array<String>();
 		sources = new Array<String>();
 		samplePaths = new Array<String>();
 		splashScreens = new Array<SplashScreen>();
 		targetHandlers = new Map<String, String>();
+
+		config.set("android", {manifest: {}, application: {}, activity: {}});
+		config.get("android.manifest").xmlChildren = [];
+		config.get("android.application").xmlChildren = [];
+		config.get("android.activity").xmlChildren = [];
 
 		initializeDefines();
 	}
@@ -305,6 +332,8 @@ class HXProject extends Script
 		project.platformType = platformType;
 		project.postBuildCallbacks = postBuildCallbacks.copy();
 		project.preBuildCallbacks = preBuildCallbacks.copy();
+		project.processedHaxelibIncludes = processedHaxelibIncludes.copy();
+		project.projectFilePath = projectFilePath;
 		project.samplePaths = samplePaths.copy();
 		project.sources = sources.copy();
 
@@ -349,37 +378,37 @@ class HXProject extends Script
 
 		for (filter in exclude)
 		{
-			if (filter != "")
+			if (filter != "" && matchesPattern(text, filter))
 			{
-				filter = StringTools.replace(filter, ".", "\\.");
-				filter = StringTools.replace(filter, "*", ".*");
-
-				var regexp = new EReg("^" + filter + "$", "i");
-
-				if (regexp.match(text))
-				{
-					return false;
-				}
+				return false;
 			}
 		}
 
 		for (filter in include)
 		{
-			if (filter != "")
+			if (filter != "" && matchesPattern(text, filter))
 			{
-				filter = StringTools.replace(filter, ".", "\\.");
-				filter = StringTools.replace(filter, "*", ".*");
-
-				var regexp = new EReg("^" + filter, "i");
-
-				if (regexp.match(text))
-				{
-					return true;
-				}
+				return true;
 			}
 		}
 
 		return false;
+	}
+
+	/**
+		Whether `text` is matched in full by `pattern`, a file name in which `*` stands for any
+		run of characters. Every other character is taken literally, and case is ignored.
+	**/
+	private static function matchesPattern(text:String, pattern:String):Bool
+	{
+		var parts = pattern.split("*");
+
+		for (i in 0...parts.length)
+		{
+			parts[i] = EReg.escape(parts[i]);
+		}
+
+		return new EReg("^" + parts.join(".*") + "$", "i").match(text);
 	}
 
 	public static function fromFile(projectFile:String, userDefines:Map<String, Dynamic> = null, includePaths:Array<String> = null):HXProject
@@ -398,11 +427,12 @@ class HXProject extends Script
 		var args = [
 			name,
 			#if lime
-			"-lib", "lime",
-			"-lib", "hxp",
+			"-lib", "lime", "-lib", "hxp",
 			#end
-			"-cp", tempDirectory,
-			"-cp", Path.combine(Haxelib.getPath(new Haxelib("hxp")), "src")
+			"-cp",
+			tempDirectory,
+			"-cp",
+			Path.combine(Haxelib.getPath(new Haxelib("hxp")), "src")
 		];
 		var input = File.read(classFile, false);
 		var tag = "@:compiler(";
@@ -452,7 +482,7 @@ class HXProject extends Script
 		{
 			#if (lime && !eval)
 			var nekoOutput = Path.combine(tempDirectory, name + ".n");
-			System.runCommand("", "haxe", args.concat(["--main", "lime.tools.HXProject", "-neko", nekoOutput]));
+			System.runCommand("", "haxe", args.concat(["-main", "lime.tools.HXProject", "-neko", nekoOutput]));
 			System.runCommand("", "neko", [nekoOutput, inputFile, outputFile]);
 			#else
 			System.runCommand("", "haxe", args.concat(["--run", "lime.tools.HXProject", inputFile, outputFile]));
@@ -677,6 +707,7 @@ class HXProject extends Script
 		@:privateAccess projectXML.parseXML(new Access(Xml.parse(xml).firstElement()), "");
 		merge(projectXML);
 	}
+
 	// #end
 
 	private function initializeDefines():Void
@@ -788,8 +819,7 @@ class HXProject extends Script
 			defines.set("native", "1");
 			defines.set("cpp", "1");
 		}
-		else if (targetFlags.exists("cpp")
-			|| ((platformType != PlatformType.WEB) && !targetFlags.exists("html5")))
+		else if (targetFlags.exists("cpp") || ((platformType != PlatformType.WEB) && !targetFlags.exists("html5")))
 		{
 			defines.set("targetType", "cpp");
 			defines.set("native", "1");
@@ -798,6 +828,11 @@ class HXProject extends Script
 		else if (target == Platform.FLASH)
 		{
 			defines.set("targetType", "swf");
+		}
+		else if (target == Platform.HTML5)
+		{
+			defines.set("targetType", "js");
+			defines.set("js", "1");
 		}
 
 		if (debug)
@@ -906,6 +941,15 @@ class HXProject extends Script
 			excludeArchitectures = ArrayTools.concatUnique(excludeArchitectures, project.excludeArchitectures);
 			haxeflags = ArrayTools.concatUnique(haxeflags, project.haxeflags);
 			haxelibs = ArrayTools.concatUnique(haxelibs, project.haxelibs, true, "name");
+			if (processedHaxelibIncludes == null)
+			{
+				processedHaxelibIncludes = new Array<String>();
+			}
+
+			if (project.processedHaxelibIncludes != null)
+			{
+				processedHaxelibIncludes = ArrayTools.concatUnique(processedHaxelibIncludes, project.processedHaxelibIncludes);
+			}
 			icons = ArrayTools.concatUnique(icons, project.icons);
 			javaPaths = ArrayTools.concatUnique(javaPaths, project.javaPaths, true);
 
@@ -972,6 +1016,11 @@ class HXProject extends Script
 	// #if lime
 	@:noCompletion private static function processHaxelibs(project:HXProject, userDefines:Map<String, Dynamic>):Void
 	{
+		if (project.processedHaxelibIncludes == null)
+		{
+			project.processedHaxelibIncludes = new Array<String>();
+		}
+
 		var haxelibs = project.haxelibs.copy();
 		project.haxelibs = [];
 
@@ -979,6 +1028,11 @@ class HXProject extends Script
 		{
 			var validatePath = Haxelib.getPath(haxelib, true);
 			project.haxelibs.push(haxelib);
+
+			if (ArrayTools.containsValue(project.processedHaxelibIncludes, getHaxelibIncludeKey(haxelib)))
+			{
+				continue;
+			}
 
 			var includeProject = HXProject.fromHaxelib(haxelib, userDefines);
 
@@ -995,6 +1049,16 @@ class HXProject extends Script
 				project.merge(includeProject);
 			}
 		}
+	}
+
+	@:noCompletion public static function getHaxelibIncludeKey(haxelib:Haxelib):String
+	{
+		if (haxelib.version != null && haxelib.version != "")
+		{
+			return haxelib.name + ":" + haxelib.version;
+		}
+
+		return haxelib.name;
 	}
 
 	@:noCompletion private static function resolveClass(name:String):Class<Dynamic>
@@ -1100,6 +1164,8 @@ class HXProject extends Script
 		}
 
 		context.APP_PACKAGE = context.META_PACKAGE = meta.packageName;
+		// For text in an HTML page, where "&" and "<" have meanings of their own
+		context.APP_TITLE_HTML = StringTools.htmlEscape(meta.title != null ? meta.title : "", true);
 
 		for (field in Reflect.fields(windows[0]))
 		{
@@ -1160,7 +1226,7 @@ class HXProject extends Script
 
 				if (asset.embed == null)
 				{
-					embeddedAsset.embed = (platformType == PlatformType.WEB || target == AIR);
+					embeddedAsset.embed = ((platformType == PlatformType.WEB && target != WEB_ASSEMBLY) || target == AIR);
 				}
 
 				embeddedAsset.type = Std.string(asset.type).toLowerCase();
@@ -1221,8 +1287,16 @@ class HXProject extends Script
 		context.sslCaCert = "";
 
 		var compilerFlags:Array<String> = [];
+		var libraries = haxelibs;
 
-		for (haxelib in haxelibs)
+		// Haxe adds hxcpp to C++ builds for its classes alone, and only a library
+		// the build names gets the parameters that libhxcpp sets this collector up with
+		if (defines.exists("cpp") && haxedefs.exists("HXCPP_GC_INCREMENTAL"))
+		{
+			libraries = haxelibs.concat([new Haxelib("hxcpp")]);
+		}
+
+		for (haxelib in libraries)
 		{
 			var name = haxelib.name;
 

@@ -123,7 +123,8 @@ class WindowsPlatform extends PlatformTarget
 
 		for (i in 1...project.windows.length)
 		{
-			defaults.windows.push(defaults.window);
+			// A copy each, as merge() copies each project window into its own default
+			defaults.windows.push(hxp.ObjectTools.copyFields(defaults.window, {}));
 		}
 
 		defaults.merge(project);
@@ -260,7 +261,15 @@ class WindowsPlatform extends PlatformTarget
 				// start by finding visual studio
 				var programFilesX86 = Sys.getEnv("ProgramFiles(x86)");
 				var vswhereCommand = programFilesX86 + "\\Microsoft Visual Studio\\Installer\\vswhere.exe";
-				var vswhereOutput = System.runProcess("", vswhereCommand, ["-latest", "-products", "*", "-requires", "Microsoft.Component.MSBuild", "-property", "installationPath"]);
+				var vswhereOutput = System.runProcess("", vswhereCommand, [
+					"-latest",
+					"-products",
+					"*",
+					"-requires",
+					"Microsoft.Component.MSBuild",
+					"-property",
+					"installationPath"
+				]);
 				var visualStudioPath = StringTools.trim(vswhereOutput);
 				// then, find MSBuild inside visual studio
 				var msBuildPath = visualStudioPath + "\\MSBuild\\Current\\Bin\\MSBuild.exe";
@@ -332,8 +341,7 @@ class WindowsPlatform extends PlatformTarget
 					{
 						ProjectHelper.copyLibrary(project, ndll, "Windows" + (is64 ? "64" : ""), "", ".hdll", applicationDirectory, project.debug,
 							targetSuffix);
-						ProjectHelper.copyLibrary(project, ndll, "Windows" + (is64 ? "64" : ""), "", ".lib", applicationDirectory, project.debug,
-							".lib");
+						ProjectHelper.copyLibrary(project, ndll, "Windows" + (is64 ? "64" : ""), "", ".lib", applicationDirectory, project.debug, ".lib");
 					}
 					else
 					{
@@ -375,7 +383,22 @@ class WindowsPlatform extends PlatformTarget
 					var command:Array<String> = null;
 					if (project.targetFlags.exists("gcc"))
 					{
-						command = ["gcc", "-O3", "-o", executablePath, "-std=c11", "-Wl,-subsystem,windows", "-I", Path.combine(targetDirectory, "obj"), Path.combine(targetDirectory, "obj/ApplicationMain.c"), "C:/Windows/System32/dbghelp.dll"];
+						command = [
+							"gcc",
+							"-O3",
+							"-o",
+							executablePath,
+							"-std=c11",
+							"-Wl,-subsystem,windows",
+							"-I",
+							Path.combine(targetDirectory, "obj"),
+							Path.combine(targetDirectory, "obj/ApplicationMain.c"),
+							"C:/Windows/System32/dbghelp.dll",
+							// gcc 14 and clang 22 made incompatible-pointer-types an
+							// error instead of a warning, but it's required for
+							// assignment to Dynamic in Haxe
+							"-Wno-error=incompatible-pointer-types"
+						];
 						for (file in System.readDirectory(applicationDirectory))
 						{
 							switch Path.extension(file)
@@ -392,13 +415,31 @@ class WindowsPlatform extends PlatformTarget
 						// start by finding visual studio
 						var programFilesX86 = Sys.getEnv("ProgramFiles(x86)");
 						var vswhereCommand = programFilesX86 + "\\Microsoft Visual Studio\\Installer\\vswhere.exe";
-						var vswhereOutput = System.runProcess("", vswhereCommand, ["-latest", "-products", "*", "-requires", "Microsoft.VisualStudio.Component.VC.Tools.x86.x64", "-property", "installationPath"]);
+						var vswhereOutput = System.runProcess("", vswhereCommand, [
+							"-latest",
+							"-products",
+							"*",
+							"-requires",
+							"Microsoft.VisualStudio.Component.VC.Tools.x86.x64",
+							"-property",
+							"installationPath"
+						]);
 						var visualStudioPath = StringTools.trim(vswhereOutput);
 						var vcvarsallPath = visualStudioPath + "\\VC\\Auxiliary\\Build\\vcvarsall.bat";
 						// this command sets up the environment variables and things that visual studio requires
-						var vcvarsallCommand = [vcvarsallPath, "x64"].map(function(arg:String):String { return ~/([&|\(\)<>\^ ])/g.replace(arg, "^$1"); });
+						var vcvarsallCommand = [vcvarsallPath, "x64"].map(function(arg:String):String
+						{
+							return ~/([&|\(\)<>\^ ])/g.replace(arg, "^$1");
+						});
 						// this command runs the cl.exe c compiler from visual studio
-						var clCommand = ["cl.exe", "/Ox", "/Fe:" + executablePath, "-I", Path.combine(targetDirectory, "obj"), Path.combine(targetDirectory, "obj/ApplicationMain.c")];
+						var clCommand = [
+							"cl.exe",
+							"/Ox",
+							"/Fe:" + executablePath,
+							"-I",
+							Path.combine(targetDirectory, "obj"),
+							Path.combine(targetDirectory, "obj/ApplicationMain.c")
+						];
 						for (file in System.readDirectory(applicationDirectory))
 						{
 							switch Path.extension(file)
@@ -411,7 +452,10 @@ class WindowsPlatform extends PlatformTarget
 						}
 						clCommand.push("/link");
 						clCommand.push("/subsystem:windows");
-						clCommand = clCommand.map(function(arg:String):String { return ~/([&|\(\)<>\^ ])/g.replace(arg, "^$1"); });
+						clCommand = clCommand.map(function(arg:String):String
+						{
+							return ~/([&|\(\)<>\^ ])/g.replace(arg, "^$1");
+						});
 						// combine both commands into one
 						command = ["cmd.exe", "/s", "/c", vcvarsallCommand.join(" ") + " && " + clCommand.join(" ")];
 					}
@@ -583,11 +627,16 @@ class WindowsPlatform extends PlatformTarget
 					flags.push("-Dno_console");
 				}
 
+				// The program runs from the application directory, not where hxcpp links it (for libhxcpp's HXCPP_PGO)
+				flags.push("-DHXCPP_PGO_RUN_DIR=" + Path.tryFullPath(applicationDirectory));
+
 				if (!project.targetFlags.exists("static"))
 				{
 					System.runCommand("", "haxe", haxeArgs);
 
 					if (noOutput) return;
+
+					IconHelper.createWindowsIcon(icons, Path.combine(targetDirectory + "/obj", "ApplicationMain.ico"));
 
 					CPPHelper.compile(project, targetDirectory + "/obj", flags);
 
@@ -617,28 +666,15 @@ class WindowsPlatform extends PlatformTarget
 
 					if (noOutput) return;
 
+					IconHelper.createWindowsIcon(icons, Path.combine(targetDirectory + "/obj", "ApplicationMain.ico"));
+
 					CPPHelper.compile(project, targetDirectory + "/obj", flags.concat(["-Dstatic_link"]));
+
 					CPPHelper.compile(project, targetDirectory + "/obj", flags, "BuildMain.xml");
 
 					System.copyFile(targetDirectory + "/obj/Main" + (project.debug ? "-debug" : "") + ".exe", executablePath);
 				}
-
-				var iconPath = Path.combine(applicationDirectory, "icon.ico");
-
-				if (IconHelper.createWindowsIcon(icons, iconPath) && System.hostPlatform == WINDOWS)
-				{
-					var templates = [Haxelib.getPath(new Haxelib(#if lime "lime" #else "hxp" #end)) + "/templates"].concat(project.templatePaths);
-					System.runCommand("", System.findTemplate(templates, "bin/ReplaceVistaIcon.exe"), [executablePath, iconPath, "1"], true, true);
-				}
 			}
-		}
-	}
-
-	public override function clean():Void
-	{
-		if (FileSystem.exists(targetDirectory))
-		{
-			System.removeDirectory(targetDirectory);
 		}
 	}
 
@@ -726,7 +762,7 @@ class WindowsPlatform extends PlatformTarget
 		return context;
 	}
 
-	private function getDisplayHXML():HXML
+	private override function getDisplayHXML():HXML
 	{
 		var path = targetDirectory + "/haxe/" + buildType + ".hxml";
 
@@ -734,7 +770,8 @@ class WindowsPlatform extends PlatformTarget
 		// modified more recently than the .hxml, then the .hxml cannot be
 		// considered valid anymore. it may cause errors in editors like vscode.
 		if (FileSystem.exists(path)
-			&& (project.projectFilePath == null || !FileSystem.exists(project.projectFilePath)
+			&& (project.projectFilePath == null
+				|| !FileSystem.exists(project.projectFilePath)
 				|| (FileSystem.stat(path).mtime.getTime() > FileSystem.stat(project.projectFilePath).mtime.getTime())))
 		{
 			return File.getContent(path);
@@ -779,7 +816,8 @@ class WindowsPlatform extends PlatformTarget
 			if (targetType == "hl")
 			{
 				// default to 64 bit, just like upstream Hashlink releases
-				if (!targetFlags.exists("32") && !targetFlags.exists("x86_32")
+				if (!targetFlags.exists("32")
+					&& !targetFlags.exists("x86_32")
 					&& (System.hostArchitecture == X64 || targetFlags.exists("64") || targetFlags.exists("x86_64")))
 				{
 					commands.push(["-Dwindows", "-DHXCPP_M64", "-Dhashlink"]);
@@ -791,7 +829,8 @@ class WindowsPlatform extends PlatformTarget
 			}
 			else
 			{
-				if (!targetFlags.exists("64") && !targetFlags.exists("x86_64")
+				if (!targetFlags.exists("64")
+					&& !targetFlags.exists("x86_64")
 					&& (command == "rebuild" || System.hostArchitecture == X86 || (targetType != "cpp" && targetType != "winrt")))
 				{
 					if (targetType == "winrt")
@@ -808,9 +847,10 @@ class WindowsPlatform extends PlatformTarget
 				// as previous Windows builds. For now, force -64 to be done last
 				// so that it can be debugged in a default "rebuild"
 
-				if (!targetFlags.exists("32") && !targetFlags.exists("x86_32")
+				if (!targetFlags.exists("32")
+					&& !targetFlags.exists("x86_32")
 					&& System.hostArchitecture == X64
-					&& (command != "rebuild" || targetType == "cpp" || targetType == "winrt"))
+					&& (command != "rebuild" || targetType == "cpp" || targetType == "neko" || targetType == "winrt"))
 				{
 					if (targetType == "winrt")
 					{
@@ -938,6 +978,11 @@ class WindowsPlatform extends PlatformTarget
 			arguments = arguments.concat(["-livereload"]);
 			System.runCommand(applicationDirectory, Path.withoutDirectory(executablePath), arguments);
 		}
+		else
+		{
+			arguments = [Path.withoutDirectory(executablePath)].concat(arguments.concat(["-livereload"]));
+			System.runCommand(applicationDirectory, "wine", arguments);
+		}
 	}
 
 	public override function update():Void
@@ -952,6 +997,8 @@ class WindowsPlatform extends PlatformTarget
 
 		// project = project.clone ();
 
+		prepareEmbeddedAssets();
+
 		if (project.targetFlags.exists("xml"))
 		{
 			project.haxeflags.push("-xml " + targetDirectory + "/types.xml");
@@ -960,17 +1007,6 @@ class WindowsPlatform extends PlatformTarget
 		if (project.targetFlags.exists("json"))
 		{
 			project.haxeflags.push("--json " + targetDirectory + "/types.json");
-		}
-
-		for (asset in project.assets)
-		{
-			if (asset.embed && asset.sourcePath == "")
-			{
-				var path = Path.combine(targetDirectory + "/obj/tmp", asset.targetPath);
-				System.mkdir(Path.directory(path));
-				AssetHelper.copyAsset(asset, path);
-				asset.sourcePath = path;
-			}
 		}
 
 		var context = generateContext();
@@ -986,12 +1022,12 @@ class WindowsPlatform extends PlatformTarget
 
 			var msvc19 = true;
 
-			if ((!hasVSCommunity && vs140 == null) || (hxcppMSVC != null && hxcppMSVC != vs140))
+			if (project.defines.exists("mingw") || (!hasVSCommunity && vs140 == null) || (hxcppMSVC != null && hxcppMSVC != vs140))
 			{
 				msvc19 = false;
 			}
 
-			var suffix = (msvc19 ? "-19.lib" : ".lib");
+			var suffix = (msvc19 ? "-19" : "") + "${LIBEXT}";
 
 			for (i in 0...project.ndlls.length)
 			{
@@ -1025,6 +1061,25 @@ class WindowsPlatform extends PlatformTarget
 		}
 		else if (targetType == "cpp")
 		{
+			var windowsIcons = project.icons;
+			if (windowsIcons.length == 0)
+			{
+				windowsIcons = [new Icon(System.findTemplate(project.templatePaths, "default/icon.svg"))];
+			}
+			var iconPath = Path.combine(targetDirectory + "/obj", "ApplicationMain.ico");
+			context.HAS_ICON = IconHelper.createWindowsIcon(windowsIcons, iconPath);
+			// hxcpp only recompiles ApplicationMain.rc when its text changes, so the
+			// icon's hash goes into it; otherwise a new icon keeps the old resource.
+			context.ICON_HASH = context.HAS_ICON ? haxe.crypto.Md5.make(File.getBytes(iconPath)).toHex() : "";
+			// For the resource file's quoted strings, where a backslash starts an escape and a quote is doubled
+			var rcString = function(value:Dynamic):String
+			{
+				return StringTools.replace(StringTools.replace(Std.string(value), "\\", "\\\\"), "\"", "\"\"");
+			};
+			context.RC_COMPANY = rcString(context.APP_COMPANY);
+			context.RC_DESCRIPTION = rcString(context.APP_DESCRIPTION);
+			context.RC_FILE = rcString(context.APP_FILE);
+			context.RC_PACKAGE = rcString(context.APP_PACKAGE);
 			ProjectHelper.recursiveSmartCopyTemplate(project, "windows/resource", targetDirectory + "/obj", context);
 
 			if (project.targetFlags.exists("static"))
@@ -1040,24 +1095,7 @@ class WindowsPlatform extends PlatformTarget
 
 		}*/
 
-		for (asset in project.assets)
-		{
-			if (asset.embed != true)
-			{
-				var path = Path.combine(applicationDirectory, asset.targetPath);
-
-				if (asset.type != AssetType.TEMPLATE)
-				{
-					System.mkdir(Path.directory(path));
-					AssetHelper.copyAssetIfNewer(asset, path);
-				}
-				else
-				{
-					System.mkdir(Path.directory(path));
-					AssetHelper.copyAsset(asset, path, context);
-				}
-			}
-		}
+		copyProjectAssets(applicationDirectory);
 	}
 
 	private function updateUWP():Void
@@ -1261,21 +1299,6 @@ class WindowsPlatform extends PlatformTarget
 				AssetHelper.copyAsset(asset, path, context);
 			}
 		}
-	}
-
-	public override function watch():Void
-	{
-		var hxml = getDisplayHXML();
-		var dirs = hxml.getClassPaths(true);
-
-		var outputPath = Path.combine(Sys.getCwd(), project.app.path);
-		dirs = dirs.filter(function(dir)
-		{
-			return (!Path.startsWith(dir, outputPath));
-		});
-
-		var command = ProjectHelper.getCurrentCommand();
-		System.watch(command, dirs);
 	}
 
 	//	@ignore public override function install ():Void {}

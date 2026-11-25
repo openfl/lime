@@ -1,0 +1,56 @@
+package lime.media;
+
+/**
+	The pixel layout of a decoded `VideoFrame`.
+**/
+#if (haxe_ver >= 4.0) enum #else @:enum #end abstract VideoFrameFormat(Int) from Int to Int
+{
+	/**
+		Two planes: `width * height` bytes of luma (Y), then interleaved chroma
+		(Cb, Cr) at half resolution, `VideoFrame.chromaWidth * 2` bytes per row
+		for `VideoFrame.chromaHeight` rows.
+
+		This is the format decoders produce, so it costs the least to read.
+		Upload the planes as one-channel (R8 or LUMINANCE) and two-channel (RG8
+		or LUMINANCE_ALPHA) textures, and convert to RGB in a shader using
+		`VideoFrame.colorMatrix` and `VideoFrame.fullRange`.
+	**/
+	var NV12 = 0;
+
+	/**
+		Interleaved 8-bit red, green, blue and alpha, `width * 4` bytes per row,
+		converted from YUV on the decoding thread.
+	**/
+	var RGBA = 1;
+
+	/**
+		An RGBA texture on the GPU, in `VideoFrame.texture`. Decoders that run
+		on the GPU hand their frames over without copying them through memory,
+		which is the fastest way to play video. Elsewhere frames are converted to
+		RGBA and uploaded.
+
+		Read texture frames in `render`, with the GL context current, and close
+		the decoder there too. The texture belongs to the decoder and is only
+		valid until the next frame is read.
+
+		Availability: native targets rendering with OpenGL or OpenGL ES.
+	**/
+	var TEXTURE = 2;
+
+	/**
+		Interleaved 8-bit blue, green, red and alpha, `width * 4` bytes per row,
+		converted from YUV on the decoding thread. This is the layout of
+		`BGRA32` images, such as OpenFL's bitmaps on native targets, Cairo
+		surfaces and BGRA textures, which would show `RGBA` frames with red and
+		blue swapped.
+	**/
+	var BGRA = 3;
+
+	/**
+		Interleaved 8-bit alpha, red, green and blue, `width * 4` bytes per row,
+		converted from YUV on the decoding thread. This is the layout of `ARGB32`
+		images, and of the big-endian bytes that Flash and OpenFL read with
+		`BitmapData.setPixels`.
+	**/
+	var ARGB = 4;
+}

@@ -19,7 +19,9 @@ namespace lime {
 		Bytes (value bytes);
 		~Bytes ();
 
-		void ReadFile (const char* path);
+		// Whether the file could be read, which an empty one can
+		bool ReadFile (const char* path);
+		bool TryResize (int size);
 		void Resize (int size);
 		void Set (value bytes);
 		void Set (const QuickVec<unsigned char> data);

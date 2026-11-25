@@ -6,6 +6,7 @@
 #include <system/CFFI.h>
 #include <system/System.h>
 #include <utils/Resource.h>
+#include <atomic>
 
 #ifdef HX_WINDOWS
 #undef GetGlyphIndices
@@ -45,7 +46,7 @@ namespace lime {
 			Font (Resource *resource, int faceIndex = 0);
 			~Font ();
 
-			void* Decompose (bool useCFFIValue, int em);
+			void* Decompose (bool useCFFIValue, int em, bool forceAutoHint = true);
 			int GetAscender ();
 			int GetDescender ();
 			wchar_t *GetFamilyName ();
@@ -59,9 +60,22 @@ namespace lime {
 			int GetStrikethroughPosition ();
 			int GetStrikethroughThickness ();
 			int GetUnitsPerEM ();
-			int RenderGlyph (int index, Bytes *bytes, int offset = 0);
+			bool IsBold ();
+			bool IsItalic ();
+			int RenderGlyph (int index, Bytes *bytes, int offset = 0, int subpixelX = 0);
+			int RenderGlyphWithFlags (int index, int loadFlags, Bytes *bytes, int offset = 0, int subpixelX = 0);
 			int RenderGlyphs (value indices, Bytes *bytes);
+			int RenderGlyphs (hl_varray* indices, Bytes *bytes);
+			int RenderGlyphs (const int* indices, int count, Bytes *bytes);
 			void SetSize (size_t size, size_t dpi);
+			bool SetVariation (int tag, double coordinate);
+			void SetStemDarkening (bool enable);
+			void SetStemDarkeningParameters (int params[]);
+
+			// The handle holds one reference, and anything else that reads
+			// the face, such as a HarfBuzz face made from it, holds another
+			void Retain ();
+			void Release ();
 
 			void* library;
 			void* face;
@@ -69,6 +83,7 @@ namespace lime {
 
 		private:
 
+			std::atomic<int> mReferences;
 			size_t mSize;
 
 	};

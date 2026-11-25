@@ -73,6 +73,10 @@ class GL
 	public static inline var DEPTH_TEST = 0x0B71;
 	public static inline var SCISSOR_TEST = 0x0C11;
 	public static inline var POLYGON_OFFSET_FILL = 0x8037;
+	public static inline var POINT = 0x1B00;
+	public static inline var LINE = 0x1B01;
+	public static inline var FILL = 0x1B02;
+	public static inline var POLYGON_MODE = 0x0B40;
 	public static inline var SAMPLE_ALPHA_TO_COVERAGE = 0x809E;
 	public static inline var SAMPLE_COVERAGE = 0x80A0;
 	public static inline var NO_ERROR = 0;
@@ -590,6 +594,12 @@ class GL
 	#else
 	public static var context(default, null):Dynamic;
 	#end
+	/**
+		Whether `polygonMode` draws polygons as lines or points, which desktop
+		OpenGL can do and OpenGL ES and WebGL cannot.
+	**/
+	public static var supportsPolygonMode(get, never):Bool;
+
 	public static var type(default, null):RenderContextType;
 	public static var version(default, null):Float;
 
@@ -886,6 +896,14 @@ class GL
 	public static inline function copyBufferSubData(readTarget:Int, writeTarget:Int, readOffset:DataPointer, writeOffset:DataPointer, size:Int):Void
 	{
 		context.copyBufferSubData(readTarget, writeTarget, readOffset, writeOffset, size);
+	}
+	#end
+
+	#if (lime_opengl || lime_opengles)
+	public static inline function copyImageSubData(srcName:GLTexture, srcTarget:Int, srcLevel:Int, srcX:Int, srcY:Int, srcZ:Int, dstName:GLTexture,
+			dstTarget:Int, dstLevel:Int, dstX:Int, dstY:Int, dstZ:Int, srcWidth:Int, srcHeight:Int, srcDepth:Int):Void
+	{
+		context.copyImageSubData(srcName, srcTarget, srcLevel, srcX, srcY, srcZ, dstName, dstTarget, dstLevel, dstX, dstY, dstZ, srcWidth, srcHeight, srcDepth);
 	}
 	#end
 
@@ -1844,6 +1862,19 @@ class GL
 		context.lineWidth(width);
 	}
 
+	/**
+		Draws the polygons that face `face` (`FRONT_AND_BACK` in a core
+		profile) filled, as lines, for a wireframe, or as points, with `mode`
+		`FILL`, `LINE` or `POINT`. It does nothing where `supportsPolygonMode`
+		is `false`, which draws them filled.
+	**/
+	public static inline function polygonMode(face:Int, mode:Int):Void
+	{
+		#if lime_opengl
+		context.polygonMode(face, mode);
+		#end
+	}
+
 	public static inline function linkProgram(program:GLProgram):Void
 	{
 		context.linkProgram(program);
@@ -2595,6 +2626,17 @@ class GL
 	private static inline function __getObjectID(object:#if (!js || !html5 || doc_gen) GLObject #else Dynamic #end):Int
 	{
 		return (object == null) ? 0 : @:privateAccess object.id;
+	}
+
+	// Get & Set Methods
+	@:noCompletion private static function get_supportsPolygonMode():Bool
+	{
+		#if lime_opengl
+		// The context knows its type, which native targets do not copy to GL.type
+		return context != null && context.type == RenderContextType.OPENGL;
+		#else
+		return false;
+		#end
 	}
 }
 

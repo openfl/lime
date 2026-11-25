@@ -1,6 +1,7 @@
 package utils;
 
 import haxe.Http;
+import haxe.Json;
 import haxe.io.Eof;
 import haxe.zip.Reader;
 import hxp.*;
@@ -366,8 +367,7 @@ class PlatformSetup
 					setupAndroid();
 
 				case "blackberry":
-
-				// setupBlackBerry ();
+					// setupBlackBerry ();
 
 				case "html5":
 					Log.println("\x1b[0;3mNo additional configuration is required.\x1b[0m");
@@ -392,15 +392,13 @@ class PlatformSetup
 					}
 
 				case "tizen":
-
-				// setupTizen ();
+					// setupTizen ();
 
 				case "webassembly", "wasm", "emscripten":
 					setupWebAssembly();
 
 				case "webos":
-
-				// setupWebOS ();
+					// setupWebOS ();
 
 				case "electron":
 					setupElectron();
@@ -651,6 +649,12 @@ class PlatformSetup
 			{
 				if (setupHaxelibs.exists(lib.name)) continue;
 
+				if (lib.name == "libhxcpp")
+				{
+					setupLibHxcpp(lib);
+					continue;
+				}
+
 				var path = Haxelib.getPath(lib, false, true);
 
 				if (path == null || path == "" || (lib.version != null && lib.version != ""))
@@ -675,6 +679,108 @@ class PlatformSetup
 		{
 			// Log.warn ("No setup is required for " + haxelib.name + ", or it is not a valid target");
 		}
+	}
+
+	// libhxcpp is installed under its own name, and its setup points the "hxcpp"
+	// haxelib at it with "haxelib dev", so the compiler, -lib hxcpp and Lime's
+	// hxcpp ndlls all use it. Stock hxcpp, if installed, is left in place.
+	private static function setupLibHxcpp(haxelib:Haxelib):Void
+	{
+		setupHaxelibs.set(haxelib.name, true);
+		setupHaxelibs.set("hxcpp", true);
+
+		var path = Haxelib.getPath(haxelib, false, true);
+
+		if (path == null || path == "")
+		{
+			installHaxelib(haxelib);
+		}
+		else
+		{
+			updateHaxelib(haxelib);
+		}
+
+		// An update installs the new version in a folder beside the old one
+		path = Haxelib.getPath(haxelib, false, true);
+
+		if (path == null || path == "")
+		{
+			Log.warn("Could not install libhxcpp, which Lime uses for C++ builds");
+			return;
+		}
+
+		var repository = Haxelib.getRepositoryPath(true);
+		var hxcpp = new Haxelib("hxcpp");
+		var hxcppPath = Haxelib.getPath(hxcpp, false, true);
+
+		// Set up hxcpp when it is not installed, is a stock hxcpp install, or
+		// already points at this or an older version of libhxcpp. A folder of
+		// the developer's own, set with "haxelib dev", is left as it is.
+		if (hxcppPath != null && hxcppPath != "" && !isSamePath(hxcppPath, path)
+			&& !isInsidePath(hxcppPath, Path.combine(repository, "hxcpp"))
+			&& !isInsidePath(hxcppPath, Path.combine(repository, "libhxcpp")))
+		{
+			var name = null;
+
+			try
+			{
+				var json = Json.parse(File.getContent(Path.combine(hxcppPath, "haxelib.json")));
+				name = json.name;
+			}
+			catch (e:Dynamic) {}
+
+			if (name == "libhxcpp")
+			{
+				Log.info("hxcpp already points at the libhxcpp in " + hxcppPath + ", so it is left as it is.");
+			}
+			else
+			{
+				Log.warn("hxcpp is set with \"haxelib dev\" to " + hxcppPath
+					+ ", so it is left as it is. Lime uses libhxcpp; to switch to it, run: haxelib run libhxcpp setup");
+			}
+
+			return;
+		}
+
+		var success = false;
+
+		try
+		{
+			// libhxcpp says what it changed, and how to go back to stock hxcpp
+			success = (Haxelib.runCommand("", ["run", "libhxcpp", "setup"], false) == 0);
+		}
+		catch (e:Dynamic) {}
+
+		Haxelib.getPath(hxcpp, false, true);
+
+		if (!success)
+		{
+			Log.warn("Could not point hxcpp at libhxcpp. To try again, run: haxelib run libhxcpp setup");
+			return;
+		}
+
+		// A libhxcpp checkout has no build tool until it is compiled
+		if (!FileSystem.exists(Path.combine(path, "hxcpp.n")))
+		{
+			Log.info(Log.accentColor + "Compiling the libhxcpp build tool..." + Log.resetColor);
+			System.runCommand(Path.combine(path, "tools/hxcpp"), "haxe", ["compile.hxml"]);
+		}
+	}
+
+	private static function isInsidePath(path:String, folder:String):Bool
+	{
+		return StringTools.startsWith(comparablePath(path) + "/", comparablePath(folder) + "/");
+	}
+
+	private static function isSamePath(a:String, b:String):Bool
+	{
+		return comparablePath(a) == comparablePath(b);
+	}
+
+	private static function comparablePath(path:String):String
+	{
+		path = Path.standardize(StringTools.trim(path), false);
+		return System.hostPlatform == WINDOWS ? path.toLowerCase() : path;
 	}
 
 	public static function setupHTML5():Void
@@ -1236,9 +1342,12 @@ class PlatformSetup
 	public static function setupHL():Void
 	{
 		var message = "Absolute path to a custom version of HashLink.";
-		if (ConfigHelper.getConfigValue("HL_PATH") == null) {
+		if (ConfigHelper.getConfigValue("HL_PATH") == null)
+		{
 			message += " Leave empty to use Lime's default bundled version.";
-		} else {
+		}
+		else
+		{
 			message += " Leave empty to keep the currently configured version. To restore Lime's default bundled version, run the command: lime config remove HL_PATH";
 		}
 		getDefineValue("HL_PATH", message);
@@ -1274,8 +1383,25 @@ class PlatformSetup
 						"extendedKeyUsage=critical,codeSigning",
 					].join("\n"));
 					System.runCommand("", "openssl", [
-						"req", "-x509", "-newkey", "rsa:4096", "-keyout", key, "-nodes", "-days", "365", "-subj", "/CN=hl-cert", "-outform", "der", "-out",
-						cert, "-extensions", "v3_req", "-config", openSSLConf
+						"req",
+						"-x509",
+						"-newkey",
+						"rsa:4096",
+						"-keyout",
+						key,
+						"-nodes",
+						"-days",
+						"365",
+						"-subj",
+						"/CN=hl-cert",
+						"-outform",
+						"der",
+						"-out",
+						cert,
+						"-extensions",
+						"v3_req",
+						"-config",
+						openSSLConf
 					], true, false, true);
 					System.runCommand("", "sudo", [
 						"security",

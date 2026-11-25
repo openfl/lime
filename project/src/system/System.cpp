@@ -4,7 +4,7 @@
 #include <wbemidl.h>
 #include <comutil.h>
 #pragma comment(lib, "wbemuuid.lib")
-#include <Windows.h>
+#include <windows.h>
 #endif
 
 #include <system/System.h>
@@ -20,9 +20,25 @@ namespace lime {
 	#endif
 
 
+	// Blocking calls nest, such as opening a file while a video opens, but
+	// hxcpp tracks one level, so only the outermost pair reaches it
+	static thread_local int gcBlockingDepth = 0;
+
+
+	// Both collectors wait for every thread they know of to stop, unless it
+	// has said it is blocked in native code, where it can't stop
 	void System::GCEnterBlocking () {
 
-		if (!_isHL) {
+		if (gcBlockingDepth++ == 0) {
+
+			#ifdef LIME_HASHLINK
+			if (_isHL) {
+
+				hl_blocking (true);
+				return;
+
+			}
+			#endif
 
 			gc_enter_blocking ();
 
@@ -33,7 +49,16 @@ namespace lime {
 
 	void System::GCExitBlocking () {
 
-		if (!_isHL) {
+		if (--gcBlockingDepth == 0) {
+
+			#ifdef LIME_HASHLINK
+			if (_isHL) {
+
+				hl_blocking (false);
+				return;
+
+			}
+			#endif
 
 			gc_exit_blocking ();
 
@@ -124,7 +149,7 @@ namespace lime {
 
 		}
 
-		hres = pSvc->ExecQuery (bstr_t ("WQL"), query, WBEM_FLAG_FORWARD_ONLY | WBEM_FLAG_RETURN_IMMEDIATELY, NULL, &pEnumerator);
+		hres = pSvc->ExecQuery (bstr_t (L"WQL"), query, WBEM_FLAG_FORWARD_ONLY | WBEM_FLAG_RETURN_IMMEDIATELY, NULL, &pEnumerator);
 
 		if (FAILED (hres)) {
 
@@ -164,7 +189,7 @@ namespace lime {
 	std::wstring* System::GetDeviceModel () {
 
 		#if defined (HX_WINDOWS) && !defined (HX_WINRT)
-		return GetWMIValue (bstr_t ("SELECT * FROM Win32_ComputerSystemProduct"), L"Version");
+		return GetWMIValue (bstr_t (L"SELECT * FROM Win32_ComputerSystemProduct"), bstr_t (L"Version"));
 		#endif
 
 		return NULL;
@@ -175,7 +200,7 @@ namespace lime {
 	std::wstring* System::GetDeviceVendor () {
 
 		#if defined (HX_WINDOWS) && !defined (HX_WINRT)
-		return GetWMIValue (bstr_t ("SELECT * FROM Win32_ComputerSystemProduct"), L"Vendor");
+		return GetWMIValue (bstr_t (L"SELECT * FROM Win32_ComputerSystemProduct"), bstr_t (L"Vendor"));
 		#endif
 
 		return NULL;
@@ -186,7 +211,7 @@ namespace lime {
 	std::wstring* System::GetPlatformLabel () {
 
 		#if defined (HX_WINDOWS) && !defined (HX_WINRT)
-		return GetWMIValue (bstr_t ("SELECT * FROM Win32_OperatingSystem"), L"Caption");
+		return GetWMIValue (bstr_t (L"SELECT * FROM Win32_OperatingSystem"), bstr_t (L"Caption"));
 		#endif
 
 		return NULL;
@@ -204,7 +229,7 @@ namespace lime {
 	std::wstring* System::GetPlatformVersion () {
 
 		#if defined (HX_WINDOWS) && !defined (HX_WINRT)
-		return GetWMIValue (bstr_t ("SELECT * FROM Win32_OperatingSystem"), L"Version");
+		return GetWMIValue (bstr_t (L"SELECT * FROM Win32_OperatingSystem"), bstr_t (L"Version"));
 		#endif
 
 		return NULL;
