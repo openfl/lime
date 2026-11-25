@@ -504,6 +504,253 @@ class ImageOperationOutputTest extends Test
 		});
 	}
 
+	public function testCopyPixelsBetweenStraightAndPremultipliedImagesKeepsItsOutput():Void
+	{
+		// The source has the other premultiplied setting from the destination, in the same format and the next
+		assertPins([
+			"2B3142A9 74DCB4A4 2B3142A9 74DCB4A4",
+			"A2152FC5 DEE63B0B A2152FC5 DEE63B0B",
+			"884424D0 863E0499 884424D0 863E0499",
+			"75BE82E4 2F07D6AE 75BE82E4 2F07D6AE",
+			"049B9590 75CE2C94 049B9590 75CE2C94",
+			"F3DD1909 450DDCFA F3DD1909 450DDCFA"
+		], function(format, premultiplied)
+		{
+			var results = [];
+
+			for (sourceFormat in [format, nextFormat(format)])
+			{
+				for (mergeAlpha in [false, true])
+				{
+					var dest = destImage(format, premultiplied);
+					dest.copyPixels(sourceImage(sourceFormat, !premultiplied), new Rectangle(2, 3, 11, 7), new Vector2(5, 4), null, null, mergeAlpha);
+					results.push(checksum(dest));
+				}
+			}
+
+			return results.join(" ");
+		});
+	}
+
+	public function testCopyPixelsThroughTheHaxeLoopKeepsItsOutput():Void
+	{
+		// What HTML5 runs, and native targets without the native library
+		assertPins([
+			"89AC17FD ABE842AE E5D3DDF0 5FF3A9BF",
+			"A2152FC5 970A2AF8 4901F08C D7F200CB",
+			"E8D2800C D0A7FB8C 86E2DF48 F053D06B",
+			"75BE82E4 9E86C2AF 0BD3007A D5DB1716",
+			"FEBFB3B3 D73079EE EDAB3194 1911E464",
+			"F3DD1909 36BCFECA 837F0DBF 10E276BC"
+		], function(format, premultiplied)
+		{
+			return withoutNative(function()
+			{
+				var results = [];
+				var dest = destImage(format, premultiplied);
+				var source = sourceImage(format, premultiplied);
+
+				dest.copyPixels(source, new Rectangle(2, 3, 11, 7), new Vector2(5, 4));
+				results.push(checksum(dest));
+				dest.copyPixels(source, new Rectangle(6, 0, 12, 10), new Vector2(9, 5), null, null, true);
+				results.push(checksum(dest));
+				dest.copyPixels(sourceImage(nextFormat(format), !premultiplied), new Rectangle(1, 2, 13, 8), new Vector2(2, 6), null, null, true);
+				results.push(checksum(dest));
+				dest.copyPixels(source, new Rectangle(0, 0, 12, 7), new Vector2(4, 5), alphaImage(format, premultiplied), new Vector2(3, 2), true);
+				results.push(checksum(dest));
+				return results.join(" ");
+			});
+		});
+	}
+
+	public function testCopyPixelsWithinOneImageThroughTheHaxeLoopKeepsItsOutput():Void
+	{
+		assertPins([
+			"33C6479E 087D66CD 2464F932",
+			"874F3BBE 5E563BDE B1B6324A",
+			"452550D3 EF1F6825 E968883E",
+			"B1797B16 AF5EDA16 63ACF4B6",
+			"417F208D 7101EB77 FECDD2EA",
+			"C3BD3771 E998DB42 934C2822"
+		], function(format, premultiplied)
+		{
+			return withoutNative(function()
+			{
+				var image = destImage(format, premultiplied);
+				var results = [];
+
+				image.copyPixels(image, new Rectangle(3, 2, 12, 9), new Vector2(6, 5));
+				results.push(checksum(image));
+				image.copyPixels(image, new Rectangle(8, 7, 10, 8), new Vector2(4, 3), null, null, true);
+				results.push(checksum(image));
+				image.scroll(-3, 2);
+				results.push(checksum(image));
+				return results.join(" ");
+			});
+		});
+	}
+
+	public function testCopyPixelsWithinOneImageThroughAnAlphaImageKeepsItsOutput():Void
+	{
+		// The source is the destination, overlapping, so it has to be read before it is written
+		assertPins(["25345246 6B0FB2ED", "AEEB14C3 3BF3D252", "F786649F 30A8C88F", "8A180ABD A601783A", "7D82708E 0C14FDF9", "1C7C1FD4 F5057E89"], function(format, premultiplied)
+		{
+			var image = destImage(format, premultiplied);
+			var results = [];
+
+			image.copyPixels(image, new Rectangle(2, 1, 12, 9), new Vector2(5, 4), alphaImage(format, premultiplied), new Vector2(0, 0), false);
+			results.push(checksum(image));
+			image.copyPixels(image, new Rectangle(7, 6, 11, 8), new Vector2(3, 2), alphaImage(format, premultiplied), new Vector2(0, 0), true);
+			results.push(checksum(image));
+			return results.join(" ");
+		});
+	}
+
+	public function testChangingTheFormatKeepsItsOutput():Void
+	{
+		// To each other format and back
+		assertPins([
+			"2DA2675B 2B22285C 7461E90E 2B22285C",
+			"4419C9E6 C03D8750 65F8DACB C03D8750",
+			"2B22285C 2DA2675B 7461E90E 2DA2675B",
+			"C03D8750 4419C9E6 65F8DACB 4419C9E6",
+			"2B22285C 7461E90E 2DA2675B 7461E90E",
+			"C03D8750 65F8DACB 4419C9E6 65F8DACB"
+		], function(format, premultiplied)
+		{
+			var results = [];
+
+			for (other in FORMATS)
+			{
+				if (other == format) continue;
+
+				var image = destImage(format, premultiplied);
+				image.format = other;
+				results.push(checksum(image));
+				image.format = format;
+				results.push(checksum(image));
+			}
+
+			return results.join(" ");
+		});
+	}
+
+	public function testConvertingToPremultipliedBGRAKeepsItsOutput():Void
+	{
+		// As OpenFL does with every image it loads on native targets: the format first, then alpha. The
+		// opaque image is as a decoded JPEG is, every alpha 255 but marked transparent.
+		assertPins(["4419C9E6 6B7B356A", "4419C9E6 6B7B356A", "4419C9E6 6B7B356A", "4419C9E6 6B7B356A", "4419C9E6 6B7B356A", "4419C9E6 6B7B356A"], function(format, premultiplied)
+		{
+			var image = destImage(format, false);
+			var opaque = destImage(format, false);
+			opaque.fillRect(new Rectangle(0, 0, WIDTH, HEIGHT), 0xFF336699, ARGB32);
+			opaque.setPixel32(3, 4, 0xFF000000, ARGB32);
+			opaque.setPixel32(5, 6, 0xFFFFFFFF, ARGB32);
+			opaque.setPixel32(7, 8, 0xFF010203, ARGB32);
+
+			for (each in [image, opaque])
+			{
+				if (premultiplied)
+				{
+					// The other order
+					each.premultiplied = true;
+					each.format = BGRA32;
+				}
+				else
+				{
+					each.format = BGRA32;
+					each.premultiplied = true;
+				}
+			}
+
+			return checksum(image) + " " + checksum(opaque);
+		});
+	}
+
+	public function testPixelAccessOnAnImageWithinALargerBufferKeepsItsOutput():Void
+	{
+		// setPixel, getPixel and getColorBoundsRect add the image's offsets in Haxe
+		assertPins([
+			"B38986DA 11978A80 4,3,8,7 0,0,19,14",
+			"FD62DC2A B9A72046 4,3,8,7 0,0,19,14",
+			"F2C86F47 11978A80 4,3,8,7 0,0,19,14",
+			"57436DDD B9A72046 4,3,8,7 0,0,19,14",
+			"88B29506 11978A80 4,3,8,7 0,0,19,14",
+			"676B31E4 B9A72046 4,3,8,7 0,0,19,14"
+		], function(format, premultiplied)
+		{
+			var whole = randomImage(31, 25, DEST, format, premultiplied);
+			var part = new Image(whole.buffer, 5, 4, 19, 14, null, DATA);
+			var values = Bytes.alloc(19 * 14 * 8);
+			var state = 0x51ED270B;
+
+			for (i in 0...40)
+			{
+				state = xorshift(state);
+				var x = ((state >>> 16) & 0xFFFF) % 19;
+				var y = (state & 0xFFFF) % 14;
+				state = xorshift(state);
+				if (i % 2 == 0) part.setPixel(x, y, state, FORMATS[i % 3]);
+				else part.setPixel32(x, y, state, FORMATS[i % 3]);
+			}
+
+			for (y in 0...14)
+			{
+				for (x in 0...19)
+				{
+					values.setInt32((y * 19 + x) * 8, part.getPixel32(x, y, ARGB32));
+					values.setInt32((y * 19 + x) * 8 + 4, part.getPixel(x, y, BGRA32));
+				}
+			}
+
+			// A color nothing else has, at two places, and everything that isn't it
+			part.setPixel32(4, 3, 0xFF123456, ARGB32);
+			part.setPixel32(11, 9, 0xFF123456, ARGB32);
+			var bounds = part.getColorBoundsRect(0xFFFFFFFF, 0xFF123456, true, ARGB32);
+			var rare = part.getColorBoundsRect(0xFFFFFFFF, 0xFF123456, false, ARGB32);
+
+			return checksum(whole) + " " + crc(values) + " " + rectString(bounds) + " " + rectString(rare);
+		});
+	}
+
+	public function testOperationsOnABufferThatStartsPartwayIntoItsBytesKeepTheirOutput():Void
+	{
+		// The buffer's data is a view that starts 64 bytes into a larger array
+		assertPins(["C53DF9A9 4A83BD38", "39AE37D4 56741E47", "BF2B1B74 4A83BD38", "80A9B148 56741E47", "09145183 4A83BD38", "235250D8 56741E47"], function(format, premultiplied)
+		{
+			var plain = destImage(format, premultiplied);
+			var bytes = Bytes.alloc(64 + WIDTH * HEIGHT * 4 + 64);
+			bytes.fill(0, bytes.length, 0x5A);
+			bytes.blit(64, plain.buffer.data.toBytes(), 0, WIDTH * HEIGHT * 4);
+
+			var buffer = new ImageBuffer(new UInt8Array(bytes, 64, WIDTH * HEIGHT * 4), WIDTH, HEIGHT, 32, format);
+			buffer.premultiplied = premultiplied;
+			buffer.transparent = true;
+			var image = new Image(buffer, 0, 0, WIDTH, HEIGHT, null, DATA);
+			var source = sourceImage(format, premultiplied);
+			var matrix = new ColorMatrix();
+			matrix.blueMultiplier = 0.5;
+			matrix.redOffset = 16;
+
+			image.fillRect(new Rectangle(2, 3, 8, 5), 0xC0336699, ARGB32);
+			image.copyPixels(source, new Rectangle(1, 1, 9, 6), new Vector2(8, 6));
+			image.copyPixels(source, new Rectangle(2, 1, 8, 6), new Vector2(12, 9), null, null, true);
+			image.colorTransform(new Rectangle(4, 5, 10, 6), matrix);
+			image.merge(source, new Rectangle(2, 2, 6, 5), new Vector2(1, 8), 128, 96, 160, 200);
+			image.copyChannel(source, new Rectangle(0, 0, 7, 5), new Vector2(11, 1), ImageChannel.RED, ImageChannel.BLUE);
+			var read = image.getPixels(new Rectangle(3, 3, 9, 7), ARGB32);
+
+			var guards = 0;
+			for (i in 0...64)
+			{
+				if (bytes.get(i) != 0x5A) guards++;
+				if (bytes.get(bytes.length - 1 - i) != 0x5A) guards++;
+			}
+
+			return checksum(image) + " " + crc(read) + (guards == 0 ? "" : " " + guards + " bytes outside the view changed");
+		});
+	}
+
 	// Helpers
 
 	private static function assertPins(expected:Array<String>, operation:PixelFormat->Bool->String, ?pos:haxe.PosInfos):Void
@@ -630,6 +877,21 @@ class ImageOperationOutputTest extends Test
 	private static function crc(bytes:Bytes):String
 	{
 		return bytes == null ? "null" : StringTools.hex(Crc32.make(bytes), 8);
+	}
+
+	/** Runs `operation` through the Haxe code, with the native library turned off **/
+	private static function withoutNative(operation:Void->String):String
+	{
+		var enabled = lime.system.CFFI.enabled;
+		lime.system.CFFI.enabled = false;
+		var result = try operation() catch (e:Dynamic) "threw " + e;
+		lime.system.CFFI.enabled = enabled;
+		return result;
+	}
+
+	private static function rectString(rect:Rectangle):String
+	{
+		return rect == null ? "null" : Std.int(rect.x) + "," + Std.int(rect.y) + "," + Std.int(rect.width) + "," + Std.int(rect.height);
 	}
 
 	private static function formatName(format:PixelFormat):String
