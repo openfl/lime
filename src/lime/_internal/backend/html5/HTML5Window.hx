@@ -499,7 +499,7 @@ class HTML5Window
 
 	public function getMouseLock():Bool
 	{
-		return false;
+		return parent.element != null && (untyped Browser.document.pointerLockElement) == parent.element;
 	}
 
 	public function getMouseRect():Rectangle
@@ -1090,10 +1090,23 @@ class HTML5Window
 					}
 					__stopMousePropagation = event.currentTarget == parent.element;
 
-					if (x != cacheMouseX || y != cacheMouseY)
+					// While the pointer is locked, the event's position stays where the lock
+					// began, and only its movement says how far the mouse moved, in CSS pixels
+					var locked = getMouseLock();
+					var movementX = x - cacheMouseX;
+					var movementY = y - cacheMouseY;
+
+					if (locked)
+					{
+						var scale = __mouseMovementScale();
+						movementX = (untyped event.movementX : Float) * scale;
+						movementY = (untyped event.movementY : Float) * scale;
+					}
+
+					if (locked ? (movementX != 0 || movementY != 0) : (x != cacheMouseX || y != cacheMouseY))
 					{
 						parent.onMouseMove.dispatch(x, y);
-						parent.onMouseMoveRelative.dispatch(x - cacheMouseX, y - cacheMouseY);
+						parent.onMouseMoveRelative.dispatch(movementX, movementY);
 
 						if ((parent.onMouseMove.canceled || parent.onMouseMoveRelative.canceled) && event.cancelable)
 						{
@@ -1603,7 +1616,38 @@ class HTML5Window
 		return false;
 	}
 
-	public function setMouseLock(value:Bool):Void {}
+	public function setMouseLock(value:Bool):Void
+	{
+		var element:Dynamic = parent.element;
+		if (element == null) return;
+
+		var document:Dynamic = Browser.document;
+
+		if (value)
+		{
+			if (document.pointerLockElement != element && element.requestPointerLock != null)
+			{
+				// Browsers lock the pointer only from a user input event, and some refuse with a
+				// promise that would otherwise be reported as unhandled
+				var request:Dynamic = element.requestPointerLock();
+				if (request != null && request.then != null) request.then(null, function(_) {});
+			}
+		}
+		else if (document.pointerLockElement == element && document.exitPointerLock != null)
+		{
+			document.exitPointerLock();
+		}
+	}
+
+	// From the CSS pixels of a mouse event's movement to the window's own units, as for its position
+	private function __mouseMovementScale():Float
+	{
+		var target:Element = canvas != null ? canvas : (div != null ? null : parent.element);
+		if (target == null) return 1;
+
+		var rect = target.getBoundingClientRect();
+		return rect.width > 0 ? parent.__width / rect.width : 1;
+	}
 
 	public function setMouseRect(value:Rectangle):Void {}
 

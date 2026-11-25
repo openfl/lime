@@ -58,6 +58,7 @@ Changelog
 - Added the Vorbis sound of Matroska and WebM videos on Windows, which Media Foundation has no decoder for, read with libwebm and decoded with libvorbis.
 - Added `Window.flash()`, `Window.mouseRect`, and `Window.keyboardGrab`.
 - Added `Window.preciseMouseWheel` for smooth scrolling on touchpads and smooth wheels.
+- Added `Window.mouseLock` on HTML5, through the browser's pointer lock, with `onMouseMoveRelative` reporting the mouse's movement while it is locked.
 - Added `Window.appearance` and `Window.effectiveAppearance` to prefer light or dark window decorations.
 - Added `Window.onDisplayScaleChange`.
 - Added `Display.onConnect`, `Display.onDisconnect`, and `Display.onMove`.
