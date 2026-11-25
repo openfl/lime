@@ -169,14 +169,15 @@ created with Lime._
 This product bundles Closure Compiler v20200315, which is available under an
 "Apache 2.0 License" license. For details, see https://github.com/google/closure-compiler.
 
-This product bundles ios-deploy 1.9.0, which is available under an
-"GPLv3" license. For details, see https://github.com/phonegap/ios-deploy.
+This product bundles ios-deploy 1.12.2, which is available under an
+"GPLv3" license. For details, see https://github.com/ios-control/ios-deploy.
 
 This product bundles CrossByte 1.0.1, which is available under an
 "Apache 2.0" license. For details, see [DimensionscapeOrg/crossbyte](https://github.com/DimensionscapeOrg/crossbyte).
 
-This product bundles webify 0.1.1.0, which is available under an
-"MIT" license. For details, see https://github.com/ananthakumaran/webify.
+This product bundles webify 0.1.1.0, and for macOS webify 0.1.10.0, which are available under an
+"MIT" license. For details, see https://github.com/ananthakumaran/webify and, for the macOS
+build, https://github.com/joshtynjala/webify.
 
 This product bundles YUI Compressor 2.4.7, which is available under an
 "MIT" license. For details, see https://github.com/yui/yuicompressor.
