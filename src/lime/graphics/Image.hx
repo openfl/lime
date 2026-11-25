@@ -447,8 +447,27 @@ class Image
 
 		if (sourceImage == this && destPoint.x < sourceRect.right && destPoint.y < sourceRect.bottom)
 		{
-			// TODO: Optimize further?
-			sourceImage = clone();
+			// The pixels written would overwrite some still to be read, so the
+			// source is read from a copy: of only sourceRect, where the pixels
+			// are in a buffer and the rectangle is in whole pixels
+			#if (js && html5)
+			if (type == DATA) ImageCanvasUtil.convertToData(this);
+			#end
+
+			if (type == DATA
+				&& buffer.data != null
+				&& sourceRect.x == Std.int(sourceRect.x)
+				&& sourceRect.y == Std.int(sourceRect.y)
+				&& sourceRect.width == Std.int(sourceRect.width)
+				&& sourceRect.height == Std.int(sourceRect.height))
+			{
+				sourceImage = __copyRect(sourceRect);
+				sourceRect = new Rectangle(0, 0, sourceRect.width, sourceRect.height);
+			}
+			else
+			{
+				sourceImage = clone();
+			}
 		}
 
 		switch (type)
@@ -1394,6 +1413,35 @@ class Image
 		}
 
 		return 0;
+	}
+
+	// A new image of rect's pixels, stored as they are here, byte for byte
+	@:noCompletion private function __copyRect(rect:Rectangle):Image
+	{
+		var width = Std.int(rect.width);
+		var height = Std.int(rect.height);
+		var bytesPerPixel = Std.int(buffer.bitsPerPixel / 8);
+		var rowLength = width * bytesPerPixel;
+		var stride = buffer.stride;
+		var position = (Std.int(rect.y) + offsetY) * stride + (Std.int(rect.x) + offsetX) * bytesPerPixel;
+
+		var data = new UInt8Array(rowLength * height);
+
+		for (row in 0...height)
+		{
+			#if js
+			data.set(buffer.data.subarray(position, position + rowLength), row * rowLength);
+			#else
+			data.buffer.blit(row * rowLength, buffer.data.buffer, buffer.data.byteOffset + position, rowLength);
+			#end
+			position += stride;
+		}
+
+		var copy = new ImageBuffer(data, width, height, buffer.bitsPerPixel, buffer.format);
+		copy.premultiplied = buffer.premultiplied;
+		copy.transparent = buffer.transparent;
+
+		return new Image(copy, 0, 0, width, height, null, DATA);
 	}
 
 	// The part of sourceRect that is inside sourceImage and, put at destPoint,
