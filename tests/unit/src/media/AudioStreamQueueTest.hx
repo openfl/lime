@@ -105,6 +105,40 @@ class AudioStreamQueueTest extends Test
 		source.dispose();
 	}
 
+	public function testAStoppedStreamIsAtItsStart():Void
+	{
+		var source = playingStream();
+		if (source == null) return;
+
+		Assert.isTrue(source.currentTime > 0, "the stream had not played");
+		source.stop();
+		Assert.equals(0, source.currentTime);
+		Assert.isTrue(stateOf(source) != AL.PLAYING, "the stream is still playing");
+
+		// And stays there until it plays again
+		Sys.sleep(0.2);
+		Assert.equals(0, source.currentTime);
+		source.dispose();
+	}
+
+	public function testAStoppedSoundIsAtItsStart():Void
+	{
+		// A sound decoded whole, for comparison with a stream
+		if (!hasOutput()) return;
+
+		var source = new AudioSource(AudioBuffer.fromBytes(AudioBufferTest.createWAV(AudioBufferTest.tone(SAMPLE_RATE * 3))));
+		source.play();
+		var end = Timer.stamp() + 5;
+		while (source.currentTime < 300 && Timer.stamp() < end)
+		{
+			Sys.sleep(0.01);
+		}
+
+		source.stop();
+		Assert.equals(0, source.currentTime);
+		source.dispose();
+	}
+
 	public function testAStreamSoughtWhileStoppedPlaysFromThere():Void
 	{
 		var source = playingStream();

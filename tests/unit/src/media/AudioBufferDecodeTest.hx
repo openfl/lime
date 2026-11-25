@@ -110,6 +110,50 @@ class AudioBufferDecodeTest extends Test
 		Assert.isFalse(result.waited, "Decoding Vorbis on a worker: " + result);
 		Assert.notNull(buffer);
 	}
+
+	#if lime_sdl_sound
+	@Ignored("Waiting on #2126")
+	public function testTheCollectorRunsWhileAStreamReadsAhead():Void
+	{
+		// A stream's refill reads what it asks for in one decode. The feeding thread asks for about a second
+		// at a time; this asks for the whole sound, so that the decode outlasts a collection by far.
+		var source = new lime.media.AudioSource(AudioBuffer.fromBytesStream(longVorbis(4800)));
+		var backend = @:privateAccess source.__backend;
+		var read = 0;
+		// Its buffer made beforehand, so the worker is in the decode when the collection starts
+		@:privateAccess backend.ensureReadBuffer(4800 * 2205 * 2);
+		var result = CollectorWait.collectDuring(function()
+		{
+			read = @:privateAccess backend.readSDLSoundBuffer(4800 * 2205 * 2);
+		});
+
+		Assert.isFalse(result.waited, "Reading a stream ahead on a worker: " + result);
+		Assert.isTrue(read > 0, "the stream read " + read + " bytes");
+		source.dispose();
+	}
+
+	public function testAStreamReadsTheSameSamplesAsTheWholeSound():Void
+	{
+		// However each refill is decoded, a stream read in pieces gives what decoding the sound whole does
+		var bytes = longVorbis(50);
+		var whole = AudioBuffer.fromBytes(bytes);
+		var source = new lime.media.AudioSource(AudioBuffer.fromBytesStream(bytes));
+		var backend = @:privateAccess source.__backend;
+		var out = new BytesOutput();
+
+		while (true)
+		{
+			var read = @:privateAccess backend.readSDLSoundBuffer(48000);
+			if (read <= 0) break;
+			var data:Bytes = @:privateAccess backend.readBuffer;
+			out.writeFullBytes(data, 0, read);
+		}
+
+		source.dispose();
+		var streamed = out.getBytes();
+		Assert.equals(describe(whole), streamed.length + " bytes, crc " + StringTools.hex(Crc32.make(streamed), 8));
+	}
+	#end
 	#end
 
 	// Helpers
