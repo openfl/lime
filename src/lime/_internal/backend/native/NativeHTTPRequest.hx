@@ -537,6 +537,9 @@ class NativeHTTPRequest
 		// Stops the transfer and leaves nothing more to report
 		cancel();
 
+		// No response finished, as when curl itself times out
+		parent.responseStatus = 0;
+
 		if (promise != null)
 		{
 			promise.error(new _HTTPRequestErrorResponse(CURL.strerror(CURLCode.OPERATION_TIMEDOUT), null));
