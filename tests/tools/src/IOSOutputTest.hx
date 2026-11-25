@@ -73,6 +73,50 @@ class IOSOutputTest extends Test
 	// App Store Connect refuses apps whose privacy manifest doesn't give a reason for each
 	// required reason API they call. Lime's frame clock reads the system boot time, and
 	// hxcpp's sys.FileSystem reads file timestamps.
+	// The arm64 simulator is a platform of its own, so its libraries are kept apart from those of
+	// arm64 devices, and the Xcode project finds them for simulator builds alone
+	public function testArm64SimulatorLibrariesAreKeptApartFromArm64Devices():Void
+	{
+		output.update('<project>
+			<app main="Main" file="MyApplication" />
+		</project>');
+
+		var project = output.read("MyApplication.xcodeproj/project.pbxproj");
+		Assert.isTrue(project.indexOf('"LIBRARY_SEARCH_PATHS[sdk=iphonesimulator*][arch=arm64]"') > -1);
+		Assert.isTrue(project.indexOf('/MyApplication/lib/arm64-simulator') > -1);
+		Assert.isTrue(project.indexOf('/MyApplication/lib/arm64-simulator-debug') > -1);
+
+		var makefile = output.read("MyApplication/haxe/makefile");
+		Assert.isTrue(makefile.indexOf("HXCPP_FLAGS_arm64 = -D simulator -D HXCPP_ARM64") > -1);
+		Assert.isTrue(makefile.indexOf("LIBDIR_arm64 = arm64-simulator") > -1);
+		Assert.isTrue(makefile.indexOf("../lib/$(LIBDIR_$*)$(LIB_DEST)") > -1);
+	}
+
+	// libhxcpp builds for the arm64 simulator, which hxcpp up to 4.3 does not
+	public function testArm64SimulatorBuildsNeedAnHxcppThatMakesThem():Void
+	{
+		fixture.addHaxelib("toolstest-newhxcpp", "<project />", [
+			"toolchain/finish-setup.xml" => '<xml><set name="LIBEXTRA" value=".iphonesim-arm64" if="HXCPP_ARM64"/></xml>'
+		]);
+		fixture.addHaxelib("toolstest-oldhxcpp", "<project />", [
+			"toolchain/finish-setup.xml" => '<xml><set name="LIBEXTRA" value=".iphonesim-64" if="iphonesim"/></xml>'
+		]);
+
+		Assert.isTrue(lime.tools.IOSHelper.buildsArm64Simulator("toolstest-newhxcpp"));
+		Assert.isFalse(lime.tools.IOSHelper.buildsArm64Simulator("toolstest-oldhxcpp"));
+	}
+
+	public function testX86_64CanBeAskedForInsteadOfTheArm64Simulator():Void
+	{
+		var project = fixture.parse('<project>
+			<app main="Main" file="MyApplication" />
+		</project>');
+		project.targetFlags.set("simulator", "");
+		project.targetFlags.set("x86_64", "");
+
+		Assert.isFalse(lime.tools.IOSHelper.useArm64Simulator(project));
+	}
+
 	public function testThePrivacyManifestDeclaresTheAPIsLimeUses():Void
 	{
 		output.update('<project>
