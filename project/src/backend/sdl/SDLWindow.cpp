@@ -2018,10 +2018,11 @@ namespace lime {
 			// Windows restores the window at its windowed size even where that no
 			// longer fits the display, and treats a window whose client area covers
 			// the whole display as fullscreen. Other systems keep windows on screen.
+			// A maximized window fits already, with its borders past the display's edge.
 			int displayIndex = SDL_GetWindowDisplayIndex (sdlWindow);
 			SDL_Rect usable;
 
-			if (displayIndex >= 0 && SDL_GetDisplayUsableBounds (displayIndex, &usable) == 0) {
+			if (!(SDL_GetWindowFlags (sdlWindow) & SDL_WINDOW_MAXIMIZED) && displayIndex >= 0 && SDL_GetDisplayUsableBounds (displayIndex, &usable) == 0) {
 
 				int top = 0, left = 0, bottom = 0, right = 0;
 				SDL_GetWindowBordersSize (sdlWindow, &top, &left, &bottom, &right);
