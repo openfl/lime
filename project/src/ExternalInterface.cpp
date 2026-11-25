@@ -5267,7 +5267,7 @@ namespace lime {
 
 	void lime_system_open_file (HxString path) {
 
-		#ifdef IPHONE
+		#if defined (IPHONE) || (defined (HX_WINDOWS) && !defined (HX_WINRT))
 		System::OpenFile (path.c_str ());
 		#endif
 
@@ -5276,7 +5276,7 @@ namespace lime {
 
 	HL_PRIM void HL_NAME(hl_system_open_file) (vbyte* path) {
 
-		#ifdef IPHONE
+		#if defined (IPHONE) || (defined (HX_WINDOWS) && !defined (HX_WINRT))
 		System::OpenFile ((char*)path);
 		#endif
 
@@ -5285,7 +5285,7 @@ namespace lime {
 
 	void lime_system_open_url (HxString url, HxString target) {
 
-		#ifdef IPHONE
+		#if defined (IPHONE) || (defined (HX_WINDOWS) && !defined (HX_WINRT))
 		System::OpenURL (url.c_str (), target.c_str ());
 		#endif
 
@@ -5294,7 +5294,7 @@ namespace lime {
 
 	HL_PRIM void HL_NAME(hl_system_open_url) (vbyte* url, vbyte* target) {
 
-		#ifdef IPHONE
+		#if defined (IPHONE) || (defined (HX_WINDOWS) && !defined (HX_WINRT))
 		System::OpenURL ((char*)url, (char*)target);
 		#endif
 

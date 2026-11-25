@@ -161,6 +161,7 @@ Changelog
 - Fixed `AudioBuffer.fromBytes()`, `AudioBuffer.fromBytesStream()`, and WAV files without a `.wav` extension decoding as MP3, such as sounds that fade out to near silence.
 - Fixed WAV files with an odd-sized chunk before their samples, or a format chunk longer than 16 bytes, failing to decode.
 - Fixed `System.getTimer()`, `Timer`, and `Timer.stamp()` stopping after 24.8 days of uptime.
+- Fixed `System.openFile()` and `System.openURL()` on Windows showing a console window for a moment. They open through the shell rather than `cmd`.
 - Fixed the main loop freezing on Linux when the system clock changes.
 - Fixed SDL frame timing and event handling, and input and window pacing on Windows.
 - Fixed HTML5 frame pacing at 60 fps.
