@@ -89,7 +89,7 @@ class HTML5Helper
 	{
 		if (project.app.url != null && project.app.url != "")
 		{
-			System.openURL(project.app.url);
+			CommandHelper.openURL(project.app.url);
 		}
 		else
 		{

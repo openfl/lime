@@ -247,6 +247,7 @@ Changelog
 - Fixed setting the desktop's own display mode making every later fullscreen exclusive.
 - Fixed `vsync="adaptive"` and `vsync="auto"` in project.xml asking for plain vertical sync.
 - Fixed HashLink leaking the text of each text input event and dropped file path, and `sys.io.Process` failing for every command on HashLink on Windows.
+- Fixed the tools opening a console window titled with the address on Windows, rather than the browser, for a project's `<app url>` and `lime setup`'s download pages, and `<command open>` doing the same for a path.
 
 8.3.2 (05/13/2026)
 ------------------
