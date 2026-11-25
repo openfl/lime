@@ -563,7 +563,7 @@ class NativeAudioSource
 			else
 			{
 				resumable = false;
-				var time = completed ? 0 : getCurrentTime();
+				var time = completed ? 0 : (pendingTime >= 0 ? pendingTime : getCurrentTime());
 				setCurrentTime(time);
 			}
 
