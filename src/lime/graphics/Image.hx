@@ -1036,8 +1036,10 @@ class Image
 
 		return promise.future;
 		#else
-		var request = new HTTPRequest<Image>();
-		return request.load(path).then(function(image)
+		// The bytes are decoded by loadFromBytes, on a worker: a request for an
+		// Image would decode them as it completes, on the main thread
+		var request = new HTTPRequest<Bytes>();
+		return request.load(path).then(loadFromBytes).then(function(image)
 		{
 			if (image != null)
 			{
