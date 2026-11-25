@@ -153,6 +153,70 @@ class MouseLockTest extends Test
 	}
 
 	@:timeout(10000)
+	public function testWhileLockedMovementIsScaledAsPositionsAre(async:Async):Void
+	{
+		// Shown at twice its width and its own height, a canvas is half as many window units across
+		// each CSS pixel as it is down each one
+		withWindow(async, function(window)
+		{
+			var target = moveTarget(window);
+			if (target.tagName.toLowerCase() != "canvas")
+			{
+				Assert.pass("the window draws into a " + target.tagName + ", which is not scaled");
+				async.done();
+				return;
+			}
+
+			var before = target.getBoundingClientRect();
+			if (hasNoSize(window, before, async)) return;
+
+			var lock = new PointerLockStandIn(window.element, true);
+			var width = target.style.width;
+			var height = target.style.height;
+			target.style.width = (before.width * 2) + "px";
+			target.style.height = before.height + "px";
+
+			var rect = target.getBoundingClientRect();
+			var x = Std.int(rect.left) + 10;
+			var y = Std.int(rect.top) + 10;
+			var heard = [];
+			var positions = [];
+			var listener = function(dx:Float, dy:Float) heard.push(pair(dx, dy));
+			var positionListener = function(px:Float, py:Float) positions.push(pair(px, py));
+
+			try
+			{
+				// Unlocked, positions are scaled by the width and the height each
+				move(target, x, y, 0, 0);
+				window.onMouseMove.add(positionListener);
+				move(target, x + 20, y + 20, 0, 0);
+				window.onMouseMove.remove(positionListener);
+
+				window.mouseLock = true;
+				window.onMouseMoveRelative.add(listener);
+				move(target, x, y, 20, 20);
+			}
+			catch (e:Dynamic)
+			{
+				Assert.fail("threw " + e);
+			}
+
+			window.onMouseMove.remove(positionListener);
+			window.onMouseMoveRelative.remove(listener);
+			window.mouseLock = false;
+			lock.restore();
+			target.style.width = width;
+			target.style.height = height;
+
+			var scaleX = window.width / rect.width;
+			var scaleY = window.height / rect.height;
+			assertHeard(pair((x + 20 - rect.left) * scaleX, (y + 20 - rect.top) * scaleY), positions, "the position");
+			assertHeard(pair(20 * scaleX, 20 * scaleY), heard, "the movement of 20,20 CSS pixels");
+			async.done();
+		});
+	}
+
+	@:timeout(10000)
 	public function testWithoutTheLockRelativeMotionIsTheChangeInPosition(async:Async):Void
 	{
 		// As before: the event's own movement plays no part
