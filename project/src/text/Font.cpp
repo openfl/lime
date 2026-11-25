@@ -4,6 +4,7 @@
 
 #include <algorithm>
 #include <list>
+#include <map>
 #include <vector>
 
 #ifdef LIME_FREETYPE
@@ -181,6 +182,87 @@ namespace {
 
 		kerning () { }
 		kerning (int l, int r, int x, int y) : l_glyph (l), r_glyph (r), x (x), y (y) { }
+
+	};
+
+
+	// The left and right glyphs of each pair in the sfnt kern subtables FreeType
+	// reads kerning from, read the way tt_face_load_kern reads them: version 0
+	// subtables of format 0 for horizontal kerning, at most 32, with broken
+	// lengths and counts cut to the table. False where the face isn't sfnt.
+	static bool GetKerningPairs (FT_Face face, std::vector<std::pair<FT_UInt, FT_UInt> >& pairs) {
+
+		if (!FT_IS_SFNT (face)) return false;
+
+		FT_ULong tableSize = 0;
+
+		if (FT_Load_Sfnt_Table (face, FT_MAKE_TAG ('k', 'e', 'r', 'n'), 0, NULL, &tableSize) != 0 || tableSize < 4) {
+
+			// No kern table, so FreeType has no pairs either
+			return true;
+
+		}
+
+		std::vector<FT_Byte> table (tableSize);
+
+		if (FT_Load_Sfnt_Table (face, FT_MAKE_TAG ('k', 'e', 'r', 'n'), 0, &table[0], &tableSize) != 0) {
+
+			return false;
+
+		}
+
+		const FT_Byte* p = &table[0];
+		const FT_Byte* limit = p + tableSize;
+		FT_UInt numTables = (p[2] << 8) | p[3];
+		p += 4;
+
+		if (numTables > 32) numTables = 32;
+
+		for (FT_UInt n = 0; n < numTables; n++) {
+
+			if (p + 6 > limit) break;
+
+			const FT_Byte* next = p;
+			FT_UInt length = (p[2] << 8) | p[3];
+			FT_UInt coverage = (p[4] << 8) | p[5];
+			p += 6;
+
+			if (length <= 6 + 8) break;
+
+			next += length;
+			if (next > limit) next = limit;
+
+			if ((coverage >> 8) == 0 && (coverage & 3U) == 0x0001 && p + 8 <= next) {
+
+				FT_UInt numPairs = (p[0] << 8) | p[1];
+				p += 8;
+
+				if ((next - p) < 6 * (int)numPairs) numPairs = (FT_UInt)((next - p) / 6);
+
+				for (FT_UInt i = 0; i < numPairs; i++, p += 6) {
+
+					pairs.push_back (std::make_pair ((FT_UInt)((p[0] << 8) | p[1]), (FT_UInt)((p[2] << 8) | p[3])));
+
+				}
+
+			}
+
+			p = next;
+
+		}
+
+		return true;
+
+	}
+
+
+	struct kerning_order_predicate {
+
+		bool operator () (const kerning& a, const kerning& b) const {
+
+			return a.l_glyph != b.l_glyph ? a.l_glyph < b.l_glyph : a.r_glyph < b.r_glyph;
+
+		}
 
 	};
 
@@ -531,7 +613,52 @@ namespace lime {
 		std::sort (glyphs.begin (), glyphs.end (), glyph_sort_predicate ());
 
 		std::vector<kerning>  kern;
-		if (FT_HAS_KERNING (((FT_Face)face))) {
+		std::vector<std::pair<FT_UInt, FT_UInt> > kerningPairs;
+
+		if (FT_HAS_KERNING (((FT_Face)face)) && GetKerningPairs ((FT_Face)face, kerningPairs)) {
+
+			// Only the pairs the kern table lists can have a value, so FreeType
+			// is asked about those, for each character that maps to their glyphs
+			std::map<FT_UInt, std::vector<int> > positions;
+			int n = glyphs.size ();
+			FT_Vector v;
+
+			for (i = 0; i < n; i++) {
+
+				positions[glyphs[i]->index].push_back (i);
+
+			}
+
+			std::sort (kerningPairs.begin (), kerningPairs.end ());
+			kerningPairs.erase (std::unique (kerningPairs.begin (), kerningPairs.end ()), kerningPairs.end ());
+
+			for (size_t k = 0; k < kerningPairs.size (); k++) {
+
+				std::map<FT_UInt, std::vector<int> >::iterator left = positions.find (kerningPairs[k].first);
+				std::map<FT_UInt, std::vector<int> >::iterator right = positions.find (kerningPairs[k].second);
+
+				if (left == positions.end () || right == positions.end ()) continue;
+
+				FT_Get_Kerning ((FT_Face)face, kerningPairs[k].first, kerningPairs[k].second, FT_KERNING_DEFAULT, &v);
+
+				if (v.x == 0 && v.y == 0) continue;
+
+				for (size_t a = 0; a < left->second.size (); a++) {
+
+					for (size_t b = 0; b < right->second.size (); b++) {
+
+						kern.push_back (kerning (left->second[a], right->second[b], v.x, v.y));
+
+					}
+
+				}
+
+			}
+
+			// In the order the loop over every pair gave
+			std::sort (kern.begin (), kern.end (), kerning_order_predicate ());
+
+		} else if (FT_HAS_KERNING (((FT_Face)face))) {
 
 			int n = glyphs.size ();
 			FT_Vector v;
