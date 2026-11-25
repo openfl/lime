@@ -104,7 +104,7 @@ Changelog
 - Changed native HTTPS requests to check the server's certificate, against the system's trusted certificates (Mozilla's on iOS and tvOS). Set `HTTPRequest.verifyCertificates` to `false`, or define `lime-insecure-https`, for servers with self-signed certificates.
 - Changed static builds to use Lime's own mbedTLS rather than the one bundled with hxcpp.
 - Changed asset library load errors to say which bundle or manifest failed to load, and why.
-- Changed Windows HashLink builds to hide the console window. Set the `SHOW_CONSOLE` environment variable, or `<setenv name="SHOW_CONSOLE" />`, to keep it.
+- Changed Windows HashLink release builds to hide the console window. Debug builds keep it, so `trace` output and uncaught errors reach the terminal they run from. Set the `SHOW_CONSOLE` environment variable, or `<setenv name="SHOW_CONSOLE" />`, to keep it in release builds.
 - Changed HTML5 on iOS Safari to pause and resume with the page's visibility, rather than window focus.
 - Changed HTML5 applications with a frame rate of 0 to update on every animation frame.
 - Changed the error when the main class isn't found to also mention a missing `<source />` path.
