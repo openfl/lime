@@ -106,6 +106,7 @@ Changelog
 - Changed asset library load errors to say which bundle or manifest failed to load, and why.
 - Changed Windows HashLink builds to hide the console window. Set the `SHOW_CONSOLE` environment variable, or `<setenv name="SHOW_CONSOLE" />`, to keep it.
 - Changed HTML5 on iOS Safari to pause and resume with the page's visibility, rather than window focus.
+- Changed `Font.loadFromName()` on HTML5 to use the browser's CSS Font Loading API in Safari, as in other browsers, rather than measuring text for up to three seconds.
 - Changed HTML5 applications with a frame rate of 0 to update on every animation frame.
 - Changed the error when the main class isn't found to also mention a missing `<source />` path.
 - Changed `Window.scale` to follow changes to the display scale, which `Window.onDisplayScaleChange` reports. Define `lime_disable_window_scale_change` to keep the scale a window was created with.
