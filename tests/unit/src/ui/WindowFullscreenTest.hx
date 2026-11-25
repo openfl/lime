@@ -2,6 +2,7 @@ package ui;
 
 import haxe.Timer;
 import lime.app.Application;
+import lime.system.System;
 import lime.ui.Window;
 import utest.Assert;
 import utest.Async;
@@ -35,7 +36,7 @@ class WindowFullscreenTest extends Test
 	@:timeout(15000)
 	public function testLeavingFullscreenFitsAWindowLargerThanTheDisplay(async:Async):Void
 	{
-		var display = Application.current.window.display;
+		var display = System.getDisplay(0);
 		if (display == null)
 		{
 			Assert.pass("no display");
