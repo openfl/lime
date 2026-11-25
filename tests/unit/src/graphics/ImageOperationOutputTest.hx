@@ -804,6 +804,51 @@ class ImageOperationOutputTest extends Test
 		});
 	}
 
+	public function testSmallOperationsKeepTheirOutput():Void
+	{
+		// The sizes whose cost is mostly getting the arguments to native code: 1x1 copies with mergeAlpha,
+		// 16x11 copies with and without it, and 4x4 fills, at many places, each inside both images
+		assertPins([
+			"1720DADF 869712B0 F90F7206 7B37F9C9",
+			"3E084523 32665A1F 08D6F939 6C9FC2C0",
+			"8EF7F440 FB5EF8E9 4EE06B2F 093B59B5",
+			"FDD71171 500E87AB 23B95DB7 B70F1FD6",
+			"1F76621E B7348894 A397CAB8 4DDE3EB5",
+			"EE200667 4DC21068 AEFEB769 525B742B"
+		], function(format, premultiplied)
+		{
+			var dest = destImage(format, premultiplied);
+			var source = sourceImage(format, premultiplied);
+			var state = 0x3243F6A8;
+			var results = [];
+
+			for (i in 0...40)
+			{
+				state = xorshift(state);
+				var a = (state >>> 8) & 0xFF;
+				var b = state & 0xFF;
+				var c = (state >>> 16) & 0xFF;
+				var d = (state >>> 24) & 0xFF;
+
+				switch (i % 4)
+				{
+					case 0:
+						dest.copyPixels(source, new Rectangle(c % 19, d % 13, 1, 1), new Vector2(a % WIDTH, b % HEIGHT), null, null, true);
+					case 1:
+						dest.fillRect(new Rectangle(a % (WIDTH - 4), b % (HEIGHT - 4), 4, 4), state, FORMATS[i % 3]);
+					case 2:
+						dest.copyPixels(source, new Rectangle(c % 3, d % 2, 16, 11), new Vector2(a % (WIDTH - 16), b % (HEIGHT - 11)));
+					default:
+						dest.copyPixels(source, new Rectangle(c % 3, d % 2, 16, 11), new Vector2(a % (WIDTH - 16), b % (HEIGHT - 11)), null, null, true);
+				}
+
+				if (i % 10 == 9) results.push(checksum(dest));
+			}
+
+			return results.join(" ");
+		});
+	}
+
 	// Helpers
 
 	private static function assertPins(expected:Array<String>, operation:PixelFormat->Bool->String, ?pos:haxe.PosInfos):Void
