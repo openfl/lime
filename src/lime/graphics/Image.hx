@@ -1519,6 +1519,14 @@ class Image
 		#end
 	}
 
+	#if (js && html5)
+	// The bytes alone, as a Blob takes the whole of the buffer it is given
+	@:noCompletion private static function __bytesView(bytes:Bytes):Dynamic
+	{
+		return untyped #if haxe4 js.Syntax.code #else __js__ #end ("new Uint8Array({0}, 0, {1})", bytes.getData(), bytes.length);
+	}
+	#end
+
 	@:noCompletion private function __fromBytes(bytes:Bytes, onload:Image->Void = null):Bool
 	{
 		#if (js && html5)
@@ -1536,13 +1544,55 @@ class Image
 		{
 			type = "image/gif";
 		}
+		else if (__isWebP(bytes))
+		{
+			type = "image/webp";
+		}
 		else
 		{
 			// throw "Image tried to read PNG/JPG Bytes, but found an invalid header.";
 			return false;
 		}
 
-		__fromBase64(Base64.encode(bytes), type, onload);
+		// The browser reads the bytes from a Blob, rather than from a Base64 data URI that encodes
+		// them only to decode them again, and lets go of them once the image has loaded
+		var url:String = null;
+		try
+		{
+			url = js.html.URL.createObjectURL(new js.html.Blob([__bytesView(bytes)], {type: type}));
+		}
+		catch (e:Dynamic) {}
+
+		if (url == null)
+		{
+			__fromBase64(Base64.encode(bytes), type, onload);
+			return true;
+		}
+
+		var image:JSImage = untyped #if haxe4 js.Syntax.code #else __js__ #end ('new window.Image ()');
+
+		image.addEventListener("load", function(event)
+		{
+			js.html.URL.revokeObjectURL(url);
+
+			buffer = new ImageBuffer(null, image.width, image.height);
+			buffer.__srcImage = cast image;
+
+			offsetX = 0;
+			offsetY = 0;
+			width = buffer.width;
+			height = buffer.height;
+
+			if (onload != null)
+			{
+				onload(this);
+			}
+		}, false);
+		image.addEventListener("error", function(event)
+		{
+			js.html.URL.revokeObjectURL(url);
+		}, false);
+		image.src = url;
 		return true;
 		#elseif (lime_cffi && !macro)
 		if (bytes == null || bytes.length == 0)
