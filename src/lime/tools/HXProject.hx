@@ -1333,7 +1333,9 @@ class HXProject extends Script
 				}
 				catch (e:Dynamic) {}
 
-				// next it prints the class path
+				// next it prints the class path, and last a define of the library's version
+				var versionDefine:String = null;
+
 				try
 				{
 					if (FileSystem.exists(jsonPath))
@@ -1343,14 +1345,16 @@ class HXProject extends Script
 						{
 							path = Path.addTrailingSlash(Path.combine(path, json.classPath));
 						}
+						if (json != null && json.name != null && json.version != null)
+						{
+							versionDefine = "-D " + json.name + "=" + json.version;
+						}
 					}
 				}
 				catch (e:Dynamic) {}
-				args.push(path);
 
-				// finally it would print a haxedef for the library, but we
-				// filter it out
-				// args.push("-D " + haxelibName + "=" + haxelibVersion);
+				args.push(path);
+				if (versionDefine != null) args.push(versionDefine);
 			}
 			else
 			{
