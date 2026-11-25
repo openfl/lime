@@ -87,6 +87,7 @@ Changelog
 - Added the `-noupdate` flag to `lime build` and `lime test` to skip the update step.
 - Added the `-arm64` flag to build HashLink/C applications for Apple Silicon on macOS, with binaries from `lime rebuild hl -arm64`. HashLink's JIT does not run on Apple Silicon yet.
 - Added running Windows builds through Wine with `lime test` on other platforms.
+- Added arm64 iOS simulator builds, which the simulator runs on Apple silicon Macs without Rosetta. They are made there, or with `-arm64`, when the hxcpp that builds the libraries can make them, as libhxcpp can, and `-x86_64` still makes an x86_64 one. `lime rebuild ios` adds the arm64 simulator libraries.
 - Added the `lime_skip_invisible_windows` define to stop rendering windows that are hidden.
 - Changed native streamed audio to refill from a thread of its own, so a stall on the main thread no longer drains a stream's buffers and drops its sound. Define `lime_audio_no_stream_thread` to refill from the main thread as before.
 - Changed native audio loading to decode through SDL_sound first, then Lime's own WAV and Ogg Vorbis decoders.
