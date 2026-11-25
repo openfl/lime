@@ -12,6 +12,16 @@ class FlashVideoSource
 
 	public function dispose():Void {}
 
+	public function getBytesLoaded():Float
+	{
+		return 0;
+	}
+
+	public function getBytesTotal():Float
+	{
+		return 0;
+	}
+
 	public function getClockMode():VideoClockMode
 	{
 		return SMOOTH;
@@ -42,7 +52,22 @@ class FlashVideoSource
 		return true;
 	}
 
+	public function getFrameRate():Float
+	{
+		return 0;
+	}
+
 	public function getGain():Float
+	{
+		return 1;
+	}
+
+	public function getRate():Float
+	{
+		return 1;
+	}
+
+	public function setRate(value:Float):Float
 	{
 		return 1;
 	}
@@ -108,6 +133,11 @@ class FlashVideoSource
 	}
 
 	public function open(path:String, format:VideoFrameFormat):Bool
+	{
+		return false;
+	}
+
+	public function openBytes(bytes:haxe.io.Bytes, format:VideoFrameFormat):Bool
 	{
 		return false;
 	}

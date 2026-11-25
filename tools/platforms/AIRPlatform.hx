@@ -90,7 +90,8 @@ class AIRPlatform extends FlashPlatform
 
 		for (i in 1...project.windows.length)
 		{
-			defaults.windows.push(defaults.window);
+			// A copy each, as merge() copies each project window into its own default
+			defaults.windows.push(hxp.ObjectTools.copyFields(defaults.window, {}));
 		}
 
 		defaults.merge(project);
@@ -135,7 +136,7 @@ class AIRPlatform extends FlashPlatform
 		}
 		else
 		{
-			var airSdk = project.environment.get("AIR_SDK");
+			var airSdk = project.defines.get("AIR_SDK");
 			if (!FileSystem.exists(airSdk))
 			{
 				Log.error("The path specified for AIR_SDK does not exist: " + airSdk);

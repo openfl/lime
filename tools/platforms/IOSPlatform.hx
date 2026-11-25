@@ -99,7 +99,8 @@ class IOSPlatform extends PlatformTarget
 
 		for (i in 1...project.windows.length)
 		{
-			defaults.windows.push(defaults.window);
+			// A copy each, as merge() copies each project window into its own default
+			defaults.windows.push(hxp.ObjectTools.copyFields(defaults.window, {}));
 		}
 
 		defaults.merge(project);
@@ -316,7 +317,7 @@ class IOSPlatform extends PlatformTarget
 			case "ipad": "2";
 			default: "1,2";
 		}
-		context.DEPLOYMENT = project.config.getString("ios.deployment", "13.6");
+		context.DEPLOYMENT = project.config.getString("ios.deployment", "15.0");
 
 		if (project.config.getString("ios.compiler") == "llvm" || project.config.getString("ios.compiler", "clang") == "clang")
 		{
@@ -333,10 +334,64 @@ class IOSPlatform extends PlatformTarget
 		context.IOS_LINKER_FLAGS = ["-stdlib=libc++"].concat(project.config.getArrayString("ios.linker-flags"));
 		context.IOS_NON_EXEMPT_ENCRYPTION = project.config.getBool("ios.non-exempt-encryption", false);
 
+		if (project.config.exists("ios.camera-usage-description"))
+		{
+			context.IOS_CAMERA_USAGE_DESCRIPTION = StringTools.htmlEscape(project.config.getString("ios.camera-usage-description"), true);
+		}
+
 		if (project.config.exists("ios.microphone-usage-description"))
 		{
-			context.IOS_MICROPHONE_USAGE_DESCRIPTION = project.config.getString("ios.microphone-usage-description");
+			// Info.plist is XML, so a description with & or < would break it
+			context.IOS_MICROPHONE_USAGE_DESCRIPTION = StringTools.htmlEscape(project.config.getString("ios.microphone-usage-description"), true);
 		}
+
+		// ProMotion iPhones run Core Animation above 60 Hz only with this key, which iPads
+		// don't need. It is set when a window asks for more than 60 frames a second, so an
+		// application at 60 isn't woken at 120 for frames it skips.
+		var highFrameRate = false;
+
+		for (window in project.windows)
+		{
+			if (window.fps != null && window.fps > 60) highFrameRate = true;
+		}
+
+		context.IOS_HIGH_FRAME_RATE = project.config.getBool("ios.high-frame-rate", highFrameRate);
+
+		// The privacy manifest gives App Store Connect a reason for each required reason
+		// API the application calls: Lime's frame clock reads the system boot time, and
+		// hxcpp's sys.FileSystem file timestamps. An application adds its own with
+		// <config:ios privacy-accessed-api="TYPE REASON..." />.
+		var privacyTypes:Array<{type:String, reasons:Array<String>}> = [
+			{type: "NSPrivacyAccessedAPICategorySystemBootTime", reasons: ["35F9.1"]},
+			{type: "NSPrivacyAccessedAPICategoryFileTimestamp", reasons: ["C617.1"]}
+		];
+
+		for (entry in project.config.getArrayString("ios.privacy-accessed-api"))
+		{
+			var words = [for (word in ~/\s+/g.split(StringTools.trim(entry))) if (word != "") word];
+			if (words.length < 2) continue;
+
+			var type = words.shift();
+			var existing = null;
+
+			for (privacyType in privacyTypes)
+			{
+				if (privacyType.type == type) existing = privacyType;
+			}
+
+			if (existing == null)
+			{
+				existing = {type: type, reasons: []};
+				privacyTypes.push(existing);
+			}
+
+			for (reason in words)
+			{
+				if (existing.reasons.indexOf(reason) == -1) existing.reasons.push(reason);
+			}
+		}
+
+		context.IOS_PRIVACY_ACCESSED_API_TYPES = privacyTypes;
 
 		switch (project.window.orientation)
 		{

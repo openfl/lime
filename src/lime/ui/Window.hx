@@ -2,6 +2,7 @@ package lime.ui;
 
 import lime.app.Application;
 import lime.app.Event;
+import lime.app.Future;
 import lime.app.VSyncMode;
 import lime.graphics.Image;
 import lime.graphics.RenderContext;
@@ -27,22 +28,24 @@ typedef Stage = Dynamic;
 @:fileXml('tags="haxe,release"')
 @:noDebug
 #end
+@:access(lime.ui.DragData)
 @:access(lime.ui.Menu)
 class Window
 {
 	/**
 	 * Whether windows have their own menu bar, set using `menu`.
 	 *
-	 * This is `true` on Windows. On macOS, the menu bar belongs to the
-	 * application instead (see `Application.supportsMenu`).
+	 * This is `true` on Windows, and on HTML5, where the menu bar is drawn
+	 * across the top of the window's element. On macOS, the menu bar belongs
+	 * to the application instead (see `Application.supportsMenu`).
 	**/
 	public static var supportsMenu(get, never):Bool;
 
 	public var application(default, null):Application;
 	/**
-		Preferred appearance of the window decorations. Defaults to `System`.
+		Preferred appearance of the window decorations. Defaults to `SYSTEM`.
 		An omitted creation attribute preserves the platform's existing default behavior.
-		Assigning `System` explicitly follows system appearance where supported.
+		Assigning `SYSTEM` explicitly follows system appearance where supported.
 		Windows desktop applies the preference to the frame and Lime menus; high contrast
 		takes precedence. macOS 10.14+ applies a per-window Aqua or Dark Aqua appearance.
 		X11 sets a decoration hint that window managers may ignore; GTK context menus request
@@ -53,7 +56,7 @@ class Window
 	public var appearance(get, set):WindowAppearance;
 
 	/**
-		The applied window appearance, or `System` when the backend cannot determine it.
+		The applied window appearance, or `SYSTEM` when the backend cannot determine it.
 		On X11 this reports the decoration hint, which the window manager may ignore.
 	**/
 	public var effectiveAppearance(get, never):WindowAppearance;
@@ -61,7 +64,36 @@ class Window
 	public var context(default, null):RenderContext;
 	public var cursor(get, set):MouseCursor;
 	public var display(get, null):Display;
+
+	/**
+		The display mode the window uses in fullscreen. Setting a mode makes fullscreen
+		exclusive at that mode, and setting `null` returns it to desktop (borderless)
+		fullscreen, which is not minimized when another window takes focus.
+	**/
 	public var displayMode(get, set):DisplayMode;
+
+	/**
+		Whether the window takes drags from other windows and applications,
+		dispatching `onDragEnter`, `onDragOver`, `onDragLeave` and `onDrop`.
+
+		Off by default, when files dropped on the window still go to
+		`onDropFile` as before. While on, a drop is taken only when the
+		listeners set `dropAction`, and it is then also dispatched with
+		`onDropStart`, `onDropFile` or `onDropText`, and `onDropEnd`.
+
+		Supported where `DragData.isSupported` is `true`: Windows, macOS and
+		Linux on X11, and HTML5. Setting it elsewhere leaves it `false`.
+	**/
+	public var dropTarget(get, set):Bool;
+
+	/**
+		The action a drop on the window takes. Listeners of `onDragEnter` and
+		`onDragOver` set it to one of the drag's `allowedActions` to accept the
+		drag, or to `NONE` to refuse it, and the system shows the pointer for
+		it. It is reset to `NONE` as each drag enters, and `onDrop` listeners
+		can read it.
+	**/
+	public var dropAction:DropAction = NONE;
 	#if (!lime_doc_gen || (js && html5))
 	public var element(default, null):#if (js && html5) Element #else Dynamic #end;
 	#end
@@ -73,7 +105,7 @@ class Window
 	 * main loop, up to 10,000. A value of 0 or less runs one frame per second.
 	 * The cap is ignored when the loop is uncapped (see `UncapMode`). With
 	 * vertical sync on, a cap at or above the display refresh rate leaves the
-	 * pacing to the display, and with `VSyncMode.Auto` and no vertical sync, a
+	 * pacing to the display, and with `VSyncMode.AUTO` and no vertical sync, a
 	 * cap above the refresh rate is held to it.
 	 *
 	 * On HTML5, a frame rate of 0, or of 60 or greater, renders on each
@@ -102,7 +134,9 @@ class Window
 	 * The menu displayed as this window's menu bar, or `null` for none.
 	 *
 	 * Changes to the menu are applied to the menu bar immediately. Adding or
-	 * removing the menu bar keeps the size of the window content the same.
+	 * removing the menu bar keeps the size of the window content the same,
+	 * except on HTML5, where the content of a window that fills its element
+	 * makes room for the menu bar.
 	 * Menu bar key equivalents are handled before `onKeyDown`, which is not
 	 * dispatched for them.
 	 *
@@ -135,6 +169,16 @@ class Window
 	public var mouseRect(get, set):Rectangle;
 
 	/**
+		The system's own window behind this one, for native code that works with
+		it directly, or `null` where there is none: on web targets, and once the
+		window has closed.
+
+		Read it on the main thread when it is needed, and do not keep it. On
+		Android the window changes whenever the surface is recreated.
+	**/
+	public var nativeHandle(get, never):WindowHandle;
+
+	/**
 		Whether keys the system would otherwise take, such as Alt+Tab or the
 		Windows key, go to this window while it has the focus.
 
@@ -144,7 +188,59 @@ class Window
 	public var onActivate(default, null) = new Event<Void->Void>();
 	public var onClose(default, null) = new Event<Void->Void>();
 	public var onDeactivate(default, null) = new Event<Void->Void>();
+
+	/**
+		Dispatched as a drag enters the window, with its data and the position
+		in the window, while `dropTarget` is on. Set `dropAction` to accept it.
+		The data can only be read while the listener runs.
+	**/
+	public var onDragEnter(default, null) = new Event<DragData->Float->Float->Void>();
+
+	/**
+		Dispatched as a drag leaves the window without dropping, or is
+		canceled.
+	**/
+	public var onDragLeave(default, null) = new Event<Void->Void>();
+
+	/**
+		Dispatched as a drag moves over the window, with its position. Setting
+		`dropAction` changes the action, such as for the part of the window
+		under the pointer.
+	**/
+	public var onDragOver(default, null) = new Event<Float->Float->Void>();
+
+	/**
+		Dispatched as a drag the window accepted is dropped on it, with its
+		data and position. `dropAction` holds the action the drop takes, and
+		the data can only be read while the listener runs.
+	**/
+	public var onDrop(default, null) = new Event<DragData->Float->Float->Void>();
 	public var onDropFile(default, null) = new Event<String->Void>();
+
+	/**
+		Dispatched after everything dropped on the window at once has been
+		dispatched, so files dropped together can be handled as one group.
+
+		Dispatched on native desktop targets and HTML5.
+	**/
+	public var onDropEnd(default, null) = new Event<Void->Void>();
+
+	/**
+		Dispatched when something is dropped on the window, before the files
+		or text it holds are dispatched with `onDropFile` and `onDropText`.
+
+		Dispatched on native desktop targets and HTML5.
+	**/
+	public var onDropStart(default, null) = new Event<Void->Void>();
+
+	/**
+		Dispatched with text dropped on the window, such as a selection dragged
+		from another application.
+
+		Dispatched on macOS, Linux and HTML5. SDL only takes files dropped on a
+		window on Windows.
+	**/
+	public var onDropText(default, null) = new Event<String->Void>();
 	public var onEnter(default, null) = new Event<Void->Void>();
 	public var onExpose(default, null) = new Event<Void->Void>();
 	public var onFocusIn(default, null) = new Event<Void->Void>();
@@ -214,17 +310,41 @@ class Window
 	public var onShow(default, null) = new Event<Void->Void>();
 	public var onTextEdit(default, null) = new Event<String->Int->Int->Void>();
 	public var onTextInput(default, null) = new Event<String->Void>();
+
+	/**
+		Fired when `scale` changes, as when the window moves to a display with
+		another scale, or the display's scale is changed. On native targets it can
+		be left out with `lime_disable_window_scale_change`.
+	**/
 	public var onDisplayScaleChange(default, null) = new Event<Void->Void>();
+
 	public var opacity(get, set):Float;
 	public var parameters:Dynamic;
 	public var resizable(get, set):Bool;
+
+	/**
+		The ratio of the window's pixels to its size in points, from the
+		display it is on.
+	**/
 	public var scale(get, null):Float;
 	#if (!lime_doc_gen || flash || openfl)
 	public var stage(default, null):Stage;
 	#end
 	public var textInputEnabled(get, set):Bool;
 	public var title(get, set):String;
+	/**
+		Whether the window was made transparent, where pixels drawn with alpha
+		below 1 show what is behind it. It is asked for with the `transparent`
+		window attribute, and the window is made opaque where that cannot be
+		done: with Vulkan, without a compositing window manager on Linux, and
+		on AIR. In a browser, the canvas is transparent.
+	**/
 	public var transparent(default, null):Bool;
+
+	/**
+		Whether the window stays above other windows. It is kept on desktop
+		native targets and AIR; elsewhere it stays `false`.
+	**/
 	public var alwaysOnTop(get, set):Bool;
 	public var visible(get, set):Bool;
 	public var width(get, set):Int;
@@ -237,7 +357,7 @@ class Window
 	private var clickCount:Int = 0;
 	@:noCompletion private var __attributes:WindowAttributes;
 	@:noCompletion private var __backend:WindowBackend;
-	@:noCompletion private var __appearance:WindowAppearance = System;
+	@:noCompletion private var __appearance:WindowAppearance = SYSTEM;
 	@:noCompletion private var __borderless:Bool;
 	@:noCompletion private var __fullscreen:Bool;
 	@:noCompletion private var __height:Int;
@@ -269,6 +389,7 @@ class Window
 				"cursor": {get: p.get_cursor, set: p.set_cursor},
 				"display": {get: p.get_display},
 				"displayMode": {get: p.get_displayMode, set: p.set_displayMode},
+				"dropTarget": {get: p.get_dropTarget, set: p.set_dropTarget},
 				"frameRate": {get: p.get_frameRate, set: p.set_frameRate},
 				"fullscreen": {get: p.get_fullscreen, set: p.set_fullscreen},
 				"height": {get: p.get_height, set: p.set_height},
@@ -282,6 +403,7 @@ class Window
 				"minWidth": {get: p.get_minWidth, set: p.set_minWidth},
 				"mouseLock": {get: p.get_mouseLock, set: p.set_mouseLock},
 				"mouseRect": {get: p.get_mouseRect, set: p.set_mouseRect},
+				"nativeHandle": {get: p.get_nativeHandle},
 				"keyboardGrab": {get: p.get_keyboardGrab, set: p.set_keyboardGrab},
 
 				"resizable": {get: p.get_resizable, set: p.set_resizable},
@@ -2608,6 +2730,96 @@ class Window
 		__backend.focus();
 	}
 
+	/**
+		Puts this window just above `window`, without activating it. Returns
+		whether the system moved it.
+
+		Supported on Windows, macOS and X11. On X11 the window manager decides,
+		and may not do it. On macOS a window that is hidden or minimised is not
+		ordered, nor ordered against one that is, as the system would show it.
+	**/
+	public function orderAbove(window:Window):Bool
+	{
+		return window != null && window != this && __backend.orderRelative(window, true);
+	}
+
+	/**
+		Puts this window just below `window`, without activating it. Returns
+		whether the system moved it.
+
+		Supported on Windows, macOS and X11, as `orderAbove` describes.
+	**/
+	public function orderBelow(window:Window):Bool
+	{
+		return window != null && window != this && __backend.orderRelative(window, false);
+	}
+
+	/**
+		Puts this window behind the application's other windows and those of
+		other applications. Returns whether the system moved it.
+
+		Supported on Windows, macOS and X11. On macOS a window that is hidden or
+		minimised is not ordered, as `orderAbove` describes.
+	**/
+	public function orderToBack():Bool
+	{
+		return __backend.orderToBack();
+	}
+
+	/**
+		Moves the window with the pointer until the left button is released, as
+		dragging its title bar does, for a window without one or a custom title
+		bar. Call it from `onMouseDown`, while the button is down; it returns
+		`false` when the button is already up.
+
+		On Windows and macOS this returns once the button is released, and the
+		release is still dispatched. On X11 the window manager moves the window
+		after this returns.
+
+		Supported on Windows, macOS and X11.
+	**/
+	public function startMove():Bool
+	{
+		return __backend.startMoveResize(0);
+	}
+
+	/**
+		Resizes the window from `edge` with the pointer until the left button
+		is released, as dragging that edge or corner does. Call it from
+		`onMouseDown`, as `startMove` describes. macOS keeps the window within
+		its minimum and maximum size.
+
+		Supported on Windows, macOS and X11.
+	**/
+	public function startResize(edge:WindowEdge):Bool
+	{
+		return edge != 0 && __backend.startMoveResize(edge);
+	}
+
+	/**
+		Drags `data` out of the window, to another of its windows or another
+		application. Call it while the left mouse button is down, as from an
+		`onMouseDown` or `onMouseMove` listener.
+
+		Supported where `DragData.isSupported` is `true`. On HTML5 the browser
+		starts the drag as the mouse moves, and carries text, HTML and URLs
+		only; call it from `onMouseDown` there. `image` and the offsets are used
+		where the browser allows.
+
+		@param data The data to drag, made with `new DragData()`.
+		@param image What follows the pointer, or `null` for the system's own.
+		@param offsetX Where the pointer is in `image`, from its left.
+		@param offsetY Where the pointer is in `image`, from its top.
+		@param actions The actions a drop target may take, as `DropAction` flags.
+		@return The action the drop took, or `NONE` when the drag was canceled,
+		refused, or could not start.
+	**/
+	public function doDragDrop(data:DragData, image:Image = null, offsetX:Int = 0, offsetY:Int = 0, actions:DropAction = COPY):Future<DropAction>
+	{
+		if (data == null || data.__items == null) return Future.withValue(DropAction.NONE);
+		return __backend.doDragDrop(data, image, offsetX, offsetY, actions);
+	}
+
 	public function move(x:Int, y:Int):Void
 	{
 		__backend.move(x, y);
@@ -2736,7 +2948,7 @@ class Window
 
 	@:noCompletion private function get_vsyncMode():VSyncMode
 	{
-		return (application != null) ? application.vsyncMode : VSyncMode.Off;
+		return (application != null) ? application.vsyncMode : VSyncMode.OFF;
 	}
 
 	@:noCompletion private function set_vsyncMode(value:VSyncMode):VSyncMode
@@ -2804,7 +3016,7 @@ class Window
 
 	@:noCompletion private function set_maxWidth(value:Int):Int
 	{
-		setMinSize(value, __maxHeight);
+		setMaxSize(value, __maxHeight);
 		return __maxWidth;
 	}
 
@@ -2817,6 +3029,8 @@ class Window
 	{
 		#if (lime_cffi && !macro)
 		return (lime._internal.backend.native.NativeMenu.getSupport() & lime._internal.backend.native.NativeMenu.SUPPORT_WINDOW) != 0;
+		#elseif (js && html5)
+		return true;
 		#else
 		return false;
 		#end
@@ -2885,10 +3099,25 @@ class Window
 		return __backend.getMouseRect();
 	}
 
+	@:noCompletion private function get_nativeHandle():WindowHandle
+	{
+		return __backend.getNativeHandle();
+	}
+
 	@:noCompletion private function set_mouseRect(value:Rectangle):Rectangle
 	{
 		__backend.setMouseRect(value);
 		return value;
+	}
+
+	@:noCompletion private function get_dropTarget():Bool
+	{
+		return __backend.getDropTarget();
+	}
+
+	@:noCompletion private function set_dropTarget(value:Bool):Bool
+	{
+		return __backend.setDropTarget(value);
 	}
 
 	@:noCompletion private function get_keyboardGrab():Bool
@@ -2951,7 +3180,7 @@ class Window
 
 	@:noCompletion private function set_appearance(value:WindowAppearance):WindowAppearance
 	{
-		if (value != System && value != Light && value != Dark) return __appearance;
+		if (value != SYSTEM && value != LIGHT && value != DARK) return __appearance;
 		__appearance = value;
 		__backend.setAppearance(value);
 		return value;

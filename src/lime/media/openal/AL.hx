@@ -239,10 +239,10 @@ class AL
 	/* AL_SOFT_direct_channels_remix extension */
 	public static inline var DROP_UNMATCHED_SOFT:Int = 0x0001;
 	public static inline var REMIX_UNMATCHED_SOFT:Int = 0x0002;
-	/* AL_SOFT_source_latency extension */
+	#end
+	/* AL_SOFT_source_latency extension, read with getSourcedvSOFT, which gives 0 without it */
 	public static inline var SAMPLE_OFFSET_LATENCY_SOFT:Int = 0x1200;
 	public static inline var SEC_OFFSET_LATENCY_SOFT:Int = 0x1201;
-	#end
 
 	public static function removeDirectFilter(source:ALSource)
 	{
@@ -404,6 +404,13 @@ class AL
 		#end
 	}
 
+	public static function deleteAux(aux:ALAuxiliaryEffectSlot):Void
+	{
+		#if (lime_cffi && lime_openal && !macro)
+		NativeCFFI.lime_al_delete_auxiliary_effect_slot(aux);
+		#end
+	}
+
 	public static function deleteBuffer(buffer:ALBuffer):Void
 	{
 		#if (lime_cffi && lime_openal && !macro)
@@ -421,6 +428,20 @@ class AL
 		var buffers = _buffers;
 		#end
 		NativeCFFI.lime_al_delete_buffers(buffers.length, buffers);
+		#end
+	}
+
+	public static function deleteEffect(effect:ALEffect):Void
+	{
+		#if (lime_cffi && lime_openal && !macro)
+		NativeCFFI.lime_al_delete_effect(effect);
+		#end
+	}
+
+	public static function deleteFilter(filter:ALFilter):Void
+	{
+		#if (lime_cffi && lime_openal && !macro)
+		NativeCFFI.lime_al_delete_filter(filter);
 		#end
 	}
 
@@ -585,7 +606,7 @@ class AL
 	public static function getBooleanv(param:Int, count:Int = 1):Array<Bool>
 	{
 		#if (lime_cffi && lime_openal && !macro)
-		var result = NativeCFFI.lime_al_get_booleanv(param, 1);
+		var result = NativeCFFI.lime_al_get_booleanv(param, count);
 		#if hl
 		if (result == null) return [];
 		var _result = [];
@@ -939,10 +960,14 @@ class AL
 		extension of OpenAL Soft. `SEC_OFFSET_LATENCY_SOFT` gives the playback
 		offset and the output's latency, in seconds. Without the extension, the
 		values are 0.
+
+		@param count	The number of values to read. By default, as many as
+		`param` gives: 2 for `SEC_OFFSET_LATENCY_SOFT`, otherwise 1.
 	**/
-	public static function getSourcedvSOFT(source:ALSource, param:Int, count:Int = 1):Array<Float>
+	public static function getSourcedvSOFT(source:ALSource, param:Int, ?count:Int):Array<Float>
 	{
 		#if (lime_cffi && lime_openal && !macro)
+		if (count == null) count = (param == SEC_OFFSET_LATENCY_SOFT) ? 2 : 1;
 		var result = NativeCFFI.lime_al_get_sourcedv_soft(source, param, count);
 		#if hl
 		if (result == null) return [];
@@ -1007,6 +1032,19 @@ class AL
 	{
 		#if (lime_cffi && lime_openal && !macro)
 		return NativeCFFI.lime_al_get_sourcei(source, param);
+		#else
+		return 0;
+		#end
+	}
+
+	/**
+		An integer property of a source, without the box `getSourcei` gives it
+		in, for the polling Lime's own sources do. Not for `AL.BUFFER`.
+	**/
+	@:noCompletion public static function __getSourceInt(source:ALSource, param:Int):Int
+	{
+		#if (lime_cffi && lime_openal && !macro)
+		return NativeCFFI.lime_al_get_sourcei_int(source, param);
 		#else
 		return 0;
 		#end

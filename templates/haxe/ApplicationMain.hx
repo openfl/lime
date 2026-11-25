@@ -28,12 +28,12 @@ import ::APP_MAIN::;
 
 		#if !munit
 		var app = new ::APP_MAIN::();
-		app.meta.set("build", "::meta.buildNumber::");
-		app.meta.set("company", "::meta.company::");
-		app.meta.set("file", "::APP_FILE::");
-		app.meta.set("name", "::meta.title::");
-		app.meta.set("packageName", "::meta.packageName::");
-		app.meta.set("version", "::meta.version::");
+		app.meta.set("build", $$toJSON(::meta.buildNumber::));
+		app.meta.set("company", $$toJSON(::meta.company::));
+		app.meta.set("file", $$toJSON(::APP_FILE::));
+		app.meta.set("name", $$toJSON(::meta.title::));
+		app.meta.set("packageName", $$toJSON(::meta.packageName::));
+		app.meta.set("version", $$toJSON(::meta.version::));
 
 		#if !flash
 		::foreach windows::
@@ -52,7 +52,7 @@ import ::APP_MAIN::;
 				minimized: ::minimized::,
 				parameters: ::parameters::,
 				resizable: ::resizable::,
-				title: "::title::",
+				title: $$toJSON(::title::),
 				transparent: ::transparent::,
 				width: ::width::,
 				x: ::x::,
@@ -67,8 +67,9 @@ import ::APP_MAIN::;
 				depth: ::depthBuffer::,
 				hardware: ::hardware::,
 				stencil: ::stencilBuffer::,
-				type: ::if renderType::"::renderType::"::else::null::end::,
-				vsync: ::vsync::
+				type: null,
+				vsync: ::vsync::,
+				vsyncMode: ::if vsyncMode::"::vsyncMode::"::else::null::end::
 			};
 
 		if (app.window == null)
@@ -93,7 +94,28 @@ import ::APP_MAIN::;
 			#end
 		}
 
-		app.createWindow(attributes);
+		var window = app.createWindow(attributes);
+		#if (lime_cffi && sys)
+		if (window == null && app.window == null)
+		{
+			var message = "Could not create a window";
+			if (app.__windowCreationError != null && app.__windowCreationError != "") message += ": " + app.__windowCreationError;
+			#if software_gl
+			message += "\n\nSetting the environment variable LIME_SOFTWARE_GL=1 draws without the GPU.";
+			#end
+			try
+			{
+				Sys.stderr().writeString(message + "\n");
+			}
+			catch (e:Dynamic)
+			{
+				// A desktop application may have no stderr.
+			}
+			@:privateAccess lime._internal.backend.native.NativeCFFI.lime_window_alert(null, message, attributes.title);
+			lime.system.System.exit(1);
+			return;
+		}
+		#end
 		#if (linux && sys)
 		var iconPath = lime.system.System.applicationDirectory + "/icon.png";
 		if (sys.FileSystem.exists(iconPath))
@@ -107,7 +129,7 @@ import ::APP_MAIN::;
 		#end
 		::end::
 		#elseif air
-		app.window.title = "::meta.title::";
+		app.window.title = $$toJSON(::meta.title::);
 		#else
 		app.window.context.attributes.background = ::WIN_BACKGROUND::;
 		app.window.frameRate = ::WIN_FPS::;

@@ -4,7 +4,11 @@ import haxe.Timer;
 import js.html.CloseEvent;
 import js.html.MessageEvent;
 import js.html.WebSocket as BrowserWebSocket;
+#if haxe4
 import js.lib.ArrayBuffer;
+#else
+import js.html.ArrayBuffer;
+#end
 import lime.net.WebSocket;
 import lime.net.WebSocketError;
 import lime.utils.Bytes;
@@ -161,7 +165,7 @@ class HTML5WebSocket
 
 	public static function isSupported():Bool
 	{
-		return js.Syntax.code("typeof WebSocket !== 'undefined'");
+		return untyped #if haxe4 js.Syntax.code #else __js__ #end ("typeof WebSocket !== 'undefined'");
 	}
 
 	public function ping(data:Bytes):Void {}

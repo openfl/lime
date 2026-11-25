@@ -10,9 +10,12 @@ import haxe.Timer;
 **/
 class LoopStalls
 {
-	// Longer than a loop's few milliseconds, with room for macOS coalescing
-	// short sleeps on a busy machine
-	private static inline var STALL = 0.05;
+	/**
+		Longer than a loop's few milliseconds, with room for macOS coalescing
+		short sleeps on a busy machine. Undisturbed holds the mixer to the same
+		rule.
+	**/
+	public static inline var STALL = 0.05;
 
 	/**
 		All the time the loop has lost, in seconds.

@@ -50,7 +50,7 @@ abstract BytePointer(BytePointerData) from BytePointerData to BytePointerData
 
 	@:arrayAccess @:noCompletion private inline function __arraySet(index:Int, value:Int):Int
 	{
-		if (this.bytes == null) this.bytes.set(index + this.offset, value);
+		if (this.bytes != null) this.bytes.set(index + this.offset, value);
 		return value;
 	}
 

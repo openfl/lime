@@ -101,7 +101,8 @@ class MacPlatform extends PlatformTarget
 
 		for (i in 1...project.windows.length)
 		{
-			defaults.windows.push(defaults.window);
+			// A copy each, as merge() copies each project window into its own default
+			defaults.windows.push(hxp.ObjectTools.copyFields(defaults.window, {}));
 		}
 
 		defaults.merge(project);
@@ -410,9 +411,15 @@ class MacPlatform extends PlatformTarget
 		context.CPP_DIR = targetDirectory + "/obj/";
 		context.BUILD_DIR = project.app.path + "/mac" + dirSuffix.toLowerCase();
 
+		if (project.config.exists("mac.camera-usage-description"))
+		{
+			context.MAC_CAMERA_USAGE_DESCRIPTION = StringTools.htmlEscape(project.config.getString("mac.camera-usage-description"), true);
+		}
+
 		if (project.config.exists("mac.microphone-usage-description"))
 		{
-			context.MAC_MICROPHONE_USAGE_DESCRIPTION = project.config.getString("mac.microphone-usage-description");
+			// Info.plist is XML, so a description with & or < would break it
+			context.MAC_MICROPHONE_USAGE_DESCRIPTION = StringTools.htmlEscape(project.config.getString("mac.microphone-usage-description"), true);
 		}
 
 		return context;
@@ -653,7 +660,8 @@ class MacPlatform extends PlatformTarget
 	private function copyAndFixHashLinkHomebrewDependencies():Void
 	{
 		var limeDirectory = Haxelib.getPath(new Haxelib("lime"), true);
-		var bindir = "Mac64";
+		// HashLink is only built for Apple Silicon when -arm64 asks for it
+		var bindir = targetFlags.exists("arm64") ? "MacArm64" : "Mac64";
 		var bundledHLDirectory = Path.combine(limeDirectory, 'templates/bin/hl/$bindir');
 		if (!FileSystem.exists(bundledHLDirectory))
 		{
@@ -668,7 +676,8 @@ class MacPlatform extends PlatformTarget
 
 		// these are the known directories where Homebrew installs its dependencies
 		// we may need to add more in the future, but this seems to be enough for now
-		var homebrewDirs = ["/usr/local/opt/", "/usr/local/Cellar/"];
+		// (/usr/local for Intel, /opt/homebrew for Apple Silicon)
+		var homebrewDirs = ["/usr/local/opt/", "/usr/local/Cellar/", "/opt/homebrew/opt/", "/opt/homebrew/Cellar/"];
 
 		// first, collect all executables, hdlls, and dylibs that were built
 		// by BuildHashlink.xml

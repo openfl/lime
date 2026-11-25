@@ -6,7 +6,7 @@ package lime.app;
 	A profile chooses how the native main loop waits between frames: which
 	timer it uses and whether it may busy-wait. The `timePrecision` and
 	`busyWait` fields of `FrameOptions` override those choices, and its
-	`uncapMode` overrides how the `Uncapped` profile uncaps the loop.
+	`uncapMode` overrides how the `UNCAPPED` profile uncaps the loop.
 
 	The frame rate cap is `Window.frameRate`. Vertical sync, set with
 	`Application.vsyncMode`, still holds each frame to the display when it
@@ -18,20 +18,20 @@ package lime.app;
 #if (haxe_ver >= 4.0) enum #else @:enum #end abstract FrameProfile(String) to String
 {
 	/** A balanced default profile that preserves Lime's existing pacing behavior. **/
-	var Balanced = "balanced";
+	var BALANCED = "balanced";
 
 	/** A profile that favors tighter pacing, using the high-resolution timer. **/
-	var Precision = "precision";
+	var PRECISION = "precision";
 
 	/** A profile that favors lower CPU usage over the tightest pacing, never busy-waiting. **/
-	var LowEnergy = "lowEnergy";
+	var LOW_ENERGY = "lowEnergy";
 
 	/**
 		A profile for uncapped or benchmark-style rendering. It ignores the
 		frame rate cap and starts each frame as soon as the last one ends, as
-		`UncapMode.Soft` does, unless `FrameOptions.uncapMode` asks for
-		`UncapMode.Hard`. With vertical sync on, frames still wait for the
+		`UncapMode.SOFT` does, unless `FrameOptions.uncapMode` asks for
+		`UncapMode.HARD`. With vertical sync on, frames still wait for the
 		display.
 	**/
-	var Uncapped = "uncapped";
+	var UNCAPPED = "uncapped";
 }

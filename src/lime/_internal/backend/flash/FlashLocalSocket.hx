@@ -1,6 +1,7 @@
 package lime._internal.backend.flash;
 
 import lime.net.LocalSocket;
+import lime.net.LocalSocketError;
 import lime.utils.Bytes;
 
 class FlashLocalSocket
@@ -8,11 +9,20 @@ class FlashLocalSocket
 	public var connected(default, null):Bool = false;
 	public var maxQueuedBytes(default, null):Int = 0;
 
-	public function new(parent:LocalSocket) {}
+	private var parent:LocalSocket;
+
+	public function new(parent:LocalSocket)
+	{
+		this.parent = parent;
+	}
 
 	public function close():Void {}
 
-	public function connect(name:String, timeout:Int):Void {}
+	public function connect(name:String, timeout:Int):Void
+	{
+		parent.onError.dispatch(LocalSocketError.FAILED);
+		parent.onClose.dispatch();
+	}
 
 	public function getBytesPending():Int
 	{

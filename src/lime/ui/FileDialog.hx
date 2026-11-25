@@ -150,7 +150,7 @@ class FileDialog
 		#end
 
 		#if desktop
-		var worker = new ThreadPool(#if windows SINGLE_THREADED #end);
+		var worker = new ThreadPool();
 
 		worker.onComplete.add(function(result)
 		{
@@ -277,7 +277,7 @@ class FileDialog
 	public function open(filter:String = null, defaultPath:String = null, title:String = null):Bool
 	{
 		#if (desktop && sys)
-		var worker = new ThreadPool(#if windows SINGLE_THREADED #end);
+		var worker = new ThreadPool();
 
 		worker.onComplete.add(function(path:String)
 		{
@@ -340,7 +340,7 @@ class FileDialog
 		}
 
 		#if (desktop && sys)
-		var worker = new ThreadPool(#if windows SINGLE_THREADED #end);
+		var worker = new ThreadPool();
 
 		worker.onComplete.add(function(path:String)
 		{

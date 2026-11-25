@@ -26,13 +26,14 @@ class Gamepad
 
 	/**
 		Dispatched with a motion sensor's readings along the x, y and z axes, while
-		it is enabled with `setSensorEnabled()`.
+		it is enabled with `setSensorEnabled()`. Native targets only.
 	**/
 	public var onSensorUpdate = new Event<GamepadSensorType->Float->Float->Float->Void>();
 
 	/**
 		Dispatched when a finger touches the touchpad, as on PlayStation
 		controllers, with the finger and where it is, from 0 to 1 across and down.
+		Native targets only, as are `onTouchpadMove` and `onTouchpadUp`.
 	**/
 	public var onTouchpadDown = new Event<Int->Float->Float->Void>();
 
@@ -50,6 +51,7 @@ class Gamepad
 
 	/**
 		The kind of controller this is, as for showing the right button prompts.
+		Browsers do not say, so on HTML5 it is `UNKNOWN`.
 	**/
 	public var type(get, never):GamepadType;
 
@@ -147,6 +149,10 @@ class Gamepad
 	{
 		#if (lime_cffi && !macro)
 		return NativeCFFI.lime_gamepad_has_rumble_triggers(this.id);
+		#elseif (js && html5)
+		// Browsers that list their effects say whether trigger rumble is one
+		var actuator:Dynamic = untyped __jsGamepad.vibrationActuator;
+		return actuator != null && actuator.effects != null && actuator.effects.indexOf("trigger-rumble") != -1;
 		#else
 		return false;
 		#end

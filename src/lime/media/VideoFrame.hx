@@ -1,6 +1,8 @@
 package lime.media;
 
+#if (!lime_doc_gen || lime_opengl || lime_opengles || lime_webgl)
 import lime.graphics.opengl.GLTexture;
+#end
 import lime.utils.UInt8Array;
 
 /**
@@ -77,7 +79,9 @@ class VideoFrame
 		the picture first. It belongs to the decoder, so do not delete it, and it
 		is only valid until the next frame is read.
 	**/
+	#if (!lime_doc_gen || lime_opengl || lime_opengles || lime_webgl)
 	public var texture:GLTexture;
+	#end
 
 	/**
 		The time the frame is displayed on the video's timeline, in seconds.

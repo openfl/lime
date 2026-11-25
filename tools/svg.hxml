@@ -5,7 +5,6 @@
 -lib hxp
 -lib openfl
 -lib svg
--lib wsproto
 -D lime-cairo
 -D lime-cffi
 --remap flash:openfl

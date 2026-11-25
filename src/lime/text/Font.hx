@@ -256,13 +256,27 @@ class Font
 	}
 
 	/**
-	 * Decomposes the font into outline data.
+	 * Decomposes the font into outline data, with the glyph outlines auto-hinted.
 	 *
-	 * @param forceAutoHint When `true`, force auto-hinting for outline decomposition.
-	 * When `false`, preserve the unhinted glyph outlines.
 	 * @return An instance of `NativeFontData` that contains decomposed font outline information.
 	 */
-	public function decompose(forceAutoHint:Bool = true):NativeFontData
+	public function decompose():NativeFontData
+	{
+		return __decompose(true);
+	}
+
+	/**
+	 * Decomposes the font into outline data, keeping the glyph outlines unhinted, as
+	 * the font draws them.
+	 *
+	 * @return An instance of `NativeFontData` that contains decomposed font outline information.
+	 */
+	public function decomposeUnhinted():NativeFontData
+	{
+		return __decompose(false);
+	}
+
+	@:noCompletion private function __decompose(forceAutoHint:Bool):NativeFontData
 	{
 		#if (lime_cffi && !macro)
 		if (src == null) throw "Uninitialized font handle.";
@@ -271,7 +285,7 @@ class Font
 		#if hl
 		if (data != null)
 		{
-			data.family_name = @:privateAccess String.fromUCS2(data.family_name);
+			data.family_name = data.family_name != null ? @:privateAccess String.fromUTF8(data.family_name) : null;
 			data.style_name = @:privateAccess String.fromUTF8(data.style_name);
 		}
 		#end
@@ -430,15 +444,16 @@ class Font
 	}
 
 	/**
-	 * Renders a specific glyph to an image.
+	 * Renders a specific glyph to an image, at 96 DPI. `renderGlyphWithLoadFlags()`
+	 * renders at another DPI.
 	 *
 	 * @param glyph The glyph to render.
 	 * @param fontSize The size to render the glyph at.
 	 * @return An `Image` instance representing the rendered glyph.
 	 */
-	public function renderGlyph(glyph:Glyph, fontSize:Int, dpi:Int = 96):Image
+	public function renderGlyph(glyph:Glyph, fontSize:Int):Image
 	{
-		return renderGlyphWithLoadFlags(glyph, fontSize, dpi);
+		return renderGlyphWithLoadFlags(glyph, fontSize, 96);
 	}
 
 	/**
@@ -450,7 +465,8 @@ class Font
 	 * @param loadFlags Additional FreeType load flags to apply when rasterizing.
 	 * @param subpixelX A horizontal shift of the outline before rasterizing, in pixels (0 to 1): for
 	 *   drawing a glyph at a whole pixel while showing where it falls between pixels. The image's
-	 *   origin stays at the whole pixel.
+	 *   origin stays at the whole pixel. Without `loadFlags`, a shifted glyph is rendered as
+	 *   `renderGlyph()` renders it.
 	 * @return An `Image` instance representing the rendered glyph.
 	 */
 	public function renderGlyphWithLoadFlags(glyph:Glyph, fontSize:Int, dpi:Int = 96, ?loadFlags:Int, subpixelX:Float = 0.0):Image
@@ -463,7 +479,7 @@ class Font
 
 		// Call native function to render glyph and get byte data
 		var subpixelX64:Int = Math.round(subpixelX * 64);
-		bytes = subpixelX64 != 0 ? NativeCFFI.lime_font_render_glyph_with_offset(src, glyph, loadFlags == null ? 0 : loadFlags, subpixelX64, bytes)
+		bytes = subpixelX64 != 0 ? NativeCFFI.lime_font_render_glyph_with_offset(src, glyph, loadFlags == null ? -1 : loadFlags, subpixelX64, bytes)
 			: loadFlags == null ? NativeCFFI.lime_font_render_glyph(src, glyph, bytes)
 			: NativeCFFI.lime_font_render_glyph_with_flags(src, glyph, loadFlags, bytes);
 

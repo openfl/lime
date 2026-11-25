@@ -111,7 +111,8 @@ class LinuxPlatform extends PlatformTarget
 
 		for (i in 1...project.windows.length)
 		{
-			defaults.windows.push(defaults.window);
+			// A copy each, as merge() copies each project window into its own default
+			defaults.windows.push(hxp.ObjectTools.copyFields(defaults.window, {}));
 		}
 
 		defaults.merge(project);
@@ -208,6 +209,20 @@ class LinuxPlatform extends PlatformTarget
 							&& (ndll.haxelib.name == "hxcpp" || ndll.haxelib.name == "hxlibc")) ? ".dll" : ".ndll", applicationDirectory,
 						project.debug, targetSuffix);
 				}
+			}
+		}
+
+		// Libraries that the application opens by itself, when it needs them, from the folder for its architecture
+		var libraryFolder = "Linux" + ((System.hostArchitecture == ARMV7 || System.hostArchitecture == ARM64) ? "Arm" : "") + (is64 ? "64" : "");
+
+		for (dependency in project.dependencies)
+		{
+			if (StringTools.endsWith(dependency.path, ".so")
+				&& Path.withoutDirectory(Path.directory(dependency.path)) == libraryFolder
+				&& FileSystem.exists(dependency.path))
+			{
+				System.mkdir(applicationDirectory);
+				copyIfNewer(dependency.path, applicationDirectory + "/" + Path.withoutDirectory(dependency.path));
 			}
 		}
 

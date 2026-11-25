@@ -93,74 +93,20 @@ class HTML5Helper
 		}
 		else
 		{
-			var suffix = switch (System.hostPlatform)
-			{
-				case WINDOWS: "-windows.exe";
-				case MAC: "-mac";
-				case LINUX: "-linux";
-				default: return;
-			}
-
-			if (suffix == "-linux")
-			{
-				if (System.hostArchitecture == X86)
-				{
-					suffix += "32";
-				}
-				else if (System.hostArchitecture == ARMV7)
-				{
-					suffix += "Arm";
-				}
-				else if (System.hostArchitecture == ARM64)
-				{
-					suffix += "Arm64";
-				}
-				else
-				{
-					suffix += "64";
-				}
-			}
-
-			var templatePaths = [
-				Path.combine(Haxelib.getPath(new Haxelib(#if lime "lime" #else "hxp" #end)), #if lime "templates" #else "" #end)
-			].concat(project.templatePaths);
-			var node = System.findTemplate(templatePaths, "bin/node/node" + suffix);
-			var server = System.findTemplate(templatePaths, "bin/node/http-server/bin/http-server");
-
-			if (System.hostPlatform != WINDOWS)
-			{
-				Sys.command("chmod", ["+x", node]);
-			}
-
-			var args = [server, path, "-c-1", "--cors"];
-
 			if (project.targetFlags.exists("port"))
 			{
 				port = Std.parseInt(project.targetFlags.get("port"));
 			}
 
-			if (port != 0)
-			{
-				args.push("-p");
-				args.push(Std.string(port));
-				Log.info("", "\x1b[1mStarting local web server:\x1b[0m http://localhost:" + port);
-			}
-			else
-			{
-				Log.info("", "\x1b[1mStarting local web server:\x1b[0m http://localhost:[3000*]");
-			}
+			// Other machines, such as a phone, reach it only when asked to
+			var host = project.targetFlags.exists("host") ? project.targetFlags.get("host") : "127.0.0.1";
 
-			if (!project.targetFlags.exists("nolaunch"))
-			{
-				args.push("-o");
-			}
-
-			if (!Log.verbose)
-			{
-				args.push("--silent");
-			}
-
-			System.runCommand("", node, args);
+			#if crossbyte
+			WebServer.serve(path, host, port, !project.targetFlags.exists("nolaunch"));
+			#else
+			// As with -eval, without the crossbyte haxelib or on Haxe before 4.3
+			Log.error("These tools were built without CrossByte, which serves the output. Install the crossbyte haxelib and Haxe 4.3 or later, or serve \"" + path + "\" with a web server of your own.");
+			#end
 		}
 	}
 
@@ -172,43 +118,8 @@ class HTML5Helper
 
 			if (project.targetFlags.exists("terser"))
 			{
-				var executable = "npx";
-				var terser = "terser";
-				if (!project.targetFlags.exists("npx"))
-				{
-					var suffix = switch (System.hostPlatform)
-					{
-						case WINDOWS: "-windows.exe";
-						case MAC: "-mac";
-						case LINUX: "-linux";
-						default: return false;
-					}
-
-					if (suffix == "-linux")
-					{
-						if (System.hostArchitecture == X86)
-						{
-							suffix += "32";
-						}
-						else
-						{
-							suffix += "64";
-						}
-					}
-
-					var templatePaths = [
-						Path.combine(Haxelib.getPath(new Haxelib(#if lime "lime" #else "hxp" #end)), #if lime "templates" #else "" #end)
-					].concat(project.templatePaths);
-					executable = System.findTemplate(templatePaths, "bin/node/node" + suffix);
-					terser = System.findTemplate(templatePaths, "bin/node/terser/bin/terser");
-
-					if (System.hostPlatform != WINDOWS)
-					{
-						Sys.command("chmod", ["+x", executable]);
-					}
-				}
-
-				var args = [terser, sourceFile, "-c", "-m", "-o", tempFile];
+				// Lime no longer bundles Node.js, so terser comes from the system's
+				var args = ["terser", sourceFile, "-c", "-m", "-o", tempFile];
 
 				if (FileSystem.exists(sourceFile + ".map"))
 				{
@@ -216,7 +127,21 @@ class HTML5Helper
 					args.push('content=\'${sourceFile}.map\'');
 				}
 
-				System.runCommand("", executable, args);
+				// System.runCommand answers 0 for a failure it is told to ignore
+				Log.info("", " - \x1b[1mRunning command:\x1b[0m npx " + args.join(" "));
+
+				if (Sys.command("npx", args) != 0)
+				{
+					// Tell a missing Node.js apart from terser failing
+					if (Sys.command("npx", ["--version"]) != 0)
+					{
+						Log.error("-terser needs Node.js, whose npx runs terser. Install Node.js, or use -minify without -terser.");
+					}
+					else
+					{
+						Log.error("terser could not minify \"" + sourceFile + "\"");
+					}
+				}
 			}
 			else if (project.targetFlags.exists("yui"))
 			{

@@ -1,5 +1,6 @@
 package lime.media;
 
+import haxe.io.Bytes;
 import lime.app.Event;
 import lime.app.Future;
 import lime.app.Promise;
@@ -43,7 +44,16 @@ import lime.app.Promise;
 	with `texImage2D`, and the browser turns and sizes it already.
 
 	Availability: native targets where `VideoDecoder.isSupported` is `true`,
-	and HTML5. On macOS and iOS, only local files play, not URLs.
+	and HTML5. Videos open from a path, an asset (embedded or not), a URL
+	or bytes. On macOS and iOS, a URL is downloaded to a temporary file before
+	it plays, as the system's reader only reads files, so live streams do not
+	play there.
+
+	On HTML5, a video from another origin needs the server to allow it with
+	CORS headers, or it fails to load, as its frames are read by WebGL.
+	Browsers refuse to start a video with sound before the user has
+	interacted with the page; `play()` then leaves `playing` `false`, with no
+	event, and can be called again from an input event.
 
 	@see lime.media.VideoDecoder
 **/
@@ -67,6 +77,46 @@ class VideoSource
 		also dispatched when the video cannot be loaded.
 	**/
 	public var onError = new Event<String->Void>();
+
+	/**
+		Dispatched with `true` when playback has to wait for the video to be
+		read or decoded, and with `false` when it carries on. On native targets
+		it is dispatched when a playing video has waited a tenth of a second for
+		a frame, as after seeking, and on HTML5 when the browser runs out of
+		data, as a slow network stream does. Pausing ends the wait.
+	**/
+	public var onBuffering = new Event<Bool->Void>();
+
+	/**
+		Dispatched once a video opened with `open`, or by passing a path to the
+		constructor, has its `length`, `width`, `height` and `frameRate`, and
+		before it is played. It is dispatched on a later frame, never during
+		`open`, so listeners can be added after opening. A video from
+		`loadFromFile` dispatches it too, after the future completes.
+	**/
+	public var onReady = new Event<Void->Void>();
+
+	/**
+		Dispatched when setting `currentTime` has moved playback, once the new
+		position can be shown. Moves the video makes itself, such as looping or
+		catching up after falling behind, do not dispatch it. A video that
+		cannot seek does not dispatch it.
+	**/
+	public var onSeek = new Event<Void->Void>();
+
+	/**
+		How many bytes of the video have been read, or 0 when it is unknown.
+		Native targets know the size of a local file, which is read as it plays
+		but counted as loaded, and know nothing of a URL's. Browsers do not
+		say, so it is always 0 on HTML5.
+	**/
+	public var bytesLoaded(get, never):Float;
+
+	/**
+		The size of the video in bytes, or 0 when it is unknown, as
+		`bytesLoaded` describes.
+	**/
+	public var bytesTotal(get, never):Float;
 
 	/**
 		How frames are timed against the sound, `SMOOTH` by default. On HTML5,
@@ -111,8 +161,18 @@ class VideoSource
 	public var gain(get, set):Float;
 
 	/**
+		The number of frames the video shows each second, or 0 when it is
+		unknown. Browsers do not say, so on HTML5 it is measured from the frames
+		shown once the video plays, in browsers that report them, and is 0
+		before.
+	**/
+	public var frameRate(get, never):Float;
+
+	/**
 		Whether the video has sound that can be played. A video whose sound
-		uses a codec the platform lacks plays without it.
+		uses a codec the platform lacks plays without it. Browsers do not say
+		whether a video has sound, so on HTML5 it is `true` for any video that
+		is open.
 	**/
 	public var hasAudio(get, never):Bool;
 
@@ -161,6 +221,13 @@ class VideoSource
 		Whether the video is playing.
 	**/
 	public var playing(get, never):Bool;
+
+	/**
+		How fast the video plays, where 1 is normal speed, from 0.25 to 4.
+		Native targets play the sound faster too, at a higher pitch, while
+		browsers usually keep its pitch. It is always 1 on Flash.
+	**/
+	public var rate(get, set):Float;
 
 	/**
 		How far to turn frames clockwise to show them upright, in degrees: 0,
@@ -213,6 +280,19 @@ class VideoSource
 	}
 
 	/**
+		Creates a video source from a whole video file held in memory, or
+		returns `null` when it cannot be opened.
+
+		@param	bytes	The video file
+		@param	format	The layout of frames on native targets
+	**/
+	public static function fromBytes(bytes:Bytes, format:VideoFrameFormat = NV12):VideoSource
+	{
+		var source = new VideoSource();
+		return source.openBytes(bytes, format) ? source : null;
+	}
+
+	/**
 		Opens a video without blocking.
 
 		@param	path	A file path, asset ID or URL
@@ -223,6 +303,24 @@ class VideoSource
 	public static function loadFromFile(path:String, format:VideoFrameFormat = NV12):Future<VideoSource>
 	{
 		return VideoSourceBackend.loadFromFile(path, format);
+	}
+
+	/**
+		Opens a whole video file held in memory, closing any video already
+		open. Playback starts paused at the beginning, and `source` is `null`.
+
+		Native targets write the bytes to a temporary file, as the platform
+		decoders read files, and delete it when the video is closed. HTML5 plays
+		them from a `blob:` URL.
+
+		@param	bytes	The video file
+		@param	format	The layout of frames on native targets
+		@return	Whether the video can be played
+	**/
+	public function openBytes(bytes:Bytes, format:VideoFrameFormat = NV12):Bool
+	{
+		source = null;
+		return __backend.openBytes(bytes, format);
 	}
 
 	/**
@@ -284,6 +382,16 @@ class VideoSource
 	}
 
 	// Get & Set Methods
+	@:noCompletion private function get_bytesLoaded():Float
+	{
+		return __backend.getBytesLoaded();
+	}
+
+	@:noCompletion private function get_bytesTotal():Float
+	{
+		return __backend.getBytesTotal();
+	}
+
 	@:noCompletion private function get_clockMode():VideoClockMode
 	{
 		return __backend.getClockMode();
@@ -329,6 +437,11 @@ class VideoSource
 		return __backend.setDropLateFrames(value);
 	}
 
+	@:noCompletion private function get_frameRate():Float
+	{
+		return __backend.getFrameRate();
+	}
+
 	@:noCompletion private function get_gain():Float
 	{
 		return __backend.getGain();
@@ -337,6 +450,16 @@ class VideoSource
 	@:noCompletion private function set_gain(value:Float):Float
 	{
 		return __backend.setGain(value);
+	}
+
+	@:noCompletion private function get_rate():Float
+	{
+		return __backend.getRate();
+	}
+
+	@:noCompletion private function set_rate(value:Float):Float
+	{
+		return __backend.setRate(value);
 	}
 
 	@:noCompletion private function get_hasAudio():Bool

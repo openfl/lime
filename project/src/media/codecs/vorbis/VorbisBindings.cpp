@@ -121,19 +121,19 @@ namespace lime {
 	}
 
 
-	void lime_vorbis_file_clear (value vorbisFile);
-	HL_PRIM void HL_NAME(hl_vorbis_file_clear) (HL_CFFIPointer* vorbisFile);
-
-
 	void gc_vorbis_file (value vorbisFile) {
 
-		lime_vorbis_file_clear (vorbisFile);
+		OggVorbis_File* file = (OggVorbis_File*)(uintptr_t)val_data (vorbisFile);
+		ov_clear (file);
+		delete file;
 
 	}
 
 	void hl_gc_vorbis_file (HL_CFFIPointer* vorbisFile) {
 
-		lime_hl_vorbis_file_clear (vorbisFile);
+		OggVorbis_File* file = (OggVorbis_File*)(uintptr_t)vorbisFile->ptr;
+		ov_clear (file);
+		delete file;
 
 	}
 
@@ -170,12 +170,12 @@ namespace lime {
 	}
 
 
+	// A cleared file still answers calls, with errors, so its finalizer frees it
 	void lime_vorbis_file_clear (value vorbisFile) {
 
 		if (!val_is_null (vorbisFile)) {
 
 			OggVorbis_File* file = (OggVorbis_File*)(uintptr_t)val_data (vorbisFile);
-			val_gc (vorbisFile, 0);
 			ov_clear (file);
 
 		}
@@ -188,7 +188,6 @@ namespace lime {
 		if (vorbisFile) {
 
 			OggVorbis_File* file = (OggVorbis_File*)(uintptr_t)vorbisFile->ptr;
-			vorbisFile->finalizer = 0;
 			ov_clear (file);
 
 		}

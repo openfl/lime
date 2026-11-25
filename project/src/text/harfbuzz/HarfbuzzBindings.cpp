@@ -8,9 +8,41 @@
 #include <hb.h>
 #include <hb-ft.h>
 #include <map>
+#include <stdlib.h>
 
 
 namespace lime {
+
+
+	static hb_user_data_key_t font_key;
+
+
+	static void release_font (void* data) {
+
+		((Font*)data)->Release ();
+
+	}
+
+
+	// A HarfBuzz face made from a Font reads its FreeType face, which the Font
+	// frees with its library and memory, so the face keeps the Font until
+	// HarfBuzz destroys it. That is after the font made with it, and after any
+	// handle to the face, and the FreeType face isn't referenced: its release
+	// would come after the Font's.
+	hb_font_t* create_ft_font (Font* font) {
+
+		hb_font_t* hbFont = hb_ft_font_create ((FT_Face)font->face, NULL);
+		font->Retain ();
+
+		if (!hb_face_set_user_data (hb_font_get_face (hbFont), &font_key, font, release_font, true)) {
+
+			font->Release ();
+
+		}
+
+		return hbFont;
+
+	}
 
 
 	struct HBGlyphInfo {
@@ -34,7 +66,6 @@ namespace lime {
 	void gc_hb_blob (value handle) {
 
 		hb_blob_destroy ((hb_blob_t*)val_data (handle));
-		val_gc (handle, 0);
 
 	}
 
@@ -49,7 +80,6 @@ namespace lime {
 	void gc_hb_buffer (value handle) {
 
 		hb_buffer_destroy ((hb_buffer_t*)val_data (handle));
-		val_gc (handle, 0);
 
 	}
 
@@ -64,7 +94,6 @@ namespace lime {
 	void gc_hb_face (value handle) {
 
 		hb_face_destroy ((hb_face_t*)val_data (handle));
-		val_gc (handle, 0);
 
 	}
 
@@ -79,7 +108,6 @@ namespace lime {
 	void gc_hb_font (value handle) {
 
 		hb_font_destroy ((hb_font_t*)val_data (handle));
-		val_gc (handle, 0);
 
 	}
 
@@ -91,10 +119,23 @@ namespace lime {
 	}
 
 
+	void gc_hb_segment_properties (value handle) {
+
+		free (val_data (handle));
+
+	}
+
+
+	void hl_gc_hb_segment_properties (HL_CFFIPointer* handle) {
+
+		free (handle->ptr);
+
+	}
+
+
 	void gc_hb_set (value handle) {
 
 		hb_set_destroy ((hb_set_t*)val_data (handle));
-		val_gc (handle, 0);
 
 	}
 
@@ -157,7 +198,7 @@ namespace lime {
 	double lime_hb_blob_get_data_writable (value blob) {
 
 		unsigned int length = 0;
-		return (uintptr_t)hb_blob_get_data ((hb_blob_t*)val_data (blob), &length);
+		return (uintptr_t)hb_blob_get_data_writable ((hb_blob_t*)val_data (blob), &length);
 
 	}
 
@@ -165,7 +206,7 @@ namespace lime {
 	HL_PRIM double HL_NAME(hl_hb_blob_get_data_writable) (HL_CFFIPointer* blob) {
 
 		unsigned int length = 0;
-		return (uintptr_t)hb_blob_get_data ((hb_blob_t*)blob->ptr, &length);
+		return (uintptr_t)hb_blob_get_data_writable ((hb_blob_t*)blob->ptr, &length);
 
 	}
 
@@ -610,9 +651,10 @@ namespace lime {
 	}
 
 
-	int lime_hb_buffer_get_script (value buffer) {
+	// A double, as Neko's integers can't hold tags past 2^30, such as Latn
+	double lime_hb_buffer_get_script (value buffer) {
 
-		return hb_buffer_get_script ((hb_buffer_t*)val_data (buffer));
+		return (unsigned int)hb_buffer_get_script ((hb_buffer_t*)val_data (buffer));
 
 	}
 
@@ -910,12 +952,9 @@ namespace lime {
 	}
 
 
-	void lime_hb_buffer_set_script (value buffer, int script) {
+	void lime_hb_buffer_set_script (value buffer, double script) {
 
-		if (script == -1) script = HB_SCRIPT_COMMON; // Workaround for Neko
-		// TODO: COMMON is an int32 and doesn't translate properly on Neko
-
-		hb_buffer_set_script ((hb_buffer_t*)val_data (buffer), (hb_script_t)script);
+		hb_buffer_set_script ((hb_buffer_t*)val_data (buffer), (hb_script_t)(unsigned int)script);
 
 	}
 
@@ -1245,7 +1284,8 @@ namespace lime {
 
 	value lime_hb_font_get_face (value font) {
 
-		hb_face_t* face = hb_font_get_face ((hb_font_t*)val_data (font));
+		// The handle's finalizer destroys a reference of its own
+		hb_face_t* face = hb_face_reference (hb_font_get_face ((hb_font_t*)val_data (font)));
 		return CFFIPointer (face, gc_hb_face);
 
 	}
@@ -1253,9 +1293,7 @@ namespace lime {
 
 	HL_PRIM HL_CFFIPointer* HL_NAME(hl_hb_font_get_face) (HL_CFFIPointer* font) {
 
-		// TODO: Manage memory differently here?
-
-		hb_face_t* face = hb_font_get_face ((hb_font_t*)font->ptr);
+		hb_face_t* face = hb_face_reference (hb_font_get_face ((hb_font_t*)font->ptr));
 		return HLCFFIPointer (face, (hl_finalizer)hl_gc_hb_face);
 
 	}
@@ -1332,7 +1370,8 @@ namespace lime {
 
 	value lime_hb_font_get_parent (value font) {
 
-		hb_font_t* parent = hb_font_get_parent ((hb_font_t*)val_data (font));
+		// The handle's finalizer destroys a reference of its own
+		hb_font_t* parent = hb_font_reference (hb_font_get_parent ((hb_font_t*)val_data (font)));
 		return CFFIPointer (parent, gc_hb_font);
 
 	}
@@ -1340,9 +1379,7 @@ namespace lime {
 
 	HL_PRIM HL_CFFIPointer* HL_NAME(hl_hb_font_get_parent) (HL_CFFIPointer* font) {
 
-		// Manage memory differently here?
-
-		hb_font_t* parent = hb_font_get_parent ((hb_font_t*)font->ptr);
+		hb_font_t* parent = hb_font_reference (hb_font_get_parent ((hb_font_t*)font->ptr));
 		return HLCFFIPointer (parent, (hl_finalizer)hl_gc_hb_font);
 
 	}
@@ -1350,9 +1387,9 @@ namespace lime {
 
 	value lime_hb_font_get_ppem (value font) {
 
-		int xppem = 0;
-		int yppem = 0;
-		hb_font_get_scale ((hb_font_t*)val_data (font), &xppem, &yppem);
+		unsigned int xppem = 0;
+		unsigned int yppem = 0;
+		hb_font_get_ppem ((hb_font_t*)val_data (font), &xppem, &yppem);
 		Vector2 result = Vector2 (xppem, yppem);
 		return result.Value ();
 
@@ -1361,9 +1398,9 @@ namespace lime {
 
 	HL_PRIM Vector2* HL_NAME(hl_hb_font_get_ppem) (HL_CFFIPointer* font, Vector2* out) {
 
-		int xppem = 0;
-		int yppem = 0;
-		hb_font_get_scale ((hb_font_t*)font->ptr, &xppem, &yppem);
+		unsigned int xppem = 0;
+		unsigned int yppem = 0;
+		hb_font_get_ppem ((hb_font_t*)font->ptr, &xppem, &yppem);
 		out->x = xppem;
 		out->y = yppem;
 		return out;
@@ -1523,7 +1560,7 @@ namespace lime {
 	value lime_hb_ft_font_create (value font) {
 
 		Font* _font = (Font*)val_data (font);
-		hb_font_t* __font = hb_ft_font_create ((FT_Face)_font->face, NULL);
+		hb_font_t* __font = create_ft_font (_font);
 		return CFFIPointer (__font, gc_hb_font);
 
 	}
@@ -1532,16 +1569,18 @@ namespace lime {
 	HL_PRIM HL_CFFIPointer* HL_NAME(hl_hb_ft_font_create) (HL_CFFIPointer* font) {
 
 		Font* _font = (Font*)font->ptr;
-		hb_font_t* __font = hb_ft_font_create ((FT_Face)_font->face, NULL);
+		hb_font_t* __font = create_ft_font (_font);
 		return HLCFFIPointer (__font, (hl_finalizer)hl_gc_hb_font);
 
 	}
 
 
+	// A reference to the FreeType face wouldn't outlive the Font's
+	// FT_Done_FreeType, so this keeps the Font as lime_hb_ft_font_create does
 	value lime_hb_ft_font_create_referenced (value font) {
 
 		Font* _font = (Font*)val_data (font);
-		hb_font_t* __font = hb_ft_font_create_referenced ((FT_Face)_font->face);
+		hb_font_t* __font = create_ft_font (_font);
 		return CFFIPointer (__font, gc_hb_font);
 
 	}
@@ -1550,7 +1589,7 @@ namespace lime {
 	HL_PRIM HL_CFFIPointer* HL_NAME(hl_hb_ft_font_create_referenced) (HL_CFFIPointer* font) {
 
 		Font* _font = (Font*)font->ptr;
-		hb_font_t* __font = hb_ft_font_create_referenced ((FT_Face)_font->face);
+		hb_font_t* __font = create_ft_font (_font);
 		return HLCFFIPointer (__font, (hl_finalizer)hl_gc_hb_font);
 
 	}
@@ -1736,6 +1775,30 @@ namespace lime {
 	}
 
 
+	static hb_segment_properties_t* hb_segment_properties_alloc () {
+
+		hb_segment_properties_t defaults = HB_SEGMENT_PROPERTIES_DEFAULT;
+		hb_segment_properties_t* props = (hb_segment_properties_t*)malloc (sizeof (hb_segment_properties_t));
+		*props = defaults;
+		return props;
+
+	}
+
+
+	value lime_hb_segment_properties_create () {
+
+		return CFFIPointer (hb_segment_properties_alloc (), gc_hb_segment_properties);
+
+	}
+
+
+	HL_PRIM HL_CFFIPointer* HL_NAME(hl_hb_segment_properties_create) () {
+
+		return HLCFFIPointer (hb_segment_properties_alloc (), (hl_finalizer)hl_gc_hb_segment_properties);
+
+	}
+
+
 	value lime_hb_set_create () {
 
 		hb_set_t* set = hb_set_create ();
@@ -1910,7 +1973,8 @@ namespace lime {
 
 	int lime_hb_set_next (value set) {
 
-		hb_codepoint_t codepoint = 0;
+		// HarfBuzz starts from HB_SET_VALUE_INVALID; from 0 it would skip 0
+		hb_codepoint_t codepoint = HB_SET_VALUE_INVALID;
 
 		if (hb_set_next ((hb_set_t*)val_data (set), &codepoint)) {
 
@@ -1927,7 +1991,8 @@ namespace lime {
 
 	HL_PRIM int HL_NAME(hl_hb_set_next) (HL_CFFIPointer* set) {
 
-		hb_codepoint_t codepoint = 0;
+		// HarfBuzz starts from HB_SET_VALUE_INVALID; from 0 it would skip 0
+		hb_codepoint_t codepoint = HB_SET_VALUE_INVALID;
 
 		if (hb_set_next ((hb_set_t*)set->ptr, &codepoint)) {
 
@@ -1944,8 +2009,9 @@ namespace lime {
 
 	value lime_hb_set_next_range (value set) {
 
-		hb_codepoint_t first = 0;
-		hb_codepoint_t last = 0;
+		// HarfBuzz starts from HB_SET_VALUE_INVALID; from 0 it would skip a range starting at 0
+		hb_codepoint_t first = HB_SET_VALUE_INVALID;
+		hb_codepoint_t last = HB_SET_VALUE_INVALID;
 
 		if (hb_set_next_range ((hb_set_t*)val_data (set), &first, &last)) {
 
@@ -1963,8 +2029,9 @@ namespace lime {
 
 	HL_PRIM Vector2* HL_NAME(hl_hb_set_next_range) (HL_CFFIPointer* set, Vector2* out) {
 
-		hb_codepoint_t first = 0;
-		hb_codepoint_t last = 0;
+		// HarfBuzz starts from HB_SET_VALUE_INVALID; from 0 it would skip a range starting at 0
+		hb_codepoint_t first = HB_SET_VALUE_INVALID;
+		hb_codepoint_t last = HB_SET_VALUE_INVALID;
 
 		if (hb_set_next_range ((hb_set_t*)set->ptr, &first, &last)) {
 
@@ -2184,6 +2251,7 @@ namespace lime {
 	DEFINE_PRIME3v (lime_hb_set_add_range);
 	DEFINE_PRIME1 (lime_hb_set_allocation_successful);
 	DEFINE_PRIME1v (lime_hb_set_clear);
+	DEFINE_PRIME0 (lime_hb_segment_properties_create);
 	DEFINE_PRIME0 (lime_hb_set_create);
 	DEFINE_PRIME2v (lime_hb_set_del);
 	DEFINE_PRIME3v (lime_hb_set_del_range);
@@ -2303,6 +2371,7 @@ namespace lime {
 	DEFINE_HL_PRIM (_VOID, hl_hb_set_add_range, _TCFFIPOINTER _I32 _I32);
 	DEFINE_HL_PRIM (_BOOL, hl_hb_set_allocation_successful, _TCFFIPOINTER);
 	DEFINE_HL_PRIM (_VOID, hl_hb_set_clear, _TCFFIPOINTER);
+	DEFINE_HL_PRIM (_TCFFIPOINTER, hl_hb_segment_properties_create, _NO_ARG);
 	DEFINE_HL_PRIM (_TCFFIPOINTER, hl_hb_set_create, _NO_ARG);
 	DEFINE_HL_PRIM (_VOID, hl_hb_set_del, _TCFFIPOINTER _I32);
 	DEFINE_HL_PRIM (_VOID, hl_hb_set_del_range, _TCFFIPOINTER _I32 _I32);

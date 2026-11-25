@@ -33,6 +33,9 @@ class HTML5Application
 	private var currentUpdate:Float;
 	private var deltaTime:Float;
 	private var framePeriod:Float;
+
+	// How early a frame may run, so animation frames at the rate asked for are never skipped
+	private static inline var FRAME_SLACK:Float = 2;
 	private var gameDeviceCache = new Map<Int, GameDeviceData>();
 	private var hidden:Bool;
 	private var lastUpdate:Float;
@@ -308,7 +311,8 @@ class HTML5Application
 
 	public function configureFrameTiming(profile:FrameProfile, frameRate:Float, options:FrameOptions):Void
 	{
-		if (frameRate == 0 || frameRate >= 60)
+		// 0 runs a frame on every animation frame; any other rate is a cap, 60 and above too
+		if (frameRate == 0)
 		{
 			framePeriod = -1;
 		}
@@ -425,7 +429,7 @@ class HTML5Application
 		return UNKNOWN;
 	}
 
-	private function handleApplicationEvent(?__):Void
+	private function handleApplicationEvent(?timestamp:Float):Void
 	{
 		// TODO: Support independent window frame rates
 
@@ -436,9 +440,11 @@ class HTML5Application
 
 		updateGameDevices();
 
-		currentUpdate = Browser.window.performance.now();
+		// The time requestAnimationFrame gives is when the browser's frame began, which comes at
+		// even intervals where performance.now() in the callback doesn't
+		currentUpdate = (timestamp != null && timestamp > 0) ? timestamp : Browser.window.performance.now();
 
-		if (currentUpdate >= nextUpdate)
+		if (framePeriod < 0 || currentUpdate >= nextUpdate - FRAME_SLACK)
 		{
 			#if stats
 			stats.begin();
@@ -462,7 +468,11 @@ class HTML5Application
 			}
 			else
 			{
-				nextUpdate = currentUpdate - (currentUpdate % framePeriod) + framePeriod;
+				// From when this frame was due, so frames that come late keep the rate, or from when
+				// it came if that was earlier, so a display a little faster than the rate never
+				// builds up enough to skip one. A frame more than a period late starts afresh.
+				nextUpdate = Math.min(currentUpdate, nextUpdate) + framePeriod;
+				if (nextUpdate < currentUpdate) nextUpdate = currentUpdate + framePeriod;
 			}
 
 			lastUpdate = currentUpdate;
@@ -471,7 +481,14 @@ class HTML5Application
 		Browser.window.requestAnimationFrame(cast handleApplicationEvent);
 	}
 
-	public function setMenu(menu:Menu):Void {}
+	public function setMenu(menu:Menu):Void
+	{
+		// Shown by the windows without a menu of their own
+		for (window in parent.__windows)
+		{
+			if (window.__menu == null) window.__backend.setMenu(null);
+		}
+	}
 
 	public function setVSyncMode(mode:VSyncMode):Void {}
 
@@ -495,6 +512,13 @@ class HTML5Application
 
 			if (event.type == "keydown")
 			{
+				// Key equivalents of the menu bar take priority, like native accelerators
+				if (parent.window.__backend.handleMenuKeyEquivalent(keyCode, modifier))
+				{
+					if (event.cancelable) event.preventDefault();
+					return;
+				}
+
 				@:privateAccess parent.window.onKeyDown.__dispatchWithTimestamp(timestamp, keyCode, modifier);
 
 				if (parent.window.onKeyDown.canceled && event.cancelable)
@@ -643,7 +667,8 @@ class HTML5Application
 				for (i in 0...data.buttons.length)
 				{
 					value = data.buttons[i].value;
-					var timestamp = System.getTimer();
+					// When the browser last read the gamepad, on the clock key events use
+					var timestamp = data.timestamp != null ? Std.int(data.timestamp) : System.getTimer();
 
 					if (value != cache.buttons[i])
 					{

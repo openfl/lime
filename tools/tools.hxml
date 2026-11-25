@@ -7,6 +7,6 @@
 -cp ../src
 -lib format
 -lib hxp
--lib wsproto
+-lib crossbyte
 #-lib svg
 -D optional-cffi
