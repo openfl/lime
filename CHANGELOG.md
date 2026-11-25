@@ -218,6 +218,7 @@ Changelog
 - Fixed `GL.getUniform()` on native targets reading another uniform, or with the wrong type, where the driver's locations differ from the indices.
 - Fixed a crash when OpenGL objects are made or deleted while another thread collects.
 - Fixed `Bytes.decompress()` on native targets accepting truncated ZLIB, GZIP and DEFLATE data and reading only the first member of a GZIP file, and LZMA ending the process for empty or short data and failing on streams of unknown size.
+- Fixed the HTML5 LZMA library failing with "Cannot set properties of undefined (setting 'LZMA_WORKER')" when the application's script runs as a JavaScript module.
 - Fixed `GZip.compress()` and `decompress()` on Flash, and empty streams and concatenated GZIP members on Flash and AIR.
 - Fixed `Bytes` made in native code having a trailing zero on Neko, and `Bytes.fromFile()` giving null for an empty file.
 - Fixed `UTF8String` counting bytes rather than code points on Neko with Haxe 4.
