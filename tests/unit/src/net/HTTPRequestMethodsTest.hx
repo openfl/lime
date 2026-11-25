@@ -194,6 +194,52 @@ class HTTPRequestMethodsTest extends Test
 		}, function() async.done());
 	}
 
+	// OpenFL's URLLoader sends PATCH and DELETE requests with data, as XMLHttpRequest does
+	@:timeout(15000)
+	public function testOtherMethodsSendTheirDataAsIs(async:Async):Void
+	{
+		var server = serve(function(_) return ScriptedResponse.text(200, "ok"));
+		var data = Bytes.alloc(4096);
+		for (i in 0...data.length) data.set(i, (i * 7) & 0xFF);
+		var methods:Array<HTTPRequestMethod> = [cast "PATCH", DELETE, OPTIONS];
+
+		ScriptedServer.each(methods, function(method, next)
+		{
+			var request = new HTTPRequest<String>();
+			request.method = method;
+			request.data = data;
+			LoadOutcome.watch(request.load(server.url("/data")), async, function(outcome)
+			{
+				Assert.isTrue(outcome.completed, method + " " + outcome);
+				var received = last(server);
+				Assert.equals(Std.string(method), received.method);
+				Assert.equals(data.length, received.body.length, method + " sent another length");
+				Assert.equals(0, data.compare(received.body), method + " changed the data");
+				Assert.equals(Std.string(data.length), received.header("Content-Length"));
+				Assert.isFalse(received.chunked, method + " sent a chunked body");
+				next();
+			});
+		}, function() async.done());
+	}
+
+	@:timeout(10000)
+	public function testPatchFormDataGoesInTheBody(async:Async):Void
+	{
+		var server = serve(function(_) return ScriptedResponse.text(200, "ok"));
+		var request = new HTTPRequest<String>();
+		request.method = cast "PATCH";
+		request.formData.set("name", "a b&c");
+		LoadOutcome.watch(request.load(server.url("/form")), async, function(outcome)
+		{
+			Assert.isTrue(outcome.completed, Std.string(outcome));
+			var received = last(server);
+			Assert.equals("PATCH", received.method);
+			Assert.equals("/form", received.target);
+			Assert.equals("name=a%20b%26c", received.body.toString());
+			async.done();
+		});
+	}
+
 	@:timeout(10000)
 	public function testContentTypeNamesTheData(async:Async):Void
 	{

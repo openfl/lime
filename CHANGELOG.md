@@ -227,6 +227,7 @@ Changelog
 - Fixed `HTTPRequest` error statuses losing the response body, text responses keeping a BOM, and `responseHeaders` coming from an earlier response of a redirect and splitting values at every colon.
 - Fixed the last progress report of a native `HTTPRequest` missing the end of the body, and a new request waiting up to a second while others waited on their servers.
 - Fixed a PUT without data reading its body from standard input, and text POST and PUT bodies, such as OpenFL's `URLLoader` sends by default, going out chunked and with their line endings changed outside Windows.
+- Fixed native `HTTPRequest` sending no body for PATCH, DELETE, OPTIONS and other methods besides POST and PUT, so a server saw their data, or their form data, as empty.
 - Fixed `CURL.getInfo()` with string and 64-bit infos, cookies not being kept between requests on HashLink, `CURL.escape()` and `unescape()` with UTF-8, `CURLOption` and `CURLInfo` values that didn't match curl's, cloned handles sharing their original's headers and data, and `POSTFIELDS` freed before the transfer.
 - Fixed races between threads using CURL multi handles, and finalizing CURL handles deadlocking the collector.
 - Fixed `AL.getString()` with an unknown name ending the process on HashLink, refused vector queries giving uninitialized values, the three-value getters filling the wrong elements, and creating buffers and sources clearing an error the application hadn't read.
@@ -248,6 +249,7 @@ Changelog
 - Fixed setting the desktop's own display mode making every later fullscreen exclusive.
 - Fixed `vsync="adaptive"` and `vsync="auto"` in project.xml asking for plain vertical sync.
 - Fixed HashLink leaking the text of each text input event and dropped file path, and `sys.io.Process` failing for every command on HashLink on Windows.
+- Fixed the tools opening a console window titled with the address on Windows, rather than the browser, for a project's `<app url>` and `lime setup`'s download pages, and `<command open>` doing the same for a path.
 
 8.3.2 (05/13/2026)
 ------------------

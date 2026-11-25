@@ -6,6 +6,7 @@ import haxe.io.Eof;
 import haxe.zip.Reader;
 import hxp.*;
 import lime.tools.CLIHelper;
+import lime.tools.CommandHelper;
 import lime.tools.ConfigHelper;
 import lime.tools.Platform;
 import lime.tools.HXProject;
@@ -911,7 +912,7 @@ class PlatformSetup
 
 		if (answer == YES || answer == ALWAYS)
 		{
-			System.openURL(appleXcodeURL);
+			CommandHelper.openURL(appleXcodeURL);
 		}
 	}
 
@@ -1172,7 +1173,7 @@ class PlatformSetup
 
 		if (answer == YES || answer == ALWAYS)
 		{
-			System.openURL(appleXcodeURL);
+			CommandHelper.openURL(appleXcodeURL);
 		}
 	}
 
@@ -1335,7 +1336,7 @@ class PlatformSetup
 
 		if (answer == YES || answer == ALWAYS)
 		{
-			System.openURL(visualStudioURL);
+			CommandHelper.openURL(visualStudioURL);
 		}
 	}
 
