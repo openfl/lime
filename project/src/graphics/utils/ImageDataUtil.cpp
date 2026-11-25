@@ -492,12 +492,36 @@ namespace lime {
 		PixelFormat format = image->buffer->format;
 		uint8_t* data = (uint8_t*)image->buffer->data->buffer->b;
 		int length = int (image->buffer->data->length / 4);
-		RGBA pixel;
+
+		// Alpha is the first byte of an ARGB32 pixel and the last of the others,
+		// and the three colour bytes follow or come before it
+		int alphaOffset = (format == ARGB32 ? 0 : 3);
+		int colorOffset = (format == ARGB32 ? 1 : 0);
 
 		for (int i = 0; i < length; i++) {
 
-			pixel.ReadUInt8 (data, i * 4, format, false, LIME_BIG_ENDIAN);
-			pixel.WriteUInt8 (data, i * 4, format, true);
+			uint8_t* pixel = data + i * 4;
+			int a = pixel[alphaOffset];
+
+			// An opaque pixel stays as it is
+			if (a == 0xFF) continue;
+
+			uint8_t* color = pixel + colorOffset;
+
+			if (a == 0) {
+
+				color[0] = 0;
+				color[1] = 0;
+				color[2] = 0;
+
+			} else {
+
+				// Rounded to the nearest, as RGBA::MultiplyAlpha does
+				color[0] = (color[0] * a + 127) / 255;
+				color[1] = (color[1] * a + 127) / 255;
+				color[2] = (color[2] * a + 127) / 255;
+
+			}
 
 		}
 
@@ -571,6 +595,28 @@ namespace lime {
 
 		int index;
 		int length = image->buffer->data->length / 4;
+		PixelFormat sourceFormat = image->buffer->format;
+
+		if (sourceFormat == format) return;
+
+		if ((sourceFormat == RGBA32 && format == BGRA32) || (sourceFormat == BGRA32 && format == RGBA32)) {
+
+			// Only red and blue change places
+			unsigned char* data = image->buffer->data->buffer->b;
+			unsigned char swap;
+
+			for (int i = 0; i < length; i++) {
+
+				index = i * 4;
+				swap = data[index];
+				data[index] = data[index + 2];
+				data[index + 2] = swap;
+
+			}
+
+			return;
+
+		}
 		int r1, g1, b1, a1, r2, g2, b2, a2;
 		int r, g, b, a;
 
