@@ -136,22 +136,23 @@ class BackgroundWorkerTest extends Test
 	public function testACanceledWorkerStopsListeningToUpdates(async:Async):Void
 	{
 		// A job that returns when it sees it was canceled sends nothing more, so no message ends the listening
-		var listeners = Application.current.onUpdate.__listeners.length;
 		var worker = new BackgroundWorker();
 		var release = new sys.thread.Lock();
+		var listening = function() return Application.current.onUpdate.has(@:privateAccess worker.__update);
 
 		worker.doWork.add(function(_)
 		{
 			release.wait(10);
 		});
 		worker.run();
-		Assert.equals(listeners + 1, Application.current.onUpdate.__listeners.length, "the worker did not listen to updates while it ran");
+		Assert.isTrue(listening(), "the worker did not listen to updates while it ran");
 		worker.cancel();
 		release.release();
+		Assert.isFalse(listening(), "a canceled worker was still listening to updates");
 
 		waitFrames(10, function()
 		{
-			Assert.equals(listeners, Application.current.onUpdate.__listeners.length, "a canceled worker was still listening to updates");
+			Assert.isFalse(listening(), "a canceled worker was listening to updates 10 frames later");
 			async.done();
 		});
 	}
