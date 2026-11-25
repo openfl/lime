@@ -2,6 +2,9 @@
 #include <system/CFFI.h>
 #include <system/CFFIPointer.h>
 #include <utils/Bytes.h>
+#include <system/System.h>
+#include <string.h>
+#include <vector>
 
 
 namespace lime {
@@ -512,6 +515,39 @@ namespace lime {
 	}
 
 
+	// Decodes aside, so that the collector can run while libvorbis works, and
+	// then copies into out, which is Haxe memory
+	static long ReadAside (OggVorbis_File* file, unsigned char* out, int length, bool bigendianp, int word, bool sgned, int* bitstream) {
+
+		static thread_local std::vector<char> scratch;
+
+		if (length <= 0) {
+
+			return ov_read (file, (char*)out, length, bigendianp, word, sgned, bitstream);
+
+		}
+
+		if ((int)scratch.size () < length) {
+
+			scratch.resize (length);
+
+		}
+
+		System::GCEnterBlocking ();
+		long result = ov_read (file, scratch.data (), length, bigendianp, word, sgned, bitstream);
+		System::GCExitBlocking ();
+
+		if (result > 0) {
+
+			memcpy (out, scratch.data (), result);
+
+		}
+
+		return result;
+
+	}
+
+
 	value lime_vorbis_file_read (value vorbisFile, value buffer, int position, int length, bool bigendianp, int word, bool sgned) {
 
 		if (val_is_null (buffer)) {
@@ -526,7 +562,7 @@ namespace lime {
 		int bitstream;
 
 		OggVorbis_File* file = (OggVorbis_File*)(uintptr_t)val_data (vorbisFile);
-		long result = ov_read (file, (char*)bytes.b + position, length, bigendianp, word, sgned, &bitstream);
+		long result = ReadAside (file, bytes.b + position, length, bigendianp, word, sgned, &bitstream);
 
 		_initializeVorbis ();
 
@@ -549,7 +585,7 @@ namespace lime {
 		int bitstream;
 
 		OggVorbis_File* file = (OggVorbis_File*)(uintptr_t)vorbisFile->ptr;
-		long result = ov_read (file, (char*)buffer->b + position, length, bigendianp, word, sgned, &bitstream);
+		long result = ReadAside (file, buffer->b + position, length, bigendianp, word, sgned, &bitstream);
 
 		_hl_initializeVorbis ();
 

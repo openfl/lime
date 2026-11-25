@@ -270,10 +270,27 @@ namespace lime {
 	}
 
 
+	static bool DecodeSample (Resource* resource, AudioBuffer* audioBuffer);
+
+
 	bool SDLSound::Decode (Resource* resource, AudioBuffer* audioBuffer) {
 
 		SDLSoundCall call;
 		if (!call.entered) return false;
+
+		// SDL_sound only reads the encoded sound and writes the buffer's own
+		// memory, so the collector needn't wait for this thread: a decode on a
+		// worker thread otherwise holds up every collection until it finishes
+		System::GCEnterBlocking ();
+		bool decoded = DecodeSample (resource, audioBuffer);
+		System::GCExitBlocking ();
+
+		return decoded;
+
+	}
+
+
+	static bool DecodeSample (Resource* resource, AudioBuffer* audioBuffer) {
 
 		Sound_Sample* sample = CreateSample (resource);
 
@@ -532,14 +549,19 @@ namespace lime {
 
 		Uint32 decodeBufferSize = AlignBufferSize ((Uint32)length, frameSize);
 
-		if (decodeBufferSize != sample->buffer_size && !Sound_SetBufferSize (sample, decodeBufferSize)) {
+		// SDL_sound decodes into the sample's own buffer, and only the copy out
+		// writes Haxe memory, so the collector can run while it decodes
+		System::GCEnterBlocking ();
+		bool sized = (decodeBufferSize == sample->buffer_size || Sound_SetBufferSize (sample, decodeBufferSize));
+		Uint32 decoded = sized ? Sound_Decode (sample) : 0;
+		System::GCExitBlocking ();
+
+		if (!sized) {
 
 			printf ("SDL_sound stream error: %s\n", Sound_GetError ());
 			return -1;
 
 		}
-
-		Uint32 decoded = Sound_Decode (sample);
 
 		if (sample->flags & SOUND_SAMPLEFLAG_ERROR) {
 
@@ -578,7 +600,11 @@ namespace lime {
 
 		}
 
-		return (Sound_Rewind (stream->sample) != 0);
+		System::GCEnterBlocking ();
+		bool rewound = (Sound_Rewind (stream->sample) != 0);
+		System::GCExitBlocking ();
+
+		return rewound;
 
 	}
 
@@ -594,7 +620,12 @@ namespace lime {
 
 		}
 
-		return (Sound_Seek (stream->sample, (Uint32)ms) != 0);
+		// An MP3 seek decodes from the start of the sound, so it can take a while
+		System::GCEnterBlocking ();
+		bool sought = (Sound_Seek (stream->sample, (Uint32)ms) != 0);
+		System::GCExitBlocking ();
+
+		return sought;
 
 	}
 
