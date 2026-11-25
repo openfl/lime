@@ -393,7 +393,7 @@ class AssetHelper
 						{
 							var bytes:Bytes = asset.data;
 							bytes = bytes.compress(GZIP);
-							output.writeBytes(bytes, 0, asset.data.length);
+							output.writeBytes(bytes, 0, bytes.length);
 						}
 						else if (asset.sourcePath != null)
 						{

@@ -41,17 +41,27 @@ class NativeHTTPRequest
 	private static var multiThreadPoolRunning:Bool;
 	#if (cpp || neko || hl)
 	private static var multiAddHandle:Deque<CURL>;
+	private static var multiRemoveHandle:Deque<CURL>;
 	#end
 	private static var cookieList:Array<String>;
+
+	// libcurl's own limit
+	private static inline var MAX_REDIRECTS = 30;
 
 	private var buffer:BytesBuffer = new BytesBuffer();
 	private var bytes:Bytes;
 	private var bytesLoaded:Int;
 	private var bytesTotal:Int;
 	private var canceled:Bool;
+	private var contentType:String;
 	private var curl:CURL;
+	private var followManually:Bool;
 	private var parent:_IHTTPRequest;
 	private var promise:Promise<Bytes>;
+	private var redirects:Int;
+	private var requestData:Bytes;
+	private var requestMethod:HTTPRequestMethod;
+	private var requestUri:String;
 	private var writeBytesLoaded:Int;
 	private var writeBytesTotal:Int;
 	private var timeout:Timer;
@@ -66,14 +76,25 @@ class NativeHTTPRequest
 	{
 		canceled = true;
 
+		// Nothing more is reported for the load, as with URLLoader.close()
+		promise = null;
+
 		if (curl != null)
 		{
-			// This is probably run from a different thread if cURL is running
-			// TODO
+			var curl = this.curl;
+			this.curl = null;
 
-			// CURLEasy.cleanup (curl);
-			// CURLEasy.reset (curl);
-			// CURLEasy.perform (curl);
+			if (multiInstances != null) multiInstances.remove(curl);
+			if (activeInstances != null) activeInstances.remove(this);
+
+			#if (cpp || neko || hl)
+			// The transfer thread owns the handle, so it stops the transfer and closes the connection
+			if (multiRemoveHandle != null)
+			{
+				multiRemoveHandle.add(curl);
+				multi.wakeup();
+			}
+			#end
 		}
 
 		if (timeout != null)
@@ -90,17 +111,11 @@ class NativeHTTPRequest
 
 	private function initRequest(uri:String):Void
 	{
-		bytes = Bytes.alloc(0);
-		buffer = new BytesBuffer();
-
 		bytesLoaded = 0;
 		bytesTotal = 0;
 		writeBytesLoaded = 0;
 		writeBytesTotal = 0;
-
-		// The multi thread cleans up a handle when its transfer ends, and a
-		// transfer may still be running, so every load has a handle of its own
-		curl = new CURL();
+		redirects = 0;
 
 		var data = parent.data;
 		var query = "";
@@ -137,9 +152,54 @@ class NativeHTTPRequest
 			if (data != null && data.length == 0) data = null;
 		}
 
+		var contentType = null;
+
+		for (header in cast(parent.headers, Array<Dynamic>))
+		{
+			if (header.name == "Content-Type")
+			{
+				contentType = header.value;
+			}
+		}
+
+		if (parent.contentType != null)
+		{
+			contentType = parent.contentType;
+		}
+
+		if (contentType == null)
+		{
+			if (parent.data != null)
+			{
+				contentType = "application/octet-stream";
+			}
+			else if (query != "")
+			{
+				contentType = "application/x-www-form-urlencoded";
+			}
+		}
+
+		initTransfer(uri, parent.method, data, contentType, null);
+	}
+
+	// One request of the load: the first, or one a redirect leads to
+	private function initTransfer(uri:String, method:HTTPRequestMethod, data:Bytes, contentType:String, referer:String):Void
+	{
+		bytes = Bytes.alloc(0);
+		buffer = new BytesBuffer();
+
+		requestUri = uri;
+		requestMethod = method;
+		requestData = data;
+		this.contentType = contentType;
+
+		// The multi thread cleans up a handle when its transfer ends, and a
+		// transfer may still be running, so every load has a handle of its own
+		curl = new CURL();
+
 		curl.setOption(URL, uri);
 
-		switch (parent.method)
+		switch (method)
 		{
 			case HEAD:
 				curl.setOption(NOBODY, true);
@@ -169,9 +229,15 @@ class NativeHTTPRequest
 					curl.setOption(INFILE, data);
 					curl.setOption(INFILESIZE, data.length);
 				}
+				else
+				{
+					// Without a size, libcurl sends the upload chunked and reads it from the
+					// application's standard input, which may never end
+					curl.setOption(INFILESIZE, 0);
+				}
 
 			case _:
-				curl.setOption(CUSTOMREQUEST, Std.string(parent.method));
+				curl.setOption(CUSTOMREQUEST, Std.string(method));
 
 				if (data != null)
 				{
@@ -180,40 +246,21 @@ class NativeHTTPRequest
 				}
 		}
 
-		curl.setOption(FOLLOWLOCATION, parent.followRedirects);
+		// A request whose method a redirect can change follows redirects itself, as curl
+		// would send its Content-Type header on to a GET without content (RFC 9110 section 15.4)
+		followManually = parent.followRedirects && method != GET && method != HEAD;
+		curl.setOption(FOLLOWLOCATION, parent.followRedirects && !followManually);
 		curl.setOption(AUTOREFERER, true);
+		if (referer != null) curl.setOption(REFERER, referer);
 
 		var headers = [];
 		headers.push("Expect: ");
 
-		var contentType = null;
-
 		for (header in cast(parent.headers, Array<Dynamic>))
 		{
-			if (header.name == "Content-Type")
-			{
-				contentType = header.value;
-			}
-			else
+			if (header.name != "Content-Type")
 			{
 				headers.push('${header.name}: ${header.value}');
-			}
-		}
-
-		if (parent.contentType != null)
-		{
-			contentType = parent.contentType;
-		}
-
-		if (contentType == null)
-		{
-			if (parent.data != null)
-			{
-				contentType = "application/octet-stream";
-			}
-			else if (query != "")
-			{
-				contentType = "application/x-www-form-urlencoded";
 			}
 		}
 
@@ -252,7 +299,12 @@ class NativeHTTPRequest
 		curl.setOption(SSL_VERIFYHOST, parent.verifyCertificates ? 2 : 0);
 		curl.setOption(USERAGENT, parent.userAgent == null ? "libcurl-agent/1.0" : parent.userAgent);
 
-		// curl.setOption (CONNECTTIMEOUT, 30);
+		// The whole request, as XMLHttpRequest.timeout is on HTML5
+		if (parent.timeout > 0)
+		{
+			curl.setOption(TIMEOUT_MS, parent.timeout);
+		}
+
 		curl.setOption(NOSIGNAL, true);
 
 		#if curl_verbose
@@ -296,40 +348,68 @@ class NativeHTTPRequest
 			}
 
 			initRequest(uri);
-
-			if (curl != null)
-			{
-				if (activeInstances.indexOf(this) == -1) activeInstances.push(this);
-				multiInstances.set(curl, this);
-
-				#if (cpp || neko || hl)
-				if (multiAddHandle == null) multiAddHandle = new Deque<CURL>();
-				multiAddHandle.add(curl);
-				#end
-
-				if (multiThreadPool == null)
-				{
-					multiThreadPool = new ThreadPool(0, 1);
-					multiThreadPool.onProgress.add(multiThreadPool_onProgress);
-					multiThreadPool.onComplete.add(multiThreadPool_onComplete);
-				}
-
-				if (!multiThreadPoolRunning)
-				{
-					multiThreadPoolRunning = true;
-					multiThreadPool.run(multiThreadPool_doWork, multi);
-				}
-
-				if (multiProgressTimer == null)
-				{
-					multiProgressTimer = new Timer(8);
-					multiProgressTimer.run = multiProgressTimer_onRun;
-					multiProgressTimer_onRun();
-				}
-			}
+			startTransfer();
 		}
 
 		return promise.future;
+	}
+
+	// Hands the request initTransfer() made to the transfer thread
+	private function startTransfer():Void
+	{
+		if (curl == null) return;
+
+		if (activeInstances.indexOf(this) == -1) activeInstances.push(this);
+		multiInstances.set(curl, this);
+
+		#if (cpp || neko || hl)
+		if (multiAddHandle == null) multiAddHandle = new Deque<CURL>();
+		if (multiRemoveHandle == null) multiRemoveHandle = new Deque<CURL>();
+		multiAddHandle.add(curl);
+		// The transfer thread may be waiting on other transfers' sockets
+		multi.wakeup();
+		#end
+
+		if (multiThreadPool == null)
+		{
+			multiThreadPool = new ThreadPool(0, 1);
+			multiThreadPool.onProgress.add(multiThreadPool_onProgress);
+			multiThreadPool.onComplete.add(multiThreadPool_onComplete);
+		}
+
+		if (!multiThreadPoolRunning)
+		{
+			multiThreadPoolRunning = true;
+			multiThreadPool.run(multiThreadPool_doWork, multi);
+		}
+
+		if (multiProgressTimer == null)
+		{
+			multiProgressTimer = new Timer(8);
+			multiProgressTimer.run = multiProgressTimer_onRun;
+			multiProgressTimer_onRun();
+		}
+	}
+
+	private function followRedirect(status:Int, uri:String):Void
+	{
+		redirects++;
+
+		var method = requestMethod;
+		var data = requestData;
+		var contentType = this.contentType;
+
+		// RFC 9110 sections 15.4.2 to 15.4.4: a 303 is followed with GET, as is a POST after
+		// a 301 or 302, as browsers and curl do, and without the content. 307 and 308 keep both.
+		if ((status == 303 && method != HEAD) || ((status == 301 || status == 302) && method == POST))
+		{
+			method = GET;
+			data = null;
+			contentType = null;
+		}
+
+		initTransfer(uri, method, data, contentType, requestUri);
+		startTransfer();
 	}
 
 	public function loadText(uri:String):Future<String>
@@ -338,21 +418,110 @@ class NativeHTTPRequest
 		var future = loadData(uri, false);
 
 		future.onProgress(promise.progress);
-		future.onError(promise.error);
 
-		future.onComplete(function(bytes)
+		future.onError(function(error:Dynamic)
 		{
-			if (bytes == null)
+			// The body of an error status is text too, for a text request
+			if (#if (haxe_ver >= 4.2) Std.isOfType #else Std.is #end (error, _HTTPRequestErrorResponse))
 			{
-				promise.complete(null);
+				var response:_HTTPRequestErrorResponse<Bytes> = cast error;
+				promise.error(new _HTTPRequestErrorResponse(response.error, response.responseData == null ? null : decodeText(response.responseData)));
 			}
 			else
 			{
-				promise.complete(bytes.getString(0, bytes.length));
+				promise.error(error);
 			}
 		});
 
+		future.onComplete(function(bytes)
+		{
+			promise.complete(bytes == null ? null : decodeText(bytes));
+		});
+
 		return promise.future;
+	}
+
+	// The Encoding Standard's UTF-8 decode, as XMLHttpRequest's responseText: a leading
+	// byte order mark is dropped, and each invalid sequence becomes U+FFFD
+	private static function decodeText(bytes:Bytes):String
+	{
+		var start = (bytes.length >= 3 && bytes.get(0) == 0xEF && bytes.get(1) == 0xBB && bytes.get(2) == 0xBF) ? 3 : 0;
+
+		// Replaced here, as hxcpp ends the text at the first invalid sequence, and
+		// Neko and HashLink keep its bytes
+		var text = validUTF8(bytes, start);
+		return text.getString(0, text.length);
+	}
+
+	// The bytes from start, with each invalid sequence, the lead byte and the continuation
+	// bytes that fit it, replaced by U+FFFD
+	private static function validUTF8(bytes:Bytes, start:Int):Bytes
+	{
+		var length = bytes.length;
+		var output:BytesBuffer = null;
+		var copied = start;
+		var i = start;
+
+		while (i < length)
+		{
+			var lead = bytes.get(i);
+
+			if (lead < 0x80)
+			{
+				i++;
+				continue;
+			}
+
+			var needed = 0;
+			var lower = 0x80;
+			var upper = 0xBF;
+
+			if (lead >= 0xC2 && lead <= 0xDF)
+			{
+				needed = 1;
+			}
+			else if (lead >= 0xE0 && lead <= 0xEF)
+			{
+				needed = 2;
+				if (lead == 0xE0) lower = 0xA0;
+				else if (lead == 0xED) upper = 0x9F;
+			}
+			else if (lead >= 0xF0 && lead <= 0xF4)
+			{
+				needed = 3;
+				if (lead == 0xF0) lower = 0x90;
+				else if (lead == 0xF4) upper = 0x8F;
+			}
+
+			var fit = 0;
+
+			while (fit < needed && i + 1 + fit < length)
+			{
+				var next = bytes.get(i + 1 + fit);
+				if (next < (fit == 0 ? lower : 0x80) || next > (fit == 0 ? upper : 0xBF)) break;
+				fit++;
+			}
+
+			if (needed > 0 && fit == needed)
+			{
+				i += needed + 1;
+				continue;
+			}
+
+			if (output == null) output = new BytesBuffer();
+			output.addBytes(bytes, copied, i - copied);
+			output.addByte(0xEF);
+			output.addByte(0xBF);
+			output.addByte(0xBD);
+
+			i += 1 + fit;
+			copied = i;
+		}
+
+		if (output == null) return start == 0 ? bytes : bytes.sub(start, length - start);
+
+		output.addBytes(bytes, copied, length - copied);
+		return output.getBytes();
 	}
 
 	private function buildBuffer()
@@ -382,11 +551,20 @@ class NativeHTTPRequest
 	{
 		if (curl != this.curl) return;
 
-		var parts = header.split(': ');
-
-		if (parts.length == 2)
+		// A status line starts each response, and only the last one's headers are kept,
+		// not those of the redirects and interim 1xx responses before it
+		if (StringTools.startsWith(header, "HTTP/"))
 		{
-			parent.responseHeaders.push(new HTTPRequestHeader(StringTools.trim(parts[0]), StringTools.trim(parts[1])));
+			parent.responseHeaders = [];
+			return;
+		}
+
+		// RFC 9112 section 5.1: the name, a colon, and the value with optional whitespace around it
+		var colon = header.indexOf(":");
+
+		if (colon > 0)
+		{
+			parent.responseHeaders.push(new HTTPRequestHeader(StringTools.trim(header.substr(0, colon)), StringTools.trim(header.substr(colon + 1))));
 		}
 	}
 
@@ -466,7 +644,8 @@ class NativeHTTPRequest
 	private static function localThreadPool_onComplete(state:{instance:NativeHTTPRequest, promise:Promise<Bytes>, result:Bytes}):Void
 	{
 		var promise:Promise<Bytes> = state.promise;
-		if (promise.isError) return;
+		// Cancelled, or loaded again
+		if (state.instance.promise != promise || promise.isError) return;
 		state.instance.finishLoad(promise);
 		promise.complete(state.result);
 	}
@@ -474,6 +653,7 @@ class NativeHTTPRequest
 	private static function localThreadPool_onError(state:{instance:NativeHTTPRequest, promise:Promise<Bytes>, error:String}):Void
 	{
 		var promise:Promise<Bytes> = state.promise;
+		if (state.instance.promise != promise) return;
 		state.instance.finishLoad(promise);
 		promise.error(new _HTTPRequestErrorResponse(state.error, null));
 	}
@@ -487,20 +667,46 @@ class NativeHTTPRequest
 		}):Void
 	{
 		var promise:Promise<Bytes> = state.promise;
-		if (promise.isComplete || promise.isError) return;
+		if (state.instance.promise != promise || promise.isComplete || promise.isError) return;
 		promise.progress(state.bytesLoaded, state.bytesTotal);
 	}
 
 	private static function multiThreadPool_doWork(multi:CURLMulti, output:WorkOutput):Void
 	{
+		// The handles this pass added that are still running
+		var transfers:Array<CURL> = [];
+
 		while (true)
 		{
 			#if (cpp || neko || hl)
+			// Every request queued since the last pass
 			var curl = multiAddHandle.pop(false);
-			if (curl != null) multi.addHandle(curl);
+
+			while (curl != null)
+			{
+				multi.addHandle(curl);
+				transfers.push(curl);
+				curl = multiAddHandle.pop(false);
+			}
+
+			// Then those cancelled, whose transfers end here
+			curl = multiRemoveHandle.pop(false);
+
+			while (curl != null)
+			{
+				if (transfers.remove(curl))
+				{
+					multi.removeHandle(curl);
+					curl.cleanup();
+				}
+
+				curl = multiRemoveHandle.pop(false);
+			}
 			#end
 
-			var code = multi.wait(1000);
+			// load() wakes this when it queues a request, which wait() would leave queued until
+			// the other transfers' sockets had activity or the second ran out
+			var code = multi.poll(1000);
 
 			if (code == CURLMultiCode.OK)
 			{
@@ -518,13 +724,17 @@ class NativeHTTPRequest
 					var curl = message.curl;
 					var status = curl.getInfo(RESPONSE_CODE);
 
+					// Where a redirect leads, for a request that follows them itself
+					var redirect:String = (status >= 300 && status < 400) ? curl.getInfo(REDIRECT_URL) : null;
+
 					// returns an array of cookie values
 					cookieList = curl.getInfo(COOKIELIST);
 
 					multi.removeHandle(curl);
+					transfers.remove(curl);
 					curl.cleanup();
 
-					output.sendProgress({curl: curl, result: message.result, status: status});
+					output.sendProgress({curl: curl, result: message.result, status: status, redirect: redirect});
 					message = multi.infoRead();
 				}
 			}
@@ -554,7 +764,7 @@ class NativeHTTPRequest
 		#end
 	}
 
-	private static function multiThreadPool_onProgress(state:{curl:CURL, result:Int, status:Int}):Void
+	private static function multiThreadPool_onProgress(state:{curl:CURL, result:Int, status:Int, redirect:String}):Void
 	{
 		if (multiInstances.exists(state.curl))
 		{
@@ -577,11 +787,38 @@ class NativeHTTPRequest
 
 			var promise = instance.promise;
 
-			if (state.result == CURLCode.OK)
+			if (state.result == CURLCode.OK && instance.followManually && state.redirect != null && state.redirect != ""
+				&& [301, 302, 303, 307, 308].indexOf(state.status) > -1)
+			{
+				if (instance.redirects < MAX_REDIRECTS)
+				{
+					instance.followRedirect(state.status, state.redirect);
+				}
+				else
+				{
+					instance.finishLoad(promise);
+					promise.error(new _HTTPRequestErrorResponse(CURL.strerror(CURLCode.TOO_MANY_REDIRECTS), null));
+				}
+			}
+			else if (state.result == CURLCode.OK)
 			{
 				if ((state.status >= 200 && state.status < 400) || state.status == 0)
 				{
 					var data = instance.buildBuffer();
+
+					// The last report has every byte, as the transfer can end between two ticks
+					// of the progress timer. A total that is unknown, or counts the body before
+					// it was decoded, is the body's length by now.
+					var loaded = data != null ? data.length : 0;
+					var total = instance.writeBytesTotal > loaded ? instance.writeBytesTotal : loaded;
+
+					if (instance.bytesLoaded != loaded || instance.bytesTotal != total)
+					{
+						instance.bytesLoaded = loaded;
+						instance.bytesTotal = total;
+						promise.progress(loaded, total);
+					}
+
 					instance.finishLoad(promise);
 
 					if (!promise.isError)
@@ -589,15 +826,9 @@ class NativeHTTPRequest
 						promise.complete(data);
 					}
 				}
-				else if (instance.bytes != null)
-				{
-					var error = instance.bytes.getString(0, instance.bytes.length);
-					var responseData = instance.buildBuffer();
-					instance.finishLoad(promise);
-					promise.error(new _HTTPRequestErrorResponse(error, responseData));
-				}
 				else
 				{
+					// The body is kept as responseData, as XMLHttpRequest keeps it
 					var error = 'Status ${state.status}';
 					var responseData = instance.buildBuffer();
 					instance.finishLoad(promise);

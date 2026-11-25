@@ -38,7 +38,7 @@ This product bundles Mozilla's CA certificate list, as published by curl,
 which is available under an "MPL 2.0" license. For details, see
 [project/lib/custom/curl/ca_certificates.h](project/lib/custom/curl/ca_certificates.h).
 
-This product bundles native-desktop 1.1.0, which is available under an
+This product bundles native-desktop 1.2.1, which is available under an
 "MIT" license. For details, see [DimensionscapeOrg/native-desktop](https://github.com/DimensionscapeOrg/native-desktop).
 
 This product bundles native-ipc 1.0.0, which is available under an
@@ -46,7 +46,7 @@ This product bundles native-ipc 1.0.0, which is available under an
 
 _native-desktop and native-ipc are only included in Windows, macOS and Linux builds._
 
-This product bundles StageWebView 1.0.1, which is available under an
+This product bundles StageWebView 1.1.0, which is available under an
 "Apache 2.0" license. For details, see [DimensionscapeOrg/stagewebview](https://github.com/DimensionscapeOrg/stagewebview).
 It includes webview, under an "MIT" license, and headers from the WebView2 SDK, under a "BSD" license.
 
@@ -57,11 +57,19 @@ This product bundles wsproto 1.0.0, which is available under an
 
 _wsproto is only included in native applications that use `WebSocket` or `WebSocketServer`._
 
-This product bundles OpenAL-Soft 1.20.1, which is available under an
+This product bundles OpenAL-Soft 1.25.2, which is available under an
 "LGPLv2" license. For details, see [project/lib/openal/](project/lib).
 
 _OpenAL-Soft is only included in dynamically-linked builds, it is excluded
 from Lime static builds in order to preserve Lime's permissive nature._
+
+This product bundles {fmt} 11.2.0, as included with OpenAL-Soft, which is
+available under an "MIT" license. For details, see
+[project/lib/openal/fmt-11.2.0/](project/lib).
+
+This product bundles the Guidelines Support Library, as included with
+OpenAL-Soft, which is available under an "MIT" license. For details, see
+[project/lib/openal/gsl/](project/lib).
 
 This product bundles MojoAL, which is available under a
 "zlib" (BSD-style) license. For details, see [project/lib/mojoal/](project/lib).

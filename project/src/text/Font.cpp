@@ -275,6 +275,9 @@ namespace {
 namespace lime {
 
 
+	// In ExternalInterface.cpp
+	vbyte* hl_wstring_to_utf8_bytes (const std::wstring& val);
+
 	static int id_buffer;
 	static int id_charCode;
 	static int id_codepoint;
@@ -334,6 +337,7 @@ namespace lime {
 		this->library = 0;
 		this->face = 0;
 		this->faceMemory = 0;
+		this->mReferences = 1;
 
 		if (resource) {
 
@@ -363,11 +367,18 @@ namespace lime {
 
 					}
 
+					#ifndef HX_WINDOWS
 					if (file->isFile ()) {
 
 						error = FT_New_Face (library, resource->path, faceIndex, &face);
 
-					} else {
+					} else
+					#endif
+					{
+
+						// On Windows, FreeType opens a path with fopen, which reads it in the ANSI
+						// code page: a UTF-8 path with other characters, such as a user name in the
+						// path, does not open. lime::fopen converts it, so read the font through it.
 
 						Bytes data;
 						data.ReadFile (resource->path);
@@ -436,6 +447,24 @@ namespace lime {
 
 		free (faceMemory);
 		faceMemory = 0;
+
+	}
+
+
+	void Font::Retain () {
+
+		mReferences++;
+
+	}
+
+
+	void Font::Release () {
+
+		if (--mReferences == 0) {
+
+			delete this;
+
+		}
 
 	}
 
@@ -634,14 +663,14 @@ namespace lime {
 			alloc_field (ret, val_id ("is_italic"), alloc_bool (((FT_Face)face)->style_flags & FT_STYLE_FLAG_ITALIC));
 			alloc_field (ret, val_id ("is_bold"), alloc_bool (((FT_Face)face)->style_flags & FT_STYLE_FLAG_BOLD));
 			alloc_field (ret, val_id ("num_glyphs"), alloc_int (num_glyphs));
-			alloc_field (ret, val_id ("family_name"), family_name == NULL ? alloc_string (((FT_Face)face)->family_name) : alloc_wstring (family_name));
+			alloc_field (ret, val_id ("family_name"), family_name == NULL ? alloc_null () : alloc_wstring (family_name));
 			alloc_field (ret, val_id ("style_name"), alloc_string (((FT_Face)face)->style_name));
 			alloc_field (ret, val_id ("em_size"), alloc_int (((FT_Face)face)->units_per_EM));
 			alloc_field (ret, val_id ("ascend"), alloc_int (calculatedAscender));
 			alloc_field (ret, val_id ("descend"), alloc_int (calculatedDescender));
 			alloc_field (ret, val_id ("height"), alloc_int (calculatedHeight));
 
-			delete family_name;
+			free (family_name);
 
 			// 'glyphs' field
 			value neko_glyphs = alloc_array (num_glyphs);
@@ -712,26 +741,18 @@ namespace lime {
 			hl_dyn_seti (ret, hl_hash_utf8 ("is_bold"), &hlt_bool, ((FT_Face)face)->style_flags & FT_STYLE_FLAG_BOLD);
 			hl_dyn_seti (ret, hl_hash_utf8 ("num_glyphs"), &hlt_i32, num_glyphs);
 
-			char* _family_name = NULL;
+			// UTF-8, as lime_font_get_family_name gives it, in memory the collector owns
+			vbyte* _family_name = NULL;
 
 			if (family_name != NULL) {
 
-				int length = std::wcslen (family_name);
-				char* result = (char*)malloc (length + 1);
-				std::wcstombs (result, family_name, length);
-				result[length] = '\0';
-				delete family_name;
-
-			} else {
-
-				int length = strlen (((FT_Face)face)->family_name);
-				_family_name = (char*)malloc (length + 1);
-				strcpy (_family_name, ((FT_Face)face)->family_name);
+				_family_name = hl_wstring_to_utf8_bytes (family_name);
+				free (family_name);
 
 			}
 
-			char* style_name = (char*)malloc(strlen(((FT_Face)face)->style_name) + 1);
-			strcpy(style_name, ((FT_Face)face)->style_name);
+			const char* _style_name = ((FT_Face)face)->style_name;
+			vbyte* style_name = _style_name ? hl_copy_bytes ((const vbyte*)_style_name, strlen (_style_name) + 1) : NULL;
 
 			hl_dyn_setp (ret, hl_hash_utf8 ("family_name"), &hlt_bytes, _family_name);
 			hl_dyn_setp (ret, hl_hash_utf8 ("style_name"), &hlt_bytes, style_name);
@@ -988,14 +1009,17 @@ namespace lime {
 
 					if (sfnt_name.platform_id == TT_PLATFORM_MACINTOSH) {
 
+						// The string isn't terminated, and mbstowcs stops part way at
+						// a byte the locale doesn't know, so each byte is copied
 						len = sfnt_name.string_len;
-						family_name = new wchar_t[len + 1];
-						#if defined(ANDROID) && !defined(HXCPP_CLANG)
-						// Fix some devices (Android 4.x or older) that have a bad stdc implementation
-						_mbsrtowcs (family_name, (const char**)&sfnt_name.string, len, 0);
-						#else
-						mbstowcs (family_name, (const char*)sfnt_name.string, len);
-						#endif
+						family_name = (wchar_t*)malloc ((len + 1) * sizeof (wchar_t));
+
+						for (i = 0; i < len; i++) {
+
+							family_name[i] = (wchar_t)sfnt_name.string[i];
+
+						}
+
 						family_name[len] = L'\0';
 						return family_name;
 
@@ -1018,6 +1042,25 @@ namespace lime {
 				}
 
 			}
+
+		}
+
+		// No full name, as in fonts that aren't SFNT, such as BDF and Type 1
+		const char* freetype_name = ((FT_Face)face)->family_name;
+
+		if (freetype_name) {
+
+			len = strlen (freetype_name);
+			family_name = (wchar_t*)malloc ((len + 1) * sizeof (wchar_t));
+
+			for (i = 0; i < len; i++) {
+
+				family_name[i] = (wchar_t)(unsigned char)freetype_name[i];
+
+			}
+
+			family_name[len] = L'\0';
+			return family_name;
 
 		}
 
@@ -1347,9 +1390,28 @@ namespace lime {
 			{
 				FT_Bitmap bitmap = ((FT_Face)face)->glyph->bitmap;
 
+				// An outline is rendered as LCD, three bytes a pixel. A font's
+				// embedded bitmap, which FreeType loads instead where the font has
+				// one at this size, is left as it is: 1-bit, 8-bit grey or BGRA.
 				int height = bitmap.rows;
-				int width = bitmap.width / 3; //Due to each pixel now has 3 components (R, G, B)
+				int width;
 				int pitch = bitmap.pitch;
+
+				switch (bitmap.pixel_mode)
+				{
+					case FT_PIXEL_MODE_LCD:
+						width = bitmap.width / 3;
+						break;
+
+					case FT_PIXEL_MODE_MONO:
+					case FT_PIXEL_MODE_GRAY:
+					case FT_PIXEL_MODE_BGRA:
+						width = bitmap.width;
+						break;
+
+					default:
+						return 0;
+				}
 
 				if (width == 0 || height == 0)
 					return 0;
@@ -1375,15 +1437,40 @@ namespace lime {
 
 				unsigned char *position = &data->data;
 
-				//Copy the bitmap data row by row, copying each RGB triplet and adding padding for 32-bit alignment
+				//Copy the bitmap data row by row, as RGBA, the alpha of LCD pixels being the mean of their three components
 				for (int i = 0; i < height; i++)
 				{
+					// A negative pitch has the bottom row first
+					const unsigned char *row = pitch >= 0 ? bitmap.buffer + i * pitch : bitmap.buffer + (height - 1 - i) * -pitch;
+
 					for (int j = 0; j < width; j++)
 					{
-						unsigned char r = bitmap.buffer[i * pitch + j * 3 + 0];
-						unsigned char g = bitmap.buffer[i * pitch + j * 3 + 1];
-						unsigned char b = bitmap.buffer[i * pitch + j * 3 + 2];
-						unsigned char a = (r + g + b) / 3;
+						unsigned char r, g, b, a;
+
+						switch (bitmap.pixel_mode)
+						{
+							case FT_PIXEL_MODE_LCD:
+								r = row[j * 3 + 0];
+								g = row[j * 3 + 1];
+								b = row[j * 3 + 2];
+								a = (r + g + b) / 3;
+								break;
+
+							case FT_PIXEL_MODE_MONO:
+								r = g = b = a = (row[j >> 3] & (0x80 >> (j & 7))) ? 255 : 0;
+								break;
+
+							case FT_PIXEL_MODE_GRAY:
+								r = g = b = a = row[j];
+								break;
+
+							default: // FT_PIXEL_MODE_BGRA
+								b = row[j * 4 + 0];
+								g = row[j * 4 + 1];
+								r = row[j * 4 + 2];
+								a = row[j * 4 + 3];
+								break;
+						}
 
 						//Red
 						position[(i * width + j) * 4 + 0] = r;

@@ -6,6 +6,7 @@
 #include <system/CFFI.h>
 #include <system/System.h>
 #include <utils/Resource.h>
+#include <atomic>
 
 #ifdef HX_WINDOWS
 #undef GetGlyphIndices
@@ -71,12 +72,18 @@ namespace lime {
 			void SetStemDarkening (bool enable);
 			void SetStemDarkeningParameters (int params[]);
 
+			// The handle holds one reference, and anything else that reads
+			// the face, such as a HarfBuzz face made from it, holds another
+			void Retain ();
+			void Release ();
+
 			void* library;
 			void* face;
 			void* faceMemory;
 
 		private:
 
+			std::atomic<int> mReferences;
 			size_t mSize;
 
 	};

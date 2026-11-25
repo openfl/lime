@@ -161,14 +161,17 @@ abstract UInt8ClampedArray(ArrayBufferView) from ArrayBufferView to ArrayBufferV
 	@:arrayAccess #if (haxe_ver >= 4.0) extern #else @:extern #end
 	public inline function __get(idx:Int)
 	{
-		return ArrayBufferIO.getUint8(this.buffer, this.byteOffset + idx);
+		// Outside the view, debug builds read 0, as ECMAScript reads undefined
+		return #if debug (idx < 0 || idx >= this.length) ? 0 : #end ArrayBufferIO.getUint8(this.buffer, this.byteOffset + idx);
 	}
 
 	@:noCompletion
 	@:arrayAccess #if (haxe_ver >= 4.0) extern #else @:extern #end
-	public inline function __set(idx:Int, val:UInt)
+	public inline function __set(idx:Int, val:Int)
 	{
-		ArrayBufferIO.setUint8Clamped(this.buffer, this.byteOffset + idx, val);
+		// An Int, since a negative UInt reads as a value above 255. Outside the view,
+		// debug builds ignore the write, as ECMAScript does
+		#if debug if (idx >= 0 && idx < this.length) #end ArrayBufferIO.setUint8Clamped(this.buffer, this.byteOffset + idx, val);
 		return val;
 	}
 

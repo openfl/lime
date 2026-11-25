@@ -26,25 +26,59 @@ class AssetBundle
 		paths = new Array();
 	}
 
+	/**
+		The bundle in the zip `bytes` hold, or `null` when they aren't a zip.
+	**/
 	public static function fromBytes(bytes:Bytes):AssetBundle
 	{
-		var input = new BytesInput(bytes);
-		return __extractBundle(input);
+		try
+		{
+			return __extractBundle(new BytesInput(bytes));
+		}
+		catch (e:Dynamic)
+		{
+			return null;
+		}
 	}
 
+	/**
+		The bundle in the zip file at `path`, or `null` when it can't be read as one.
+	**/
 	public static function fromFile(path:String):AssetBundle
 	{
 		#if sys
-		var input = File.read(path);
-		return __extractBundle(input);
+		var input = null;
+
+		try
+		{
+			input = File.read(path);
+			var bundle = __extractBundle(input);
+			input.close();
+			return bundle;
+		}
+		catch (e:Dynamic)
+		{
+			if (input != null) input.close();
+			return null;
+		}
 		#else
 		return null;
 		#end
 	}
 
+	/**
+		Reads the bundle in the zip `bytes` hold. The future fails, saying why, when they aren't a zip.
+	**/
 	public static function loadFromBytes(bytes:Bytes):Future<AssetBundle>
 	{
-		return Future.withValue(fromBytes(bytes));
+		try
+		{
+			return Future.withValue(__extractBundle(new BytesInput(bytes)));
+		}
+		catch (e:Dynamic)
+		{
+			return cast Future.withError("Not a zip file: " + Std.string(e));
+		}
 	}
 
 	public static function loadFromFile(path:String):Future<AssetBundle>
@@ -64,6 +98,10 @@ class AssetBundle
 			{
 				var bytes:LimeBytes = entry.data;
 				bundle.data.set(entry.fileName, bytes.decompress(DEFLATE));
+
+				// Let go of the compressed data once inflated, rather than keeping
+				// the whole zip until every entry is
+				entry.data = null;
 			}
 			else
 			{
