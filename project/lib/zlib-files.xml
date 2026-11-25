@@ -1,28 +1,499 @@
 <xml>
 
+	<!-- zlib-ng, built as zlib (ZLIB_COMPAT) with every symbol prefixed lime_ by
+	     custom/zlib-ng/zlib_name_mangling.h, so that it can't clash with another zlib
+	     linked into the same binary, such as hxcpp's. The headers in custom/zlib-ng are
+	     the ones its CMake build generates in that configuration. The SIMD code for
+	     each instruction set is in a group of its own, compiled with the flags it needs,
+	     and zlib-ng picks it at run time where the CPU has it. -->
+
+	<set name="LIME_ZLIB_X86" value="1" unless="HXCPP_ARMV6 || HXCPP_ARMV7 || HXCPP_ARMV7S || HXCPP_ARM64 || rpi || emscripten" />
+	<set name="LIME_ZLIB_ARM64" value="1" if="HXCPP_ARM64" unless="rpi" />
+	<set name="LIME_ZLIB_ARM32" value="1" if="HXCPP_ARMV7 || HXCPP_ARMV7S" unless="rpi" />
+
 	<files id="native-toolkit-zlib">
 
-		<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/zlib/" />
+		<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/custom/zlib-ng/" />
+		<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/zlib-ng/" />
+		<compilerflag value="-DZLIB_COMPAT" />
+		<compilerflag value="-DWITH_GZFILEOP" />
+		<compilerflag value="-DWITH_ALL_FALLBACKS" />
+		<compilerflag value="-D_CRT_SECURE_NO_DEPRECATE" if="windows" />
+		<compilerflag value="-D_CRT_NONSTDC_NO_DEPRECATE" if="windows" />
+		<compilerflag value="-DHAVE_BUILTIN_CTZ" unless="windows" />
+		<compilerflag value="-DHAVE_BUILTIN_CTZLL" unless="windows" />
 
-		<!-- Use unistd.h anywhere except Win32. -->
-		<compilerflag value="-DZ_HAVE_UNISTD_H" unless="windows" />
-		<compilerflag value="-DZ_HAVE_UNISTD_H" if="windows HXCPP_X86_64" />
+		<section if="LIME_ZLIB_X86">
+			<compilerflag value="-DWITH_OPTIM" />
+			<compilerflag value="-DX86_FEATURES" />
+			<compilerflag value="-DX86_SSE2" />
+			<compilerflag value="-DX86_SSSE3" />
+			<compilerflag value="-DX86_SSE41" />
+			<compilerflag value="-DX86_SSE42" />
+			<compilerflag value="-DX86_PCLMULQDQ_CRC" />
+			<compilerflag value="-DX86_AVX2" />
+			<compilerflag value="-DHAVE_CPUID_MS" if="windows" />
+			<compilerflag value="-DHAVE_CPUID_GNU" unless="windows" />
+		</section>
 
-		<file name="${NATIVE_TOOLKIT_PATH}/zlib/adler32.c" />
-		<file name="${NATIVE_TOOLKIT_PATH}/zlib/compress.c" />
-		<file name="${NATIVE_TOOLKIT_PATH}/zlib/crc32.c" />
-		<file name="${NATIVE_TOOLKIT_PATH}/zlib/deflate.c" />
-		<file name="${NATIVE_TOOLKIT_PATH}/zlib/gzclose.c" />
-		<file name="${NATIVE_TOOLKIT_PATH}/zlib/gzlib.c" />
-		<file name="${NATIVE_TOOLKIT_PATH}/zlib/gzread.c" />
-		<file name="${NATIVE_TOOLKIT_PATH}/zlib/gzwrite.c" />
-		<file name="${NATIVE_TOOLKIT_PATH}/zlib/infback.c" />
-		<file name="${NATIVE_TOOLKIT_PATH}/zlib/inffast.c" />
-		<file name="${NATIVE_TOOLKIT_PATH}/zlib/inflate.c" />
-		<file name="${NATIVE_TOOLKIT_PATH}/zlib/inftrees.c" />
-		<file name="${NATIVE_TOOLKIT_PATH}/zlib/trees.c" />
-		<file name="${NATIVE_TOOLKIT_PATH}/zlib/uncompr.c" />
-		<file name="${NATIVE_TOOLKIT_PATH}/zlib/zutil.c" />
+		<section if="LIME_ZLIB_ARM64">
+			<compilerflag value="-DWITH_OPTIM" />
+			<compilerflag value="-DARM_FEATURES" />
+			<compilerflag value="-DARM_NEON" />
+			<compilerflag value="-DARM_NEON_HASLD4" />
+			<compilerflag value="-DARM_CRC32" />
+			<compilerflag value="-DHAVE_SYS_AUXV_H" if="android || linux" />
+			<compilerflag value="-DARM_AUXV_HAS_CRC32" if="android || linux" />
+		</section>
+
+		<section if="LIME_ZLIB_ARM32">
+			<compilerflag value="-DWITH_OPTIM" />
+			<compilerflag value="-DARM_FEATURES" />
+			<compilerflag value="-DARM_NEON" />
+			<compilerflag value="-DHAVE_SYS_AUXV_H" if="android" />
+			<compilerflag value="-DARM_AUXV_HAS_NEON" if="android" />
+		</section>
+
+		<file name="${NATIVE_TOOLKIT_PATH}/zlib-ng/adler32.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/zlib-ng/compress.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/zlib-ng/cpu_features.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/zlib-ng/crc32.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/zlib-ng/crc32_braid_comb.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/zlib-ng/deflate.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/zlib-ng/deflate_fast.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/zlib-ng/deflate_huff.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/zlib-ng/deflate_medium.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/zlib-ng/deflate_quick.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/zlib-ng/deflate_rle.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/zlib-ng/deflate_slow.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/zlib-ng/deflate_stored.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/zlib-ng/functable.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/zlib-ng/infback.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/zlib-ng/inflate.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/zlib-ng/inftrees.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/zlib-ng/insert_string.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/zlib-ng/insert_string_roll.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/zlib-ng/trees.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/zlib-ng/uncompr.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/zlib-ng/zutil.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/zlib-ng/gzlib.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/zlib-ng/gzread.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/zlib-ng/gzwrite.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/zlib-ng/arch/generic/adler32_c.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/zlib-ng/arch/generic/adler32_fold_c.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/zlib-ng/arch/generic/chunkset_c.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/zlib-ng/arch/generic/compare256_c.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/zlib-ng/arch/generic/crc32_braid_c.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/zlib-ng/arch/generic/crc32_chorba_c.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/zlib-ng/arch/generic/crc32_fold_c.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/zlib-ng/arch/generic/slide_hash_c.c" />
+
+	</files>
+
+	<files id="native-toolkit-zlib-sse2" if="LIME_ZLIB_X86">
+
+		<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/custom/zlib-ng/" />
+		<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/zlib-ng/" />
+		<compilerflag value="-DZLIB_COMPAT" />
+		<compilerflag value="-DWITH_GZFILEOP" />
+		<compilerflag value="-DWITH_ALL_FALLBACKS" />
+		<compilerflag value="-D_CRT_SECURE_NO_DEPRECATE" if="windows" />
+		<compilerflag value="-D_CRT_NONSTDC_NO_DEPRECATE" if="windows" />
+		<compilerflag value="-DHAVE_BUILTIN_CTZ" unless="windows" />
+		<compilerflag value="-DHAVE_BUILTIN_CTZLL" unless="windows" />
+
+		<section if="LIME_ZLIB_X86">
+			<compilerflag value="-DWITH_OPTIM" />
+			<compilerflag value="-DX86_FEATURES" />
+			<compilerflag value="-DX86_SSE2" />
+			<compilerflag value="-DX86_SSSE3" />
+			<compilerflag value="-DX86_SSE41" />
+			<compilerflag value="-DX86_SSE42" />
+			<compilerflag value="-DX86_PCLMULQDQ_CRC" />
+			<compilerflag value="-DX86_AVX2" />
+			<compilerflag value="-DHAVE_CPUID_MS" if="windows" />
+			<compilerflag value="-DHAVE_CPUID_GNU" unless="windows" />
+		</section>
+
+		<section if="LIME_ZLIB_ARM64">
+			<compilerflag value="-DWITH_OPTIM" />
+			<compilerflag value="-DARM_FEATURES" />
+			<compilerflag value="-DARM_NEON" />
+			<compilerflag value="-DARM_NEON_HASLD4" />
+			<compilerflag value="-DARM_CRC32" />
+			<compilerflag value="-DHAVE_SYS_AUXV_H" if="android || linux" />
+			<compilerflag value="-DARM_AUXV_HAS_CRC32" if="android || linux" />
+		</section>
+
+		<section if="LIME_ZLIB_ARM32">
+			<compilerflag value="-DWITH_OPTIM" />
+			<compilerflag value="-DARM_FEATURES" />
+			<compilerflag value="-DARM_NEON" />
+			<compilerflag value="-DHAVE_SYS_AUXV_H" if="android" />
+			<compilerflag value="-DARM_AUXV_HAS_NEON" if="android" />
+		</section>
+
+		<compilerflag value="-msse2" unless="windows" />
+
+		<file name="${NATIVE_TOOLKIT_PATH}/zlib-ng/arch/x86/x86_features.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/zlib-ng/arch/x86/chunkset_sse2.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/zlib-ng/arch/x86/chorba_sse2.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/zlib-ng/arch/x86/compare256_sse2.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/zlib-ng/arch/x86/slide_hash_sse2.c" />
+
+	</files>
+
+	<files id="native-toolkit-zlib-ssse3" if="LIME_ZLIB_X86">
+
+		<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/custom/zlib-ng/" />
+		<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/zlib-ng/" />
+		<compilerflag value="-DZLIB_COMPAT" />
+		<compilerflag value="-DWITH_GZFILEOP" />
+		<compilerflag value="-DWITH_ALL_FALLBACKS" />
+		<compilerflag value="-D_CRT_SECURE_NO_DEPRECATE" if="windows" />
+		<compilerflag value="-D_CRT_NONSTDC_NO_DEPRECATE" if="windows" />
+		<compilerflag value="-DHAVE_BUILTIN_CTZ" unless="windows" />
+		<compilerflag value="-DHAVE_BUILTIN_CTZLL" unless="windows" />
+
+		<section if="LIME_ZLIB_X86">
+			<compilerflag value="-DWITH_OPTIM" />
+			<compilerflag value="-DX86_FEATURES" />
+			<compilerflag value="-DX86_SSE2" />
+			<compilerflag value="-DX86_SSSE3" />
+			<compilerflag value="-DX86_SSE41" />
+			<compilerflag value="-DX86_SSE42" />
+			<compilerflag value="-DX86_PCLMULQDQ_CRC" />
+			<compilerflag value="-DX86_AVX2" />
+			<compilerflag value="-DHAVE_CPUID_MS" if="windows" />
+			<compilerflag value="-DHAVE_CPUID_GNU" unless="windows" />
+		</section>
+
+		<section if="LIME_ZLIB_ARM64">
+			<compilerflag value="-DWITH_OPTIM" />
+			<compilerflag value="-DARM_FEATURES" />
+			<compilerflag value="-DARM_NEON" />
+			<compilerflag value="-DARM_NEON_HASLD4" />
+			<compilerflag value="-DARM_CRC32" />
+			<compilerflag value="-DHAVE_SYS_AUXV_H" if="android || linux" />
+			<compilerflag value="-DARM_AUXV_HAS_CRC32" if="android || linux" />
+		</section>
+
+		<section if="LIME_ZLIB_ARM32">
+			<compilerflag value="-DWITH_OPTIM" />
+			<compilerflag value="-DARM_FEATURES" />
+			<compilerflag value="-DARM_NEON" />
+			<compilerflag value="-DHAVE_SYS_AUXV_H" if="android" />
+			<compilerflag value="-DARM_AUXV_HAS_NEON" if="android" />
+		</section>
+
+		<compilerflag value="-mssse3" unless="windows" />
+
+		<file name="${NATIVE_TOOLKIT_PATH}/zlib-ng/arch/x86/adler32_ssse3.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/zlib-ng/arch/x86/chunkset_ssse3.c" />
+
+	</files>
+
+	<files id="native-toolkit-zlib-sse41" if="LIME_ZLIB_X86">
+
+		<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/custom/zlib-ng/" />
+		<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/zlib-ng/" />
+		<compilerflag value="-DZLIB_COMPAT" />
+		<compilerflag value="-DWITH_GZFILEOP" />
+		<compilerflag value="-DWITH_ALL_FALLBACKS" />
+		<compilerflag value="-D_CRT_SECURE_NO_DEPRECATE" if="windows" />
+		<compilerflag value="-D_CRT_NONSTDC_NO_DEPRECATE" if="windows" />
+		<compilerflag value="-DHAVE_BUILTIN_CTZ" unless="windows" />
+		<compilerflag value="-DHAVE_BUILTIN_CTZLL" unless="windows" />
+
+		<section if="LIME_ZLIB_X86">
+			<compilerflag value="-DWITH_OPTIM" />
+			<compilerflag value="-DX86_FEATURES" />
+			<compilerflag value="-DX86_SSE2" />
+			<compilerflag value="-DX86_SSSE3" />
+			<compilerflag value="-DX86_SSE41" />
+			<compilerflag value="-DX86_SSE42" />
+			<compilerflag value="-DX86_PCLMULQDQ_CRC" />
+			<compilerflag value="-DX86_AVX2" />
+			<compilerflag value="-DHAVE_CPUID_MS" if="windows" />
+			<compilerflag value="-DHAVE_CPUID_GNU" unless="windows" />
+		</section>
+
+		<section if="LIME_ZLIB_ARM64">
+			<compilerflag value="-DWITH_OPTIM" />
+			<compilerflag value="-DARM_FEATURES" />
+			<compilerflag value="-DARM_NEON" />
+			<compilerflag value="-DARM_NEON_HASLD4" />
+			<compilerflag value="-DARM_CRC32" />
+			<compilerflag value="-DHAVE_SYS_AUXV_H" if="android || linux" />
+			<compilerflag value="-DARM_AUXV_HAS_CRC32" if="android || linux" />
+		</section>
+
+		<section if="LIME_ZLIB_ARM32">
+			<compilerflag value="-DWITH_OPTIM" />
+			<compilerflag value="-DARM_FEATURES" />
+			<compilerflag value="-DARM_NEON" />
+			<compilerflag value="-DHAVE_SYS_AUXV_H" if="android" />
+			<compilerflag value="-DARM_AUXV_HAS_NEON" if="android" />
+		</section>
+
+		<compilerflag value="-msse4.1" unless="windows" />
+
+		<file name="${NATIVE_TOOLKIT_PATH}/zlib-ng/arch/x86/chorba_sse41.c" />
+
+	</files>
+
+	<files id="native-toolkit-zlib-sse42" if="LIME_ZLIB_X86">
+
+		<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/custom/zlib-ng/" />
+		<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/zlib-ng/" />
+		<compilerflag value="-DZLIB_COMPAT" />
+		<compilerflag value="-DWITH_GZFILEOP" />
+		<compilerflag value="-DWITH_ALL_FALLBACKS" />
+		<compilerflag value="-D_CRT_SECURE_NO_DEPRECATE" if="windows" />
+		<compilerflag value="-D_CRT_NONSTDC_NO_DEPRECATE" if="windows" />
+		<compilerflag value="-DHAVE_BUILTIN_CTZ" unless="windows" />
+		<compilerflag value="-DHAVE_BUILTIN_CTZLL" unless="windows" />
+
+		<section if="LIME_ZLIB_X86">
+			<compilerflag value="-DWITH_OPTIM" />
+			<compilerflag value="-DX86_FEATURES" />
+			<compilerflag value="-DX86_SSE2" />
+			<compilerflag value="-DX86_SSSE3" />
+			<compilerflag value="-DX86_SSE41" />
+			<compilerflag value="-DX86_SSE42" />
+			<compilerflag value="-DX86_PCLMULQDQ_CRC" />
+			<compilerflag value="-DX86_AVX2" />
+			<compilerflag value="-DHAVE_CPUID_MS" if="windows" />
+			<compilerflag value="-DHAVE_CPUID_GNU" unless="windows" />
+		</section>
+
+		<section if="LIME_ZLIB_ARM64">
+			<compilerflag value="-DWITH_OPTIM" />
+			<compilerflag value="-DARM_FEATURES" />
+			<compilerflag value="-DARM_NEON" />
+			<compilerflag value="-DARM_NEON_HASLD4" />
+			<compilerflag value="-DARM_CRC32" />
+			<compilerflag value="-DHAVE_SYS_AUXV_H" if="android || linux" />
+			<compilerflag value="-DARM_AUXV_HAS_CRC32" if="android || linux" />
+		</section>
+
+		<section if="LIME_ZLIB_ARM32">
+			<compilerflag value="-DWITH_OPTIM" />
+			<compilerflag value="-DARM_FEATURES" />
+			<compilerflag value="-DARM_NEON" />
+			<compilerflag value="-DHAVE_SYS_AUXV_H" if="android" />
+			<compilerflag value="-DARM_AUXV_HAS_NEON" if="android" />
+		</section>
+
+		<compilerflag value="-msse4.2" unless="windows" />
+
+		<file name="${NATIVE_TOOLKIT_PATH}/zlib-ng/arch/x86/adler32_sse42.c" />
+
+	</files>
+
+	<files id="native-toolkit-zlib-pclmul" if="LIME_ZLIB_X86">
+
+		<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/custom/zlib-ng/" />
+		<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/zlib-ng/" />
+		<compilerflag value="-DZLIB_COMPAT" />
+		<compilerflag value="-DWITH_GZFILEOP" />
+		<compilerflag value="-DWITH_ALL_FALLBACKS" />
+		<compilerflag value="-D_CRT_SECURE_NO_DEPRECATE" if="windows" />
+		<compilerflag value="-D_CRT_NONSTDC_NO_DEPRECATE" if="windows" />
+		<compilerflag value="-DHAVE_BUILTIN_CTZ" unless="windows" />
+		<compilerflag value="-DHAVE_BUILTIN_CTZLL" unless="windows" />
+
+		<section if="LIME_ZLIB_X86">
+			<compilerflag value="-DWITH_OPTIM" />
+			<compilerflag value="-DX86_FEATURES" />
+			<compilerflag value="-DX86_SSE2" />
+			<compilerflag value="-DX86_SSSE3" />
+			<compilerflag value="-DX86_SSE41" />
+			<compilerflag value="-DX86_SSE42" />
+			<compilerflag value="-DX86_PCLMULQDQ_CRC" />
+			<compilerflag value="-DX86_AVX2" />
+			<compilerflag value="-DHAVE_CPUID_MS" if="windows" />
+			<compilerflag value="-DHAVE_CPUID_GNU" unless="windows" />
+		</section>
+
+		<section if="LIME_ZLIB_ARM64">
+			<compilerflag value="-DWITH_OPTIM" />
+			<compilerflag value="-DARM_FEATURES" />
+			<compilerflag value="-DARM_NEON" />
+			<compilerflag value="-DARM_NEON_HASLD4" />
+			<compilerflag value="-DARM_CRC32" />
+			<compilerflag value="-DHAVE_SYS_AUXV_H" if="android || linux" />
+			<compilerflag value="-DARM_AUXV_HAS_CRC32" if="android || linux" />
+		</section>
+
+		<section if="LIME_ZLIB_ARM32">
+			<compilerflag value="-DWITH_OPTIM" />
+			<compilerflag value="-DARM_FEATURES" />
+			<compilerflag value="-DARM_NEON" />
+			<compilerflag value="-DHAVE_SYS_AUXV_H" if="android" />
+			<compilerflag value="-DARM_AUXV_HAS_NEON" if="android" />
+		</section>
+
+		<compilerflag value="-msse4.2" unless="windows" />
+		<compilerflag value="-mpclmul" unless="windows" />
+
+		<file name="${NATIVE_TOOLKIT_PATH}/zlib-ng/arch/x86/crc32_pclmulqdq.c" />
+
+	</files>
+
+	<files id="native-toolkit-zlib-avx2" if="LIME_ZLIB_X86">
+
+		<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/custom/zlib-ng/" />
+		<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/zlib-ng/" />
+		<compilerflag value="-DZLIB_COMPAT" />
+		<compilerflag value="-DWITH_GZFILEOP" />
+		<compilerflag value="-DWITH_ALL_FALLBACKS" />
+		<compilerflag value="-D_CRT_SECURE_NO_DEPRECATE" if="windows" />
+		<compilerflag value="-D_CRT_NONSTDC_NO_DEPRECATE" if="windows" />
+		<compilerflag value="-DHAVE_BUILTIN_CTZ" unless="windows" />
+		<compilerflag value="-DHAVE_BUILTIN_CTZLL" unless="windows" />
+
+		<section if="LIME_ZLIB_X86">
+			<compilerflag value="-DWITH_OPTIM" />
+			<compilerflag value="-DX86_FEATURES" />
+			<compilerflag value="-DX86_SSE2" />
+			<compilerflag value="-DX86_SSSE3" />
+			<compilerflag value="-DX86_SSE41" />
+			<compilerflag value="-DX86_SSE42" />
+			<compilerflag value="-DX86_PCLMULQDQ_CRC" />
+			<compilerflag value="-DX86_AVX2" />
+			<compilerflag value="-DHAVE_CPUID_MS" if="windows" />
+			<compilerflag value="-DHAVE_CPUID_GNU" unless="windows" />
+		</section>
+
+		<section if="LIME_ZLIB_ARM64">
+			<compilerflag value="-DWITH_OPTIM" />
+			<compilerflag value="-DARM_FEATURES" />
+			<compilerflag value="-DARM_NEON" />
+			<compilerflag value="-DARM_NEON_HASLD4" />
+			<compilerflag value="-DARM_CRC32" />
+			<compilerflag value="-DHAVE_SYS_AUXV_H" if="android || linux" />
+			<compilerflag value="-DARM_AUXV_HAS_CRC32" if="android || linux" />
+		</section>
+
+		<section if="LIME_ZLIB_ARM32">
+			<compilerflag value="-DWITH_OPTIM" />
+			<compilerflag value="-DARM_FEATURES" />
+			<compilerflag value="-DARM_NEON" />
+			<compilerflag value="-DHAVE_SYS_AUXV_H" if="android" />
+			<compilerflag value="-DARM_AUXV_HAS_NEON" if="android" />
+		</section>
+
+		<compilerflag value="-mavx2" unless="windows" />
+		<compilerflag value="-mbmi2" unless="windows" />
+		<compilerflag value="/arch:AVX2" if="windows" />
+
+		<file name="${NATIVE_TOOLKIT_PATH}/zlib-ng/arch/x86/slide_hash_avx2.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/zlib-ng/arch/x86/chunkset_avx2.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/zlib-ng/arch/x86/compare256_avx2.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/zlib-ng/arch/x86/adler32_avx2.c" />
+
+	</files>
+
+	<files id="native-toolkit-zlib-neon" if="LIME_ZLIB_ARM64 || LIME_ZLIB_ARM32">
+
+		<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/custom/zlib-ng/" />
+		<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/zlib-ng/" />
+		<compilerflag value="-DZLIB_COMPAT" />
+		<compilerflag value="-DWITH_GZFILEOP" />
+		<compilerflag value="-DWITH_ALL_FALLBACKS" />
+		<compilerflag value="-D_CRT_SECURE_NO_DEPRECATE" if="windows" />
+		<compilerflag value="-D_CRT_NONSTDC_NO_DEPRECATE" if="windows" />
+		<compilerflag value="-DHAVE_BUILTIN_CTZ" unless="windows" />
+		<compilerflag value="-DHAVE_BUILTIN_CTZLL" unless="windows" />
+
+		<section if="LIME_ZLIB_X86">
+			<compilerflag value="-DWITH_OPTIM" />
+			<compilerflag value="-DX86_FEATURES" />
+			<compilerflag value="-DX86_SSE2" />
+			<compilerflag value="-DX86_SSSE3" />
+			<compilerflag value="-DX86_SSE41" />
+			<compilerflag value="-DX86_SSE42" />
+			<compilerflag value="-DX86_PCLMULQDQ_CRC" />
+			<compilerflag value="-DX86_AVX2" />
+			<compilerflag value="-DHAVE_CPUID_MS" if="windows" />
+			<compilerflag value="-DHAVE_CPUID_GNU" unless="windows" />
+		</section>
+
+		<section if="LIME_ZLIB_ARM64">
+			<compilerflag value="-DWITH_OPTIM" />
+			<compilerflag value="-DARM_FEATURES" />
+			<compilerflag value="-DARM_NEON" />
+			<compilerflag value="-DARM_NEON_HASLD4" />
+			<compilerflag value="-DARM_CRC32" />
+			<compilerflag value="-DHAVE_SYS_AUXV_H" if="android || linux" />
+			<compilerflag value="-DARM_AUXV_HAS_CRC32" if="android || linux" />
+		</section>
+
+		<section if="LIME_ZLIB_ARM32">
+			<compilerflag value="-DWITH_OPTIM" />
+			<compilerflag value="-DARM_FEATURES" />
+			<compilerflag value="-DARM_NEON" />
+			<compilerflag value="-DHAVE_SYS_AUXV_H" if="android" />
+			<compilerflag value="-DARM_AUXV_HAS_NEON" if="android" />
+		</section>
+
+		<compilerflag value="-mfpu=neon" if="LIME_ZLIB_ARM32" unless="windows" />
+
+		<file name="${NATIVE_TOOLKIT_PATH}/zlib-ng/arch/arm/arm_features.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/zlib-ng/arch/arm/adler32_neon.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/zlib-ng/arch/arm/chunkset_neon.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/zlib-ng/arch/arm/compare256_neon.c" />
+		<file name="${NATIVE_TOOLKIT_PATH}/zlib-ng/arch/arm/slide_hash_neon.c" />
+
+	</files>
+
+	<files id="native-toolkit-zlib-armv8" if="LIME_ZLIB_ARM64">
+
+		<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/custom/zlib-ng/" />
+		<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/zlib-ng/" />
+		<compilerflag value="-DZLIB_COMPAT" />
+		<compilerflag value="-DWITH_GZFILEOP" />
+		<compilerflag value="-DWITH_ALL_FALLBACKS" />
+		<compilerflag value="-D_CRT_SECURE_NO_DEPRECATE" if="windows" />
+		<compilerflag value="-D_CRT_NONSTDC_NO_DEPRECATE" if="windows" />
+		<compilerflag value="-DHAVE_BUILTIN_CTZ" unless="windows" />
+		<compilerflag value="-DHAVE_BUILTIN_CTZLL" unless="windows" />
+
+		<section if="LIME_ZLIB_X86">
+			<compilerflag value="-DWITH_OPTIM" />
+			<compilerflag value="-DX86_FEATURES" />
+			<compilerflag value="-DX86_SSE2" />
+			<compilerflag value="-DX86_SSSE3" />
+			<compilerflag value="-DX86_SSE41" />
+			<compilerflag value="-DX86_SSE42" />
+			<compilerflag value="-DX86_PCLMULQDQ_CRC" />
+			<compilerflag value="-DX86_AVX2" />
+			<compilerflag value="-DHAVE_CPUID_MS" if="windows" />
+			<compilerflag value="-DHAVE_CPUID_GNU" unless="windows" />
+		</section>
+
+		<section if="LIME_ZLIB_ARM64">
+			<compilerflag value="-DWITH_OPTIM" />
+			<compilerflag value="-DARM_FEATURES" />
+			<compilerflag value="-DARM_NEON" />
+			<compilerflag value="-DARM_NEON_HASLD4" />
+			<compilerflag value="-DARM_CRC32" />
+			<compilerflag value="-DHAVE_SYS_AUXV_H" if="android || linux" />
+			<compilerflag value="-DARM_AUXV_HAS_CRC32" if="android || linux" />
+		</section>
+
+		<section if="LIME_ZLIB_ARM32">
+			<compilerflag value="-DWITH_OPTIM" />
+			<compilerflag value="-DARM_FEATURES" />
+			<compilerflag value="-DARM_NEON" />
+			<compilerflag value="-DHAVE_SYS_AUXV_H" if="android" />
+			<compilerflag value="-DARM_AUXV_HAS_NEON" if="android" />
+		</section>
+
+		<compilerflag value="-march=armv8-a+crc" unless="windows" />
+
+		<file name="${NATIVE_TOOLKIT_PATH}/zlib-ng/arch/arm/crc32_armv8.c" />
 
 	</files>
 

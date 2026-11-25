@@ -23,6 +23,6 @@ Lime includes code from several other C/C++ libraries, listed below. Lime prefer
 - [**Vorbis**](https://www.xiph.org/vorbis/) | [primary repo](https://github.com/xiph/vorbis)
 - [**libvpx**](https://www.webmproject.org/tools/) | [primary repo](https://chromium.googlesource.com/webm/libvpx/) | [GitHub mirror](https://github.com/webmproject/libvpx/)
 - [**libwebm**](https://www.webmproject.org/about/) | [primary repo](https://chromium.googlesource.com/webm/libwebm) | [GitHub mirror](https://github.com/webmproject/libwebm)
-- [**zlib**](https://zlib.net/) | [primary repo](https://github.com/madler/zlib)
+- [**zlib-ng**](https://github.com/zlib-ng/zlib-ng) | [primary repo](https://github.com/zlib-ng/zlib-ng)
 
 [^1]: Attempting to make a shallow clone of a SourceForge repo (as GitHub Actions does) usually produces the error "Server does not allow request for unadvertised object." Only the most recent commit is "advertised," and all others cause the error. As long as this is the case, Lime will have to use GitHub mirrors of SourceForge repos.
