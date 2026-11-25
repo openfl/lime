@@ -32,7 +32,7 @@ namespace lime {
 	}
 
 
-	void LZMA::Compress (Bytes* data, Bytes* result) {
+	void LZMA::Compress (Bytes* data, Bytes* result, int level) {
 
 		SizeT inputBufferSize = data->length;
 		Byte* inputBufferData = data->b;
@@ -45,7 +45,25 @@ namespace lime {
 
 		CLzmaEncProps props = { 0 };
 		LzmaEncProps_Init (&props);
-		props.dictSize = (1 << 20);
+
+		if (level < 0) {
+
+			// No level is preset 5 with a 1 MB dictionary, as before levels could be chosen
+			props.dictSize = (1 << 20);
+
+		} else {
+
+			props.level = level > 9 ? 9 : level;
+
+			// The preset's dictionary, up to 64 MB, but no larger than the data, which is all the
+			// encoder can use and all a decoder will allocate
+			UInt32 presetDictSize = LzmaEncProps_GetDictSize (&props);
+			UInt32 dictSize = (1 << 12);
+			while (dictSize < presetDictSize && dictSize < inputBufferSize) dictSize <<= 1;
+			props.dictSize = dictSize < presetDictSize ? dictSize : presetDictSize;
+
+		}
+
 		props.writeEndMark = 0;
 		props.numThreads = 1;
 

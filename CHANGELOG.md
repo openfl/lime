@@ -66,6 +66,7 @@ Changelog
 - Added `Locale.preferredLocales`.
 - Added `ThreadPool.idleTimeout`, so idle threads wait for more work before they exit.
 - Added `CURL.versionInfo()` values for the library's age, version number, and features.
+- Added a `level` argument to `Bytes.compress()`, from 0 to 9, for each algorithm. Without it, compression is unchanged.
 - Added `HTTPRequest.verifyCertificates`.
 - Added `Menu`, `MenuItem`, `TrayIcon`, and `DockIcon` for native menu bars, context menus, system tray icons, and the macOS Dock, through the new native-desktop dependency.
 - Added the default macOS menu bar to `Application.menu`, which starts as a copy of it whose About, Hide, Services, Quit, and Window items keep working when items are added.

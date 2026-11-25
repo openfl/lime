@@ -16,7 +16,11 @@ extern "C" int zlib_register_prims()
 namespace lime {
 
 
-	void Zlib::Compress (ZlibType type, Bytes* data, Bytes* result) {
+	void Zlib::Compress (ZlibType type, Bytes* data, Bytes* result, int level) {
+
+		// No level is the best compression, as before levels could be chosen
+		if (level < 0) level = Z_BEST_COMPRESSION;
+		if (level > Z_BEST_COMPRESSION) level = Z_BEST_COMPRESSION;
 
 		int windowBits = 15;
 
@@ -35,7 +39,7 @@ namespace lime {
 
 		int ret = 0;
 
-		if ((ret = deflateInit2 (stream, Z_BEST_COMPRESSION, Z_DEFLATED, windowBits, 8, Z_DEFAULT_STRATEGY) != Z_OK)) {
+		if ((ret = deflateInit2 (stream, level, Z_DEFLATED, windowBits, 8, Z_DEFAULT_STRATEGY) != Z_OK)) {
 
 			//val_throw (stream->msg);
 			free (stream);
