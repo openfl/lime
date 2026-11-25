@@ -751,6 +751,59 @@ class ImageOperationOutputTest extends Test
 		});
 	}
 
+	public function testCopyPixelsWithinAnImageWithinALargerBufferInEveryDirectionKeepsItsOutput():Void
+	{
+		// Overlapping copies each way within an image that is part of a larger buffer, through the native
+		// copy and the Haxe loop. Each must move the bytes as they were before it, and leave the rest of
+		// the buffer alone.
+		assertPins(["1BF8B996 1BF8B996", "66850A27 66850A27", "E996D36D E996D36D", "B3F9EFDF B3F9EFDF", "6DE660C8 6DE660C8", "17CB6047 17CB6047"], function(format, premultiplied)
+		{
+			var native = copiesInEveryDirection(format, premultiplied);
+			var haxe = withoutNative(function() return copiesInEveryDirection(format, premultiplied));
+			return native + " " + haxe;
+		});
+	}
+
+	public function testGetColorBoundsRectOnAnImageWithinALargerBufferKeepsItsBounds():Void
+	{
+		// The image is part of a larger buffer of the same noise, so pixels just outside it match too
+		assertPins([
+			"0,0,19,14 2,0,14,14 3,0,16,11 15,3,1,1 11,3,5,3 3,3,15,10",
+			"0,0,19,14 2,0,14,14 5,0,14,11 4,0,15,10 11,3,6,3 15,3,3,10",
+			"0,0,19,14 2,0,14,14 3,0,16,11 15,3,1,1 11,3,5,3 3,3,15,10",
+			"0,0,19,14 2,0,14,14 5,0,14,11 4,0,15,10 11,3,6,3 15,3,3,10",
+			"0,0,19,14 2,0,14,14 3,0,16,11 15,3,1,1 11,3,5,3 3,3,15,10",
+			"0,0,19,14 2,0,14,14 5,0,14,11 4,0,15,10 11,3,6,3 15,3,3,10"
+		], function(format, premultiplied)
+		{
+			var whole = randomImage(31, 25, DEST, format, premultiplied);
+			var part = new Image(whole.buffer, 5, 4, 19, 14, null, DATA);
+			var bounds = [
+				part.getColorBoundsRect(0x000000FF, 0x00000000, false, RGBA32),
+				part.getColorBoundsRect(0xF8000000, 0x08000000, true, RGBA32),
+				part.getColorBoundsRect(0x0000F800, 0x0000F800, true, ARGB32),
+				part.getColorBoundsRect(0x0000FF00, 0x0000FF00, true, BGRA32),
+				part.getColorBoundsRect(0xE0E00000, 0xE0E00000, true, RGBA32),
+				part.getColorBoundsRect(0x00E000E0, 0x00E000E0, true, ARGB32)
+			];
+
+			// A color only outside the image is not found in it, and one inside is found where it is
+			var outside = [[0, 0], [30, 24], [4, 10], [24, 10], [12, 3], [12, 18]];
+			for (point in outside)
+			{
+				whole.setPixel32(point[0], point[1], 0xFF123456, ARGB32);
+			}
+			var none = part.getColorBoundsRect(0xFFFFFFFF, 0xFF123456, true, ARGB32);
+			part.setPixel32(3, 2, 0xFF123456, ARGB32);
+			part.setPixel32(15, 11, 0xFF123456, ARGB32);
+			var two = part.getColorBoundsRect(0xFFFFFFFF, 0xFF123456, true, ARGB32);
+
+			var checks = (rectString(none) == "0,0,0,0" ? "" : " found outside " + rectString(none))
+				+ (rectString(two) == "3,2,13,10" ? "" : " found inside " + rectString(two));
+			return [for (rect in bounds) rectString(rect)].join(" ") + checks;
+		});
+	}
+
 	// Helpers
 
 	private static function assertPins(expected:Array<String>, operation:PixelFormat->Bool->String, ?pos:haxe.PosInfos):Void
@@ -877,6 +930,48 @@ class ImageOperationOutputTest extends Test
 	private static function crc(bytes:Bytes):String
 	{
 		return bytes == null ? "null" : StringTools.hex(Crc32.make(bytes), 8);
+	}
+
+	/**
+		Copies within a 19x14 image at 5, 4 in a 31x25 buffer, overlapping, in each of eight directions,
+		each checked against the bytes moved by hand. Gives a checksum of the buffer after each copy, with
+		what went wrong when anything did.
+	**/
+	private static function copiesInEveryDirection(format:PixelFormat, premultiplied:Bool):String
+	{
+		var whole = randomImage(31, 25, SOURCE, format, premultiplied);
+		var part = new Image(whole.buffer, 5, 4, 19, 14, null, DATA);
+		var moves = [[3, 2], [-3, -2], [3, -2], [-3, 2], [4, 0], [-4, 0], [0, 3], [0, -3]];
+		var states = Bytes.alloc(moves.length * 4);
+		var problems = [];
+
+		for (i in 0...moves.length)
+		{
+			var dx = moves[i][0];
+			var dy = moves[i][1];
+			var source = new Rectangle(4, 3, 11, 8);
+			var before = whole.buffer.data.toBytes().sub(0, 31 * 25 * 4);
+			var expected = before.sub(0, before.length);
+
+			// Every source pixel is read before any is written
+			for (y in 0...8)
+			{
+				for (x in 0...11)
+				{
+					var from = ((4 + y + 3) * 31 + (5 + x + 4)) * 4;
+					var to = ((4 + y + 3 + dy) * 31 + (5 + x + 4 + dx)) * 4;
+					expected.blit(to, before, from, 4);
+				}
+			}
+
+			part.copyPixels(part, source, new Vector2(source.x + dx, source.y + dy));
+
+			var after = whole.buffer.data.toBytes().sub(0, 31 * 25 * 4);
+			if (after.compare(expected) != 0) problems.push("moving by " + dx + "," + dy + " gave other bytes");
+			states.setInt32(i * 4, Crc32.make(after));
+		}
+
+		return crc(states) + (problems.length == 0 ? "" : " (" + problems.join(", ") + ")");
 	}
 
 	/** Runs `operation` through the Haxe code, with the native library turned off **/
