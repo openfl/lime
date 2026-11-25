@@ -63,7 +63,10 @@ import sys.FileSystem;
 	for GStreamer itself.
 
 	URLs are read over HTTP and HTTPS on Windows, Android and Linux. On macOS
-	and iOS, AVFoundation's reader only decodes local files. Before Android 10,
+	and iOS, AVFoundation's reader only decodes local files, so a URL is
+	downloaded to a temporary file while it opens, and a live stream cannot
+	play; App Transport Security blocks plain HTTP there unless the
+	application allows it. Before Android 10,
 	closing or seeking a URL whose connection stalls waits until the connection
 	gives up. HDR video, in PQ
 	or HLG, is tone mapped to standard range BT.709, by the platform where it
@@ -79,6 +82,18 @@ class VideoDecoder
 	@:noCompletion private static inline var READ_END:Int = -1;
 	@:noCompletion private static inline var READ_ERROR:Int = -2;
 	@:noCompletion private static inline var READ_BUFFER_TOO_SMALL:Int = -3;
+
+	// The order the native decoder writes a frame's details in
+	@:noCompletion private static inline var FRAME_INFO_COLOR_MATRIX:Int = 0;
+	@:noCompletion private static inline var FRAME_INFO_DROPPED_FRAMES:Int = 1;
+	@:noCompletion private static inline var FRAME_INFO_DURATION:Int = 2;
+	@:noCompletion private static inline var FRAME_INFO_FULL_RANGE:Int = 3;
+	@:noCompletion private static inline var FRAME_INFO_HEIGHT:Int = 4;
+	@:noCompletion private static inline var FRAME_INFO_LENGTH:Int = 5;
+	@:noCompletion private static inline var FRAME_INFO_TEXTURE:Int = 6;
+	@:noCompletion private static inline var FRAME_INFO_TIME:Int = 7;
+	@:noCompletion private static inline var FRAME_INFO_WIDTH:Int = 8;
+	@:noCompletion private static inline var FRAME_INFO_COUNT:Int = 9;
 
 	/**
 		Whether this platform can decode video.
@@ -226,7 +241,10 @@ class VideoDecoder
 	**/
 	public var width(default, null):Int = 0;
 
+	@:noCompletion private var __frameInfo:Bytes;
 	@:noCompletion private var __handle:Dynamic;
+	// A file written for openBytes, deleted when the video is closed
+	@:noCompletion private var __temporaryPath:String;
 	#if (lime_opengl || lime_opengles)
 	@:noCompletion private var __textures:Map<Int, GLObject>;
 	#end
@@ -256,6 +274,8 @@ class VideoDecoder
 		#if (lime_opengl || lime_opengles)
 		__textures = null;
 		#end
+
+		__deleteTemporaryFile();
 
 		audioChannels = 0;
 		audioComplete = true;
@@ -288,6 +308,35 @@ class VideoDecoder
 	}
 
 	/**
+		Opens a video held in memory, returning `null` when it cannot be decoded.
+
+		@param	bytes	The whole video file
+		@param	format	The layout of the frames to return
+	**/
+	public static function fromBytes(bytes:Bytes, format:VideoFrameFormat = NV12):VideoDecoder
+	{
+		var decoder = new VideoDecoder();
+		return decoder.openBytes(bytes, format) ? decoder : null;
+	}
+
+	/**
+		Opens a video held in memory and starts decoding it, closing any video
+		already open.
+
+		The platform decoders read files, so the bytes are written to a
+		temporary file, which is deleted when the video is closed. A video that
+		is an asset embedded in the application is opened this way by `open`.
+
+		@param	bytes	The whole video file
+		@param	format	The layout of the frames to return
+		@return	Whether the video can be decoded
+	**/
+	public function openBytes(bytes:Bytes, format:VideoFrameFormat = NV12):Bool
+	{
+		return __openBytes(bytes, format, null, null);
+	}
+
+	/**
 		Opens a video and starts decoding it, closing any video already open.
 
 		Opening reads the start of the file, and for a URL waits for the server,
@@ -303,6 +352,18 @@ class VideoDecoder
 
 		if (path == null || path == "") return false;
 
+		// An embedded asset has no file to open
+		if (path.indexOf("://") == -1 && Assets.exists(path) && Assets.getPath(path) == null)
+		{
+			var bytes = Assets.getBytes(path);
+			return bytes != null && __openBytes(bytes, format, path, path);
+		}
+
+		return __openPath(__resolvePath(path), path, format);
+	}
+
+	@:noCompletion private function __openPath(path:String, source:String, format:VideoFrameFormat):Bool
+	{
 		#if (lime_cffi && !macro)
 		if (__handle == null)
 		{
@@ -313,7 +374,7 @@ class VideoDecoder
 			if (!dropLateFrames) NativeCFFI.lime_video_decoder_set_drop_late_frames(__handle, false);
 		}
 
-		var info:Dynamic = NativeCFFI.lime_video_decoder_open(__handle, __resolvePath(path), hardwareDecoding, format);
+		var info:Dynamic = NativeCFFI.lime_video_decoder_open(__handle, path, hardwareDecoding, format);
 		if (info == null) return false;
 
 		audioChannels = info.audioChannels;
@@ -337,7 +398,7 @@ class VideoDecoder
 
 		audioComplete = !hasAudio;
 		videoComplete = !hasVideo;
-		source = path;
+		this.source = source;
 		this.format = format;
 		droppedFrames = 0;
 		return true;
@@ -399,30 +460,27 @@ class VideoDecoder
 
 		if (result == READ_BUFFER_TOO_SMALL)
 		{
-			var info:Dynamic = NativeCFFI.lime_video_decoder_get_frame_info(__handle);
-			frame.data = new UInt8Array(info.length);
+			var info = __readFrameInfo();
+			frame.data = new UInt8Array(Std.int(info.getDouble(FRAME_INFO_LENGTH << 3)));
 			result = __readFrame(frame.data, time);
 		}
 
 		if (result > 0)
 		{
-			var info:Dynamic = NativeCFFI.lime_video_decoder_get_frame_info(__handle);
+			var info = __readFrameInfo();
 			#if (lime_opengl || lime_opengles)
-			var texture:Int = info.texture;
+			var texture = Std.int(info.getDouble(FRAME_INFO_TEXTURE << 3));
 			frame.texture = texture != 0 ? __getTexture(texture) : null;
 			#end
-			frame.colorMatrix = info.colorMatrix;
-			frame.duration = info.duration;
-
-			// A native library from before the count leaves it out
-			var dropped:Null<Int> = info.droppedFrames;
-			if (dropped != null) droppedFrames = dropped;
+			frame.colorMatrix = cast Std.int(info.getDouble(FRAME_INFO_COLOR_MATRIX << 3));
+			frame.duration = info.getDouble(FRAME_INFO_DURATION << 3);
+			droppedFrames = Std.int(info.getDouble(FRAME_INFO_DROPPED_FRAMES << 3));
 			frame.format = format;
-			frame.fullRange = info.fullRange;
-			frame.height = info.height;
+			frame.fullRange = info.getDouble(FRAME_INFO_FULL_RANGE << 3) != 0;
+			frame.height = Std.int(info.getDouble(FRAME_INFO_HEIGHT << 3));
 			frame.length = format == VideoFrameFormat.TEXTURE ? 0 : result;
-			frame.time = info.time;
-			frame.width = info.width;
+			frame.time = info.getDouble(FRAME_INFO_TIME << 3);
+			frame.width = Std.int(info.getDouble(FRAME_INFO_WIDTH << 3));
 			return true;
 		}
 
@@ -465,6 +523,21 @@ class VideoDecoder
 		#end
 	}
 
+	// The details of the frame last read, written by the native decoder as
+	// doubles into a buffer kept for it, as an object made for every frame was
+	// allocated for every frame of every video. They are read from the bytes,
+	// as Haxe 4.2's HashLink output allocates for each read of a Float64Array.
+	@:noCompletion private function __readFrameInfo():Bytes
+	{
+		if (__frameInfo == null) __frameInfo = Bytes.alloc(FRAME_INFO_COUNT << 3);
+
+		#if (lime_cffi && !macro)
+		NativeCFFI.lime_video_decoder_read_frame_info(__handle, __frameInfo);
+		#end
+
+		return __frameInfo;
+	}
+
 	@:noCompletion private function __readFrame(data:UInt8Array, time:Float):Int
 	{
 		#if (lime_cffi && !macro)
@@ -478,6 +551,108 @@ class VideoDecoder
 		return READ_ERROR;
 		#end
 	}
+
+	@:noCompletion private function __deleteTemporaryFile():Void
+	{
+		#if sys
+		if (__temporaryPath != null)
+		{
+			try
+			{
+				FileSystem.deleteFile(__temporaryPath);
+			}
+			catch (e:Dynamic) {}
+
+			__temporaryPath = null;
+		}
+		#end
+	}
+
+	@:noCompletion private function __openBytes(bytes:Bytes, format:VideoFrameFormat, name:String, source:String):Bool
+	{
+		close();
+
+		if (bytes == null || bytes.length == 0) return false;
+
+		#if (sys && lime_cffi && !macro)
+		var path = __writeTemporaryFile(bytes, name);
+		if (path == null) return false;
+
+		__temporaryPath = path;
+
+		if (!__openPath(path, source, format))
+		{
+			__deleteTemporaryFile();
+			return false;
+		}
+
+		return true;
+		#else
+		return false;
+		#end
+	}
+
+	#if sys
+	@:noCompletion private static function __getTemporaryDirectory():String
+	{
+		#if (ios || android)
+		var base = System.applicationStorageDirectory;
+		#else
+		var base = Sys.getEnv("TEMP");
+		if (base == null || base == "") base = Sys.getEnv("TMPDIR");
+		if (base == null || base == "") base = "/tmp";
+		#end
+
+		return base != null ? Path.join([base, "lime-video"]) : null;
+	}
+
+	// The platform decoders tell some formats apart by the extension
+	@:noCompletion private static function __getVideoExtension(bytes:Bytes, name:String):String
+	{
+		var extension = name != null ? Path.extension(name) : "";
+		if (extension != "") return extension.toLowerCase();
+
+		if (bytes.length >= 12)
+		{
+			if (bytes.getString(4, 4) == "ftyp") return bytes.getString(8, 2) == "qt" ? "mov" : "mp4";
+			if (bytes.get(0) == 0x1A && bytes.get(1) == 0x45 && bytes.get(2) == 0xDF && bytes.get(3) == 0xA3) return "webm";
+			if (bytes.getString(0, 4) == "OggS") return "ogv";
+			if (bytes.getString(0, 4) == "RIFF" && bytes.getString(8, 4) == "AVI ") return "avi";
+		}
+
+		return "mp4";
+	}
+
+	// Neko's ints have 31 bits, and Std.random() throws for a larger maximum
+	@:noCompletion private static function __randomHex():String
+	{
+		return StringTools.hex(Std.random(0x10000), 4) + StringTools.hex(Std.random(0x10000), 4);
+	}
+
+	@:noCompletion private static function __writeTemporaryFile(bytes:Bytes, name:String):String
+	{
+		var directory = __getTemporaryDirectory();
+		if (directory == null) return null;
+
+		try
+		{
+			if (!FileSystem.exists(directory)) FileSystem.createDirectory(directory);
+
+			var path = Path.join([
+				directory,
+				"video-" + StringTools.hex(Std.int(Date.now().getTime() / 1000) & 0xFFFFFF, 6) + "-" + __randomHex() + "."
+				+ __getVideoExtension(bytes, name)
+			]);
+
+			sys.io.File.saveBytes(path, bytes);
+			return path;
+		}
+		catch (e:Dynamic)
+		{
+			return null;
+		}
+	}
+	#end
 
 	@:noCompletion private static function __resolvePath(path:String):String
 	{

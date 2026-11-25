@@ -96,25 +96,56 @@ class EventMacro
 					while (i < listeners.length)
 					{
 						var listener = listeners[i];
+						var once = !repeat[i];
+						var previous = null;
+						var next = null;
+						var priority = 0;
+
+						// A once listener stops being a listener before it is called, so neither a
+						// dispatch from inside it nor an exception from it can reach it again
+						if (once)
+						{
+							previous = (i > 0) ? listeners[i - 1] : null;
+							priority = __priorities[i];
+							__removeAt(i);
+							next = (i < listeners.length) ? listeners[i] : null;
+						}
+
 						var edits = __edits;
 
 						listener($a{argNames});
 
-						// The listener may have added or removed listeners, which moves it
-						var index = (__edits == edits) ? i : __indexOf(cast listener, i);
-
-						// When it was removed, the listener after it has already moved into its place
-						if (index >= 0)
+						if (__edits == edits)
 						{
-							if (!repeat[index])
+							// A once listener's place has already been taken by the one after it
+							if (!once) i++;
+						}
+						else if (once)
+						{
+							// The listener added or removed listeners: carry on from the one that was
+							// after it, or after the one that was before it
+							var index = (next != null) ? __indexOf(cast next, i) : -1;
+
+							if (index < 0 && previous != null)
 							{
-								this.remove(cast listener);
-								i = index;
+								index = __indexOf(cast previous, i);
+								if (index >= 0) index++;
 							}
-							else
+
+							if (index < 0)
 							{
-								i = index + 1;
+								// Neither is left: skip those added ahead of it, which have a higher priority
+								index = 0;
+								while (index < listeners.length && __priorities[index] > priority) index++;
 							}
+
+							i = index;
+						}
+						else
+						{
+							// When it was removed, the listener after it has already moved into its place
+							var index = __indexOf(cast listener, i);
+							if (index >= 0) i = index + 1;
 						}
 
 						if (canceled)

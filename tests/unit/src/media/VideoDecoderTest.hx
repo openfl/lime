@@ -111,6 +111,51 @@ class VideoDecoderTest extends Test
 		decoder.close();
 	}
 
+	// A frame's details came back as an object built for every frame, 27
+	// allocations a frame on HashLink, which counts its allocations. It counts
+	// those of every thread, and threads earlier tests left running allocate
+	// too, so the test checks that most frames are read without any.
+	public function testReadingAFrameAllocatesNothing():Void
+	{
+		#if hl
+		var decoder = open(NV12);
+		if (decoder == null) return;
+
+		// The first frame makes the frame's buffer
+		var frame = new VideoFrame();
+		Assert.isTrue(nextFrame(decoder, frame), "no frame was read");
+
+		var frames = 0;
+		var framesWithout = 0;
+		var allocations = 0.0;
+		var start = Timer.stamp();
+
+		while (frames < 20 && !decoder.videoComplete && Timer.stamp() - start < TIMEOUT)
+		{
+			var before = allocationCount();
+			var read = decoder.readFrame(frame);
+			var after = allocationCount();
+
+			if (read)
+			{
+				allocations += after - before;
+				if (after == before) framesWithout++;
+				frames++;
+			}
+			else
+			{
+				Sys.sleep(0.001);
+			}
+		}
+
+		Assert.isTrue(frames > 0, "no frames were read");
+		Assert.isTrue(framesWithout * 2 > frames, "only " + framesWithout + " of " + frames + " frames were read without allocating, with " + allocations + " allocations in all");
+		decoder.close();
+		#else
+		Assert.pass();
+		#end
+	}
+
 	public function testReadRGBA():Void
 	{
 		checkChannels(RGBA, 0, 1, 2, 3);
@@ -411,6 +456,16 @@ class VideoDecoderTest extends Test
 
 		return sum / (64 * 64);
 	}
+
+	#if hl
+	// Through the native call, as Gc.stats() makes an object of its own
+	private static function allocationCount():Float
+	{
+		var total = 0.0, count = 0.0, memory = 0.0;
+		@:privateAccess hl.Gc._stats(total, count, memory);
+		return count;
+	}
+	#end
 
 	private static function nextFrame(decoder:VideoDecoder, frame:VideoFrame, time:Float = -1):Bool
 	{

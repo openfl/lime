@@ -404,6 +404,13 @@ class AL
 		#end
 	}
 
+	public static function deleteAux(aux:ALAuxiliaryEffectSlot):Void
+	{
+		#if (lime_cffi && lime_openal && !macro)
+		NativeCFFI.lime_al_delete_auxiliary_effect_slot(aux);
+		#end
+	}
+
 	public static function deleteBuffer(buffer:ALBuffer):Void
 	{
 		#if (lime_cffi && lime_openal && !macro)
@@ -421,6 +428,20 @@ class AL
 		var buffers = _buffers;
 		#end
 		NativeCFFI.lime_al_delete_buffers(buffers.length, buffers);
+		#end
+	}
+
+	public static function deleteEffect(effect:ALEffect):Void
+	{
+		#if (lime_cffi && lime_openal && !macro)
+		NativeCFFI.lime_al_delete_effect(effect);
+		#end
+	}
+
+	public static function deleteFilter(filter:ALFilter):Void
+	{
+		#if (lime_cffi && lime_openal && !macro)
+		NativeCFFI.lime_al_delete_filter(filter);
 		#end
 	}
 
@@ -585,7 +606,7 @@ class AL
 	public static function getBooleanv(param:Int, count:Int = 1):Array<Bool>
 	{
 		#if (lime_cffi && lime_openal && !macro)
-		var result = NativeCFFI.lime_al_get_booleanv(param, 1);
+		var result = NativeCFFI.lime_al_get_booleanv(param, count);
 		#if hl
 		if (result == null) return [];
 		var _result = [];
@@ -1011,6 +1032,19 @@ class AL
 	{
 		#if (lime_cffi && lime_openal && !macro)
 		return NativeCFFI.lime_al_get_sourcei(source, param);
+		#else
+		return 0;
+		#end
+	}
+
+	/**
+		An integer property of a source, without the box `getSourcei` gives it
+		in, for the polling Lime's own sources do. Not for `AL.BUFFER`.
+	**/
+	@:noCompletion public static function __getSourceInt(source:ALSource, param:Int):Int
+	{
+		#if (lime_cffi && lime_openal && !macro)
+		return NativeCFFI.lime_al_get_sourcei_int(source, param);
 		#else
 		return 0;
 		#end

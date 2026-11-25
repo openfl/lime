@@ -4,6 +4,8 @@ import haxe.Int64;
 import haxe.io.Bytes;
 import lime._internal.backend.native.NativeCFFI;
 import lime.app.Application;
+import lime.app.Future;
+import lime.app.Promise;
 import lime.app.VSyncMode;
 import lime.graphics.cairo.Cairo;
 import lime.graphics.cairo.CairoFormat;
@@ -19,10 +21,13 @@ import lime.graphics.VulkanRenderContext;
 import lime.math.Rectangle;
 import lime.math.Vector2;
 import lime.system.CFFI;
+import lime.system.Clipboard;
 import lime.system.Display;
 import lime.system.DisplayMode;
 import lime.system.JNI;
 import lime.system.System;
+import lime.ui.DragData;
+import lime.ui.DropAction;
 import lime.ui.KeyCode;
 import lime.ui.KeyModifier;
 import lime.ui.Menu;
@@ -45,6 +50,7 @@ import lime.utils.UInt8Array;
 @:access(lime.graphics.OpenGLRenderContext)
 @:access(lime.graphics.RenderContext)
 @:access(lime.system.DisplayMode)
+@:access(lime.ui.DragData)
 @:access(lime.ui.MenuItem)
 @:access(lime.ui.Window)
 class NativeWindow
@@ -54,11 +60,16 @@ class NativeWindow
 	**/
 	public static var rendering:Window;
 
+	// Drags out that end after doDragDrop returns, as on macOS and X11, by ID
+	private static var dragPromises:Map<Int, Promise<DropAction>> = new Map();
+	private static var nextDragID:Int = 1;
+
 	public var handle:Dynamic;
 
 	private var closing:Bool;
 	private var cursor:MouseCursor;
 	private var displayMode:DisplayMode;
+	private var dropTarget:Bool = false;
 	private var frameRate:Float;
 	private var menuItems:Array<MenuItem>;
 	private var mouseLock:Bool;
@@ -169,6 +180,7 @@ class NativeWindow
 		parent.__x = NativeCFFI.lime_window_get_x(handle);
 		parent.__y = NativeCFFI.lime_window_get_y(handle);
 		parent.__hidden = (Reflect.hasField(attributes, "hidden") && attributes.hidden);
+		parent.__fullscreen = (flags & cast WindowFlags.WINDOW_FLAG_FULLSCREEN) != 0;
 
 		parent.id = NativeCFFI.lime_window_get_id(handle);
 		parent.__scale = NativeCFFI.lime_window_get_scale(handle);
@@ -263,6 +275,8 @@ class NativeWindow
 				if (handle != null)
 				{
 					#if (!macro && lime_cffi)
+					// The system keeps a drop target registered until it is given back
+					if (dropTarget) setDropTarget(false);
 					NativeCFFI.lime_window_close(handle);
 					#end
 
@@ -297,6 +311,31 @@ class NativeWindow
 		}
 		NativeCFFI.lime_window_context_flip(handle);
 		#end
+	}
+
+	public function orderRelative(other:Window, above:Bool):Bool
+	{
+		#if (!macro && lime_cffi)
+		var otherHandle:Dynamic = other != null ? other.__backend.handle : null;
+		if (handle != null && otherHandle != null) return NativeCFFI.lime_window_order_relative(handle, otherHandle, above);
+		#end
+		return false;
+	}
+
+	public function orderToBack():Bool
+	{
+		#if (!macro && lime_cffi)
+		if (handle != null) return NativeCFFI.lime_window_order_to_back(handle);
+		#end
+		return false;
+	}
+
+	public function startMoveResize(edges:Int):Bool
+	{
+		#if (!macro && lime_cffi)
+		if (handle != null) return NativeCFFI.lime_window_start_move_resize(handle, edges);
+		#end
+		return false;
 	}
 
 	public function focus():Void
@@ -364,6 +403,11 @@ class NativeWindow
 		}
 		#end
 		return false;
+	}
+
+	public function getDropTarget():Bool
+	{
+		return dropTarget;
 	}
 
 	public function getKeyboardGrab():Bool
@@ -470,6 +514,7 @@ class NativeWindow
 			var items = [];
 			var data = NativeMenu.encode(menu, items);
 			var atCursor = (x == null || y == null);
+			NativeMenu.setPopup(NativeMenu.SOURCE_WINDOW, parent.id, menu, items);
 			var id = NativeCFFI.lime_window_popup_menu(handle, data, atCursor ? 0 : Std.int(x), atCursor ? 0 : Std.int(y), atCursor);
 
 			var item = NativeMenu.getItem(items, id);
@@ -745,6 +790,53 @@ class NativeWindow
 		return displayMode;
 	}
 
+	public function doDragDrop(data:DragData, image:Image, offsetX:Int, offsetY:Int, actions:DropAction):Future<DropAction>
+	{
+		#if (!macro && lime_cffi)
+		if (handle != null)
+		{
+			var imageBytes:Bytes = null;
+
+			if (image != null)
+			{
+				var pixels = image.getPixels(image.rect, RGBA32);
+				imageBytes = Bytes.alloc(8 + pixels.length);
+				imageBytes.setInt32(0, image.width);
+				imageBytes.setInt32(4, image.height);
+				imageBytes.blit(8, pixels, 0, pixels.length);
+			}
+
+			var id = nextDragID++;
+			var promise = new Promise<DropAction>();
+			dragPromises.set(id, promise);
+
+			var result = NativeCFFI.lime_window_start_drag(handle, @:privateAccess Clipboard.__encodeItems(data.__items), imageBytes, offsetX, offsetY,
+				actions, id);
+
+			// -1 when the drag ends later, with a complete event carrying id
+			if (result >= 0)
+			{
+				dragPromises.remove(id);
+				promise.complete(result);
+			}
+
+			return promise.future;
+		}
+		#end
+		return Future.withValue(DropAction.NONE);
+	}
+
+	public function setDropTarget(value:Bool):Bool
+	{
+		#if (!macro && lime_cffi)
+		if (handle != null && value != dropTarget && NativeCFFI.lime_window_set_drag_target(handle, value))
+		{
+			dropTarget = value;
+		}
+		#end
+		return dropTarget;
+	}
+
 	public function setKeyboardGrab(value:Bool):Bool
 	{
 		#if (!macro && lime_cffi)
@@ -819,6 +911,8 @@ class NativeWindow
 	{
 		if (handle != null)
 		{
+			var wasFullscreen = parent.__fullscreen;
+
 			#if (!macro && lime_cffi)
 			value = NativeCFFI.lime_window_set_fullscreen(handle, value);
 			parent.__width = NativeCFFI.lime_window_get_width(handle);
@@ -826,9 +920,17 @@ class NativeWindow
 			parent.__x = NativeCFFI.lime_window_get_x(handle);
 			parent.__y = NativeCFFI.lime_window_get_y(handle);
 			#end
-			if (value)
+
+			// Set before the events, so their listeners read the new state
+			parent.__fullscreen = value;
+
+			if (value && !wasFullscreen)
 			{
 				parent.onFullscreen.dispatch();
+			}
+			else if (!value && wasFullscreen)
+			{
+				parent.onRestore.dispatch();
 			}
 		}
 		return value;
@@ -863,7 +965,7 @@ class NativeWindow
 			#if (!macro && lime_cffi)
 			if (menu != null)
 			{
-				var items = [];
+				var items = NativeMenu.newItems(NativeMenu.SOURCE_WINDOW, parent.id, menu);
 				var data = NativeMenu.encode(menu, items);
 				menuItems = NativeCFFI.lime_window_set_menu(handle, data) ? items : null;
 			}
@@ -872,6 +974,8 @@ class NativeWindow
 				NativeCFFI.lime_window_set_menu(handle, null);
 				menuItems = null;
 			}
+
+			NativeMenu.setInstalled(NativeMenu.SOURCE_WINDOW, parent.id, menuItems != null ? menu : null, menuItems);
 			#end
 		}
 	}

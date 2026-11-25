@@ -1,9 +1,11 @@
 #include <system/CFFI.h>
 #include <system/CFFIPointer.h>
 #include <system/Mutex.h>
+#include <system/System.h>
 #include <utils/Bytes.h>
 #include "OpenGL.h"
 #include "OpenGLBindings.h"
+#include "OpenGLShareGroups.h"
 #include <map>
 #include <string>
 #include <vector>
@@ -96,49 +98,142 @@ namespace lime {
 	GL_DebugMessageCallback_Func glDebugMessageCallback_ptr = 0;
 	#endif
 
-	std::map<GLObjectType, std::map <GLuint, void*> > glObjects;
+	// Objects are found by type, by the context or group of contexts whose
+	// objects they are, and by name, as each context has names of its own for
+	// the objects it doesn't share
+	std::map<GLObjectType, std::map<std::pair<int, GLuint>, void*> > glObjects;
 	std::map<void*, GLuint> glObjectIDs;
 	std::map<void*, void*> glObjectPtrs;
+	std::map<void*, int> glObjectScopes;
 	std::map<void*, GLObjectType> glObjectTypes;
 
-	std::vector<GLuint> gc_gl_id;
-	std::vector<void*> gc_gl_ptr;
-	std::vector<GLObjectType> gc_gl_type;
+	// A collected object, deleted where a context it belongs to is current
+	struct GCGLObject {
+
+		GLObjectType type;
+		GLuint id;
+		void* ptr;
+		int scope;
+
+	};
+
+	std::vector<GCGLObject> gc_gl_queue;
 	Mutex gc_gl_mutex;
+
+
+	static void* gl_current_context () {
+
+		#ifdef LIME_SDL
+		return SDL_GL_GetCurrentContext ();
+		#else
+		return NULL;
+		#endif
+
+	}
+
+
+	// Framebuffers, vertex arrays, transform feedbacks and queries belong to
+	// the context that made them. Other objects belong to its group, the
+	// contexts that share them.
+	static bool gl_type_is_per_context (GLObjectType type) {
+
+		switch (type) {
+
+			case TYPE_FRAMEBUFFER:
+			case TYPE_QUERY:
+			case TYPE_TRANSFORM_FEEDBACK:
+			case TYPE_VERTEX_ARRAY_OBJECT:
+
+				return true;
+
+			default:
+
+				return false;
+
+		}
+
+	}
+
+
+	// The context or group whose objects of a type are used where the current
+	// context is, or 0 for a context Lime didn't make
+	static int gl_current_scope (GLObjectType type) {
+
+		void* context = gl_current_context ();
+		return gl_type_is_per_context (type) ? OpenGLShareGroups::GetContextId (context) : OpenGLShareGroups::Get (context);
+
+	}
+
+
+	static bool gl_scope_exists (GLObjectType type, int scope) {
+
+		return gl_type_is_per_context (type) ? OpenGLShareGroups::ContextExists (scope) : OpenGLShareGroups::Exists (scope);
+
+	}
+
+
+	// Removes an object from the maps, called under the lock. The entry for its
+	// name is only removed if it is still this object's.
+	static void gl_forget_object (void* object) {
+
+		std::map<void*, GLObjectType>::iterator type = glObjectTypes.find (object);
+		std::map<void*, GLuint>::iterator id = glObjectIDs.find (object);
+		std::map<void*, int>::iterator scope = glObjectScopes.find (object);
+
+		if (type != glObjectTypes.end () && id != glObjectIDs.end ()) {
+
+			std::map<std::pair<int, GLuint>, void*>& objects = glObjects[type->second];
+			std::map<std::pair<int, GLuint>, void*>::iterator entry = objects.find (std::make_pair (scope != glObjectScopes.end () ? scope->second : 0, id->second));
+			if (entry != objects.end () && entry->second == object) objects.erase (entry);
+
+		}
+
+		if (type != glObjectTypes.end ()) glObjectTypes.erase (type);
+		if (id != glObjectIDs.end ()) glObjectIDs.erase (id);
+		if (scope != glObjectScopes.end ()) glObjectScopes.erase (scope);
+
+	}
+
+
+	// Queues a collected object to be deleted, called under the lock
+	static void gc_gl_queue_object (void* object) {
+
+		std::map<void*, GLObjectType>::iterator type = glObjectTypes.find (object);
+		if (type == glObjectTypes.end ()) return;
+
+		GCGLObject collected;
+		collected.type = type->second;
+		collected.id = glObjectIDs.find (object) != glObjectIDs.end () ? glObjectIDs[object] : 0;
+		collected.ptr = collected.type == TYPE_SYNC && glObjectPtrs.find (object) != glObjectPtrs.end () ? glObjectPtrs[object] : NULL;
+		collected.scope = glObjectScopes.find (object) != glObjectScopes.end () ? glObjectScopes[object] : 0;
+		gc_gl_queue.push_back (collected);
+
+		gl_forget_object (object);
+		glObjectPtrs.erase (object);
+
+	}
+
+
+	// The finalizers change the maps above, and can run on another thread, so
+	// registering and deregistering take the same lock. A thread that has to
+	// wait is blocked for the collector, which may need it to stop.
+	void lock_gl_objects () {
+
+		if (!gc_gl_mutex.TryLock ()) {
+
+			System::GCEnterBlocking ();
+			gc_gl_mutex.Lock ();
+			System::GCExitBlocking ();
+
+		}
+
+	}
 
 
 	void gc_gl_object (value object) {
 
 		gc_gl_mutex.Lock ();
-
-		if (glObjectTypes.find (object) != glObjectTypes.end ()) {
-
-			GLObjectType type = glObjectTypes[object];
-
-			if (type != TYPE_SYNC) {
-
-				GLuint id = glObjectIDs[object];
-
-				gc_gl_id.push_back (id);
-				gc_gl_type.push_back (type);
-
-				glObjects[type].erase (id);
-				glObjectIDs.erase (object);
-				glObjectTypes.erase (object);
-
-			} else {
-
-				void* ptr = glObjectPtrs[object];
-
-				gc_gl_ptr.push_back (ptr);
-
-				glObjectPtrs.erase (object);
-				glObjectTypes.erase (object);
-
-			}
-
-		}
-
+		gc_gl_queue_object (object);
 		gc_gl_mutex.Unlock ();
 
 	}
@@ -147,37 +242,7 @@ namespace lime {
 	void hl_gc_gl_object (HL_CFFIPointer* handle) {
 
 		gc_gl_mutex.Lock ();
-
-		void* object = handle->ptr;
-
-		if (glObjectTypes.find (object) != glObjectTypes.end ()) {
-
-			GLObjectType type = glObjectTypes[object];
-
-			if (type != TYPE_SYNC) {
-
-				GLuint id = glObjectIDs[object];
-
-				gc_gl_id.push_back (id);
-				gc_gl_type.push_back (type);
-
-				glObjects[type].erase (id);
-				glObjectIDs.erase (object);
-				glObjectTypes.erase (object);
-
-			} else {
-
-				void* ptr = glObjectPtrs[object];
-
-				gc_gl_ptr.push_back (ptr);
-
-				glObjectPtrs.erase (object);
-				glObjectTypes.erase (object);
-
-			}
-
-		}
-
+		gc_gl_queue_object (handle->ptr);
 		gc_gl_mutex.Unlock ();
 
 	}
@@ -185,19 +250,31 @@ namespace lime {
 
 	void gc_gl_run () {
 
-		if (gc_gl_id.size () > 0) {
+		// The finalizers fill the queues from any thread, so they are read
+		// under the lock
+		lock_gl_objects ();
 
-			gc_gl_mutex.Lock ();
+		if (!gc_gl_queue.empty ()) {
 
-			int size = gc_gl_id.size ();
+			void* context = gl_current_context ();
+			int group = OpenGLShareGroups::Get (context);
+			int contextId = OpenGLShareGroups::GetContextId (context);
+			std::vector<GCGLObject> kept;
 
-			GLuint id;
-			GLObjectType type;
+			for (size_t i = 0; i < gc_gl_queue.size (); i++) {
 
-			for (int i = 0; i < size; i++) {
+				GLuint id = gc_gl_queue[i].id;
+				GLObjectType type = gc_gl_queue[i].type;
+				int scope = gl_type_is_per_context (type) ? contextId : group;
 
-				id = gc_gl_id[i];
-				type = gc_gl_type[i];
+				if (gc_gl_queue[i].scope != scope) {
+
+					// Left for a context it belongs to, unless they are all gone,
+					// and the object with them
+					if (gl_scope_exists (type, gc_gl_queue[i].scope)) kept.push_back (gc_gl_queue[i]);
+					continue;
+
+				}
 
 				switch (type) {
 
@@ -248,6 +325,13 @@ namespace lime {
 						if (glIsTexture (id)) glDeleteTextures (1, &id);
 						break;
 
+					#ifdef LIME_GLES3_API
+					case TYPE_TRANSFORM_FEEDBACK:
+
+						if (glIsTransformFeedback && glDeleteTransformFeedbacks && glIsTransformFeedback (id)) glDeleteTransformFeedbacks (1, &id);
+						break;
+					#endif
+
 					#if defined(LIME_GLES3_API) || !defined(LIME_GLES)
 					case TYPE_VERTEX_ARRAY_OBJECT:
 					
@@ -265,33 +349,24 @@ namespace lime {
 						break;
 					#endif
 
+					#ifdef LIME_GLES3_API
+					case TYPE_SYNC:
+
+						if (glIsSync ((GLsync)gc_gl_queue[i].ptr)) glDeleteSync ((GLsync)gc_gl_queue[i].ptr);
+						break;
+					#endif
+
 					default: break;
 
 				}
 
 			}
 
-			size = gc_gl_ptr.size ();
-			void* ptr;
-
-			for (int i = 0; i < size; i++) {
-
-				ptr = gc_gl_ptr[i];
-				//type = gc_gl_type[i];
-
-				#ifdef LIME_GLES3_API
-				if (glIsSync ((GLsync)ptr)) glDeleteSync ((GLsync)ptr);
-				#endif
-
-			}
-
-			gc_gl_id.clear ();
-			gc_gl_ptr.clear ();
-			gc_gl_type.clear ();
-
-			gc_gl_mutex.Unlock ();
+			gc_gl_queue.swap (kept);
 
 		}
+
+		gc_gl_mutex.Unlock ();
 
 	}
 
@@ -1417,7 +1492,16 @@ namespace lime {
 
 		#ifdef LIME_GLES3_API
 		if (val_is_null (sync)) return;
-		glDeleteSync ((GLsync)val_data (sync));
+
+		// Forgotten first, so that collecting it later doesn't delete another
+		// sync that has been given the same address
+		lock_gl_objects ();
+		bool registered = glObjectTypes.erase (sync) > 0;
+		glObjectPtrs.erase (sync);
+		glObjectScopes.erase (sync);
+		gc_gl_mutex.Unlock ();
+
+		if (registered) glDeleteSync ((GLsync)val_data (sync));
 		#endif
 
 	}
@@ -1426,8 +1510,16 @@ namespace lime {
 	HL_PRIM void HL_NAME(hl_gl_delete_sync) (HL_CFFIPointer* sync) {
 
 		#ifdef LIME_GLES3_API
-		if (!sync) return;
-		glDeleteSync ((GLsync)sync->ptr);
+		if (!sync || !sync->ptr) return;
+
+		lock_gl_objects ();
+		bool registered = glObjectTypes.erase (sync->ptr) > 0;
+		glObjectPtrs.erase (sync->ptr);
+		glObjectScopes.erase (sync->ptr);
+		gc_gl_mutex.Unlock ();
+
+		sync->finalizer = NULL;
+		if (registered) glDeleteSync ((GLsync)sync->ptr);
 		#endif
 
 	}
@@ -1786,7 +1878,18 @@ namespace lime {
 		#ifdef LIME_GLES3_API
 		GLsync result = glFenceSync (condition, flags);
 		value handle = CFFIPointer (result, gc_gl_object);
-		glObjectPtrs[handle] = result;
+
+		// Registered as a sync, so that its finalizer queues it for deleting
+		if (!val_is_null (handle)) {
+
+			lock_gl_objects ();
+			glObjectTypes[handle] = TYPE_SYNC;
+			glObjectPtrs[handle] = result;
+			glObjectScopes[handle] = gl_current_scope (TYPE_SYNC);
+			gc_gl_mutex.Unlock ();
+
+		}
+
 		return handle;
 		#else
 		return alloc_null ();
@@ -1800,7 +1903,18 @@ namespace lime {
 		#ifdef LIME_GLES3_API
 		GLsync result = glFenceSync (condition, flags);
 		HL_CFFIPointer* handle = HLCFFIPointer (result, (hl_finalizer)hl_gc_gl_object);
-		glObjectPtrs[handle] = result;
+
+		// The finalizer is given the sync itself, so it is registered by that
+		if (handle) {
+
+			lock_gl_objects ();
+			glObjectTypes[result] = TYPE_SYNC;
+			glObjectPtrs[result] = result;
+			glObjectScopes[result] = gl_current_scope (TYPE_SYNC);
+			gc_gl_mutex.Unlock ();
+
+		}
+
 		return handle;
 		#else
 		return NULL;
@@ -4012,6 +4126,27 @@ namespace lime {
 	}
 
 
+	// Desktop OpenGL only; OpenGL ES and WebGL draw polygons filled
+	void lime_gl_polygon_mode (int face, int mode) {
+
+		#ifndef LIME_GLES
+		// Loaded at run time on desktop, as other functions OpenGL ES lacks
+		if (glPolygonMode) glPolygonMode (face, mode);
+		#endif
+
+	}
+
+
+	HL_PRIM void HL_NAME(hl_gl_polygon_mode) (int face, int mode) {
+
+		#ifndef LIME_GLES
+		// Loaded at run time on desktop, as other functions OpenGL ES lacks
+		if (glPolygonMode) glPolygonMode (face, mode);
+		#endif
+
+	}
+
+
 	void lime_gl_link_program (int program) {
 
 		glLinkProgram (program);
@@ -4048,40 +4183,32 @@ namespace lime {
 
 	void lime_gl_object_deregister (value object) {
 
-		if (glObjectIDs.find (object) != glObjectIDs.end ()) {
+		value handle = 0;
 
-			GLuint id = glObjectIDs[object];
-			GLObjectType type = glObjectTypes[object];
+		lock_gl_objects ();
 
-			glObjects[type].erase (id);
-			glObjectTypes.erase (object);
-			glObjectIDs.erase (object);
-
-		}
+		gl_forget_object (object);
 
 		if (glObjectPtrs.find (object) != glObjectPtrs.end ()) {
 
-			value handle = (value)glObjectPtrs[object];
-			val_gc (handle, 0);
+			handle = (value)glObjectPtrs[object];
 			glObjectPtrs.erase (object);
 
 		}
+
+		gc_gl_mutex.Unlock ();
+
+		// Outside the lock, as the collector keeps its finalizers under a lock of its own
+		if (handle) val_gc (handle, 0);
 
 	}
 
 
 	HL_PRIM void HL_NAME(hl_gl_object_deregister) (void* object) {
 
-		if (glObjectIDs.find (object) != glObjectIDs.end ()) {
+		lock_gl_objects ();
 
-			GLuint id = glObjectIDs[object];
-			GLObjectType type = glObjectTypes[object];
-
-			glObjects[type].erase (id);
-			glObjectTypes.erase (object);
-			glObjectIDs.erase (object);
-
-		}
+		gl_forget_object (object);
 
 		if (glObjectPtrs.find (object) != glObjectPtrs.end ()) {
 
@@ -4092,22 +4219,25 @@ namespace lime {
 
 		}
 
+		gc_gl_mutex.Unlock ();
+
 	}
 
 
 	value lime_gl_object_from_id (int id, int type) {
 
 		GLObjectType _type = (GLObjectType)type;
+		value object = 0;
 
-		if (glObjects[_type].find (id) != glObjects[_type].end ()) {
+		lock_gl_objects ();
 
-			return (value)glObjects[_type][id];
+		std::map<std::pair<int, GLuint>, void*>& objects = glObjects[_type];
+		std::map<std::pair<int, GLuint>, void*>::iterator found = objects.find (std::make_pair (gl_current_scope (_type), (GLuint)id));
+		if (found != objects.end ()) object = (value)found->second;
 
-		} else {
+		gc_gl_mutex.Unlock ();
 
-			return alloc_null ();
-
-		}
+		return object ? object : alloc_null ();
 
 	}
 
@@ -4115,16 +4245,17 @@ namespace lime {
 	HL_PRIM void* HL_NAME(hl_gl_object_from_id) (int id, int type) {
 
 		GLObjectType _type = (GLObjectType)type;
+		void* object = NULL;
 
-		if (glObjects[_type].find (id) != glObjects[_type].end ()) {
+		lock_gl_objects ();
 
-			return glObjects[_type][id];
+		std::map<std::pair<int, GLuint>, void*>& objects = glObjects[_type];
+		std::map<std::pair<int, GLuint>, void*>::iterator found = objects.find (std::make_pair (gl_current_scope (_type), (GLuint)id));
+		if (found != objects.end ()) object = found->second;
 
-		} else {
+		gc_gl_mutex.Unlock ();
 
-			return NULL;
-
-		}
+		return object;
 
 	}
 
@@ -4146,10 +4277,17 @@ namespace lime {
 			//
 		//}
 
+		// The handle is made first, outside the lock, as making it may collect
+		lock_gl_objects ();
+
+		int scope = gl_current_scope (_type);
 		glObjectTypes[object] = (GLObjectType)type;
 		glObjectIDs[object] = id;
-		glObjects[_type][id] = object;
+		glObjectScopes[object] = scope;
+		glObjects[_type][std::make_pair (scope, (GLuint)id)] = object;
 		glObjectPtrs[object] = handle;
+
+		gc_gl_mutex.Unlock ();
 
 		return handle;
 
@@ -4173,10 +4311,17 @@ namespace lime {
 			//
 		//}
 
+		// The handle is made first, outside the lock, as making it may collect
+		lock_gl_objects ();
+
+		int scope = gl_current_scope (_type);
 		glObjectTypes[object] = (GLObjectType)type;
 		glObjectIDs[object] = id;
-		glObjects[_type][id] = object;
+		glObjectScopes[object] = scope;
+		glObjects[_type][std::make_pair (scope, (GLuint)id)] = object;
 		glObjectPtrs[object] = handle;
+
+		gc_gl_mutex.Unlock ();
 
 		return handle;
 
@@ -5886,6 +6031,7 @@ namespace lime {
 	DEFINE_PRIME1 (lime_gl_is_transform_feedback);
 	DEFINE_PRIME1 (lime_gl_is_vertex_array);
 	DEFINE_PRIME1v (lime_gl_line_width);
+	DEFINE_PRIME2v (lime_gl_polygon_mode);
 	DEFINE_PRIME1v (lime_gl_link_program);
 	DEFINE_PRIME4 (lime_gl_map_buffer_range);
 	DEFINE_PRIME1v (lime_gl_object_deregister);
@@ -6164,6 +6310,7 @@ namespace lime {
 	DEFINE_HL_PRIM (_BOOL, hl_gl_is_transform_feedback, _I32);
 	DEFINE_HL_PRIM (_BOOL, hl_gl_is_vertex_array, _I32);
 	DEFINE_HL_PRIM (_VOID, hl_gl_line_width, _F32);
+	DEFINE_HL_PRIM (_VOID, hl_gl_polygon_mode, _I32 _I32);
 	DEFINE_HL_PRIM (_VOID, hl_gl_link_program, _I32);
 	DEFINE_HL_PRIM (_F64, hl_gl_map_buffer_range, _I32 _F64 _I32 _I32);
 	DEFINE_HL_PRIM (_VOID, hl_gl_object_deregister, _TGLOBJECT);

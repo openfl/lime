@@ -10,6 +10,6 @@
 	<define name="vulkan" />
 	<haxelib name="lime" />
 
-	<window width="64" height="64" fps="60" background="#000000" resizable="false" />
+	<window width="64" height="64" fps="60" background="#000000" resizable="false" vsync="true" />
 
 </project>

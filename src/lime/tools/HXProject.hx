@@ -333,6 +333,7 @@ class HXProject extends Script
 		project.postBuildCallbacks = postBuildCallbacks.copy();
 		project.preBuildCallbacks = preBuildCallbacks.copy();
 		project.processedHaxelibIncludes = processedHaxelibIncludes.copy();
+		project.projectFilePath = projectFilePath;
 		project.samplePaths = samplePaths.copy();
 		project.sources = sources.copy();
 
@@ -377,37 +378,37 @@ class HXProject extends Script
 
 		for (filter in exclude)
 		{
-			if (filter != "")
+			if (filter != "" && matchesPattern(text, filter))
 			{
-				filter = StringTools.replace(filter, ".", "\\.");
-				filter = StringTools.replace(filter, "*", ".*");
-
-				var regexp = new EReg("^" + filter + "$", "i");
-
-				if (regexp.match(text))
-				{
-					return false;
-				}
+				return false;
 			}
 		}
 
 		for (filter in include)
 		{
-			if (filter != "")
+			if (filter != "" && matchesPattern(text, filter))
 			{
-				filter = StringTools.replace(filter, ".", "\\.");
-				filter = StringTools.replace(filter, "*", ".*");
-
-				var regexp = new EReg("^" + filter, "i");
-
-				if (regexp.match(text))
-				{
-					return true;
-				}
+				return true;
 			}
 		}
 
 		return false;
+	}
+
+	/**
+		Whether `text` is matched in full by `pattern`, a file name in which `*` stands for any
+		run of characters. Every other character is taken literally, and case is ignored.
+	**/
+	private static function matchesPattern(text:String, pattern:String):Bool
+	{
+		var parts = pattern.split("*");
+
+		for (i in 0...parts.length)
+		{
+			parts[i] = EReg.escape(parts[i]);
+		}
+
+		return new EReg("^" + parts.join(".*") + "$", "i").match(text);
 	}
 
 	public static function fromFile(projectFile:String, userDefines:Map<String, Dynamic> = null, includePaths:Array<String> = null):HXProject
@@ -828,6 +829,11 @@ class HXProject extends Script
 		{
 			defines.set("targetType", "swf");
 		}
+		else if (target == Platform.HTML5)
+		{
+			defines.set("targetType", "js");
+			defines.set("js", "1");
+		}
 
 		if (debug)
 		{
@@ -1158,6 +1164,8 @@ class HXProject extends Script
 		}
 
 		context.APP_PACKAGE = context.META_PACKAGE = meta.packageName;
+		// For text in an HTML page, where "&" and "<" have meanings of their own
+		context.APP_TITLE_HTML = StringTools.htmlEscape(meta.title != null ? meta.title : "", true);
 
 		for (field in Reflect.fields(windows[0]))
 		{
@@ -1218,7 +1226,7 @@ class HXProject extends Script
 
 				if (asset.embed == null)
 				{
-					embeddedAsset.embed = (platformType == PlatformType.WEB || target == AIR);
+					embeddedAsset.embed = ((platformType == PlatformType.WEB && target != WEB_ASSEMBLY) || target == AIR);
 				}
 
 				embeddedAsset.type = Std.string(asset.type).toLowerCase();

@@ -351,16 +351,26 @@ class Assets
 		return (image != null && image.buffer != null);
 	}
 
+	/**
+		The IDs of every asset of `type` in the registered libraries, or of every asset when `type`
+		is `null`. Those of libraries other than the default are given as `"library:id"`, so each
+		can be passed to `exists()` and the getters.
+	**/
 	public static function list(type:AssetType = null):Array<String>
 	{
 		var items = [];
 
-		for (library in libraries)
+		for (name in libraries.keys())
 		{
-			var libraryItems = library.list(type);
+			var libraryItems = libraries.get(name).list(type);
 
 			if (libraryItems != null)
 			{
+				if (name != "default")
+				{
+					libraryItems = [for (id in libraryItems) name + ":" + id];
+				}
+
 				items = items.concat(libraryItems);
 			}
 		}
@@ -571,7 +581,7 @@ class Assets
 			{
 				if (manifest == null)
 				{
-					promise.error("Cannot parse asset manifest for library \"" + id + "\"");
+					promise.error("Cannot parse asset manifest \"" + path + "\" for library \"" + id + "\": it is empty or isn't a manifest");
 					return;
 				}
 

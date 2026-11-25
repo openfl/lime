@@ -15,10 +15,13 @@ import flash.ui.Mouse;
 import flash.ui.MouseCursor as FlashMouseCursor;
 import flash.Lib;
 import lime.app.Application;
+import lime.app.Future;
 import lime.graphics.Image;
 import lime.graphics.RenderContext;
 import lime.graphics.RenderContextAttributes;
 import lime.math.Rectangle;
+import lime.ui.DragData;
+import lime.ui.DropAction;
 import lime.ui.KeyCode;
 import lime.ui.KeyModifier;
 import lime.ui.Menu;
@@ -291,6 +294,21 @@ class FlashWindow
 
 			stage.addEventListener(Event.ENTER_FRAME, handleApplicationEvent);
 		}
+	}
+
+	public function orderRelative(other:Window, above:Bool):Bool
+	{
+		return false;
+	}
+
+	public function orderToBack():Bool
+	{
+		return false;
+	}
+
+	public function startMoveResize(edges:Int):Bool
+	{
+		return false;
 	}
 
 	public function focus():Void {}
@@ -577,6 +595,11 @@ class FlashWindow
 		return false;
 	}
 
+	public function getDropTarget():Bool
+	{
+		return false;
+	}
+
 	public function getKeyboardGrab():Bool
 	{
 		return false;
@@ -649,9 +672,19 @@ class FlashWindow
 		return false;
 	}
 
+	public function setDropTarget(value:Bool):Bool
+	{
+		return false;
+	}
+
 	public function setKeyboardGrab(value:Bool):Bool
 	{
 		return false;
+	}
+
+	public function doDragDrop(data:DragData, image:Image, offsetX:Int, offsetY:Int, actions:DropAction):Future<DropAction>
+	{
+		return Future.withValue(DropAction.NONE);
 	}
 
 	public function setMouseLock(value:Bool):Void {}

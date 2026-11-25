@@ -74,7 +74,10 @@ namespace lime {
 	}
 
 
-	void Zlib::Decompress (ZlibType type, Bytes* data, Bytes* result) {
+	bool Zlib::Decompress (ZlibType type, Bytes* data, Bytes* result) {
+
+		// An empty input is no stream at all
+		if (!data->b || data->length <= 0) return false;
 
 		int windowBits = 15;
 
@@ -86,81 +89,113 @@ namespace lime {
 
 		}
 
-		z_stream* stream = (z_stream*)malloc (sizeof (z_stream));
-		stream->zalloc = Z_NULL;
-		stream->zfree = Z_NULL;
-		stream->opaque = Z_NULL;
+		z_stream stream;
+		stream.zalloc = Z_NULL;
+		stream.zfree = Z_NULL;
+		stream.opaque = Z_NULL;
+		stream.avail_in = 0;
+		stream.next_in = Z_NULL;
 
-		int ret = 0;
+		if (inflateInit2 (&stream, windowBits) != Z_OK) {
 
-		if ((ret = inflateInit2 (stream, windowBits) != Z_OK)) {
-
-			//val_throw (stream->msg);
-			inflateEnd (stream);
-			free (stream);
-			return;
+			return false;
 
 		}
 
-		int chunkSize = 1 << 16;
-		int readSize = 0;
-		Bytef* sourcePosition = data->b;
-		int destSize = 0;
-		int readTotal = 0;
-
+		const int chunkSize = 1 << 16;
 		Bytef* buffer = (Bytef*)malloc (chunkSize);
 
-		stream->avail_in = data->length;
-		stream->next_in = data->b;
+		if (!buffer) {
 
-		if (stream->avail_in > 0) {
-
-			do {
-
-				stream->avail_out = chunkSize;
-				stream->next_out = buffer;
-
-				ret = inflate (stream, Z_NO_FLUSH);
-
-				if (ret == Z_STREAM_ERROR) {
-
-					inflateEnd (stream);
-					free (stream);
-					free (buffer);
-					return;
-
-				}
-
-				switch (ret) {
-
-					case Z_NEED_DICT:
-						ret = Z_DATA_ERROR;
-					case Z_DATA_ERROR:
-					case Z_MEM_ERROR:
-						inflateEnd (stream);
-						free (stream);
-						free (buffer);
-						return;
-
-				}
-
-				readSize = chunkSize - stream->avail_out;
-				readTotal += readSize;
-
-				result->Resize (readTotal);
-				memcpy (result->b + readTotal - readSize, buffer, readSize);
-
-				sourcePosition += readSize;
-
-			} while (stream->avail_out == 0);
+			inflateEnd (&stream);
+			return false;
 
 		}
 
-		inflateEnd (stream);
-		free (stream);
+		stream.avail_in = data->length;
+		stream.next_in = data->b;
+
+		int readTotal = 0;
+		int members = 0;
+		bool finished = false;
+		bool failed = false;
+
+		while (!finished && !failed) {
+
+			stream.avail_out = chunkSize;
+			stream.next_out = buffer;
+
+			int ret = inflate (&stream, Z_NO_FLUSH);
+			int readSize = chunkSize - stream.avail_out;
+
+			if (readSize > 0) {
+
+				if (!result->TryResize (readTotal + readSize)) {
+
+					failed = true;
+					break;
+
+				}
+
+				memcpy (result->b + readTotal, buffer, readSize);
+				readTotal += readSize;
+
+			}
+
+			switch (ret) {
+
+				case Z_OK:
+
+					break;
+
+				case Z_STREAM_END:
+
+					members++;
+
+					// RFC 1952 makes a gzip file a series of members
+					if (type == GZIP && stream.avail_in > 0) {
+
+						inflateReset (&stream);
+
+					} else {
+
+						finished = true;
+
+					}
+
+					break;
+
+				case Z_DATA_ERROR:
+
+					// After a gzip file's last member, data that isn't another member
+					// is left alone, as gzip does with the zeros some tools pad with
+					if (type == GZIP && members > 0 && stream.total_out == 0) {
+
+						finished = true;
+
+					} else {
+
+						failed = true;
+
+					}
+
+					break;
+
+				default:
+
+					// Z_BUF_ERROR: the input ended before the stream did. Z_NEED_DICT,
+					// Z_MEM_ERROR and Z_STREAM_ERROR can't be got past either.
+					failed = true;
+					break;
+
+			}
+
+		}
+
+		inflateEnd (&stream);
 		free (buffer);
 
-		return;
+		return !failed;
 
 	}
 
