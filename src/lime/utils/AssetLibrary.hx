@@ -559,11 +559,25 @@ class AssetLibrary
 		}
 		if (classTypes.exists(id))
 		{
+			#if (!flash && !(js && html5))
+			// Decoded on a worker, as loading by path is
+			return @:privateAccess AudioBuffer.__decodeOnWorker(cast(Type.createInstance(classTypes.get(id), []), Bytes));
+			#else
 			return Future.withValue(AudioBuffer.fromBytes(cast(Type.createInstance(classTypes.get(id), []), Bytes)));
+			#end
 		}
 		else if (cachedBytes.exists(id))
 		{
+			#if (!flash && !(js && html5))
+			// A bundle's sound, decoded on a worker and kept as getAudioBuffer() keeps it
+			return @:privateAccess AudioBuffer.__decodeOnWorker(cachedBytes.get(id)).then(function(buffer)
+			{
+				if (buffer != null) cachedAudioBuffers.set(id, buffer);
+				return Future.withValue(buffer);
+			});
+			#else
 			return Future.withValue(getAudioBuffer(id));
+			#end
 		}
 		else
 		{
