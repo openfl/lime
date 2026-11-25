@@ -81,6 +81,40 @@ class HTML5FrameTest extends Test
 		});
 	}
 
+	@:timeout(10000)
+	public function testAResizeReachesTheWindowWithinAFewFrames(async:Async):Void
+	{
+		withWindow(function() resizesSoon(async));
+	}
+
+	private static function resizesSoon(async:Async):Void
+	{
+		// The size can come a frame later from a ResizeObserver, which reports after layout, than from
+		// reading it each frame, but not much later
+		var window = Application.current.window;
+		var element = window.element;
+		var previous = element.style.width;
+		var frames = 0;
+		var heardAt = -1;
+		var listener = function(width:Int, height:Int) if (width == 333 && heardAt < 0) heardAt = frames;
+		var counter = function(_:Int) frames++;
+		window.onResize.add(listener);
+		Application.current.onUpdate.add(counter);
+
+		element.style.width = "333px";
+
+		waitFrames(10, function()
+		{
+			window.onResize.remove(listener);
+			Application.current.onUpdate.remove(counter);
+			element.style.width = previous;
+
+			Assert.isTrue(heardAt >= 0, "the resize did not reach the window in 10 frames");
+			Assert.isTrue(heardAt <= 2, "the resize reached the window " + heardAt + " frames after the element changed");
+			waitFrames(5, function() async.done());
+		});
+	}
+
 	@Ignored("Waiting on #2132")
 	@:timeout(10000)
 	public function testGamepadsAreNotPolledBeforeOneConnects(async:Async):Void

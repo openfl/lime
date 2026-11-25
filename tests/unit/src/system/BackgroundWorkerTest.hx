@@ -102,7 +102,7 @@ class BackgroundWorkerTest extends Test
 	@:timeout(30000)
 	public function testMessagesSentTogetherArriveWithinAFewFrames(async:Async):Void
 	{
-		// 200 progress messages, which at one a frame take more than three seconds at 60 frames a second
+		// 600 progress messages, which at one a frame take ten seconds at 60 frames a second
 		var worker = new BackgroundWorker();
 		var progress = 0;
 		var frames = 0;
@@ -111,7 +111,7 @@ class BackgroundWorkerTest extends Test
 
 		worker.doWork.add(function(_)
 		{
-			for (i in 0...200)
+			for (i in 0...600)
 			{
 				worker.sendProgress(i);
 			}
@@ -122,13 +122,38 @@ class BackgroundWorkerTest extends Test
 		worker.onComplete.add(function(_)
 		{
 			Application.current.onUpdate.remove(counting);
-			Assert.equals(200, progress);
+			Assert.equals(600, progress);
 			Assert.isTrue(frames <= 5, "completion was heard " + frames + " frames after the worker finished");
 			async.done();
 		});
 
 		Application.current.onUpdate.add(counting);
 		worker.run();
+	}
+
+	@Ignored("Waiting on #2240")
+	@:timeout(30000)
+	public function testACanceledWorkerStopsListeningToUpdates(async:Async):Void
+	{
+		// A job that returns when it sees it was canceled sends nothing more, so no message ends the listening
+		var listeners = Application.current.onUpdate.__listeners.length;
+		var worker = new BackgroundWorker();
+		var release = new sys.thread.Lock();
+
+		worker.doWork.add(function(_)
+		{
+			release.wait(10);
+		});
+		worker.run();
+		Assert.equals(listeners + 1, Application.current.onUpdate.__listeners.length, "the worker did not listen to updates while it ran");
+		worker.cancel();
+		release.release();
+
+		waitFrames(10, function()
+		{
+			Assert.equals(listeners, Application.current.onUpdate.__listeners.length, "a canceled worker was still listening to updates");
+			async.done();
+		});
 	}
 
 	// Helpers
