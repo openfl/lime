@@ -147,6 +147,16 @@ class Window
 	public var minHeight(get, set):Int;
 	public var minimized(get, set):Bool;
 	public var minWidth(get, set):Int;
+
+	/**
+		Whether the window minimizes when it loses focus while it is in exclusive fullscreen, at a
+		display mode set with `displayMode`, which gives the display back its own mode. `true` by
+		default. Set it to `false` to keep the window in fullscreen while another window, perhaps on
+		another display, has focus. Borderless fullscreen windows never minimize when they lose
+		focus. Desktop native targets only.
+	**/
+	public var minimizeOnFocusLoss(get, set):Bool;
+
 	public var mouseLock(get, set):Bool;
 
 	/**
@@ -401,6 +411,7 @@ class Window
 				"minHeight": {get: p.get_minHeight, set: p.set_minHeight},
 				"minimized": {get: p.get_minimized, set: p.set_minimized},
 				"minWidth": {get: p.get_minWidth, set: p.set_minWidth},
+				"minimizeOnFocusLoss": {get: p.get_minimizeOnFocusLoss, set: p.set_minimizeOnFocusLoss},
 				"mouseLock": {get: p.get_mouseLock, set: p.set_mouseLock},
 				"mouseRect": {get: p.get_mouseRect, set: p.set_mouseRect},
 				"nativeHandle": {get: p.get_nativeHandle},
@@ -415,8 +426,8 @@ class Window
 				"vsyncMode": {get: p.get_vsyncMode, set: p.set_vsyncMode},
 				"visible": {get: p.get_visible, set: p.set_visible},
 				"width": {get: p.get_width, set: p.set_width},
-				"x": {get: p.get_x, set: p.set_y},
-				"y": {get: p.get_x, set: p.set_y}
+				"x": {get: p.get_x, set: p.set_x},
+				"y": {get: p.get_y, set: p.set_y}
 			});
 	}
 	#end
@@ -3081,6 +3092,16 @@ class Window
 	{
 		setMinSize(value, __minHeight);
 		return __minWidth;
+	}
+
+	@:noCompletion private function get_minimizeOnFocusLoss():Bool
+	{
+		return __backend.getMinimizeOnFocusLoss();
+	}
+
+	@:noCompletion private function set_minimizeOnFocusLoss(value:Bool):Bool
+	{
+		return __backend.setMinimizeOnFocusLoss(value);
 	}
 
 	@:noCompletion private function get_mouseLock():Bool

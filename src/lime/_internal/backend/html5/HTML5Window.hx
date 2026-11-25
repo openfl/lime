@@ -67,6 +67,7 @@ class HTML5Window
 	#end
 
 	private var cacheElementHeight:Float;
+	private var minimizeOnFocusLoss = true;
 	private var cacheElementWidth:Float;
 	private var cacheElementScale:Float;
 	private var cacheMouseX:Float;
@@ -495,6 +496,11 @@ class HTML5Window
 	public function getKeyboardGrab():Bool
 	{
 		return false;
+	}
+
+	public function getMinimizeOnFocusLoss():Bool
+	{
+		return minimizeOnFocusLoss;
 	}
 
 	public function getMouseLock():Bool
@@ -1601,6 +1607,12 @@ class HTML5Window
 	public function setKeyboardGrab(value:Bool):Bool
 	{
 		return false;
+	}
+
+	// Nothing here minimizes a window when it loses focus, so the value is only kept
+	public function setMinimizeOnFocusLoss(value:Bool):Bool
+	{
+		return minimizeOnFocusLoss = value;
 	}
 
 	public function setMouseLock(value:Bool):Void {}

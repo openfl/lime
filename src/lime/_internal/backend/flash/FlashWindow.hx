@@ -44,6 +44,7 @@ class FlashWindow
 	private static var windowID = 0;
 
 	private var cacheMouseX:Float;
+	private var minimizeOnFocusLoss = true;
 	private var cacheMouseY:Float;
 	private var cacheTime:Int;
 	private var currentTouches = new Map<Int, Touch>();
@@ -605,6 +606,11 @@ class FlashWindow
 		return false;
 	}
 
+	public function getMinimizeOnFocusLoss():Bool
+	{
+		return minimizeOnFocusLoss;
+	}
+
 	public function getMouseLock():Bool
 	{
 		return false;
@@ -685,6 +691,12 @@ class FlashWindow
 	public function doDragDrop(data:DragData, image:Image, offsetX:Int, offsetY:Int, actions:DropAction):Future<DropAction>
 	{
 		return Future.withValue(DropAction.NONE);
+	}
+
+	// Nothing here minimizes a window when it loses focus, so the value is only kept
+	public function setMinimizeOnFocusLoss(value:Bool):Bool
+	{
+		return minimizeOnFocusLoss = value;
 	}
 
 	public function setMouseLock(value:Bool):Void {}

@@ -61,6 +61,8 @@ Changelog
 - Added `Window.appearance` and `Window.effectiveAppearance` to prefer light or dark window decorations.
 - Added `Window.onDisplayScaleChange`.
 - Added `Display.onConnect`, `Display.onDisconnect`, and `Display.onMove`.
+- Added `WindowAttributes.display`, to open a window centered on a chosen display, which `<window display="1" />` in project.xml now sets, and `WindowAttributes.displayMode`, to open a window in exclusive fullscreen at a display mode.
+- Added `Window.minimizeOnFocusLoss`, to keep a window in exclusive fullscreen while another window has focus.
 - Added `Gamepad.type`, motion sensors, touchpad events, trigger rumble, and light color.
 - Added AIR externs for `air.net.WebSocket` and `flash.events.WebSocketEvent`.
 - Added `Locale.preferredLocales`.
@@ -190,6 +192,8 @@ Changelog
 - Fixed `Font` glyph lookups for characters beyond U+FFFF, such as emoji, and for UTF-8 led by the bytes 0xE0, 0xED, and 0xF0, such as Devanagari and Thai.
 - Fixed `Window.maxWidth` setting the minimum size.
 - Fixed `Window.maximized` staying `true` after the system restores a maximized window, from its title bar or a keyboard shortcut.
+- Fixed `WindowAttributes.x` and `y`, and `<window x="" y="" />`, which native windows ignored, and `Window.x` and `y` on CommonJS builds, which used each other's accessors.
+- Fixed a window staying black after it entered or left fullscreen until something drew it again. `onExpose` is now dispatched for the first frames after the change.
 - Fixed the AIR `DNSResolverEvent` extern giving `bubbles` a String default, which failed builds that use it.
 - Fixed Android windows that aren't fullscreen drawing under the status and navigation bars on Android 15 and later, which draw applications that target API 35 or later edge to edge.
 - Fixed natively decoded PNG and JPEG images always being marked as transparent, JPEGs included, so OpenFL drew opaque bitmaps with blending.

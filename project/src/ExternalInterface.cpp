@@ -5638,9 +5638,9 @@ namespace lime {
 	}
 
 
-	value lime_window_create (value application, int width, int height, int flags, HxString title) {
+	value lime_window_create (value application, int width, int height, int flags, HxString title, int x, int y, int display) {
 
-		Window* window = CreateWindow ((Application*)val_data (application), width, height, flags, hxs_utf8 (title, nullptr));
+		Window* window = CreateWindow ((Application*)val_data (application), width, height, flags, hxs_utf8 (title, nullptr), x, y, display);
 		return CFFIPointer (window, gc_window);
 
 	}
@@ -5661,9 +5661,9 @@ namespace lime {
 	}
 
 
-	HL_PRIM HL_CFFIPointer* HL_NAME(hl_window_create) (HL_CFFIPointer* application, int width, int height, int flags, hl_vstring* title) {
+	HL_PRIM HL_CFFIPointer* HL_NAME(hl_window_create) (HL_CFFIPointer* application, int width, int height, int flags, hl_vstring* title, int x, int y, int display) {
 
-		Window* window = CreateWindow ((Application*)application->ptr, width, height, flags, (const char*)hl_to_utf8 ((const uchar*)title->bytes));
+		Window* window = CreateWindow ((Application*)application->ptr, width, height, flags, (const char*)hl_to_utf8 ((const uchar*)title->bytes), x, y, display);
 		return HLCFFIPointer (window, (hl_finalizer)hl_gc_window);
 
 	}
@@ -13954,6 +13954,22 @@ namespace lime {
 	}
 
 
+	bool lime_window_get_minimize_on_focus_loss (value window) {
+
+		Window* targetWindow = (Window*)val_data (window);
+		return targetWindow->GetMinimizeOnFocusLoss ();
+
+	}
+
+
+	HL_PRIM bool HL_NAME(hl_window_get_minimize_on_focus_loss) (HL_CFFIPointer* window) {
+
+		Window* targetWindow = (Window*)window->ptr;
+		return targetWindow->GetMinimizeOnFocusLoss ();
+
+	}
+
+
 	bool lime_window_get_mouse_lock (value window) {
 
 		Window* targetWindow = (Window*)val_data (window);
@@ -14497,6 +14513,22 @@ namespace lime {
 	}
 
 
+	void lime_window_set_minimize_on_focus_loss (value window, bool value) {
+
+		Window* targetWindow = (Window*)val_data (window);
+		targetWindow->SetMinimizeOnFocusLoss (value);
+
+	}
+
+
+	HL_PRIM void HL_NAME(hl_window_set_minimize_on_focus_loss) (HL_CFFIPointer* window, bool value) {
+
+		Window* targetWindow = (Window*)window->ptr;
+		targetWindow->SetMinimizeOnFocusLoss (value);
+
+	}
+
+
 	void lime_window_set_mouse_lock (value window, bool mouseLock) {
 
 		Window* targetWindow = (Window*)val_data (window);
@@ -14932,7 +14964,7 @@ namespace lime {
 	DEFINE_PRIME1 (lime_window_context_lock);
 	DEFINE_PRIME1v (lime_window_context_make_current);
 	DEFINE_PRIME1v (lime_window_context_unlock);
-	DEFINE_PRIME5 (lime_window_create);
+	DEFINE_PRIME8 (lime_window_create);
 	DEFINE_PRIME0 (lime_window_get_creation_error);
 	DEFINE_PRIME2v (lime_window_event_manager_register);
 	DEFINE_PRIME1v (lime_window_focus);
@@ -14946,6 +14978,7 @@ namespace lime {
 	DEFINE_PRIME1 (lime_window_get_display_mode);
 	DEFINE_PRIME1 (lime_window_get_height);
 	DEFINE_PRIME1 (lime_window_get_id);
+	DEFINE_PRIME1 (lime_window_get_minimize_on_focus_loss);
 	DEFINE_PRIME1 (lime_window_get_mouse_lock);
 	DEFINE_PRIME1 (lime_window_get_transparent);
 	DEFINE_PRIME1 (lime_window_get_scale);
@@ -15080,6 +15113,7 @@ namespace lime {
 	DEFINE_PRIME1 (lime_window_get_mouse_rect);
 	DEFINE_PRIME1 (lime_window_get_native_handle);
 	DEFINE_PRIME2v (lime_window_set_keyboard_grab);
+	DEFINE_PRIME2v (lime_window_set_minimize_on_focus_loss);
 	DEFINE_PRIME2v (lime_window_set_mouse_lock);
 	DEFINE_PRIME5v (lime_window_set_mouse_rect);
 	DEFINE_PRIME2 (lime_window_set_resizable);
@@ -15320,7 +15354,7 @@ namespace lime {
 	DEFINE_HL_PRIM (_DYN, hl_window_context_lock, _TCFFIPOINTER);
 	DEFINE_HL_PRIM (_VOID, hl_window_context_make_current, _TCFFIPOINTER);
 	DEFINE_HL_PRIM (_VOID, hl_window_context_unlock, _TCFFIPOINTER);
-	DEFINE_HL_PRIM (_TCFFIPOINTER, hl_window_create, _TCFFIPOINTER _I32 _I32 _I32 _STRING);
+	DEFINE_HL_PRIM (_TCFFIPOINTER, hl_window_create, _TCFFIPOINTER _I32 _I32 _I32 _STRING _I32 _I32 _I32);
 	DEFINE_HL_PRIM (_VOID, hl_window_event_manager_register, _FUN (_VOID, _NO_ARG) _TWINDOW_EVENT);
 	DEFINE_HL_PRIM (_VOID, hl_window_focus, _TCFFIPOINTER);
 	DEFINE_HL_PRIM (_BOOL, hl_window_order_relative, _TCFFIPOINTER _TCFFIPOINTER _BOOL);
@@ -15334,6 +15368,7 @@ namespace lime {
 	DEFINE_HL_PRIM (_VOID, hl_window_get_display_mode, _TCFFIPOINTER _TDISPLAYMODE);
 	DEFINE_HL_PRIM (_I32, hl_window_get_height, _TCFFIPOINTER);
 	DEFINE_HL_PRIM (_I32, hl_window_get_id, _TCFFIPOINTER);
+	DEFINE_HL_PRIM (_BOOL, hl_window_get_minimize_on_focus_loss, _TCFFIPOINTER);
 	DEFINE_HL_PRIM (_BOOL, hl_window_get_mouse_lock, _TCFFIPOINTER);
 	DEFINE_HL_PRIM (_BOOL, hl_window_get_transparent, _TCFFIPOINTER);
 	DEFINE_HL_PRIM (_F64, hl_window_get_scale, _TCFFIPOINTER);
@@ -15468,6 +15503,7 @@ namespace lime {
 	DEFINE_HL_PRIM (_DYN, hl_window_get_mouse_rect, _TCFFIPOINTER);
 	DEFINE_HL_PRIM (_DYN, hl_window_get_native_handle, _TCFFIPOINTER);
 	DEFINE_HL_PRIM (_VOID, hl_window_set_keyboard_grab, _TCFFIPOINTER _BOOL);
+	DEFINE_HL_PRIM (_VOID, hl_window_set_minimize_on_focus_loss, _TCFFIPOINTER _BOOL);
 	DEFINE_HL_PRIM (_VOID, hl_window_set_mouse_lock, _TCFFIPOINTER _BOOL);
 	DEFINE_HL_PRIM (_VOID, hl_window_set_mouse_rect, _TCFFIPOINTER _I32 _I32 _I32 _I32);
 	DEFINE_HL_PRIM (_BOOL, hl_window_set_resizable, _TCFFIPOINTER _BOOL);
