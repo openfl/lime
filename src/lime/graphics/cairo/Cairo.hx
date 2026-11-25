@@ -3,6 +3,7 @@ package lime.graphics.cairo;
 #if (!lime_doc_gen || lime_cairo)
 import lime._internal.backend.native.NativeCFFI;
 import lime.math.Matrix3;
+import lime.math.Rectangle;
 import lime.math.Vector2;
 import lime.system.CFFI;
 import lime.system.CFFIPointer;
@@ -73,6 +74,7 @@ class Cairo
 		#end
 	}
 
+	@:deprecated("clipExtents() can't give its results, as Haxe passes numbers by value. Use getClipExtents()")
 	public function clipExtents(x1:Float, y1:Float, x2:Float, y2:Float):Void
 	{
 		#if (lime_cffi && lime_cairo && !macro)
@@ -115,6 +117,7 @@ class Cairo
 		#end
 	}
 
+	@:deprecated("fillExtents() can't give its results, as Haxe passes numbers by value. Use getFillExtents()")
 	public function fillExtents(x1:Float, y1:Float, x2:Float, y2:Float):Void
 	{
 		#if (lime_cffi && lime_cairo && !macro)
@@ -129,6 +132,47 @@ class Cairo
 		#end
 	}
 
+	/**
+		The extents of the current clip region, in user space: the smallest rectangle that
+		contains it, as `cairo_clip_extents()` gives it.
+		@return A `Rectangle` from the extents' top left corner (`x1`, `y1`) to their bottom right corner
+		(`x2`, `y2`), or `null` where Cairo isn't available.
+	**/
+	public function getClipExtents():Rectangle
+	{
+		#if (lime_cffi && lime_cairo && !macro)
+		#if hl
+		return NativeCFFI.lime_cairo_get_clip_extents(handle, new Rectangle());
+		#else
+		var rect:Dynamic = NativeCFFI.lime_cairo_get_clip_extents(handle);
+		return new Rectangle(rect.x, rect.y, rect.width, rect.height);
+		#end
+		#else
+		return null;
+		#end
+	}
+
+	/**
+		The extents of the area that `fill()` would cover with the current path and fill rule,
+		in user space, as `cairo_fill_extents()` gives it, ignoring the clip. An empty path
+		gives an empty rectangle at 0, 0.
+		@return A `Rectangle` from the extents' top left corner (`x1`, `y1`) to their bottom right corner
+		(`x2`, `y2`), or `null` where Cairo isn't available.
+	**/
+	public function getFillExtents():Rectangle
+	{
+		#if (lime_cffi && lime_cairo && !macro)
+		#if hl
+		return NativeCFFI.lime_cairo_get_fill_extents(handle, new Rectangle());
+		#else
+		var rect:Dynamic = NativeCFFI.lime_cairo_get_fill_extents(handle);
+		return new Rectangle(rect.x, rect.y, rect.width, rect.height);
+		#end
+		#else
+		return null;
+		#end
+	}
+
 	public function getOperator():CairoOperator
 	{
 		#if (lime_cffi && lime_cairo && !macro)
@@ -136,6 +180,27 @@ class Cairo
 		#end
 
 		return cast 0;
+	}
+
+	/**
+		The extents of the area that `stroke()` would cover with the current path and line
+		settings, in user space, as `cairo_stroke_extents()` gives it, ignoring the clip. An
+		empty path gives an empty rectangle at 0, 0.
+		@return A `Rectangle` from the extents' top left corner (`x1`, `y1`) to their bottom right corner
+		(`x2`, `y2`), or `null` where Cairo isn't available.
+	**/
+	public function getStrokeExtents():Rectangle
+	{
+		#if (lime_cffi && lime_cairo && !macro)
+		#if hl
+		return NativeCFFI.lime_cairo_get_stroke_extents(handle, new Rectangle());
+		#else
+		var rect:Dynamic = NativeCFFI.lime_cairo_get_stroke_extents(handle);
+		return new Rectangle(rect.x, rect.y, rect.width, rect.height);
+		#end
+		#else
+		return null;
+		#end
 	}
 
 	public function identityMatrix():Void
@@ -401,6 +466,7 @@ class Cairo
 		#end
 	}
 
+	@:deprecated("strokeExtents() can't give its results, as Haxe passes numbers by value. Use getStrokeExtents()")
 	public function strokeExtents(x1:Float, y1:Float, x2:Float, y2:Float):Void
 	{
 		#if (lime_cffi && lime_cairo && !macro)
