@@ -13,6 +13,7 @@ class TestMain extends Application
 		runner.addCase(new app.EventTest());
 		runner.addCase(new app.FutureTest());
 		runner.addCase(new app.PromiseTest());
+		runner.addCase(new graphics.CairoArgumentTest());
 		runner.addCase(new graphics.CairoCompositeTest());
 		runner.addCase(new graphics.CairoDrawTest());
 		runner.addCase(new graphics.CairoPathTest());
@@ -114,6 +115,7 @@ class TestMain extends Application
 		runner.addCase(new utils.UInt32ArrayTest());
 		runner.addCase(new utils.DataViewTest());
 		runner.addCase(new system.ThreadPoolTest());
+		runner.addCase(new text.FontGlyphOutputTest());
 		runner.addCase(new text.FontTest());
 		runner.addCase(new text.HarfBuzzBufferTest());
 		runner.addCase(new text.HarfBuzzFontTest());
