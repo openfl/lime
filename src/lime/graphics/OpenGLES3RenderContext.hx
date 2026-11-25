@@ -9,7 +9,6 @@ import lime.graphics.opengl.*;
 import lime.utils.DataPointer;
 import lime.utils.Float32Array;
 import lime.utils.Int32Array;
-
 /**
 	The `OpenGLES3RenderContext` allows access to OpenGL ES 3.0 features when OpenGL or
 	OpenGL ES is the render context type of the `Window`, and the current context supports

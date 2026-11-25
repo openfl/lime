@@ -30,10 +30,21 @@ class Event<T>
 	**/
 	public var canceled(default, null):Bool;
 
+	/**
+		The timestamp of the most recent dispatch, in milliseconds, on the clock
+		of `System.getTimer()`. On native targets, key, mouse, touch and gamepad
+		events carry the time the platform took the input; other events, and
+		input on other targets, the time they were dispatched. Before the first
+		dispatch, this returns the current timer value.
+	**/
+	public var timestamp(get, never):Int;
+
 	@:noCompletion @:dox(hide) public var __listeners:Array<T>;
 	@:noCompletion @:dox(hide) public var __repeat:Array<Bool>;
 
+	@:noCompletion private var __edits:Int;
 	@:noCompletion private var __priorities:Array<Int>;
+	@:noCompletion private var __timestamp:Int;
 
 	/**
 		Creates a new Event instance
@@ -45,6 +56,8 @@ class Event<T>
 		__listeners = new Array();
 		__priorities = new Array<Int>();
 		__repeat = new Array<Bool>();
+		__edits = 0;
+		__timestamp = -1;
 		#end
 	}
 
@@ -57,6 +70,8 @@ class Event<T>
 	public function add(listener:T, once:Bool = false, priority:Int = 0):Void
 	{
 		#if !macro
+		__edits++;
+
 		for (i in 0...__priorities.length)
 		{
 			if (priority > __priorities[i])
@@ -89,6 +104,8 @@ class Event<T>
 		takes two `Int` arguments, like `dispatch (1, 2);`
 	**/
 	public var dispatch:Dynamic;
+
+	@:noCompletion @:dox(hide) public var __dispatchWithTimestamp:Dynamic;
 
 	// macro public function dispatch (ethis:Expr, args:Array<Expr>):Void {
 	//
@@ -148,9 +165,7 @@ class Event<T>
 		{
 			if (Reflect.compareMethods(__listeners[i], listener))
 			{
-				__listeners.splice(i, 1);
-				__priorities.splice(i, 1);
-				__repeat.splice(i, 1);
+				__removeAt(i);
 			}
 		}
 		#end
@@ -167,6 +182,50 @@ class Event<T>
 		__listeners.splice(0, len);
 		__priorities.splice(0, len);
 		__repeat.splice(0, len);
+		__edits++;
+		#end
+	}
+
+	// Finds a listener that was running when listeners were added or removed. Listeners added
+	// ahead of it move it forward, and listeners removed ahead of it move it back.
+	@:noCompletion private function __indexOf(listener:T, start:Int):Int
+	{
+		#if !macro
+		var i = start;
+
+		while (i < __listeners.length)
+		{
+			if (Reflect.compareMethods(__listeners[i], listener)) return i;
+			i++;
+		}
+
+		i = start < __listeners.length ? start : __listeners.length;
+
+		while (--i >= 0)
+		{
+			if (Reflect.compareMethods(__listeners[i], listener)) return i;
+		}
+		#end
+
+		return -1;
+	}
+
+	@:noCompletion private function __removeAt(index:Int):Void
+	{
+		#if !macro
+		__listeners.splice(index, 1);
+		__priorities.splice(index, 1);
+		__repeat.splice(index, 1);
+		__edits++;
+		#end
+	}
+
+	private function get_timestamp():Int
+	{
+		#if (lime_doc_gen || macro)
+		return (__timestamp != -1) ? __timestamp : 0;
+		#else
+		return (__timestamp != -1) ? __timestamp : lime.system.System.getTimer();
 		#end
 	}
 }

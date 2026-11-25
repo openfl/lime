@@ -8,6 +8,7 @@ import lime.media.openal.ALContext;
 import lime.media.openal.ALDevice;
 import lime.media.openal.ALSource;
 import lime.utils.ArrayBufferView;
+import haxe.io.Bytes;
 
 #if !lime_debug
 @:fileXml('tags="haxe,release"')
@@ -90,6 +91,16 @@ class OpenALAudioContext
 	public var ENUMERATE_ALL_EXT:Int = 1;
 	public var DEFAULT_ALL_DEVICES_SPECIFIER:Int = 0x1012;
 	public var ALL_DEVICES_SPECIFIER:Int = 0x1013;
+	public var CAPTURE_DEVICE_SPECIFIER:Int = 0x310;
+	public var CAPTURE_DEFAULT_DEVICE_SPECIFIER:Int = 0x311;
+	public var CAPTURE_SAMPLES:Int = 0x312;
+	public var PLAYBACK_DEVICE_SOFT:Int = 0x19D4;
+	public var CAPTURE_DEVICE_SOFT:Int = 0x19D5;
+	public var EVENT_TYPE_DEFAULT_DEVICE_CHANGED_SOFT:Int = 0x19D6;
+	public var EVENT_TYPE_DEVICE_ADDED_SOFT:Int = 0x19D7;
+	public var EVENT_TYPE_DEVICE_REMOVED_SOFT:Int = 0x19D8;
+	public var EVENT_SUPPORTED_SOFT:Int = 0x19D9;
+	public var EVENT_NOT_SUPPORTED_SOFT:Int = 0x19DA;
 
 	@:noCompletion private function new() {}
 
@@ -197,6 +208,17 @@ class OpenALAudioContext
 	public function enable(capability:Int):Void
 	{
 		AL.enable(capability);
+	}
+
+	/**
+		Returns `EVENT_SUPPORTED_SOFT` if OpenAL can report `eventType`, one of the
+		`EVENT_TYPE_*_SOFT` values, for `deviceType`, which is `PLAYBACK_DEVICE_SOFT`
+		or `CAPTURE_DEVICE_SOFT`, on this system. Returns `EVENT_NOT_SUPPORTED_SOFT`
+		otherwise, and without the `ALC_SOFT_system_events` extension of OpenAL Soft.
+	**/
+	public function eventIsSupported(eventType:Int, deviceType:Int):Int
+	{
+		return ALC.eventIsSupported(eventType, deviceType);
 	}
 
 	@:deprecated public function genSource():ALSource
@@ -403,14 +425,33 @@ class OpenALAudioContext
 
 	public function getString(param:Int, device:ALDevice = null):String
 	{
-		if (device == null)
-		{
-			return AL.getString(param);
-		}
-		else
+		if (device != null)
 		{
 			return ALC.getString(device, param);
 		}
+
+		if (param == DEFAULT_DEVICE_SPECIFIER
+			|| param == DEVICE_SPECIFIER
+			|| param == ALC.EXTENSIONS
+			|| param == DEFAULT_ALL_DEVICES_SPECIFIER
+			|| param == ALL_DEVICES_SPECIFIER
+			|| param == CAPTURE_DEVICE_SPECIFIER
+			|| param == CAPTURE_DEFAULT_DEVICE_SPECIFIER)
+		{
+			return ALC.getString(cast null, param);
+		}
+
+		return AL.getString(param);
+	}
+
+	/**
+		Returns the strings OpenAL gives for `param`, one for each device when `device`
+		is `null` and `param` is `DEVICE_SPECIFIER`, `CAPTURE_DEVICE_SPECIFIER` or
+		`ALL_DEVICES_SPECIFIER`. `getString()` returns only the first of those.
+	**/
+	public function getStringList(param:Int, device:ALDevice = null):Array<String>
+	{
+		return ALC.getStringList(device, param);
 	}
 
 	public function isBuffer(buffer:ALBuffer):Bool
@@ -423,9 +464,14 @@ class OpenALAudioContext
 		return AL.isEnabled(capability);
 	}
 
-	public function isExtensionPresent(extname:String):Bool
+	public function isExtensionPresent(extname:String, device:ALDevice = null):Bool
 	{
-		return AL.isExtensionPresent(extname);
+		if (extname == null)
+		{
+			return false;
+		}
+
+		return device != null ? ALC.isExtensionPresent(device, extname) : AL.isExtensionPresent(extname);
 	}
 
 	public function isSource(source:ALSource):Bool
@@ -481,6 +527,18 @@ class OpenALAudioContext
 	public function processContext(context:ALContext):Void
 	{
 		ALC.processContext(context);
+	}
+
+	/**
+		Moves the playback `device` to the output named `deviceName`, or to the
+		default output when `deviceName` is `null`, keeping its contexts, sources and
+		buffers. Needs the `ALC_SOFT_reopen_device` extension of OpenAL Soft. Returns
+		`false` if the output could not be opened, and the device then keeps the
+		output it had.
+	**/
+	public function reopenDevice(device:ALDevice, deviceName:String = null, attributes:Array<Int> = null):Bool
+	{
+		return ALC.reopenDevice(device, deviceName, attributes);
 	}
 
 	public function resumeDevice(device:ALDevice):Void
@@ -586,6 +644,31 @@ class OpenALAudioContext
 	public function suspendContext(context:ALContext):Void
 	{
 		ALC.suspendContext(context);
+	}
+
+	public function captureOpenDevice(deviceName:String = null, frequency:Int, format:Int, bufferSize:Int):ALDevice
+	{
+		return ALC.captureOpenDevice(deviceName, frequency, format, bufferSize);
+	}
+
+	public function captureCloseDevice(device:ALDevice):Bool
+	{
+		return ALC.captureCloseDevice(device);
+	}
+
+	public function captureStart(device:ALDevice):Void
+	{
+		ALC.captureStart(device);
+	}
+
+	public function captureStop(device:ALDevice):Void
+	{
+		ALC.captureStop(device);
+	}
+
+	public function captureSamples(device:ALDevice, buffer:Bytes, samples:Int):Void
+	{
+		ALC.captureSamples(device, buffer, samples);
 	}
 }
 #end

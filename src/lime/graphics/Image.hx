@@ -59,7 +59,6 @@ import format.tools.Deflate;
 import sys.io.File;
 #end
 #end
-
 /**
 	`Image` is a convenience class for working with bitmap images in Lime.
 
@@ -355,12 +354,20 @@ class Image
 	**/
 	public function copyChannel(sourceImage:Image, sourceRect:Rectangle, destPoint:Vector2, sourceChannel:ImageChannel, destChannel:ImageChannel):Void
 	{
-		sourceRect = __clipRect(sourceRect);
-		if (buffer == null || sourceRect == null) return;
+		if (buffer == null || sourceImage == null || sourceRect == null || destPoint == null) return;
 		if (destChannel == ALPHA && !transparent) return;
-		if (sourceRect.width <= 0 || sourceRect.height <= 0) return;
-		if (sourceRect.x + sourceRect.width > sourceImage.width) sourceRect.width = sourceImage.width - sourceRect.x;
-		if (sourceRect.y + sourceRect.height > sourceImage.height) sourceRect.height = sourceImage.height - sourceRect.y;
+
+		var clippedPoint = new Vector2();
+		sourceRect = __clipCopy(sourceImage, sourceRect, destPoint, clippedPoint);
+		if (sourceRect == null) return;
+		destPoint = clippedPoint;
+
+		if (sourceImage == this && destPoint.x < sourceRect.right && destPoint.y < sourceRect.bottom
+			&& destPoint.x + sourceRect.width > sourceRect.x && destPoint.y + sourceRect.height > sourceRect.y)
+		{
+			// Overlapping rects within one image read the pixels as they were
+			sourceImage = clone();
+		}
 
 		switch (type)
 		{
@@ -395,8 +402,7 @@ class Image
 				sourceRect.offset(sourceImage.offsetX, sourceImage.offsetY);
 				destPoint.offset(offsetX, offsetY);
 
-				buffer.__srcBitmapData.copyChannel(sourceImage.buffer.src, sourceRect.__toFlashRectangle(), destPoint.__toFlashPoint(), srcChannel,
-					dstChannel);
+				buffer.__srcBitmapData.copyChannel(sourceImage.buffer.src, sourceRect.__toFlashRectangle(), destPoint.__toFlashPoint(), srcChannel, dstChannel);
 
 			default:
 		}
@@ -414,52 +420,35 @@ class Image
 	public function copyPixels(sourceImage:Image, sourceRect:Rectangle, destPoint:Vector2, alphaImage:Image = null, alphaPoint:Vector2 = null,
 			mergeAlpha:Bool = false):Void
 	{
-		if (buffer == null || sourceImage == null) return;
-		if (sourceRect.width <= 0 || sourceRect.height <= 0) return;
+		if (buffer == null || sourceImage == null || sourceRect == null || destPoint == null) return;
 		if (width <= 0 || height <= 0) return;
 
-		if (sourceRect.x + sourceRect.width > sourceImage.width) sourceRect.width = sourceImage.width - sourceRect.x;
-		if (sourceRect.y + sourceRect.height > sourceImage.height) sourceRect.height = sourceImage.height - sourceRect.y;
+		var clippedPoint = new Vector2();
+		var clippedRect = __clipCopy(sourceImage, sourceRect, destPoint, clippedPoint);
+		if (clippedRect == null) return;
 
-		if (sourceRect.x < 0)
+		if (alphaPoint != null)
 		{
-			sourceRect.width += sourceRect.x;
-			sourceRect.x = 0;
+			// The alpha image is read from alphaPoint at the corner of sourceRect, so
+			// it moves with whatever clipping cut from the corner
+			alphaPoint = new Vector2(alphaPoint.x + clippedRect.x - sourceRect.x, alphaPoint.y + clippedRect.y - sourceRect.y);
 		}
 
-		if (sourceRect.y < 0)
-		{
-			sourceRect.height += sourceRect.y;
-			sourceRect.y = 0;
-		}
+		sourceRect = clippedRect;
+		destPoint = clippedPoint;
 
-		if (destPoint.x + sourceRect.width > width) sourceRect.width = width - destPoint.x;
-		if (destPoint.y + sourceRect.height > height) sourceRect.height = height - destPoint.y;
-
-		if (destPoint.x < 0)
+		if (alphaImage == sourceImage
+			&& (alphaPoint == null ? (sourceRect.x == 0 && sourceRect.y == 0) : (alphaPoint.x == sourceRect.x && alphaPoint.y == sourceRect.y)))
 		{
-			sourceRect.width += destPoint.x;
-			sourceRect.x -= destPoint.x;
-			destPoint.x = 0;
-		}
-
-		if (destPoint.y < 0)
-		{
-			sourceRect.height += destPoint.y;
-			sourceRect.y -= destPoint.y;
-			destPoint.y = 0;
+			// The alpha image would read the source's own pixels
+			alphaImage = null;
+			alphaPoint = null;
 		}
 
 		if (sourceImage == this && destPoint.x < sourceRect.right && destPoint.y < sourceRect.bottom)
 		{
 			// TODO: Optimize further?
 			sourceImage = clone();
-		}
-
-		if (alphaImage == sourceImage && (alphaPoint == null || (alphaPoint.x == 0 && alphaPoint.y == 0)))
-		{
-			alphaImage = null;
-			alphaPoint = null;
 		}
 
 		switch (type)
@@ -857,8 +846,14 @@ class Image
 	**/
 	public function getPixels(rect:Rectangle, format:PixelFormat = null):Bytes
 	{
-		if (buffer == null) return null;
+		if (buffer == null || rect == null) return null;
 
+		// Only the part of the rect inside the image, and the caller's rect is left alone
+		rect = __clipRect(rect);
+		if (rect == null) return Bytes.alloc(0);
+
+		// Set here, as the native code takes it as an Int, and on Neko null isn't RGBA32
+		if (format == null) format = RGBA32;
 		switch (type)
 		{
 			case CANVAS:
@@ -1069,7 +1064,12 @@ class Image
 	public function merge(sourceImage:Image, sourceRect:Rectangle, destPoint:Vector2, redMultiplier:Int, greenMultiplier:Int, blueMultiplier:Int,
 			alphaMultiplier:Int):Void
 	{
-		if (buffer == null || sourceImage == null) return;
+		if (buffer == null || sourceImage == null || sourceRect == null || destPoint == null) return;
+
+		var clippedPoint = new Vector2();
+		sourceRect = __clipCopy(sourceImage, sourceRect, destPoint, clippedPoint);
+		if (sourceRect == null) return;
+		destPoint = clippedPoint;
 
 		switch (type)
 		{
@@ -1239,13 +1239,15 @@ class Image
 		@param	rect	The region of pixels in this `Image` to replace with the incoming bytes
 		@param	bytePointer	A `BytePointer` object referencing the `Bytes` and position to read from
 		@param	format	(Optional) The `PixelFormat` that the pixels are encoded in (default is `RGBA`)
-		@param	endian (Optional) The endianness of the incoming bytes (default is the system endianness)
+		@param	endian (Optional) The endianness of the incoming bytes (default is `BIG_ENDIAN`)
 	**/
 	public function setPixels(rect:Rectangle, bytePointer:BytePointer, format:PixelFormat = null, endian:Endian = null):Void
 	{
 		rect = __clipRect(rect);
 		if (buffer == null || rect == null) return;
 		if (endian == null) endian = BIG_ENDIAN;
+		// Set here, as the native code takes it as an Int, and on Neko null isn't RGBA32
+		if (format == null) format = RGBA32;
 
 		switch (type)
 		{
@@ -1350,7 +1352,12 @@ class Image
 	public function threshold(sourceImage:Image, sourceRect:Rectangle, destPoint:Vector2, operation:String, threshold:Int, color:Int = 0x00000000,
 			mask:Int = 0xFFFFFFFF, copySource:Bool = false, format:PixelFormat = null):Int
 	{
-		if (buffer == null || sourceImage == null || sourceRect == null) return 0;
+		if (buffer == null || sourceImage == null || sourceRect == null || destPoint == null) return 0;
+
+		var clippedPoint = new Vector2();
+		sourceRect = __clipCopy(sourceImage, sourceRect, destPoint, clippedPoint);
+		if (sourceRect == null) return 0;
+		destPoint = clippedPoint;
 
 		switch (type)
 		{
@@ -1389,9 +1396,64 @@ class Image
 		return 0;
 	}
 
+	// The part of sourceRect that is inside sourceImage and, put at destPoint,
+	// inside this image, in new objects so that the caller's are left alone.
+	// What is cut from one moves the other along. Null when nothing is left.
+	@:noCompletion private function __clipCopy(sourceImage:Image, sourceRect:Rectangle, destPoint:Vector2, clippedPoint:Vector2):Rectangle
+	{
+		var x = sourceRect.x;
+		var y = sourceRect.y;
+		var w = sourceRect.width;
+		var h = sourceRect.height;
+		var destX = destPoint.x;
+		var destY = destPoint.y;
+
+		if (x < 0)
+		{
+			w += x;
+			destX -= x;
+			x = 0;
+		}
+
+		if (y < 0)
+		{
+			h += y;
+			destY -= y;
+			y = 0;
+		}
+
+		if (x + w > sourceImage.width) w = sourceImage.width - x;
+		if (y + h > sourceImage.height) h = sourceImage.height - y;
+
+		if (destX < 0)
+		{
+			w += destX;
+			x -= destX;
+			destX = 0;
+		}
+
+		if (destY < 0)
+		{
+			h += destY;
+			y -= destY;
+			destY = 0;
+		}
+
+		if (destX + w > width) w = width - destX;
+		if (destY + h > height) h = height - destY;
+
+		if (w <= 0 || h <= 0) return null;
+
+		clippedPoint.setTo(destX, destY);
+		return new Rectangle(x, y, w, h);
+	}
+
 	@:noCompletion private function __clipRect(r:Rectangle):Rectangle
 	{
 		if (r == null) return null;
+
+		// A copy, so that the caller's rect is left alone
+		r = r.clone();
 
 		if (r.x < 0)
 		{

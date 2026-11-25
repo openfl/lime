@@ -14,10 +14,14 @@ class VorbisFile
 	public var bitstream(default, null):Int;
 
 	@:noCompletion private var handle:Dynamic;
+	// The native file reads from these bytes for as long as it is open. HashLink checks the fields'
+	// order against _TVORBISFILE in ExternalInterface.cpp.
+	@:noCompletion private var bytes:Bytes;
 
-	@:noCompletion private function new(handle:Dynamic)
+	@:noCompletion private function new(handle:Dynamic, bytes:Bytes = null)
 	{
 		this.handle = handle;
+		this.bytes = bytes;
 	}
 
 	public function bitrate(bitstream:Int = -1):Int
@@ -43,6 +47,8 @@ class VorbisFile
 		#if (lime_cffi && lime_vorbis && !macro)
 		NativeCFFI.lime_vorbis_file_clear(handle);
 		#end
+
+		bytes = null;
 	}
 
 	public function comment(bitstream:Int = -1):VorbisComment
@@ -78,7 +84,7 @@ class VorbisFile
 
 		if (handle != null)
 		{
-			return new VorbisFile(handle);
+			return new VorbisFile(handle, bytes);
 		}
 		#end
 

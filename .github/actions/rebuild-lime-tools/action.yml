@@ -1,0 +1,37 @@
+name: Rebuild Lime tools
+description: Builds the Lime command-line tools with Haxe 4.3, which CrossByte needs, then returns to the job's own Haxe
+
+inputs:
+  haxe-version:
+    description: The job's own Haxe, to return to
+    required: true
+
+runs:
+  using: composite
+  steps:
+
+    - name: Remember the haxelib repository
+      shell: bash
+      run: |
+        echo "LIME_HAXELIB_REPO=$(haxelib config)" >> "$GITHUB_ENV"
+
+    - uses: krdlab/setup-haxe@v2
+      with:
+        haxe-version: 4.3.7
+
+    - name: Rebuild Lime tools
+      shell: bash
+      run: |
+        # setup-haxe gave Haxe 4.3.7 a repository of its own
+        haxelib setup "$LIME_HAXELIB_REPO"
+        haxelib dev lime "$GITHUB_WORKSPACE"
+        haxelib run lime rebuild tools -nocolor -verbose -nocffi
+
+    - uses: krdlab/setup-haxe@v2
+      with:
+        haxe-version: ${{ inputs.haxe-version }}
+
+    - name: Return to the haxelib repository
+      shell: bash
+      run: |
+        haxelib setup "$LIME_HAXELIB_REPO"

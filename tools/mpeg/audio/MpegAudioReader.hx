@@ -102,14 +102,14 @@ class MpegAudioReader
 					frames.push(frame);
 
 				case Info(_):
-				// Discard info tag.
+					// Discard info tag.
 
 				case GaplessInfo(giEncoderDelay, giEndPadding):
 					encoderDelay = giEncoderDelay;
 					endPadding = giEndPadding;
 
 				case Unknown(_):
-				// Discard unknown bytes
+					// Discard unknown bytes
 
 				case End:
 					break;

@@ -18,6 +18,7 @@ import flash.media.Sound;
 @:fileXml('tags="haxe,release"')
 @:noDebug
 #end
+@:access(lime.media.AudioBuffer)
 @:access(lime.text.Font)
 @:access(lime.utils.Assets)
 class AssetLibrary
@@ -186,9 +187,16 @@ class AssetLibrary
 	{
 		if (cachedAudioBuffers.exists(id))
 		{
-			return cachedAudioBuffers.get(id);
+			var cachedBuffer = cachedAudioBuffers.get(id);
+
+			if (__isValidAudioBuffer(cachedBuffer))
+			{
+				return cachedBuffer;
+			}
+
+			cachedAudioBuffers.remove(id);
 		}
-		else if (classTypes.exists(id))
+		if (classTypes.exists(id))
 		{
 			#if flash
 			var buffer = new AudioBuffer();
@@ -198,9 +206,57 @@ class AssetLibrary
 			return AudioBuffer.fromBytes(cast(Type.createInstance(classTypes.get(id), []), Bytes));
 			#end
 		}
+		else if (cachedBytes.exists(id))
+		{
+			// A bundle's sound, decoded the first time it is asked for. The bytes
+			// are kept, so it can still be streamed, or decoded again once disposed.
+			var buffer = AudioBuffer.fromBytes(cachedBytes.get(id));
+			if (buffer != null) cachedAudioBuffers.set(id, buffer);
+			return buffer;
+		}
 		else
 		{
 			return AudioBuffer.fromFile(getPath(id));
+		}
+	}
+
+	public function getAudioBufferStream(id:String):AudioBuffer
+	{
+		if (cachedAudioBuffers.exists(id))
+		{
+			var cachedBuffer = cachedAudioBuffers.get(id);
+
+			if (__isValidAudioBuffer(cachedBuffer))
+			{
+				return cachedBuffer;
+			}
+
+			cachedAudioBuffers.remove(id);
+		}
+		if (classTypes.exists(id))
+		{
+			#if flash
+			var buffer = new AudioBuffer();
+			buffer.src = cast(Type.createInstance(classTypes.get(id), []), Sound);
+			return buffer;
+			#else
+			return AudioBuffer.fromBytesStream(cast(Type.createInstance(classTypes.get(id), []), Bytes));
+			#end
+		}
+		else if (cachedBytes.exists(id))
+		{
+			return AudioBuffer.fromBytesStream(cachedBytes.get(id));
+		}
+		else
+		{
+			if (pathGroups.exists(id))
+			{
+				return AudioBuffer.fromFilesStream(pathGroups.get(id));
+			}
+			else
+			{
+				return AudioBuffer.fromFileStream(getPath(id));
+			}
 		}
 	}
 
@@ -261,6 +317,19 @@ class AssetLibrary
 			return cast(Type.createInstance(classTypes.get(id), []), Font);
 			#end
 		}
+		else if (cachedBytes.exists(id))
+		{
+			// A bundle's font, decoded the first time it is asked for
+			var font = Font.fromBytes(cachedBytes.get(id));
+
+			if (font != null)
+			{
+				cachedBytes.remove(id);
+				cachedFonts.set(id, font);
+			}
+
+			return font;
+		}
 		else
 		{
 			return Font.fromFile(getPath(id));
@@ -280,6 +349,19 @@ class AssetLibrary
 			#else
 			return cast(Type.createInstance(classTypes.get(id), []), Image);
 			#end
+		}
+		else if (cachedBytes.exists(id))
+		{
+			// A bundle's image, decoded the first time it is asked for
+			var image = Image.fromBytes(cachedBytes.get(id));
+
+			if (image != null)
+			{
+				cachedBytes.remove(id);
+				cachedImages.set(id, image);
+			}
+
+			return image;
 		}
 		else
 		{
@@ -327,7 +409,8 @@ class AssetLibrary
 	public function isLocal(id:String, type:String):Bool
 	{
 		#if sys
-		return true;
+		// Everything the library has is in the application or on disk
+		return classTypes.exists(id) || exists(id, type);
 		#else
 		if (classTypes.exists(id))
 		{
@@ -337,20 +420,22 @@ class AssetLibrary
 		return switch (cast(type, AssetType))
 		{
 			case null:
-				cachedBytes.exists(id) || cachedText.exists(id) || cachedImages.exists(id)
-					|| cachedAudioBuffers.exists(id) || cachedFonts.exists(id);
+				cachedBytes.exists(id)
+				|| cachedText.exists(id)
+				|| cachedImages.exists(id)
+				|| cachedAudioBuffers.exists(id)
+				|| cachedFonts.exists(id);
 
 			case IMAGE:
-				cachedImages.exists(id);
+				cachedImages.exists(id) || cachedBytes.exists(id);
 
 			case MUSIC, SOUND:
-				cachedAudioBuffers.exists(id);
+				cachedAudioBuffers.exists(id) || cachedBytes.exists(id);
 
 			case FONT:
-				cachedFonts.exists(id);
+				cachedFonts.exists(id) || cachedBytes.exists(id);
 
-			default:
-				cachedBytes.exists(id) || cachedText.exists(id);
+			default: cachedBytes.exists(id) || cachedText.exists(id);
 		}
 		#end
 	}
@@ -463,11 +548,22 @@ class AssetLibrary
 	{
 		if (cachedAudioBuffers.exists(id))
 		{
-			return Future.withValue(cachedAudioBuffers.get(id));
+			var cachedBuffer = cachedAudioBuffers.get(id);
+
+			if (__isValidAudioBuffer(cachedBuffer))
+			{
+				return Future.withValue(cachedBuffer);
+			}
+
+			cachedAudioBuffers.remove(id);
 		}
-		else if (classTypes.exists(id))
+		if (classTypes.exists(id))
 		{
 			return Future.withValue(AudioBuffer.fromBytes(cast(Type.createInstance(classTypes.get(id), []), Bytes)));
+		}
+		else if (cachedBytes.exists(id))
+		{
+			return Future.withValue(getAudioBuffer(id));
 		}
 		else
 		{
@@ -480,6 +576,49 @@ class AssetLibrary
 				return AudioBuffer.loadFromFile(paths.get(id));
 			}
 		}
+	}
+
+	public function loadAudioBufferStream(id:String):Future<AudioBuffer>
+	{
+		if (cachedAudioBuffers.exists(id))
+		{
+			var cachedBuffer = cachedAudioBuffers.get(id);
+
+			if (__isValidAudioBuffer(cachedBuffer))
+			{
+				return Future.withValue(cachedBuffer);
+			}
+
+			cachedAudioBuffers.remove(id);
+		}
+		if (classTypes.exists(id))
+		{
+			#if flash
+			return Future.withValue(getAudioBufferStream(id));
+			#else
+			return Future.withValue(AudioBuffer.fromBytesStream(cast(Type.createInstance(classTypes.get(id), []), Bytes)));
+			#end
+		}
+		else if (cachedBytes.exists(id))
+		{
+			return Future.withValue(AudioBuffer.fromBytesStream(cachedBytes.get(id)));
+		}
+		else
+		{
+			if (pathGroups.exists(id))
+			{
+				return AudioBuffer.loadFromFilesStream(pathGroups.get(id));
+			}
+			else
+			{
+				return AudioBuffer.loadFromFileStream(paths.get(id));
+			}
+		}
+	}
+
+	@:noCompletion private static function __isValidAudioBuffer(buffer:AudioBuffer):Bool
+	{
+		return (buffer != null && !buffer.__isDisposed);
 	}
 
 	public function loadBytes(id:String):Future<Bytes>
@@ -517,6 +656,15 @@ class AssetLibrary
 			#else
 			return Future.withValue(font);
 			#end
+		}
+		else if (cachedBytes.exists(id))
+		{
+			return Font.loadFromBytes(cachedBytes.get(id)).then(function(font)
+			{
+				cachedBytes.remove(id);
+				cachedFonts.set(id, font);
+				return Future.withValue(font);
+			});
 		}
 		else
 		{
@@ -613,6 +761,10 @@ class AssetLibrary
 
 	public function unload():Void
 	{
+		// So the next load() reads what is preloaded again
+		loaded = false;
+		promise = null;
+
 		#if haxe4
 		cachedBytes.clear();
 		cachedFonts.clear();
@@ -623,6 +775,7 @@ class AssetLibrary
 		cachedBytes = new Map<String, Bytes>();
 		cachedFonts = new Map<String, Font>();
 		cachedImages = new Map<String, Image>();
+		cachedAudioBuffers = new Map<String, AudioBuffer>();
 		cachedText = new Map<String, String>();
 		classTypes = new Map<String, Class<Dynamic>>();
 		#end
@@ -690,20 +843,19 @@ class AssetLibrary
 					type = asset.type;
 					switch (type)
 					{
-						#if !web
-						case IMAGE:
-							cachedImages.set(id, Image.fromBytes(data));
-						case MUSIC, SOUND:
-							cachedAudioBuffers.set(id, AudioBuffer.fromBytes(data));
-						case FONT:
-							cachedFonts.set(id, Font.fromBytes(data));
-						#end
+						// Images, sounds and fonts are kept as bytes, and decoded when
+						// they are first asked for, or by load() when marked to preload
 						case TEXT:
 							cachedText.set(id, data != null ? Std.string(data) : null);
 						default:
 							cachedBytes.set(id, data);
 					}
 					types.set(id, asset.type);
+
+					if (Reflect.hasField(asset, "preload"))
+					{
+						preload.set(id, Reflect.field(asset, "preload"));
+					}
 				}
 				else
 				{
@@ -738,7 +890,7 @@ class AssetLibrary
 
 			if (Reflect.hasField(asset, "path"))
 			{
-				paths.set(id, __cacheBreak(__resolvePath(basePath + Reflect.field(asset, "path"))));
+				paths.set(id, __cacheBreak(__resolvePath(__underBasePath(basePath, Reflect.field(asset, "path")))));
 			}
 
 			if (Reflect.hasField(asset, "pathGroup"))
@@ -747,7 +899,7 @@ class AssetLibrary
 
 				for (i in 0...pathGroup.length)
 				{
-					pathGroup[i] = __cacheBreak(__resolvePath(basePath + pathGroup[i]));
+					pathGroup[i] = __cacheBreak(__resolvePath(__underBasePath(basePath, pathGroup[i])));
 				}
 
 				pathGroups.set(id, pathGroup);
@@ -789,6 +941,12 @@ class AssetLibrary
 		}
 	}
 
+	// An absolute asset path is used as it is, as a path join would
+	@:noCompletion private static inline function __underBasePath(basePath:String, path:String):String
+	{
+		return AssetManifest.__isAbsolutePath(path) ? path : basePath + path;
+	}
+
 	@:noCompletion private function __resolvePath(path:String):String
 	{
 		path = StringTools.replace(path, "\\", "/");
@@ -821,9 +979,21 @@ class AssetLibrary
 			{
 				if (split[i] == "..")
 				{
-					if (i == 0 || newPath[i - 1] == "..")
+					// Compared with the last part kept, and kept when there is
+					// nothing left to cancel, so a/../../b is ../b
+					var last = newPath.length > 0 ? newPath[newPath.length - 1] : null;
+
+					if (last == null || last == "..")
 					{
 						newPath.push("..");
+					}
+					else if (last == ".")
+					{
+						newPath[newPath.length - 1] = "..";
+					}
+					else if (last == "" || (newPath.length == 1 && StringTools.endsWith(last, ":")))
+					{
+						// Nothing is above the root of the file system or a drive
 					}
 					else
 					{

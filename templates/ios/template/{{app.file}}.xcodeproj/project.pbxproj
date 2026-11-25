@@ -22,6 +22,7 @@
 		1EEEBB00121BE2B30048A9DF /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1EEEBAFF121BE2B30048A9DF /* Foundation.framework */; };
 		1EF0A83A121ADB8E003F2F59 /* Main.mm in Sources */ = {isa = PBXBuildFile; fileRef = 1EF0A839121ADB8E003F2F59 /* Main.mm */; };
 		4257533F1A5EFD8C004AA45B /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 4257533E1A5EFD8C004AA45B /* Images.xcassets */; };
+		5F1C0A012B0D000100A0B0C1 /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 5F1C0A002B0D000100A0B0C1 /* PrivacyInfo.xcprivacy */; };
 		6892FA0E263B5BC100EA2669 /* Metal.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6892FA0D263B5BC100EA2669 /* Metal.framework */; };
 		792E75C91C6C876900D01DE0 /* GameController.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 792E75C81C6C876900D01DE0 /* GameController.framework */; };
 		792E75C91C6C876900D01DE1 /* CoreText.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 792E75C81C6C876900D01DE1 /* CoreText.framework */; };
@@ -58,6 +59,7 @@
 		1EEEBAFF121BE2B30048A9DF /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		1EF0A839121ADB8E003F2F59 /* Main.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = Main.mm; path = "::APP_FILE::/Classes/Main.mm"; sourceTree = SOURCE_ROOT; };
 		4257533E1A5EFD8C004AA45B /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Images.xcassets; path = "::APP_FILE::/Images.xcassets"; sourceTree = "<group>"; };
+		5F1C0A002B0D000100A0B0C1 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; name = PrivacyInfo.xcprivacy; path = "::APP_FILE::/PrivacyInfo.xcprivacy"; sourceTree = "<group>"; };
 		6662F3920A0E282007F4E3E /* ::APP_FILE::.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; name = "::APP_FILE::.entitlements"; path = "::APP_FILE::/::APP_FILE::.entitlements"; sourceTree = "<group>"; };
 		6892FA0D263B5BC100EA2669 /* Metal.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Metal.framework; path = System/Library/Frameworks/Metal.framework; sourceTree = SDKROOT; };
 		792E75C81C6C876900D01DE0 /* GameController.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = GameController.framework; path = System/Library/Frameworks/GameController.framework; sourceTree = SDKROOT; };
@@ -163,6 +165,7 @@
 			isa = PBXGroup;
 			children = (
 				4257533E1A5EFD8C004AA45B /* Images.xcassets */,
+				5F1C0A002B0D000100A0B0C1 /* PrivacyInfo.xcprivacy */,
 				::if (IOS_LAUNCH_STORYBOARD != null)::D099CA8F21A64C86003837AD /* ::IOS_LAUNCH_STORYBOARD::.storyboard */,::end::
 				8D1107310486CEB800E47090 /* ::APP_FILE::/::APP_FILE::-Info.plist */,
 				1E2E17A5131E8B5D0048F3C7 /* ::APP_FILE::/assets */,
@@ -214,6 +217,7 @@
 		29B97313FDCFA39411CA2CEA /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
+				BuildIndependentTargetsInParallel = YES;
 				LastUpgradeCheck = 0920;
 				TargetAttributes = {
 					1D6058900D05DD3D006BFB54 = {
@@ -242,6 +246,7 @@
 				1E2E17AD131E8B5D0048F3C7 /* ::APP_FILE::/assets in Resources */,
 				::if (IOS_LAUNCH_STORYBOARD != null)::D099CA9021A64C87003837AD /* ::IOS_LAUNCH_STORYBOARD::.storyboard in Resources */,::end::
 				4257533F1A5EFD8C004AA45B /* Images.xcassets in Resources */,
+				5F1C0A012B0D000100A0B0C1 /* PrivacyInfo.xcprivacy in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -272,23 +277,39 @@
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ARCHS = ::CURRENT_ARCHS::;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
 				::if (OBJC_ARC)::
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
 				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
 				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
 				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
 				CLANG_WARN_EMPTY_BODY = YES;
 				CLANG_WARN_ENUM_CONVERSION = YES;
 				CLANG_WARN_INFINITE_RECURSION = YES;
 				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
 				CLANG_WARN_SUSPICIOUS_MOVE = YES;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				::end::
+				CURRENT_PROJECT_VERSION = "::APP_BUILD_NUMBER::";
+				INFOPLIST_KEY_CFBundleDisplayName = "::APP_TITLE::";
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.games";
+				MARKETING_VERSION = "::APP_VERSION::";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "::config.ios.identity::";
 				::if (IOS_PROVISIONING_PROFILE)::PROVISIONING_PROFILE = "::IOS_PROVISIONING_PROFILE::";::end::
 				COPY_PHASE_STRIP = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_OPTIMIZATION_LEVEL = 0;
@@ -306,6 +327,7 @@
 				IPHONEOS_DEPLOYMENT_TARGET = ::DEPLOYMENT::;
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = iphoneos;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
 				TARGETED_DEVICE_FAMILY = "::TARGET_DEVICES::";
 				::THUMB_SUPPORT::
 				VALID_ARCHS = "::VALID_ARCHS::";
@@ -317,23 +339,39 @@
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ARCHS = ::CURRENT_ARCHS::;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
 				::if (OBJC_ARC)::
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
 				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
 				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
 				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
 				CLANG_WARN_EMPTY_BODY = YES;
 				CLANG_WARN_ENUM_CONVERSION = YES;
 				CLANG_WARN_INFINITE_RECURSION = YES;
 				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
 				CLANG_WARN_SUSPICIOUS_MOVE = YES;
 				CLANG_WARN_UNREACHABLE_CODE = YES;
 				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
 				::end::
+				CURRENT_PROJECT_VERSION = "::APP_BUILD_NUMBER::";
+				INFOPLIST_KEY_CFBundleDisplayName = "::APP_TITLE::";
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.games";
+				MARKETING_VERSION = "::APP_VERSION::";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "::config.ios.identity::";
 				::if (IOS_PROVISIONING_PROFILE)::PROVISIONING_PROFILE = "::IOS_PROVISIONING_PROFILE::";::end::
 				/* COMPRESS_PNG_FILES = NO; */
 				COPY_PHASE_STRIP = YES;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
 				GCC_C_LANGUAGE_STANDARD = gnu99;
 				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
@@ -346,6 +384,8 @@
 				OTHER_CFLAGS = "-DNS_BLOCK_ASSERTIONS=1";
 				/* PRECOMPS_INCLUDE_HEADERS_FROM_BUILT_PRODUCTS_DIR = YES; */
 				SDKROOT = iphoneos;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_COMPILATION_MODE = wholemodule;
 				TARGETED_DEVICE_FAMILY = "::TARGET_DEVICES::";
 				::THUMB_SUPPORT::
 				VALID_ARCHS = "::VALID_ARCHS::";
@@ -356,6 +396,7 @@
 		1D6058940D05DD3E006BFB54 /* Debug */ = {/* Build configuration list for PBXNativeTarget "::APP_TITLE::" */
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				CLANG_ENABLE_MODULES = YES;
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				::if (IOS_LAUNCH_STORYBOARD == null)::ASSETCATALOG_COMPILER_LAUNCHIMAGE_NAME = LaunchImage;::end::
 				CODE_SIGN_ENTITLEMENTS = "::APP_FILE::/::APP_FILE::.entitlements";
@@ -407,6 +448,7 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = "::APP_PACKAGE::";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				INFOPLIST_KEY_CFBundleDisplayName = "::APP_TITLE::";
 				WRAPPER_EXTENSION = app;
 			};
 			name = Debug;
@@ -460,6 +502,7 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = "::APP_PACKAGE::";
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				INFOPLIST_KEY_CFBundleDisplayName = "::APP_TITLE::";
 				WRAPPER_EXTENSION = app;
 			};
 			name = Release;

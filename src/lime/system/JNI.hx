@@ -17,7 +17,6 @@ import cpp.vm.Thread;
 import neko.vm.Thread;
 #end
 #end
-
 using StringTools;
 
 /**
@@ -51,12 +50,10 @@ class JNI
 	private static function transformClassName(className:String):String
 	{
 		var parts:Array<String> = className.split(".");
-		if (parts.length <= 1)
-			return className;
+		if (parts.length <= 1) return className;
 
 		var nestedClassName:String = "";
-		if (~/^[A-Z]/.match(parts[parts.length - 2]))
-			nestedClassName = "$" + parts.pop();
+		if (~/^[A-Z]/.match(parts[parts.length - 2])) nestedClassName = "$" + parts.pop();
 
 		return parts.join("/") + nestedClassName;
 	}
@@ -384,7 +381,7 @@ class JNIMethod
 	```
 **/
 // Haxe 3 can't parse "target.threaded" inside parentheses.
-#if !doc_gen
+#if !(doc_gen || macro)
 #if target.threaded
 @:autoBuild(lime.system.JNI.JNISafetyTools.build())
 #elseif (cpp || neko)
@@ -430,8 +427,7 @@ class JNISafetyTools
 			}
 
 			// Don't modify functions lacking `@:runOnMainThread`.
-			if (field.meta == null || !Lambda.exists(field.meta,
-				function(meta) return meta.name == ":runOnMainThread"))
+			if (field.meta == null || !Lambda.exists(field.meta, function(meta) return meta.name == ":runOnMainThread"))
 			{
 				continue;
 			}
@@ -445,13 +441,12 @@ class JNISafetyTools
 					// Make sure there's no return value.
 					switch (f.ret)
 					{
-						case macro:Void:
+						case macro :Void:
 							// Good to go.
 						case null:
-							f.ret = macro:Void;
+							f.ret = macro :Void;
 						default:
-							Context.error("Expected return type Void, got "
-								+ new haxe.macro.Printer().printComplexType(f.ret) + ".", field.pos);
+							Context.error("Expected return type Void, got " + new haxe.macro.Printer().printComplexType(f.ret) + ".", field.pos);
 					}
 
 					var args:Array<Expr> = [];
@@ -460,16 +455,12 @@ class JNISafetyTools
 						args.push(macro $i{arg.name});
 
 						// Account for an unlikely edge case.
-						if (arg.name == field.name)
-							Context.error('${field.name}() should not take an argument named ${field.name}.', field.pos);
+						if (arg.name == field.name) Context.error('${field.name}() should not take an argument named ${field.name}.', field.pos);
 					}
 
 					// Check the thread before running the function.
-					f.expr = macro
-						if (!lime.system.JNI.JNISafetyTools.onMainThread())
-							haxe.MainLoop.runInMainThread($i{field.name}.bind($a{args}))
-						else
-							${f.expr};
+					f.expr = macro if (!lime.system.JNI.JNISafetyTools.onMainThread()) haxe.MainLoop.runInMainThread($i{field.name}.bind($a{args})) else
+						${f.expr};
 				default:
 			}
 		}

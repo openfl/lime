@@ -1,0 +1,11 @@
+<xml>
+
+	<depend name="${NATIVE_TOOLKIT_PATH}/custom/mbedtls/lime_mbedtls_config.h" dateOnly="true" />
+	<depend name="${NATIVE_TOOLKIT_PATH}/custom/mbedtls/threading_alt.h" dateOnly="true" />
+	<depend name="${NATIVE_TOOLKIT_PATH}/custom/mbedtls/lime_mbedtls_prefix.h" dateOnly="true" />
+
+	<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/mbedtls/include/" />
+	<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/custom/mbedtls/" />
+	<compilerflag value="-DMBEDTLS_USER_CONFIG_FILE=&lt;lime_mbedtls_config.h&gt;" />
+
+</xml>

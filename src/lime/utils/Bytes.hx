@@ -20,6 +20,8 @@ abstract Bytes(HaxeBytes) from HaxeBytes to HaxeBytes
 	{
 		#if js
 		this = new HaxeBytes(bytesData);
+		// bytesData may have extra bytes. See https://github.com/HaxeFoundation/haxe/issues/8974
+		this.length = length;
 		#elseif hl
 		this = new HaxeBytes(bytesData, length);
 		#else
@@ -91,11 +93,13 @@ abstract Bytes(HaxeBytes) from HaxeBytes to HaxeBytes
 
 	public static function fromFile(path:String):Bytes
 	{
+		if (path == null) return null;
+
 		#if (sys && lime_cffi && !macro)
 		#if !cs
+		// Null for a file that can't be read, and empty Bytes for an empty one
 		var bytes = Bytes.alloc(0);
-		NativeCFFI.lime_bytes_read_file(path, bytes);
-		if (bytes.length > 0) return bytes;
+		if (NativeCFFI.lime_bytes_read_file(path, bytes) != null) return bytes;
 		#else
 		var data:Dynamic = NativeCFFI.lime_bytes_read_file(path, null);
 		if (data != null) return new Bytes(data.length, data.b);
