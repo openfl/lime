@@ -27,6 +27,13 @@ class ImagePixelTest extends Test
 {
 	private static var FORMATS:Array<PixelFormat> = [RGBA32, ARGB32, BGRA32];
 
+	// ARGB colors with every kind of alpha, and channels that differ from each other
+	private static var VARIED_ROWS:Array<Array<Int>> = [
+		[0x11223344, 0x80FF8040, 0x00000000, 0xFF000000],
+		[0x01FFFFFF, 0xFE123456, 0xC0A0B0C0, 0x40804020],
+		[0xFFFFFFFF, 0x7F7F7F7F, 0x2050A0F0, 0xE0010203]
+	];
+
 	public function new()
 	{
 		super();
@@ -472,6 +479,124 @@ class ImagePixelTest extends Test
 		}
 	}
 
+	// getPixels() takes an endian as setPixels() does, BIG_ENDIAN unless given (#1071)
+
+	public function testGetPixelsWritesEachFormatBigEndian():Void
+	{
+		var image = fromRows([[0x11223344, 0x55667788]]);
+		var rect = new Rectangle(0, 0, 2, 1);
+
+		assertBytes([0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 0x88], bytesOf(image.getPixels(rect, ARGB32, BIG_ENDIAN)), "ARGB32");
+		assertBytes([0x22, 0x33, 0x44, 0x11, 0x66, 0x77, 0x88, 0x55], bytesOf(image.getPixels(rect, RGBA32, BIG_ENDIAN)), "RGBA32");
+		assertBytes([0x44, 0x33, 0x22, 0x11, 0x88, 0x77, 0x66, 0x55], bytesOf(image.getPixels(rect, BGRA32, BIG_ENDIAN)), "BGRA32");
+	}
+
+	public function testGetPixelsWritesEachFormatLittleEndian():Void
+	{
+		// A 32-bit value written little endian starts with its least significant byte, as a ByteArray
+		// with Endian.LITTLE_ENDIAN writes it and as setPixels() reads it with LITTLE_ENDIAN
+		var image = fromRows([[0x11223344, 0x55667788]]);
+		var rect = new Rectangle(0, 0, 2, 1);
+
+		assertBytes([0x44, 0x33, 0x22, 0x11, 0x88, 0x77, 0x66, 0x55], bytesOf(image.getPixels(rect, ARGB32, LITTLE_ENDIAN)), "ARGB32");
+		assertBytes([0x11, 0x44, 0x33, 0x22, 0x55, 0x88, 0x77, 0x66], bytesOf(image.getPixels(rect, RGBA32, LITTLE_ENDIAN)), "RGBA32");
+		assertBytes([0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 0x88], bytesOf(image.getPixels(rect, BGRA32, LITTLE_ENDIAN)), "BGRA32");
+		assertBytes([0x11, 0x44, 0x33, 0x22, 0x55, 0x88, 0x77, 0x66], bytesOf(image.getPixels(rect, null, LITTLE_ENDIAN)), "the default format");
+	}
+
+	public function testGetPixelsIsBigEndianUnlessToldOtherwise():Void
+	{
+		var image = fromRows(VARIED_ROWS);
+		var rect = new Rectangle(0, 0, image.width, image.height);
+
+		for (format in FORMATS)
+		{
+			var big = bytesOf(image.getPixels(rect, format, BIG_ENDIAN));
+			assertBytes(big, bytesOf(image.getPixels(rect, format)), formatName(format) + " without an endian");
+			assertBytes(big, bytesOf(image.getPixels(rect, format, null)), formatName(format) + " with a null endian");
+		}
+	}
+
+	public function testLittleEndianPixelsAreTheBigEndianOnesReversed():Void
+	{
+		for (bufferFormat in FORMATS)
+		{
+			for (premultiplied in [false, true])
+			{
+				var image = fromRows(VARIED_ROWS, bufferFormat, premultiplied);
+
+				// The whole image, and a rect that starts and ends inside its rows
+				for (rect in [new Rectangle(0, 0, image.width, image.height), new Rectangle(1, 1, 2, 2)])
+				{
+					for (format in FORMATS)
+					{
+						var label = formatName(format) + " of a " + rect.width + "x" + rect.height + " rect of " + (premultiplied ? "premultiplied " : "")
+							+ formatName(bufferFormat);
+						var big = bytesOf(image.getPixels(rect, format, BIG_ENDIAN));
+						var little = bytesOf(image.getPixels(rect, format, LITTLE_ENDIAN));
+
+						if (big == null || little == null)
+						{
+							Assert.fail(label + ": getPixels() gave null");
+							continue;
+						}
+
+						assertBytes(reversedPixels(big), little, label);
+					}
+				}
+			}
+		}
+	}
+
+	public function testGetPixelsThenSetPixelsWithTheSameEndianLeavesTheImageUnchanged():Void
+	{
+		// Written into a new image of the same kind, which then holds what the first one does. Where the
+		// buffer is premultiplied, unmultiplying and multiplying again may leave a channel off by one.
+		for (bufferFormat in FORMATS)
+		{
+			for (premultiplied in [false, true])
+			{
+				var image = fromRows(VARIED_ROWS, bufferFormat, premultiplied);
+				var rect = new Rectangle(0, 0, image.width, image.height);
+
+				for (format in FORMATS)
+				{
+					for (endian in [BIG_ENDIAN, LITTLE_ENDIAN])
+					{
+						var label = formatName(format) + " " + (endian == BIG_ENDIAN ? "big" : "little") + " endian through "
+							+ (premultiplied ? "premultiplied " : "") + formatName(bufferFormat);
+						var bytes = image.getPixels(rect, format, endian);
+
+						if (bytes == null)
+						{
+							Assert.fail(label + ": getPixels() gave null");
+							continue;
+						}
+
+						var copy = create(image.width, image.height, 0, bufferFormat, premultiplied);
+						copy.setPixels(rect, new BytePointer(bytes, 0), format, endian);
+
+						assertSameBuffer(image, copy, premultiplied ? 1 : 0, label);
+					}
+				}
+			}
+		}
+	}
+
+	#if (js && html5)
+	public function testACanvasImageGivesLittleEndianPixelsToo():Void
+	{
+		// Opaque, as a canvas keeps colors premultiplied and could not give a translucent one back exactly
+		var image = fromRows([[0xFF223344, 0xFF667788]]);
+		lime._internal.graphics.ImageCanvasUtil.convertToCanvas(image);
+		Assert.equals(lime.graphics.ImageType.CANVAS, image.type);
+
+		var rect = new Rectangle(0, 0, 2, 1);
+		assertBytes([0x44, 0x33, 0x22, 0xFF, 0x88, 0x77, 0x66, 0xFF], bytesOf(image.getPixels(rect, ARGB32, LITTLE_ENDIAN)), "ARGB32");
+		assertBytes([0xFF, 0x22, 0x33, 0x44, 0xFF, 0x66, 0x77, 0x88], bytesOf(image.getPixels(rect, ARGB32, BIG_ENDIAN)), "ARGB32 big endian");
+	}
+	#end
+
 	public function testAnImageWithAnOffsetReadsItsOwnPartOfTheBuffer():Void
 	{
 		var whole = numbered(4, 4);
@@ -642,5 +767,42 @@ class ImagePixelTest extends Test
 	{
 		if (bytes == null) return null;
 		return [for (i in 0...bytes.length) bytes.get(i)];
+	}
+
+	/** The bytes of each 32-bit pixel in the opposite order **/
+	private static function reversedPixels(bytes:Array<Int>):Array<Int>
+	{
+		var result = [];
+		var i = 0;
+
+		while (i + 3 < bytes.length)
+		{
+			result.push(bytes[i + 3]);
+			result.push(bytes[i + 2]);
+			result.push(bytes[i + 1]);
+			result.push(bytes[i]);
+			i += 4;
+		}
+
+		return result;
+	}
+
+	/** Compares what two images of the same size and kind hold, as stored, each channel within `tolerance` **/
+	private static function assertSameBuffer(expected:Image, actual:Image, tolerance:Int, label:String, ?pos:haxe.PosInfos):Void
+	{
+		var differences = [];
+
+		for (y in 0...expected.height)
+		{
+			for (x in 0...expected.width)
+			{
+				if (!sameColor(peek(expected, x, y), peek(actual, x, y), tolerance))
+				{
+					differences.push(x + "," + y + " was " + hex(peek(expected, x, y)) + " and is " + hex(peek(actual, x, y)));
+				}
+			}
+		}
+
+		Assert.isTrue(differences.length == 0, label + ": " + differences.join("; "), pos);
 	}
 }
