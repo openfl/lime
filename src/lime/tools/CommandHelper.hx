@@ -18,7 +18,9 @@ class CommandHelper
 	{
 		if (System.hostPlatform == WINDOWS)
 		{
-			return new CLICommand("start", [file]);
+			// Haxe quotes an argument with a slash or space in it, and start takes
+			// its first quoted argument as the title of a new console window
+			return new CLICommand("start", ["", file]);
 		}
 		else if (System.hostPlatform == MAC)
 		{
@@ -33,14 +35,21 @@ class CommandHelper
 	/**
 		Opens `url` in the default browser without waiting for the browser.
 
-		On Linux, hxp 1.3.1's `System.openURL()` passes a literal "&" to
-		xdg-open, which exits with an error and stops the tools. Until Lime
-		depends on an hxp with that fixed, xdg-open is run through the shell
-		here instead, in the background, with its output discarded.
+		hxp 1.3.1's `System.openURL()` gets two hosts wrong. On Windows it hands
+		the URL to `start` as it is, which opens a console window titled with the
+		URL instead, as Haxe quotes it for the slashes in it, so `start` is given
+		an empty title first. On Linux it passes a literal "&" to xdg-open, which
+		exits with an error and stops the tools, so xdg-open is run through the
+		shell instead, in the background, with its output discarded.
 	**/
 	public static function openURL(url:String):Void
 	{
-		if (System.hostPlatform == WINDOWS || System.hostPlatform == MAC)
+		if (System.hostPlatform == WINDOWS)
+		{
+			Log.info("", " - \x1b[1mOpening:\x1b[0m " + url);
+			Sys.command("start", ["", url]);
+		}
+		else if (System.hostPlatform == MAC)
 		{
 			System.openURL(url);
 		}
