@@ -201,6 +201,7 @@ Changelog
 - Fixed `Image.merge()`, `copyChannel()` and `threshold()` with a destination point or rectangle past an edge shifting pixels and changing their arguments, and `copyPixels()` reading the alpha image from the wrong point.
 - Fixed `Image.floodFill()` not filling a lone pixel, reading a start point outside the image, and filling past an image that is part of a larger buffer.
 - Fixed `Image.threshold()` comparing the masked pixel with the whole threshold, and comparing colours byte by byte rather than as ARGB numbers.
+- Fixed `ImageDataUtil.gaussianBlur()` ignoring its strength, so OpenFL's glows and drop shadows drawn in software came out as the same faint halo whatever their strength.
 - Fixed writing a premultiplied colour changing the caller's colour, and native code premultiplying with different rounding.
 - Fixed `ARGB.readUInt8()` reading some formats' bytes into the wrong channels.
 - Fixed `ImageBuffer.clone()` on Flash sharing the original's pixel data.
