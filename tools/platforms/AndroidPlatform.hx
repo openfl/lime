@@ -640,7 +640,7 @@ class AndroidPlatform extends PlatformTarget
 			var iconSizes = [36, 48, 72, 96, 144, 192];
 			var icons = project.icons;
 
-			if (icons.length == 0)
+			if (!IconHelper.hasIcons(icons))
 			{
 				icons = [new Icon(System.findTemplate(project.templatePaths, "default/icon.svg"))];
 			}
@@ -656,6 +656,8 @@ class AndroidPlatform extends PlatformTarget
 			}
 
 			IconHelper.createIcon(icons, 732, 412, sourceSet + "/res/drawable-xhdpi/ouya_icon.png");
+
+			if (context.HAS_ICON) createAdaptiveIcon(icons, sourceSet + "/res");
 		}
 
 		var packageDirectory = project.meta.packageName;
@@ -726,5 +728,102 @@ class AndroidPlatform extends PlatformTarget
 		}
 
 		return 0;
+	}
+
+	/**
+		Writes an adaptive icon, which launchers on Android 8 and later mask to their own shape, when the
+		project gives a layer with `<icon path="" adaptive="foreground|background|monochrome" />`, or a
+		background color with `<config:android adaptive-icon-background="#RRGGBB" />`. Its foreground is
+		the application's icon, drawn in the middle 72 dp of 108 dp, unless a foreground layer is given,
+		and its background is white unless a color or a background layer is. The application's own
+		icons stay for Android before 8, where the adaptive icon's directory doesn't apply.
+	**/
+	private function createAdaptiveIcon(icons:Array<Icon>, resDirectory:String):Void
+	{
+		var layers = new Map<String, Array<Icon>>();
+
+		for (icon in project.icons)
+		{
+			if (icon.adaptive == null) continue;
+
+			// Without the layer's name, so the icon tools take it as an icon
+			var layer = icon.clone();
+			layer.adaptive = null;
+
+			if (!layers.exists(icon.adaptive)) layers.set(icon.adaptive, []);
+			layers.get(icon.adaptive).push(layer);
+		}
+
+		var backgroundColor:String = project.config.getString("android.adaptive-icon-background", null);
+		if (backgroundColor == "") backgroundColor = null;
+
+		if (backgroundColor == null && !layers.keys().hasNext())
+		{
+			return;
+		}
+
+		if (backgroundColor != null && !~/^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6}|[0-9a-fA-F]{8})$/.match(backgroundColor))
+		{
+			Log.warn("Ignoring adaptive-icon-background=\"" + backgroundColor + "\", which should be a color such as #RRGGBB");
+			backgroundColor = null;
+		}
+
+		// 108 dp at each density
+		var densities = ["ldpi", "mdpi", "hdpi", "xhdpi", "xxhdpi", "xxxhdpi"];
+		var sizes = [81, 108, 162, 216, 324, 432];
+
+		for (i in 0...densities.length)
+		{
+			var directory = resDirectory + "/drawable-" + densities[i] + "/";
+
+			if (layers.exists("foreground"))
+			{
+				IconHelper.createIcon(layers.get("foreground"), sizes[i], sizes[i], directory + "icon_foreground.png");
+			}
+			else
+			{
+				IconHelper.createInsetIcon(icons, sizes[i], sizes[i], 72 / 108, directory + "icon_foreground.png");
+			}
+
+			if (layers.exists("background"))
+			{
+				IconHelper.createIcon(layers.get("background"), sizes[i], sizes[i], directory + "icon_background.png");
+			}
+
+			if (layers.exists("monochrome"))
+			{
+				IconHelper.createIcon(layers.get("monochrome"), sizes[i], sizes[i], directory + "icon_monochrome.png");
+			}
+		}
+
+		var background = "@drawable/icon_background";
+
+		if (!layers.exists("background"))
+		{
+			background = "@color/icon_background";
+			System.mkdir(resDirectory + "/values");
+			File.saveContent(resDirectory + "/values/icon_background.xml", "<?xml version=\"1.0\" encoding=\"utf-8\"?>
+<resources>
+	<color name=\"icon_background\">"
+				+ (backgroundColor != null ? backgroundColor : "#FFFFFF") + "</color>
+</resources>
+");
+		}
+
+		var xml = "<?xml version=\"1.0\" encoding=\"utf-8\"?>
+<adaptive-icon xmlns:android=\"http://schemas.android.com/apk/res/android\">
+";
+		xml += "	<background android:drawable=\"" + background + "\" />
+";
+		xml += "	<foreground android:drawable=\"@drawable/icon_foreground\" />
+";
+		if (layers.exists("monochrome")) xml += "	<monochrome android:drawable=\"@drawable/icon_monochrome\" />
+";
+		xml += "</adaptive-icon>
+";
+
+		// The same name as the icons for older Android, which @drawable/icon picks over on Android 8 and later
+		System.mkdir(resDirectory + "/drawable-anydpi-v26");
+		File.saveContent(resDirectory + "/drawable-anydpi-v26/icon.xml", xml);
 	}
 }

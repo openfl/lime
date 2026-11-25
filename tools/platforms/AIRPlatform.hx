@@ -309,7 +309,7 @@ class AIRPlatform extends FlashPlatform
 		var icons = project.icons;
 		iconData = [];
 
-		if (icons.length == 0)
+		if (!IconHelper.hasIcons(icons))
 		{
 			icons = [new Icon(System.findTemplate(project.templatePaths, "default/icon.svg"))];
 		}

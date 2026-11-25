@@ -224,7 +224,20 @@ class ImageHelper
 			return image;
 		}
 
+		// Resizing reads the four source pixels nearest each new one, so a large image scaled down
+		// straight to a small icon skips most of its pixels and looks rough. Halving it until it is
+		// less than twice the size averages every 2x2 block on the way, and with premultiplied alpha,
+		// transparent pixels don't darken the edges.
+		var premultiplied = image.premultiplied;
+		image.premultiplied = true;
+
+		while (image.width >= width * 2 && image.height >= height * 2)
+		{
+			image.resize(Std.int(image.width / 2), Std.int(image.height / 2));
+		}
+
 		image.resize(width, height);
+		image.premultiplied = premultiplied;
 		#end
 
 		return image;

@@ -42,6 +42,7 @@ Changelog
 - Added `Font.stemDarkening` and `Font.stemDarkeningParameters` to make text more readable.
 - Added a subpixel offset to `Font.renderGlyphWithLoadFlags()`.
 - Added project.xml support for Android manifest tags and Gradle plugin entries.
+- Added Android adaptive icons, which launchers on Android 8 and later mask to their own shape: the project's icon on a background color, with `<config:android adaptive-icon-background="#RRGGBB" />`, or layers given with `<icon path="" adaptive="foreground" />`, `background` and `monochrome`.
 - Added AIR options for Android App Bundles, Android Studio output, and shared runtime deployment.
 - Added VAO support on macOS.
 - Added `GL.copyImageSubData()` for desktop OpenGL 4.3 and `ARB_copy_image`.
@@ -100,6 +101,7 @@ Changelog
 - Changed native desktop applications to update and render at no more than 30 frames a second while every window is minimised or hidden. Set `FrameOptions.backgroundFrameRate` to another rate, or to `0` to keep the full rate.
 - Changed libraries made from asset bundles to decode images, sounds and fonts when they are first asked for, or at `load()` when marked to preload, and to stream music from the bundle. Reading a bundle lets go of each compressed file once it is inflated.
 - Changed the default Android target SDK to 36, which Google Play requires, with Android Gradle plugin 8.9.1 and Gradle 8.11.1. On Android 16, the back gesture and back key still reach the application as `APP_CONTROL_BACK`, and an Android application is a game by default (`android:appCategory="game"`), so it keeps its orientation on large screens.
+- Changed icons the tools scale down from larger images to average the pixels each one covers, rather than read four of them, so small icons come out smooth.
 - Changed native HTTP requests to look up names on a thread of their own on every platform.
 - Changed native HTTPS requests to check the server's certificate, against the system's trusted certificates (Mozilla's on iOS and tvOS). Set `HTTPRequest.verifyCertificates` to `false`, or define `lime-insecure-https`, for servers with self-signed certificates.
 - Changed static builds to use Lime's own mbedTLS rather than the one bundled with hxcpp.
