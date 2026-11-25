@@ -411,7 +411,7 @@
 				GCC_PREFIX_HEADER = "::APP_FILE::/::APP_FILE::-Prefix.pch";
 				INFOPLIST_FILE = "::APP_FILE::/::APP_FILE::-Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = ::DEPLOYMENT::;
-				"LIBRARY_SEARCH_PATHS[arch=arm64]" = (
+				"LIBRARY_SEARCH_PATHS[sdk=iphoneos*][arch=arm64]" = (
 					"$(inherited)",
 					"\"$(SRCROOT)/::APP_FILE::/lib/arm64-debug\"",
 					"\"$(SRCROOT)/::APP_FILE::/lib/arm64\"",
@@ -475,7 +475,7 @@
 				GCC_PREFIX_HEADER = "::APP_FILE::/::APP_FILE::-Prefix.pch";
 				INFOPLIST_FILE = "::APP_FILE::/::APP_FILE::-Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = ::DEPLOYMENT::;
-				"LIBRARY_SEARCH_PATHS[arch=arm64]" = (
+				"LIBRARY_SEARCH_PATHS[sdk=iphoneos*][arch=arm64]" = (
 					"$(inherited)",
 					"\"$(SRCROOT)/::APP_FILE::/lib/arm64\"",
 				);

@@ -83,6 +83,9 @@ class IOSOutputTest extends Test
 
 		var project = output.read("MyApplication.xcodeproj/project.pbxproj");
 		Assert.isTrue(project.indexOf('"LIBRARY_SEARCH_PATHS[sdk=iphonesimulator*][arch=arm64]"') > -1);
+		// Devices name their SDK too, or the simulator's setting would inherit their folder first
+		Assert.isTrue(project.indexOf('"LIBRARY_SEARCH_PATHS[sdk=iphoneos*][arch=arm64]"') > -1);
+		Assert.equals(-1, project.indexOf('"LIBRARY_SEARCH_PATHS[arch=arm64]"'));
 		Assert.isTrue(project.indexOf('/MyApplication/lib/arm64-simulator') > -1);
 		Assert.isTrue(project.indexOf('/MyApplication/lib/arm64-simulator-debug') > -1);
 
