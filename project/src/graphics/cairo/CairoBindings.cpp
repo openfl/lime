@@ -549,12 +549,26 @@ namespace lime {
 	}
 
 
-	value lime_cairo_get_current_point (value handle) {
+	// Writes the doubles into out, the caller's Bytes, rather than returning them
+	// in an object built here with a boxed Float each
+	static void WriteDoubles (value out, const double* values, int count) {
 
-		double x, y;
-		cairo_get_current_point ((cairo_t*)val_data (handle), &x, &y);
-		Vector2 vec2 = Vector2 (x, y);
-		return vec2.Value ();
+		Bytes bytes (out);
+
+		if (bytes.length >= count * (int)sizeof (double)) {
+
+			memcpy (bytes.b, values, count * sizeof (double));
+
+		}
+
+	}
+
+
+	void lime_cairo_get_current_point (value handle, value out) {
+
+		double values[2];
+		cairo_get_current_point ((cairo_t*)val_data (handle), &values[0], &values[1]);
+		WriteDoubles (out, values, 2);
 
 	}
 
@@ -785,12 +799,12 @@ namespace lime {
 	}
 
 
-	value lime_cairo_get_matrix (value handle) {
+	void lime_cairo_get_matrix (value handle, value out) {
 
 		cairo_matrix_t cm;
 		cairo_get_matrix ((cairo_t*)val_data (handle), &cm);
-		Matrix3 mat3 = Matrix3 (cm.xx, cm.yx, cm.xy, cm.yy, cm.x0, cm.y0);
-		return mat3.Value ();
+		double values[6] = { cm.xx, cm.yx, cm.xy, cm.yy, cm.x0, cm.y0 };
+		WriteDoubles (out, values, 6);
 
 	}
 
@@ -1440,12 +1454,12 @@ namespace lime {
 	}
 
 
-	value lime_cairo_pattern_get_matrix (value handle) {
+	void lime_cairo_pattern_get_matrix (value handle, value out) {
 
 		cairo_matrix_t cm;
 		cairo_pattern_get_matrix ((cairo_pattern_t*)val_data (handle), &cm);
-		Matrix3 mat3 = Matrix3 (cm.xx, cm.yx, cm.xy, cm.yy, cm.x0, cm.y0);
-		return mat3.Value ();
+		double values[6] = { cm.xx, cm.yx, cm.xy, cm.yy, cm.x0, cm.y0 };
+		WriteDoubles (out, values, 6);
 
 	}
 
@@ -1494,12 +1508,10 @@ namespace lime {
 	}
 
 
-	void lime_cairo_pattern_set_matrix (value handle, value matrix) {
-
-		Matrix3 mat3 = Matrix3 (matrix);
+	void lime_cairo_pattern_set_matrix (value handle, double a, double b, double c, double d, double tx, double ty) {
 
 		cairo_matrix_t cm;
-		cairo_matrix_init (&cm, mat3.a, mat3.b, mat3.c, mat3.d, mat3.tx, mat3.ty);
+		cairo_matrix_init (&cm, a, b, c, d, tx, ty);
 
 		cairo_pattern_set_matrix ((cairo_pattern_t*)val_data (handle), &cm);
 
@@ -2258,12 +2270,10 @@ namespace lime {
 	}
 
 
-	void lime_cairo_transform (value handle, value matrix) {
-
-		Matrix3 mat3 = Matrix3 (matrix);
+	void lime_cairo_transform (value handle, double a, double b, double c, double d, double tx, double ty) {
 
 		cairo_matrix_t cm;
-		cairo_matrix_init (&cm, mat3.a, mat3.b, mat3.c, mat3.d, mat3.tx, mat3.ty);
+		cairo_matrix_init (&cm, a, b, c, d, tx, ty);
 
 		cairo_transform ((cairo_t*)val_data (handle), &cm);
 
@@ -2353,7 +2363,7 @@ namespace lime {
 	DEFINE_PRIME2v (lime_cairo_font_options_set_hint_style);
 	DEFINE_PRIME2v (lime_cairo_font_options_set_hint_metrics);
 	DEFINE_PRIME1 (lime_cairo_get_antialias);
-	DEFINE_PRIME1 (lime_cairo_get_current_point);
+	DEFINE_PRIME2v (lime_cairo_get_current_point);
 	DEFINE_PRIME1 (lime_cairo_get_dash);
 	DEFINE_PRIME1 (lime_cairo_get_dash_count);
 	DEFINE_PRIME1 (lime_cairo_get_fill_rule);
@@ -2363,7 +2373,7 @@ namespace lime {
 	DEFINE_PRIME1 (lime_cairo_get_line_cap);
 	DEFINE_PRIME1 (lime_cairo_get_line_join);
 	DEFINE_PRIME1 (lime_cairo_get_line_width);
-	DEFINE_PRIME1 (lime_cairo_get_matrix);
+	DEFINE_PRIME2v (lime_cairo_get_matrix);
 	DEFINE_PRIME1 (lime_cairo_get_miter_limit);
 	DEFINE_PRIME1 (lime_cairo_get_operator);
 	DEFINE_PRIME1 (lime_cairo_get_source);
@@ -2398,10 +2408,10 @@ namespace lime {
 	DEFINE_PRIME1 (lime_cairo_pattern_get_color_stop_count);
 	DEFINE_PRIME1 (lime_cairo_pattern_get_extend);
 	DEFINE_PRIME1 (lime_cairo_pattern_get_filter);
-	DEFINE_PRIME1 (lime_cairo_pattern_get_matrix);
+	DEFINE_PRIME2v (lime_cairo_pattern_get_matrix);
 	DEFINE_PRIME2v (lime_cairo_pattern_set_extend);
 	DEFINE_PRIME2v (lime_cairo_pattern_set_filter);
-	DEFINE_PRIME2v (lime_cairo_pattern_set_matrix);
+	DEFINE_PRIME7v (lime_cairo_pattern_set_matrix);
 	DEFINE_PRIME1 (lime_cairo_pop_group);
 	DEFINE_PRIME1v (lime_cairo_pop_group_to_source);
 	DEFINE_PRIME1v (lime_cairo_push_group);
@@ -2443,7 +2453,7 @@ namespace lime {
 	DEFINE_PRIME1v (lime_cairo_stroke_preserve);
 	DEFINE_PRIME1v (lime_cairo_surface_flush);
 	DEFINE_PRIME2v (lime_cairo_text_path);
-	DEFINE_PRIME2v (lime_cairo_transform);
+	DEFINE_PRIME7v (lime_cairo_transform);
 	DEFINE_PRIME3v (lime_cairo_translate);
 	DEFINE_PRIME0 (lime_cairo_version);
 	DEFINE_PRIME0 (lime_cairo_version_string);
