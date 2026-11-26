@@ -37,7 +37,15 @@ public var method:HTTPRequestMethod;
 public var responseData:T;
 public var responseHeaders:Array<HTTPRequestHeader>;
 public var responseStatus:Int;
+
+/**
+	How long, in milliseconds, the request may go without receiving or sending
+	data before it fails. On native targets a transfer that is still under way
+	carries on past it, as with OpenFL's `URLRequest.idleTimeout`. On HTML5 it
+	limits the whole request, as `XMLHttpRequest.timeout` does. 0 waits for good.
+**/
 public var timeout:Int;
+
 public var uri:String;
 public var userAgent:String;
 
@@ -195,7 +203,15 @@ public function load(uri:String = null):Future<T>
 	// public var responseData:T;
 	public var responseHeaders:Array<HTTPRequestHeader>;
 	public var responseStatus:Int;
+
+	/**
+		How long, in milliseconds, the request may go without receiving or sending
+		data before it fails. On native targets a transfer that is still under way
+		carries on past it, as with OpenFL's `URLRequest.idleTimeout`. On HTML5 it
+		limits the whole request, as `XMLHttpRequest.timeout` does. 0 waits for good.
+	**/
 	public var timeout:Int;
+
 	public var uri:String;
 	public var userAgent:String;
 	public var verifyCertificates:Bool;

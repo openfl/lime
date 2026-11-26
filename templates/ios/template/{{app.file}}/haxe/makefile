@@ -40,6 +40,20 @@ HXCPP_FLAGS_armv6 = -D HXCPP_ARMV6
 HXCPP_FLAGS_armv7 = -D HXCPP_ARMV7
 HXCPP_FLAGS_arm64 = -D HXCPP_ARM64
 
+# The libraries of an architecture, which arm64 on the simulator, a platform of its own, keeps apart
+LIBDIR_i386 = i386
+LIBDIR_x86_64 = x86_64
+LIBDIR_armv6 = armv6
+LIBDIR_armv7 = armv7
+LIBDIR_arm64 = arm64
+
+ifeq ("$(HAXE_OS)","iphonesim")
+   SIMULATOR_ARCH += arm64
+   SUFFIX_arm64 = -arm64
+   HXCPP_FLAGS_arm64 = -D simulator -D HXCPP_ARM64
+   LIBDIR_arm64 = arm64-simulator
+endif
+
 ifeq ("$(ACTION)","clean")
 default: clean
 else
@@ -55,12 +69,12 @@ $(HAXE_BUILDS): build-haxe-%:
 	@echo "Haxe $(if $(filter $*,$(SIMULATOR_ARCH)),simulator,device) build: $(CONFIG)$(SUFFIX_$*)"
 	haxe Build.hxml $(HXCPP_FLAGS_$*) -cpp build/$(CONFIG)$(SUFFIX_$*) $(DEBUG)
 	cd build/$(CONFIG)$(SUFFIX_$*); ::HAXELIB_PATH:: export HXCPP_NO_COLOR=1; \
-		haxelib run ::CPP_BUILD_LIBRARY:: Build.xml haxe -Ddestination="$(CURDIR)/../lib/$*$(LIB_DEST)" \
+		haxelib run ::CPP_BUILD_LIBRARY:: Build.xml haxe -Ddestination="$(CURDIR)/../lib/$(LIBDIR_$*)$(LIB_DEST)" \
 		-options Options.txt $(DEBUG)
 	touch ../Classes/Main.mm
 	cd build/$(CONFIG)$(SUFFIX_$*); ::HAXELIB_PATH:: export HXCPP_NO_COLOR=1; \
 		::CPP_CACHE_WORKAROUND:: haxelib run ::CPP_BUILD_LIBRARY:: "$(CURDIR)/BuildHxcppMbedtls.xml" \
-		-Ddestination="$(CURDIR)/../lib/$*$(LIB_MBEDTLS_DEST)" \
+		-Ddestination="$(CURDIR)/../lib/$(LIBDIR_$*)$(LIB_MBEDTLS_DEST)" \
 		-options "$(CURDIR)/build/$(CONFIG)$(SUFFIX_$*)/Options.txt" $(DEBUG)
 
 clean:
