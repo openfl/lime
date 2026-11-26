@@ -26,6 +26,7 @@
 #include "SDL_system.h"
 #include "SDL_uikitmodes.h"
 #include "SDL_uikitvideo.h"
+#import "SDL_uikitscene.h"
 
 #include "../../events/SDL_events_c.h"
 

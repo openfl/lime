@@ -32,6 +32,7 @@
 #import "SDL_uikitmodes.h"
 #import "SDL_uikitwindow.h"
 #import "SDL_uikitvideo.h"
+#import "SDL_uikitscene.h"
 
 #include "../../events/SDL_events_c.h"
 
