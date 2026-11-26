@@ -909,7 +909,7 @@ class IOSPlatform extends PlatformTarget
 			}
 		}
 
-		copyProjectAssets(projectDirectory, "assets");
+		copyProjectAssets(projectDirectory, "assets", context);
 
 		if (project.targetFlags.exists("xcode") && System.hostPlatform == MAC && command == "update")
 		{

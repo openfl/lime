@@ -709,7 +709,7 @@ class AndroidPlatform extends PlatformTarget
 			}
 		}
 
-		copyProjectAssets(destination, sourceSet + "/assets/");
+		copyProjectAssets(destination, sourceSet + "/assets/", context);
 	}
 
 	// Compares dotted version numbers part by part, as numbers, a missing part counting as 0
