@@ -152,7 +152,15 @@ abstract UInt16Array(ArrayBufferView) from ArrayBufferView to ArrayBufferView
 	public inline function __get(idx:Int)
 	{
 		// Outside the view, debug builds read 0, as ECMAScript reads undefined
+		#if hl
+		// Read straight from the buffer: ArrayBufferIO gives a Null<UInt>, which
+		// HashLink allocates for every element read
+		var bytes = this.buffer;
+		var pos = this.byteOffset + (idx * BYTES_PER_ELEMENT);
+		return #if debug (idx < 0 || idx >= this.length) ? (0 : UInt) : #end ((pos + 1 : UInt) < (bytes.length : UInt) ? (@:privateAccess bytes.b).getUI16(pos) : 0 : UInt);
+		#else
 		return #if debug (idx < 0 || idx >= this.length) ? 0 : #end ArrayBufferIO.getUint16(this.buffer, this.byteOffset + (idx * BYTES_PER_ELEMENT));
+		#end
 	}
 
 	@:noCompletion
