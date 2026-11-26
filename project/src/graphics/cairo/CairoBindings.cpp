@@ -8,6 +8,8 @@
 #include <system/Mutex.h>
 #include <system/ValuePointer.h>
 #include <text/Font.h>
+#include <utils/Bytes.h>
+#include <string.h>
 
 
 namespace lime {
@@ -2046,6 +2048,7 @@ namespace lime {
 			id_index = val_id ("index");
 			id_x = val_id ("x");
 			id_y = val_id ("y");
+			init = true;
 
 		}
 
@@ -2092,6 +2095,51 @@ namespace lime {
 
 		cairo_show_glyphs ((cairo_t*)handle->ptr, _glyphs, length);
 		cairo_glyph_free (_glyphs);
+
+	}
+
+
+	// Glyphs as Cairo.showGlyphs packs them: three doubles each, the index, x and y
+	static void ShowGlyphData (cairo_t* cairo, const unsigned char* data, int count) {
+
+		cairo_glyph_t* _glyphs = cairo_glyph_allocate (count);
+		double values[3];
+
+		for (int i = 0; i < count; i++) {
+
+			memcpy (values, data + i * sizeof (values), sizeof (values));
+			_glyphs[i].index = (unsigned long)values[0];
+			_glyphs[i].x = values[1];
+			_glyphs[i].y = values[2];
+
+		}
+
+		cairo_show_glyphs (cairo, _glyphs, count);
+		cairo_glyph_free (_glyphs);
+
+	}
+
+
+	void lime_cairo_show_glyph_data (value handle, value data, int count) {
+
+		Bytes bytes (data);
+
+		if (count > 0 && bytes.length >= count * 3 * (int)sizeof (double)) {
+
+			ShowGlyphData ((cairo_t*)val_data (handle), bytes.b, count);
+
+		}
+
+	}
+
+
+	HL_PRIM void HL_NAME(hl_cairo_show_glyph_data) (HL_CFFIPointer* handle, Bytes* data, int count) {
+
+		if (data && count > 0 && data->length >= count * 3 * (int)sizeof (double)) {
+
+			ShowGlyphData ((cairo_t*)handle->ptr, data->b, count);
+
+		}
 
 	}
 
@@ -2385,6 +2433,7 @@ namespace lime {
 	DEFINE_PRIME5v (lime_cairo_set_source_rgba);
 	DEFINE_PRIME4v (lime_cairo_set_source_surface);
 	DEFINE_PRIME2v (lime_cairo_set_tolerance);
+	DEFINE_PRIME3v (lime_cairo_show_glyph_data);
 	DEFINE_PRIME2v (lime_cairo_show_glyphs);
 	DEFINE_PRIME1v (lime_cairo_show_page);
 	DEFINE_PRIME2v (lime_cairo_show_text);
@@ -2400,6 +2449,7 @@ namespace lime {
 	DEFINE_PRIME0 (lime_cairo_version_string);
 
 
+	#define _TBYTES _OBJ (_I32 _BYTES)
 	#define _TCFFIPOINTER _DYN
 	#define _TMATRIX3 _OBJ (_F64 _F64 _F64 _F64 _F64 _F64)
 	#define _TVECTOR2 _OBJ (_F64 _F64)
@@ -2507,6 +2557,7 @@ namespace lime {
 	DEFINE_HL_PRIM (_VOID, hl_cairo_set_source_rgba, _TCFFIPOINTER _F64 _F64 _F64 _F64);
 	DEFINE_HL_PRIM (_VOID, hl_cairo_set_source_surface, _TCFFIPOINTER _TCFFIPOINTER _F64 _F64);
 	DEFINE_HL_PRIM (_VOID, hl_cairo_set_tolerance, _TCFFIPOINTER _F64);
+	DEFINE_HL_PRIM (_VOID, hl_cairo_show_glyph_data, _TCFFIPOINTER _TBYTES _I32);
 	DEFINE_HL_PRIM (_VOID, hl_cairo_show_glyphs, _TCFFIPOINTER _ARR);
 	DEFINE_HL_PRIM (_VOID, hl_cairo_show_page, _TCFFIPOINTER);
 	DEFINE_HL_PRIM (_VOID, hl_cairo_show_text, _TCFFIPOINTER _STRING);

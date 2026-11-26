@@ -361,13 +361,23 @@ class Cairo
 	public function showGlyphs(glyphs:Array<CairoGlyph>):Void
 	{
 		#if (lime_cffi && lime_cairo && !macro)
-		#if hl
-		var _glyphs = new hl.NativeArray<CairoGlyph>(glyphs.length);
-		for (i in 0...glyphs.length)
-			_glyphs[i] = glyphs[i];
-		var glyphs = _glyphs;
-		#end
-		NativeCFFI.lime_cairo_show_glyphs(handle, glyphs);
+		// Packed as three doubles a glyph, the index, x and y, so that native code
+		// reads them in a plain loop instead of looking up each glyph's fields
+		var length = glyphs.length;
+		if (length == 0) return;
+
+		var data = haxe.io.Bytes.alloc(length * 24);
+		var glyph:CairoGlyph;
+
+		for (i in 0...length)
+		{
+			glyph = glyphs[i];
+			data.setDouble(i * 24, glyph.index);
+			data.setDouble(i * 24 + 8, glyph.x);
+			data.setDouble(i * 24 + 16, glyph.y);
+		}
+
+		NativeCFFI.lime_cairo_show_glyph_data(handle, data, length);
 		#end
 	}
 

@@ -5294,6 +5294,8 @@ class NativeCFFI
 
 	@:cffi private static function lime_cairo_set_tolerance(handle:CFFIPointer, tolerance:Float):Void;
 
+	@:cffi private static function lime_cairo_show_glyph_data(handle:CFFIPointer, data:Dynamic, count:Int):Void;
+
 	@:cffi private static function lime_cairo_show_glyphs(handle:CFFIPointer, glyphs:Dynamic):Void;
 
 	@:cffi private static function lime_cairo_show_page(handle:CFFIPointer):Void;
@@ -5496,6 +5498,8 @@ class NativeCFFI
 		"lime_cairo_set_source_surface", "ooddv", false));
 	private static var lime_cairo_set_tolerance = new cpp.Callable<cpp.Object->Float->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_cairo_set_tolerance",
 		"odv", false));
+	private static var lime_cairo_show_glyph_data = new cpp.Callable<cpp.Object->cpp.Object->Int->cpp.Void>(cpp.Prime._loadPrime("lime",
+		"lime_cairo_show_glyph_data", "ooiv", false));
 	private static var lime_cairo_show_glyphs = new cpp.Callable<cpp.Object->cpp.Object->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_cairo_show_glyphs",
 		"oov", false));
 	private static var lime_cairo_show_page = new cpp.Callable<cpp.Object->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_cairo_show_page", "ov", false));
@@ -5654,6 +5658,7 @@ class NativeCFFI
 	private static var lime_cairo_set_source_rgba = CFFI.load("lime", "lime_cairo_set_source_rgba", 5);
 	private static var lime_cairo_set_source_surface = CFFI.load("lime", "lime_cairo_set_source_surface", 4);
 	private static var lime_cairo_set_tolerance = CFFI.load("lime", "lime_cairo_set_tolerance", 2);
+	private static var lime_cairo_show_glyph_data = CFFI.load("lime", "lime_cairo_show_glyph_data", 3);
 	private static var lime_cairo_show_glyphs = CFFI.load("lime", "lime_cairo_show_glyphs", 2);
 	private static var lime_cairo_show_page = CFFI.load("lime", "lime_cairo_show_page", 1);
 	private static var lime_cairo_show_text = CFFI.load("lime", "lime_cairo_show_text", 2);
@@ -5922,6 +5927,8 @@ class NativeCFFI
 		y:Float):Void {}
 
 	@:hlNative("lime", "hl_cairo_set_tolerance") private static function lime_cairo_set_tolerance(handle:CFFIPointer, tolerance:Float):Void {}
+
+	@:hlNative("lime", "hl_cairo_show_glyph_data") private static function lime_cairo_show_glyph_data(handle:CFFIPointer, data:Bytes, count:Int):Void {}
 
 	@:hlNative("lime", "hl_cairo_show_glyphs") private static function lime_cairo_show_glyphs(handle:CFFIPointer, glyphs:hl.NativeArray<CairoGlyph>):Void {}
 
