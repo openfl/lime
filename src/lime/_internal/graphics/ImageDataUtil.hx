@@ -1251,15 +1251,12 @@ class ImageDataUtil
 				pixel = color;
 		}
 
-		// TODO: Write only RGB instead?
+		var offset = 4 * (y + image.offsetY) * image.buffer.width + (x + image.offsetX) * 4;
 
-		var source = new RGBA();
-		source.readUInt8(image.buffer.data, (4 * (y + image.offsetY) * image.buffer.width + (x + image.offsetX) * 4), image.buffer.format,
-			image.buffer.premultiplied);
-
-		pixel.a = source.a;
-		pixel.writeUInt8(image.buffer.data, (4 * (y + image.offsetY) * image.buffer.width + (x + image.offsetX) * 4), image.buffer.format,
-			image.buffer.premultiplied);
+		// The pixel keeps its alpha, which is read on its own: unmultiplying
+		// a premultiplied pixel never changes its alpha
+		pixel.a = image.buffer.data[offset + (image.buffer.format == ARGB32 ? 0 : 3)];
+		pixel.writeUInt8(image.buffer.data, offset, image.buffer.format, image.buffer.premultiplied);
 
 		image.dirty = true;
 		image.version++;
