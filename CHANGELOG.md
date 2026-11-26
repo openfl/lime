@@ -289,6 +289,7 @@ Changelog
 - Fixed iOS and tvOS applications built with libhxcpp not linking Security.framework, which libhxcpp's TLS (`sys.ssl`, HTTPS through `haxe.Http`, `WebSocket` over `wss://`) uses there to check certificates. Lime links it only when the hxcpp in use asks for it, so builds with hxcpp 4.3 are unchanged.
 - Fixed `FileSystem.fullPath()` on HashLink for Windows giving only the first half of each name in its case on disk.
 - Fixed decoding sounds from bytes on macOS and iOS crashing when SDL_sound's Core Audio decoder tries them, as it does for M4A, AAC and CAF data and for bytes that aren't a sound.
+- Fixed `window.displayMode.refreshRate` reading 0 where SDL has no refresh rate for the window's mode, as on Linux: it now gives the display's current rate.
 - Fixed `Window.fullscreen` reading `false` while a window is still fullscreen: after it is minimized and restored, as with Alt+Tab, when macOS enters fullscreen with a maximize, and when a maximized window goes fullscreen. It now reads SDL's own state at those events.
 
 8.3.2 (05/13/2026)
