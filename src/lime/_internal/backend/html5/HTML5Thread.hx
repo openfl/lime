@@ -34,6 +34,9 @@ class HTML5Thread
 	private static var __current:HTML5Thread = new HTML5Thread(Lib.global.location.href);
 	private static var __isWorker:Bool #if !macro = #if !haxe4 untyped __js__ #else Syntax.code #end ('typeof window == "undefined"') #end;
 	private static var __messages:List<Dynamic> = new List();
+	// The URL of Lime's script, read while it runs, as a worker runs the same script. The application's
+	// meta names the script too, but only once its constructor has returned, and a job may start in it.
+	private static var __scriptURL:String #if !macro = __findScriptURL() #end;
 	private static var __resolveMethods:List<Dynamic->Void> = new List();
 	private static var __workerCount:Int = 0;
 
@@ -70,6 +73,23 @@ class HTML5Thread
 		#end
 	}
 
+	#if !macro
+	private static function __findScriptURL():String
+	{
+		try
+		{
+			// A worker is the script itself. On the page, Lime's output wrapper keeps the script's URL as it
+			// loads, before lime.embed() runs this code, where the current script is the page's own. A
+			// script loaded as a module, or without the wrapper, has neither.
+			return #if !haxe4 untyped __js__ #else Syntax.code #end ("typeof window == \"undefined\" ? self.location.href : (typeof $lime_script_url !== \"undefined\" && $lime_script_url ? $lime_script_url : (document.currentScript != null && document.currentScript.src ? document.currentScript.src : null))");
+		}
+		catch (e:Dynamic)
+		{
+			return null;
+		}
+	}
+	#end
+
 	public static inline function current():HTML5Thread
 	{
 		return __current;
@@ -79,8 +99,17 @@ class HTML5Thread
 	{
 		#if !macro
 		// Find the URL of the primary JS file.
-		var url:URL = new URL(__current.__href);
-		url.pathname = url.pathname.substr(0, url.pathname.lastIndexOf("/") + 1) + Application.current.meta["file"] + ".js";
+		var url:URL;
+		if (__scriptURL != null)
+		{
+			url = new URL(__scriptURL);
+			url.hash = "";
+		}
+		else
+		{
+			url = new URL(__current.__href);
+			url.pathname = url.pathname.substr(0, url.pathname.lastIndexOf("/") + 1) + Application.current.meta["file"] + ".js";
+		}
 
 		// Use the hash to distinguish workers.
 		if (url.hash.length > 0) url.hash += "_";
@@ -104,11 +133,37 @@ class HTML5Thread
 	}
 
 	#if !macro
-	private static inline function zeroDelay():Promise<Dynamic>
+	private static var __yieldChannel:Dynamic;
+	private static var __yieldResolves:Array<Dynamic->Void> = [];
+
+	/**
+		Resolves once the browser has run the tasks already waiting, which delivers the messages
+		that have arrived. A message posted to a `MessageChannel` waits for them as a zero-delay
+		timer does, but browsers hold nested timers to about 4 ms and not messages, so a worker that
+		reads its messages between calls of a work function isn't held to about 250 calls a second.
+	**/
+	private static function zeroDelay():Promise<Dynamic>
 	{
 		return new Promise<Dynamic>(function(resolve, _):Void
 		{
-			js.Lib.global.setTimeout(resolve);
+			if (__yieldChannel == null)
+			{
+				if (js.Lib.global.MessageChannel == null)
+				{
+					js.Lib.global.setTimeout(resolve);
+					return;
+				}
+
+				__yieldChannel = #if !haxe4 untyped __js__ #else Syntax.code #end ("new MessageChannel()");
+				__yieldChannel.port1.onmessage = function(_):Void
+				{
+					var next = __yieldResolves.shift();
+					if (next != null) next(null);
+				};
+			}
+
+			__yieldResolves.push(resolve);
+			__yieldChannel.port2.postMessage(null);
 		});
 	}
 	#end
@@ -125,7 +180,7 @@ class HTML5Thread
 
 		// `onmessage` events are only received when the main function is
 		// suspended, so we must insert `await` even if `block` is false.
-		// TODO: find a more efficient way to read messages.
+		// `zeroDelay()` waits for the messages already sent, and no longer.
 		var zeroDelayExpr:Expr = macro @:privateAccess
 			$jsCode("await {0}", lime._internal.backend.html5.HTML5Thread.zeroDelay()).then(function(_) return
 				lime._internal.backend.html5.HTML5Thread.__messages.pop());

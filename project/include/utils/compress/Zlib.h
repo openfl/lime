@@ -22,7 +22,7 @@ namespace lime {
 
 		public:
 
-			static void Compress (ZlibType type, Bytes* data, Bytes* result);
+			static void Compress (ZlibType type, Bytes* data, Bytes* result, int level = -1);
 			static bool Decompress (ZlibType type, Bytes* data, Bytes* result);
 
 

@@ -1723,6 +1723,14 @@ class CommandLineTools
 			environment.set("haxe_ver", haxeVersion);
 
 			environment.set("haxe" + haxeVersion.split(".")[0], "1");
+
+			var haxeMajorVersion = Std.parseInt(haxeVersion.split(".")[0]);
+
+			// An IDE reads display's output as build arguments
+			if (haxeMajorVersion != null && haxeMajorVersion < 4 && command != "display")
+			{
+				Log.warn("Haxe " + haxeVersion + " is deprecated, and Lime 9 requires Haxe 4 or later.");
+			}
 		}
 		catch (e:Dynamic) {}
 

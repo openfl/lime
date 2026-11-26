@@ -246,7 +246,7 @@ class WindowsPlatform extends PlatformTarget
 
 		var icons = project.icons;
 
-		if (icons.length == 0)
+		if (!IconHelper.hasIcons(icons))
 		{
 			icons = [new Icon(System.findTemplate(project.templatePaths, "default/icon.svg"))];
 		}
@@ -1064,7 +1064,7 @@ class WindowsPlatform extends PlatformTarget
 		else if (targetType == "cpp")
 		{
 			var windowsIcons = project.icons;
-			if (windowsIcons.length == 0)
+			if (!IconHelper.hasIcons(windowsIcons))
 			{
 				windowsIcons = [new Icon(System.findTemplate(project.templatePaths, "default/icon.svg"))];
 			}
@@ -1190,7 +1190,7 @@ class WindowsPlatform extends PlatformTarget
 
 		var icons = project.icons;
 
-		if (icons.length == 0)
+		if (!IconHelper.hasIcons(icons))
 		{
 			icons = [new Icon(System.findTemplate(project.templatePaths, "default/icon.svg"))];
 		}
