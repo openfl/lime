@@ -682,6 +682,23 @@ class ImageDataUtil
 			StackBlur.blur(image, sourceImage, sourceRect, destPoint, blurX, blurY, quality);
 		}
 
+		if (strength != 1)
+		{
+			// as in Flash, the blurred alpha is multiplied by the strength, over the pixels StackBlur wrote
+			var data = image.data;
+			var alphaOffset = image.buffer.format == ARGB32 ? 0 : 3;
+			var end = Std.int(Math.min(Std.int(sourceRect.width) * Std.int(sourceRect.height) * 4, data.length));
+			var i = alphaOffset;
+			var alpha:Float;
+
+			while (i < end)
+			{
+				alpha = data[i] * strength;
+				data[i] = alpha >= 0xFF ? 0xFF : (alpha <= 0 ? 0 : Std.int(alpha));
+				i += 4;
+			}
+		}
+
 		image.dirty = true;
 		image.version++;
 
@@ -720,6 +737,16 @@ class ImageDataUtil
 			_mask.a = 0xFF;
 		}
 
+		// The buffer is read here rather than through getPixel32, which checks the
+		// image's type and bounds for every pixel
+		var data = image.buffer.data;
+		var sourceFormat = image.buffer.format;
+		var premultiplied = image.buffer.premultiplied;
+		var stride = image.buffer.width * 4;
+		var originX = image.offsetX * 4;
+		var originY = image.offsetY;
+		var read:RGBA = 0;
+
 		var pixel:Int;
 		var hit:Bool;
 
@@ -729,7 +756,8 @@ class ImageDataUtil
 
 			for (y in 0...image.height)
 			{
-				pixel = image.getPixel32(x, y, RGBA32);
+				read.readUInt8(data, (y + originY) * stride + originX + x * 4, sourceFormat, premultiplied);
+				pixel = read;
 				hit = findColor ? (pixel & _mask) == _color : (pixel & _mask) != _color;
 
 				if (hit)
@@ -754,7 +782,8 @@ class ImageDataUtil
 
 			for (y in 0...image.height)
 			{
-				pixel = image.getPixel32(ix, y, RGBA32);
+				read.readUInt8(data, (y + originY) * stride + originX + ix * 4, sourceFormat, premultiplied);
+				pixel = read;
 				hit = findColor ? (pixel & _mask) == _color : (pixel & _mask) != _color;
 
 				if (hit)
@@ -776,7 +805,8 @@ class ImageDataUtil
 
 			for (x in 0...image.width)
 			{
-				pixel = image.getPixel32(x, y, RGBA32);
+				read.readUInt8(data, (y + originY) * stride + originX + x * 4, sourceFormat, premultiplied);
+				pixel = read;
 				hit = findColor ? (pixel & _mask) == _color : (pixel & _mask) != _color;
 
 				if (hit)
@@ -801,7 +831,8 @@ class ImageDataUtil
 
 			for (x in 0...image.width)
 			{
-				pixel = image.getPixel32(x, iy, RGBA32);
+				read.readUInt8(data, (iy + originY) * stride + originX + x * 4, sourceFormat, premultiplied);
+				pixel = read;
 				hit = findColor ? (pixel & _mask) == _color : (pixel & _mask) != _color;
 
 				if (hit)

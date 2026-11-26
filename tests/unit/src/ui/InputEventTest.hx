@@ -669,6 +669,94 @@ class InputEventTest extends Test
 		return exitCode == 0;
 	}
 
+
+	/**
+		Real mouse input, through SDL and the native event code that hands each event to Haxe: moves, each
+		button pressed and released, and the wheel, in the order they were posted and with what each carries.
+		Native code fills the event objects in field by field today, and whatever it fills them with instead
+		has to give the same events in the same order.
+	**/
+	@:timeout(20000)
+	public function testRealMouseInputArrivesInOrderWithWhatItCarries(async:Async):Void
+	{
+		var window = open();
+		if (window == null)
+		{
+			async.done();
+			return;
+		}
+
+		var heard = [];
+		window.onMouseMove.add(function(x:Float, y:Float) heard.push("move " + x + "," + y));
+		window.onMouseMoveRelative.add(function(x:Float, y:Float) heard.push("by " + x + "," + y));
+		window.onMouseDown.add(function(x:Float, y:Float, button:MouseButton) heard.push("down " + x + "," + y + " " + Std.int(cast button)));
+		window.onMouseUp.add(function(x:Float, y:Float, button:Int) heard.push("up " + x + "," + y + " " + button));
+		window.onMouseWheel.add(function(deltaX:Float, deltaY:Float, mode) heard.push("wheel " + deltaX + "," + deltaY));
+
+		// WM_MOUSEMOVE, WM_RBUTTONDOWN and UP, WM_MBUTTONDOWN and UP, WM_LBUTTONDOWN and UP twice, WM_MOUSEWHEEL
+		// one step down, as message, wParam, x and y
+		var posted = postMessages(window, [
+			[0x0200, 0, 5, 6],
+			[0x0200, 0, 9, 14],
+			[0x0204, 2, 9, 14],
+			[0x0205, 0, 9, 14],
+			[0x0207, 0x10, 9, 14],
+			[0x0208, 0, 9, 14],
+			[0x0201, 1, 9, 14],
+			[0x0202, 0, 9, 14],
+			[0x0201, 1, 9, 14],
+			[0x0202, 0, 9, 14],
+			[0x020A, -120 << 16, 9, 14]
+		]);
+
+		if (!posted)
+		{
+			Assert.fail("the mouse messages could not be posted");
+			async.done();
+			return;
+		}
+
+		Timer.delay(function()
+		{
+			// Right, middle and left are buttons 2, 1 and 0, and a wheel step down is -1
+			var expected = [
+				"move 5,6", "by 0,0", "move 9,14", "by 4,8", "down 9,14 2", "up 9,14 2", "down 9,14 1", "up 9,14 1", "down 9,14 0", "up 9,14 0",
+				"down 9,14 0", "up 9,14 0", "wheel 0,-1"
+			];
+
+			// The real cursor is not over the window, so SDL may also move to its edge when Windows says the
+			// mouse has left
+			Assert.equals(expected.join("|"), heard.slice(0, expected.length).join("|"));
+			async.done();
+		}, 1000);
+	}
+
+	/** Posts each message, wParam and position to the window through PowerShell **/
+	private static function postMessages(window:Window, messages:Array<Array<Int>>):Bool
+	{
+		var hwnd = Int64.toStr(window.nativeHandle.window);
+		var script = "Add-Type -Namespace LimeTest -Name User32 -MemberDefinition '[DllImport(\"user32.dll\")] public static extern bool PostMessage(IntPtr hWnd, uint msg, IntPtr wParam, IntPtr lParam);'\n"
+			+ "$h = [IntPtr][Int64]" + hwnd + "\n$ok = $true\n";
+
+		for (message in messages)
+		{
+			script += "$ok = [LimeTest.User32]::PostMessage($h, " + message[0] + ", [IntPtr](" + message[1] + "), [IntPtr](" + message[2] + " + (" + message[3]
+				+ " -shl 16))) -and $ok\n";
+		}
+
+		script += "if (-not $ok) { exit 1 }\n";
+
+		var utf16 = Bytes.alloc(script.length * 2);
+		for (i in 0...script.length)
+		{
+			utf16.setUInt16(i * 2, StringTools.fastCodeAt(script, i));
+		}
+
+		var process = new sys.io.Process(powerShell(), ["-NoProfile", "-NonInteractive", "-EncodedCommand", Base64.encode(utf16)]);
+		var exitCode = process.exitCode();
+		process.close();
+		return exitCode == 0;
+	}
 	private static function powerShell():String
 	{
 		// HashLink starts a process by its path, without looking through PATH

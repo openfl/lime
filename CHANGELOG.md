@@ -87,6 +87,7 @@ Changelog
 - Added the `-noupdate` flag to `lime build` and `lime test` to skip the update step.
 - Added the `-arm64` flag to build HashLink/C applications for Apple Silicon on macOS, with binaries from `lime rebuild hl -arm64`. HashLink's JIT does not run on Apple Silicon yet.
 - Added running Windows builds through Wine with `lime test` on other platforms.
+- Added arm64 iOS simulator builds, which the simulator runs on Apple silicon Macs without Rosetta. They are made there, or with `-arm64`, when the hxcpp that builds the libraries can make them, as libhxcpp can, and `-x86_64` still makes an x86_64 one. `lime rebuild ios` adds the arm64 simulator libraries.
 - Added the `lime_skip_invisible_windows` define to stop rendering windows that are hidden.
 - Added `&&`, `!` and parentheses to project.xml `if` and `unless` conditions, read as in Haxe's `#if`, and a warning for a condition that can't be read, which is false.
 - Changed native streamed audio to refill from a thread of its own, so a stall on the main thread no longer drains a stream's buffers and drops its sound. Define `lime_audio_no_stream_thread` to refill from the main thread as before.
@@ -102,6 +103,7 @@ Changelog
 - Changed HTML5 asset URLs to carry a version made from each asset's content, so a build that only changes code or other assets leaves an asset's URL, and the browser's cached copy, as they were. `lime-assets-version` still gives every asset the same version, and `lime-disable-assets-version` none.
 - Changed libraries made from asset bundles to decode images, sounds and fonts when they are first asked for, or at `load()` when marked to preload, and to stream music from the bundle. Reading a bundle lets go of each compressed file once it is inflated.
 - Changed the default Android target SDK to 36, which Google Play requires, with Android Gradle plugin 8.9.1 and Gradle 8.11.1. On Android 16, the back gesture and back key still reach the application as `APP_CONTROL_BACK`, and an Android application is a game by default (`android:appCategory="game"`), so it keeps its orientation on large screens.
+- Added support for Android Gradle plugin 9 and Gradle 9, which removed `applicationVariants` and Groovy's SwingBuilder.
 - Changed native HTTP requests to look up names on a thread of their own on every platform.
 - Changed native HTTPS requests to check the server's certificate, against the system's trusted certificates (Mozilla's on iOS and tvOS). Set `HTTPRequest.verifyCertificates` to `false`, or define `lime-insecure-https`, for servers with self-signed certificates.
 - Changed static builds to use Lime's own mbedTLS rather than the one bundled with hxcpp.
@@ -135,8 +137,11 @@ Changelog
 - Updated mbedTLS to 3.6.7 and curl to 8.23.0, adding TLS 1.3 to native HTTP requests.
 - Updated the bundled CA certificates to Mozilla's 2026-10-20 list, which drops three eMudhra roots.
 - Updated FreeType to 2.14.3, libpng to 1.6.59, zlib to 1.3.2, HarfBuzz to 14.6.0, libjpeg-turbo to 2.1.5.1 and libwebm to 1.0.0.32, for security fixes in reading fonts, images, compressed data and WebM files. FreeType's auto-hinter and hinting changed between versions, so some hinted glyphs and auto-hinted outlines can differ by a few pixels.
+- Changed native builds for x86 to include libpng's SSE2 row filters, as ARM builds include its NEON ones, which undo the Sub, Average and Paeth filters of RGB and RGBA PNGs faster while decoding.
 - Updated HashLink to 1.16.
+- Updated the macOS `webify`, which converts fonts for HTML5, to 0.1.10.0, and `ios-deploy` to 1.12.2, each with an arm64 build alongside x86_64, so neither needs Rosetta on Apple silicon Macs, and removed the unused `fruitstrap`.
 - Fixed an asset embedding regression.
+- Fixed `lime test` on Linux stopping with an xdg-open error instead of opening the browser, after starting the test server or for projects with an `app.url`. xdg-open now runs in the background.
 - Fixed HashLink on macOS boxing a `false` returned by a native function as `true`, as in a `Future` result: Lime's HashLink runtime clears the upper bits of a `Bool` before boxing it, as HashLink's newer JIT does.
 - Fixed Windows cpp icon resource handling when no icon is generated.
 - Fixed GL cleanup and desktop GL object collection.
@@ -203,6 +208,7 @@ Changelog
 - Fixed `Image.merge()`, `copyChannel()` and `threshold()` with a destination point or rectangle past an edge shifting pixels and changing their arguments, and `copyPixels()` reading the alpha image from the wrong point.
 - Fixed `Image.floodFill()` not filling a lone pixel, reading a start point outside the image, and filling past an image that is part of a larger buffer.
 - Fixed `Image.threshold()` comparing the masked pixel with the whole threshold, and comparing colours byte by byte rather than as ARGB numbers.
+- Fixed `ImageDataUtil.gaussianBlur()` ignoring its strength, so OpenFL's glows and drop shadows drawn in software came out as the same faint halo whatever their strength.
 - Fixed writing a premultiplied colour changing the caller's colour, and native code premultiplying with different rounding.
 - Fixed `ARGB.readUInt8()` reading some formats' bytes into the wrong channels.
 - Fixed `ImageBuffer.clone()` on Flash sharing the original's pixel data.
@@ -254,6 +260,7 @@ Changelog
 - Fixed `ThreadPool.cancelJob()` cancelling another job, and jobs taken before `cancel()` going uncounted.
 - Fixed dropped files reaching every window's `onDropFile`, cloned mouse events naming window 0, `Window.onFullscreen` listeners reading `fullscreen` as `false`, and each window resize being dispatched twice on macOS, Linux and mobile.
 - Fixed setting the desktop's own display mode making every later fullscreen exclusive.
+- Fixed leaving fullscreen on Windows giving back a window larger than the display, which Windows then took for a fullscreen window and kept the taskbar behind. It is now made to fit, with the same shape.
 - Fixed `vsync="adaptive"` and `vsync="auto"` in project.xml asking for plain vertical sync.
 - Fixed HashLink leaking the text of each text input event and dropped file path, and `sys.io.Process` failing for every command on HashLink on Windows.
 - Fixed the tools opening a console window titled with the address on Windows, rather than the browser, for a project's `<app url>` and `lime setup`'s download pages, and `<command open>` doing the same for a path.

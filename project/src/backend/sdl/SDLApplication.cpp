@@ -592,6 +592,25 @@ namespace lime
 		s_contextFlips++;
 	}
 
+	// A swap with vsync waits for the display for most of a light frame, and the
+	// collector needn't wait for it. The flag is the event wait's, so a callback
+	// that arrives during the swap leaves the blocking section first.
+	static int s_swapWasBlocking = 0;
+
+	void SDLApplication::EnterSwapBlocking()
+	{
+
+		System::GCEnterBlocking();
+		s_swapWasBlocking = SDL_AtomicSet(&s_waitEventBlocking, 1);
+	}
+
+	void SDLApplication::ExitSwapBlocking()
+	{
+
+		SDL_AtomicSet(&s_waitEventBlocking, s_swapWasBlocking);
+		System::GCExitBlocking();
+	}
+
 	void SDLApplication::PaceFrameAfterRender(bool swapped, double renderMs)
 	{
 

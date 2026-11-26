@@ -450,6 +450,8 @@ class AndroidPlatform extends PlatformTarget
 		// The templates' < and >= compare text, where "10.0.0" comes before "4.0"
 		context.ANDROID_GRADLE_PLUGIN_4_0 = compareVersions(context.ANDROID_GRADLE_PLUGIN, "4.0") >= 0;
 		context.ANDROID_GRADLE_PLUGIN_7_1 = compareVersions(context.ANDROID_GRADLE_PLUGIN, "7.1") >= 0;
+		context.ANDROID_GRADLE_PLUGIN_9_0 = compareVersions(context.ANDROID_GRADLE_PLUGIN, "9.0") >= 0;
+		context.ANDROID_GRADLE_9_0 = compareVersions(context.ANDROID_GRADLE_VERSION, "9.0") >= 0;
 		context.ANDROID_GRADLE_APPLY_PLUGIN = project.config.getArrayString("android.gradle-apply-plugin");
 		context.ANDROID_USE_ANDROIDX = project.config.getString("android.useAndroidX", "true");
 		context.ANDROID_ENABLE_JETIFIER = project.config.getString("android.enableJetifier", "false");

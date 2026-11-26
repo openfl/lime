@@ -46,6 +46,17 @@
 
 		</section>
 
+		<!-- libpng's SSE2 row filters on x86, which libpng only uses where PNG_INTEL_SSE is
+		     defined for every file. They build to nothing where the compiler has no SSE2. -->
+		<section unless="HXCPP_ARMV6 || HXCPP_ARMV7 || HXCPP_ARMV7S || HXCPP_ARM64 || rpi || emscripten">
+
+			<compilerflag value="-DPNG_INTEL_SSE" />
+
+			<file name="${NATIVE_TOOLKIT_PATH}/png/intel/intel_init.c" />
+			<file name="${NATIVE_TOOLKIT_PATH}/png/intel/filter_sse2_intrinsics.c" />
+
+		</section>
+
 	</files>
 
 </xml>

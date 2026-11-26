@@ -21,6 +21,7 @@
 #include <initguid.h>
 #include <d3d11.h>
 #include <d3d11_1.h>
+#include <dxgi1_3.h>
 #include <d3d10.h>
 #include <mfapi.h>
 #include <mfidl.h>
@@ -1368,6 +1369,11 @@ namespace lime {
 			std::condition_variable outputCondition;
 			std::mutex outputMutex;
 			ID3D11Query* outputQuery;
+			// Set by DXGI once the GPU has run the commands sent before it, so that
+			// waiting for a frame blocks rather than spins
+			HANDLE outputEvent;
+			IDXGIDevice2* outputEventDevice;
+			bool outputEventChecked;
 			MFOutputTexture outputs[OUTPUT_TEXTURES];
 			ID3D11VideoProcessor* processor;
 			ID3D11VideoProcessorEnumerator* processorEnumerator;
@@ -1455,6 +1461,9 @@ namespace lime {
 		locked2D = NULL;
 		lockedBuffer = NULL;
 		outputQuery = NULL;
+		outputEvent = NULL;
+		outputEventDevice = NULL;
+		outputEventChecked = false;
 		pixelAspectRatio = 0;
 		processor = NULL;
 		processorEnumerator = NULL;
@@ -2915,6 +2924,22 @@ namespace lime {
 
 		}
 
+		if (outputEventDevice) {
+
+			outputEventDevice->Release ();
+			outputEventDevice = NULL;
+
+		}
+
+		if (outputEvent) {
+
+			CloseHandle (outputEvent);
+			outputEvent = NULL;
+
+		}
+
+		outputEventChecked = false;
+
 		for (int i = 0; i < OUTPUT_TEXTURES; i++) {
 
 			// Textures still shared with OpenGL are left for ReleaseTextures
@@ -3262,25 +3287,59 @@ namespace lime {
 					} else {
 
 						// OpenGL samples the shared texture through another API, so wait
-						// for the GPU to finish writing it before the frame is queued
-						if (!outputQuery) {
+						// for the GPU to finish writing it before the frame is queued.
+						// DXGI 1.3 sets an event for that, which the thread waits on.
+						if (!outputEventChecked) {
 
-							D3D11_QUERY_DESC queryDesc = {};
-							queryDesc.Query = D3D11_QUERY_EVENT;
-							device->CreateQuery (&queryDesc, &outputQuery);
+							outputEventChecked = true;
+
+							if (SUCCEEDED (device->QueryInterface (IID_PPV_ARGS (&outputEventDevice)))) {
+
+								outputEvent = CreateEvent (NULL, FALSE, FALSE, NULL);
+
+							} else {
+
+								outputEventDevice = NULL;
+
+							}
 
 						}
 
-						if (outputQuery) {
+						if (outputEventDevice && outputEvent && SUCCEEDED (outputEventDevice->EnqueueSetEvent (outputEvent))) {
 
-							context->End (outputQuery);
-							context->Flush ();
-							BOOL done = FALSE;
-							while (context->GetData (outputQuery, &done, sizeof (done), 0) == S_FALSE) std::this_thread::yield ();
+							// A second at most, so that a lost device can't hold the thread
+							WaitForSingleObject (outputEvent, 1000);
 
 						} else {
 
-							context->Flush ();
+							if (!outputQuery) {
+
+								D3D11_QUERY_DESC queryDesc = {};
+								queryDesc.Query = D3D11_QUERY_EVENT;
+								device->CreateQuery (&queryDesc, &outputQuery);
+
+							}
+
+							if (outputQuery) {
+
+								context->End (outputQuery);
+								context->Flush ();
+								BOOL done = FALSE;
+								int polls = 0;
+
+								// Polled, giving the core up after the first few tries
+								while (context->GetData (outputQuery, &done, sizeof (done), 0) == S_FALSE) {
+
+									if (++polls < 64) std::this_thread::yield ();
+									else Sleep (1);
+
+								}
+
+							} else {
+
+								context->Flush ();
+
+							}
 
 						}
 
