@@ -158,6 +158,7 @@ class TestMain extends Application
 		runner.addCase(new text.HarfBuzzSetTest());
 		runner.addCase(new text.UTF8StringTest());
 		runner.addCase(new tools.ImageHelperTest());
+		runner.addCase(new tools.IconHelperTest());
 		#if sys
 		// Each test is named as it starts, so a run that hangs shows where
 		runner.onTestStart.add(function(handler)
