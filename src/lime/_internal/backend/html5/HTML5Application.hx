@@ -456,7 +456,7 @@ class HTML5Application
 
 		for (window in parent.__windows)
 		{
-			window.__backend.updateSize();
+			window.__backend.updateSizeForFrame();
 		}
 
 		// navigator.getGamepads() makes a new snapshot each time, so it isn't called while no pad is
