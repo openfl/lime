@@ -896,15 +896,17 @@ class ImageDataUtil
 		}
 	}
 
-	public static function getPixels(image:Image, rect:Rectangle, format:PixelFormat):Bytes
+	public static function getPixels(image:Image, rect:Rectangle, format:PixelFormat, endian:Endian = null):Bytes
 	{
 		if (image.buffer.data == null) return null;
 
 		var length = Std.int(rect.width * rect.height);
 		var bytes = Bytes.alloc(length * 4);
+		// Little endian is each pixel's bytes in reverse, as setPixels() reads them
+		var littleEndian = (endian == LITTLE_ENDIAN);
 
 		#if (lime_cffi && !disable_cffi && !macro)
-		if (CFFI.enabled) NativeCFFI.lime_image_data_util_get_pixels(image, rect, format, bytes);
+		if (CFFI.enabled) NativeCFFI.lime_image_data_util_get_pixels_endian(image, rect, format, bytes, littleEndian ? 0 : 1);
 		else
 		#end
 		{
@@ -938,10 +940,20 @@ class ImageDataUtil
 						default:
 					}
 
-					bytes.set(destPosition++, pixel.r);
-					bytes.set(destPosition++, pixel.g);
-					bytes.set(destPosition++, pixel.b);
-					bytes.set(destPosition++, pixel.a);
+					if (littleEndian)
+					{
+						bytes.set(destPosition++, pixel.a);
+						bytes.set(destPosition++, pixel.b);
+						bytes.set(destPosition++, pixel.g);
+						bytes.set(destPosition++, pixel.r);
+					}
+					else
+					{
+						bytes.set(destPosition++, pixel.r);
+						bytes.set(destPosition++, pixel.g);
+						bytes.set(destPosition++, pixel.b);
+						bytes.set(destPosition++, pixel.a);
+					}
 
 					position += 4;
 				}

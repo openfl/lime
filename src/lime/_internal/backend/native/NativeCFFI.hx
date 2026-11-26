@@ -311,7 +311,7 @@ class NativeCFFI
 
 	@:cffi private static function lime_image_data_util_flood_fill(image:Dynamic, x:Int, y:Int, rg:Int, ba:Int):Void;
 
-	@:cffi private static function lime_image_data_util_get_pixels(image:Dynamic, rect:Dynamic, format:Int, bytes:Dynamic):Void;
+	@:cffi private static function lime_image_data_util_get_pixels_endian(image:Dynamic, rect:Dynamic, format:Int, bytes:Dynamic, endian:Int):Void;
 
 	@:cffi private static function lime_image_data_util_merge(image:Dynamic, sourceImage:Dynamic, sourceRect:Dynamic, destPoint:Dynamic, redMultiplier:Int,
 		greenMultiplier:Int, blueMultiplier:Int, alphaMultiplier:Int):Void;
@@ -1213,8 +1213,8 @@ class NativeCFFI
 		"lime_image_data_util_fill_rect", "ooiiv", false));
 	private static var lime_image_data_util_flood_fill = new cpp.Callable<cpp.Object->Int->Int->Int->Int->cpp.Void>(cpp.Prime._loadPrime("lime",
 		"lime_image_data_util_flood_fill", "oiiiiv", false));
-	private static var lime_image_data_util_get_pixels = new cpp.Callable<cpp.Object->cpp.Object->Int->cpp.Object->cpp.Void>(cpp.Prime._loadPrime("lime",
-		"lime_image_data_util_get_pixels", "ooiov", false));
+	private static var lime_image_data_util_get_pixels_endian = new cpp.Callable<cpp.Object->cpp.Object->Int->cpp.Object->Int->cpp.Void>(cpp.Prime._loadPrime("lime",
+		"lime_image_data_util_get_pixels_endian", "ooioiv", false));
 	private static var lime_image_data_util_merge = new cpp.Callable<cpp.Object->cpp.Object->cpp.Object->cpp.Object->Int->Int->Int->Int->
 		cpp.Void>(cpp.Prime._loadPrime("lime", "lime_image_data_util_merge", "ooooiiiiv", false));
 	private static var lime_image_data_util_multiply_alpha = new cpp.Callable<cpp.Object->cpp.Void>(cpp.Prime._loadPrime("lime",
@@ -1865,7 +1865,7 @@ class NativeCFFI
 	private static var lime_image_data_util_copy_pixels = CFFI.load("lime", "lime_image_data_util_copy_pixels", -1);
 	private static var lime_image_data_util_fill_rect = CFFI.load("lime", "lime_image_data_util_fill_rect", 4);
 	private static var lime_image_data_util_flood_fill = CFFI.load("lime", "lime_image_data_util_flood_fill", 5);
-	private static var lime_image_data_util_get_pixels = CFFI.load("lime", "lime_image_data_util_get_pixels", 4);
+	private static var lime_image_data_util_get_pixels_endian = CFFI.load("lime", "lime_image_data_util_get_pixels_endian", 5);
 	private static var lime_image_data_util_merge = CFFI.load("lime", "lime_image_data_util_merge", -1);
 	private static var lime_image_data_util_multiply_alpha = CFFI.load("lime", "lime_image_data_util_multiply_alpha", 1);
 	private static var lime_image_data_util_resize = CFFI.load("lime", "lime_image_data_util_resize", 4);
@@ -2708,8 +2708,8 @@ class NativeCFFI
 	@:hlNative("lime", "hl_image_data_util_flood_fill") private static function lime_image_data_util_flood_fill(image:Image, x:Int, y:Int, rg:Int,
 		ba:Int):Void {}
 
-	@:hlNative("lime", "hl_image_data_util_get_pixels") private static function lime_image_data_util_get_pixels(image:Image, rect:Rectangle, format:Int,
-		bytes:Bytes):Void {}
+	@:hlNative("lime", "hl_image_data_util_get_pixels_endian") private static function lime_image_data_util_get_pixels_endian(image:Image, rect:Rectangle, format:Int,
+		bytes:Bytes, endian:Int):Void {}
 
 	// @:cffi private static function lime_image_data_util_merge (image:Dynamic, sourceImage:Dynamic, sourceRect:Dynamic, destPoint:Dynamic, redMultiplier:Int, greenMultiplier:Int, blueMultiplier:Int, alphaMultiplier:Int):Void;
 	@:hlNative("lime", "hl_image_data_util_merge") private static function lime_image_data_util_merge(image:Image, sourceImage:Image, sourceRect:Rectangle,
