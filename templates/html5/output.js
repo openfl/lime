@@ -1,4 +1,4 @@
-var $lime_init = (function ($hx_exports, $global) { "use strict"; var $hx_script = (function (exports, global) { ::SOURCE_FILE::
+var $lime_init = (function ($hx_exports, $global) { "use strict"; var $lime_script_url = typeof document !== "undefined" && document.currentScript ? document.currentScript.src : null; var $hx_script = (function (exports, global) { ::SOURCE_FILE::
 });::if false::
 /*
 	Don't insert or remove any line breaks in the code above this line!

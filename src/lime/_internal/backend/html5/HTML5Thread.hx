@@ -34,6 +34,9 @@ class HTML5Thread
 	private static var __current:HTML5Thread = new HTML5Thread(Lib.global.location.href);
 	private static var __isWorker:Bool #if !macro = #if !haxe4 untyped __js__ #else Syntax.code #end ('typeof window == "undefined"') #end;
 	private static var __messages:List<Dynamic> = new List();
+	// The URL of Lime's script, read while it runs, as a worker runs the same script. The application's
+	// meta names the script too, but only once its constructor has returned, and a job may start in it.
+	private static var __scriptURL:String #if !macro = __findScriptURL() #end;
 	private static var __resolveMethods:List<Dynamic->Void> = new List();
 	private static var __workerCount:Int = 0;
 
@@ -70,6 +73,23 @@ class HTML5Thread
 		#end
 	}
 
+	#if !macro
+	private static function __findScriptURL():String
+	{
+		try
+		{
+			// A worker is the script itself. On the page, Lime's output wrapper keeps the script's URL as it
+			// loads, before lime.embed() runs this code, where the current script is the page's own. A
+			// script loaded as a module, or without the wrapper, has neither.
+			return #if !haxe4 untyped __js__ #else Syntax.code #end ("typeof window == \"undefined\" ? self.location.href : (typeof $lime_script_url !== \"undefined\" && $lime_script_url ? $lime_script_url : (document.currentScript != null && document.currentScript.src ? document.currentScript.src : null))");
+		}
+		catch (e:Dynamic)
+		{
+			return null;
+		}
+	}
+	#end
+
 	public static inline function current():HTML5Thread
 	{
 		return __current;
@@ -79,8 +99,17 @@ class HTML5Thread
 	{
 		#if !macro
 		// Find the URL of the primary JS file.
-		var url:URL = new URL(__current.__href);
-		url.pathname = url.pathname.substr(0, url.pathname.lastIndexOf("/") + 1) + Application.current.meta["file"] + ".js";
+		var url:URL;
+		if (__scriptURL != null)
+		{
+			url = new URL(__scriptURL);
+			url.hash = "";
+		}
+		else
+		{
+			url = new URL(__current.__href);
+			url.pathname = url.pathname.substr(0, url.pathname.lastIndexOf("/") + 1) + Application.current.meta["file"] + ".js";
+		}
 
 		// Use the hash to distinguish workers.
 		if (url.hash.length > 0) url.hash += "_";

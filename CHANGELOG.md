@@ -156,6 +156,7 @@ Changelog
 - Fixed 64-bit Android libraries built with NDK r27 or older and hxcpp 4.3.2 not being aligned for devices with 16 KB pages.
 - Fixed `::ANDROID_INSTALL_LOCATION::` in Android manifest templates copied from Lime 8.3 and earlier.
 - Fixed HTML5 gamepad connect and disconnect events.
+- Fixed a `ThreadPool` job started in an HTML5 application's constructor with `lime-threads`, whose worker looked for `undefined.js` and never ran it.
 - Fixed `projectFilePath` for HXP projects.
 - Fixed HTML5 transparent docs generation.
 - Fixed native HTTP requests freezing the application during slow name lookups (#1769).
