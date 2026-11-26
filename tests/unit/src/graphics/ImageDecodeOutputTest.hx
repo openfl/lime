@@ -219,6 +219,84 @@ class ImageDecodeOutputTest extends Test
 		}
 	}
 
+	public function testEveryRowFilterAtEachPixelSizeKeepsItsPixels():Void
+	{
+		// PNGs written here with every row of each one forced to one filter type: None, Sub, Up, Average and
+		// Paeth, at 1, 2, 3 and 4 bytes a pixel. libpng undoes them in C, or with SSE2 or NEON where it is
+		// built to. The rows are wider than a vector so that the vector loops and their tails both run.
+		var results = [];
+		var failures = [];
+
+		for (colourType in [PNGFile.GREYSCALE, PNGFile.GREYSCALE_ALPHA, PNGFile.TRUECOLOUR, PNGFile.TRUECOLOUR_ALPHA])
+		{
+			var channels = PNGFile.channels(colourType);
+			var width = 37;
+			var height = 9;
+			var state = 0x6A09E667 + colourType;
+			var rows = [];
+
+			for (y in 0...height)
+			{
+				var row = [];
+				for (i in 0...width * channels)
+				{
+					state ^= state << 13;
+					state ^= state >>> 17;
+					state ^= state << 5;
+					// Smooth enough that the filters predict something, rough enough that every byte value turns up
+					row.push((i * 3 + y * 11 + ((state >>> 8) & 0x3F)) & 0xFF);
+				}
+				rows.push(row);
+			}
+
+			var expected = Bytes.alloc(width * height * 4);
+			for (y in 0...height)
+			{
+				for (x in 0...width)
+				{
+					var s = rows[y].slice(x * channels, (x + 1) * channels);
+					var rgba = switch (channels)
+					{
+						case 1: [s[0], s[0], s[0], 255];
+						case 2: [s[0], s[0], s[0], s[1]];
+						case 3: [s[0], s[1], s[2], 255];
+						default: s;
+					}
+					for (c in 0...4)
+					{
+						expected.set((y * width + x) * 4 + c, rgba[c]);
+					}
+				}
+			}
+
+			for (filter in 0...5)
+			{
+				var name = channels + " bytes a pixel, filter " + filter;
+				var image = Image.fromBytes(PNGFile.create(width, height, colourType, 8, rows, null, false, [filter]));
+
+				if (image == null)
+				{
+					failures.push(name + " did not decode");
+					continue;
+				}
+
+				var data = image.buffer.data;
+				var pixels = data.toBytes().sub(data.byteOffset, data.byteLength);
+				if (pixels.compare(expected) != 0) failures.push(name + " decoded to other pixels");
+				results.push(StringTools.hex(Crc32.make(pixels), 8));
+			}
+		}
+
+		Assert.equals(0, failures.length, failures.join("; "));
+		// Four colour types, five filters each
+		Assert.equals([
+			"675D8E14 675D8E14 675D8E14 675D8E14 675D8E14",
+			"437AB417 437AB417 437AB417 437AB417 437AB417",
+			"B94AFB50 B94AFB50 B94AFB50 B94AFB50 B94AFB50",
+			"893F1E2E 893F1E2E 893F1E2E 893F1E2E 893F1E2E"
+		].join(" "), results.join(" "));
+	}
+
 	// Helpers
 
 	private static function assertDecodes(path:String, ?pos:haxe.PosInfos):Void

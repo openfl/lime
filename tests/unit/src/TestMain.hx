@@ -11,6 +11,7 @@ class TestMain extends Application
 		var runner = new Runner();
 		runner.addCase(new app.ApplicationTest());
 		runner.addCase(new app.EventTest());
+		runner.addCase(new app.FrameSwapCollectorTest());
 		runner.addCase(new app.FutureTest());
 		runner.addCase(new app.PromiseTest());
 		runner.addCase(new graphics.CairoCompositeTest());
@@ -79,6 +80,7 @@ class TestMain extends Application
 		runner.addCase(new system.FinalizerTest());
 		runner.addCase(new system.FullPathTest());
 		runner.addCase(new system.LocaleTest());
+		runner.addCase(new system.NativeBytesThreadTest());
 		runner.addCase(new system.ProcessTest());
 		runner.addCase(new system.TrashTest());
 		runner.addCase(new system.StorageVolumeTest());
@@ -105,12 +107,14 @@ class TestMain extends Application
 		runner.addCase(new utils.Base64Test());
 		runner.addCase(new utils.BytesTest());
 		runner.addCase(new utils.CompressionTest());
+		runner.addCase(new utils.CompressionOutputTest());
 		runner.addCase(new utils.Float32ArrayTest());
 		runner.addCase(new utils.Float64ArrayTest());
 		runner.addCase(new utils.Int8ArrayTest());
 		runner.addCase(new utils.Int16ArrayTest());
 		runner.addCase(new utils.Int32ArrayTest());
 		runner.addCase(new utils.ObjectPoolTest());
+		runner.addCase(new utils.TypedArrayAllocationTest());
 		runner.addCase(new utils.PackedAssetLibraryTest());
 		runner.addCase(new utils.PreloaderTest());
 		runner.addCase(new utils.UInt8ArrayTest());
