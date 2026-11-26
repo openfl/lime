@@ -18,6 +18,11 @@
 		<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/custom/zlib-ng/" />
 		<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/zlib-ng/" />
 		<compilerflag value="-DZLIB_COMPAT" />
+		<!-- Without zlib-ng's quick and medium matchers, which trade size for speed, each level matches
+		     as zlib's does: libpng's level 6 otherwise made PNGs up to 2.4 times larger. This is
+		     zlib-ng's WITH_NEW_STRATEGIES=OFF, and inflating is unchanged -->
+		<compilerflag value="-DNO_QUICK_STRATEGY" />
+		<compilerflag value="-DNO_MEDIUM_STRATEGY" />
 		<compilerflag value="-DWITH_GZFILEOP" />
 		<compilerflag value="-DWITH_ALL_FALLBACKS" />
 		<compilerflag value="-D_CRT_SECURE_NO_DEPRECATE" if="windows" />
@@ -97,6 +102,8 @@
 		<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/custom/zlib-ng/" />
 		<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/zlib-ng/" />
 		<compilerflag value="-DZLIB_COMPAT" />
+		<compilerflag value="-DNO_QUICK_STRATEGY" />
+		<compilerflag value="-DNO_MEDIUM_STRATEGY" />
 		<compilerflag value="-DWITH_GZFILEOP" />
 		<compilerflag value="-DWITH_ALL_FALLBACKS" />
 		<compilerflag value="-D_CRT_SECURE_NO_DEPRECATE" if="windows" />
@@ -150,6 +157,8 @@
 		<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/custom/zlib-ng/" />
 		<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/zlib-ng/" />
 		<compilerflag value="-DZLIB_COMPAT" />
+		<compilerflag value="-DNO_QUICK_STRATEGY" />
+		<compilerflag value="-DNO_MEDIUM_STRATEGY" />
 		<compilerflag value="-DWITH_GZFILEOP" />
 		<compilerflag value="-DWITH_ALL_FALLBACKS" />
 		<compilerflag value="-D_CRT_SECURE_NO_DEPRECATE" if="windows" />
@@ -200,6 +209,8 @@
 		<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/custom/zlib-ng/" />
 		<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/zlib-ng/" />
 		<compilerflag value="-DZLIB_COMPAT" />
+		<compilerflag value="-DNO_QUICK_STRATEGY" />
+		<compilerflag value="-DNO_MEDIUM_STRATEGY" />
 		<compilerflag value="-DWITH_GZFILEOP" />
 		<compilerflag value="-DWITH_ALL_FALLBACKS" />
 		<compilerflag value="-D_CRT_SECURE_NO_DEPRECATE" if="windows" />
@@ -249,6 +260,8 @@
 		<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/custom/zlib-ng/" />
 		<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/zlib-ng/" />
 		<compilerflag value="-DZLIB_COMPAT" />
+		<compilerflag value="-DNO_QUICK_STRATEGY" />
+		<compilerflag value="-DNO_MEDIUM_STRATEGY" />
 		<compilerflag value="-DWITH_GZFILEOP" />
 		<compilerflag value="-DWITH_ALL_FALLBACKS" />
 		<compilerflag value="-D_CRT_SECURE_NO_DEPRECATE" if="windows" />
@@ -298,6 +311,8 @@
 		<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/custom/zlib-ng/" />
 		<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/zlib-ng/" />
 		<compilerflag value="-DZLIB_COMPAT" />
+		<compilerflag value="-DNO_QUICK_STRATEGY" />
+		<compilerflag value="-DNO_MEDIUM_STRATEGY" />
 		<compilerflag value="-DWITH_GZFILEOP" />
 		<compilerflag value="-DWITH_ALL_FALLBACKS" />
 		<compilerflag value="-D_CRT_SECURE_NO_DEPRECATE" if="windows" />
@@ -348,6 +363,8 @@
 		<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/custom/zlib-ng/" />
 		<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/zlib-ng/" />
 		<compilerflag value="-DZLIB_COMPAT" />
+		<compilerflag value="-DNO_QUICK_STRATEGY" />
+		<compilerflag value="-DNO_MEDIUM_STRATEGY" />
 		<compilerflag value="-DWITH_GZFILEOP" />
 		<compilerflag value="-DWITH_ALL_FALLBACKS" />
 		<compilerflag value="-D_CRT_SECURE_NO_DEPRECATE" if="windows" />
@@ -402,6 +419,8 @@
 		<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/custom/zlib-ng/" />
 		<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/zlib-ng/" />
 		<compilerflag value="-DZLIB_COMPAT" />
+		<compilerflag value="-DNO_QUICK_STRATEGY" />
+		<compilerflag value="-DNO_MEDIUM_STRATEGY" />
 		<compilerflag value="-DWITH_GZFILEOP" />
 		<compilerflag value="-DWITH_ALL_FALLBACKS" />
 		<compilerflag value="-D_CRT_SECURE_NO_DEPRECATE" if="windows" />
@@ -455,6 +474,8 @@
 		<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/custom/zlib-ng/" />
 		<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/zlib-ng/" />
 		<compilerflag value="-DZLIB_COMPAT" />
+		<compilerflag value="-DNO_QUICK_STRATEGY" />
+		<compilerflag value="-DNO_MEDIUM_STRATEGY" />
 		<compilerflag value="-DWITH_GZFILEOP" />
 		<compilerflag value="-DWITH_ALL_FALLBACKS" />
 		<compilerflag value="-D_CRT_SECURE_NO_DEPRECATE" if="windows" />
