@@ -33,8 +33,9 @@ import neko.vm.Thread;
 #end
 class BackgroundWorker
 {
-	private static var MESSAGE_COMPLETE = "__COMPLETE__";
-	private static var MESSAGE_ERROR = "__ERROR__";
+	// The share of a frame that hearing the worker's messages may take, so a worker that reports
+	// progress without pause can't hold the frame up
+	private static inline var UPDATE_FRAME_SHARE = 0.5;
 
 	/**
 		Indicates whether the worker has been canceled.
@@ -69,7 +70,7 @@ class BackgroundWorker
 
 	@:noCompletion private var __runMessage:Dynamic;
 	#if (cpp || neko || (haxe4 && hl))
-	@:noCompletion private var __messageQueue:Deque<Dynamic>;
+	@:noCompletion private var __messageQueue:Deque<BackgroundWorkerMessage>;
 	@:noCompletion private var __workerThread:Thread;
 	#end
 
@@ -102,12 +103,12 @@ class BackgroundWorker
 		__runMessage = message;
 
 		#if (cpp || neko || (haxe4 && hl))
-		__messageQueue = new Deque<Dynamic>();
+		__messageQueue = new Deque<BackgroundWorkerMessage>();
 		__workerThread = Thread.create(__doWork);
 
 		// TODO: Better way to do this
 
-		if (Application.current != null)
+		if (Application.current != null && !Application.current.onUpdate.has(__update))
 		{
 			Application.current.onUpdate.add(__update);
 		}
@@ -125,8 +126,7 @@ class BackgroundWorker
 		completed = true;
 
 		#if (cpp || neko || (haxe4 && hl))
-		__messageQueue.add(MESSAGE_COMPLETE);
-		__messageQueue.add(message);
+		__messageQueue.add(COMPLETE(message));
 		#else
 		if (!canceled)
 		{
@@ -143,8 +143,7 @@ class BackgroundWorker
 	public function sendError(message:Dynamic = null):Void
 	{
 		#if (cpp || neko || (haxe4 && hl))
-		__messageQueue.add(MESSAGE_ERROR);
-		__messageQueue.add(message);
+		__messageQueue.add(ERROR(message));
 		#else
 		if (!canceled)
 		{
@@ -161,7 +160,7 @@ class BackgroundWorker
 	public function sendProgress(message:Dynamic = null):Void
 	{
 		#if (cpp || neko || (haxe4 && hl))
-		__messageQueue.add(message);
+		__messageQueue.add(PROGRESS(message));
 		#else
 		if (!canceled)
 		{
@@ -193,38 +192,54 @@ class BackgroundWorker
 	@:noCompletion private function __update(deltaTime:Int):Void
 	{
 		#if (cpp || neko || (haxe4 && hl))
-		var message = __messageQueue.pop(false);
+		// Every message that has arrived is heard this frame, unless hearing them takes longer than
+		// the frame's share, and the rest are heard in the frames after
+		var frameRate = 60.0;
+		var window = Application.current.window;
+		if (window != null && window.frameRate > 0) frameRate = window.frameRate;
+		var endTime = haxe.Timer.stamp() + UPDATE_FRAME_SHARE / frameRate;
 
-		if (message != null)
+		var queue = __messageQueue;
+		var entry:BackgroundWorkerMessage;
+
+		while (!canceled && (entry = queue.pop(false)) != null)
 		{
-			if (message == MESSAGE_ERROR)
+			switch (entry)
 			{
-				Application.current.onUpdate.remove(__update);
-
-				if (!canceled)
-				{
-					canceled = true;
-					onError.dispatch(__messageQueue.pop(false));
-				}
-			}
-			else if (message == MESSAGE_COMPLETE)
-			{
-				Application.current.onUpdate.remove(__update);
-
-				if (!canceled)
-				{
-					canceled = true;
-					onComplete.dispatch(__messageQueue.pop(false));
-				}
-			}
-			else
-			{
-				if (!canceled)
-				{
+				case PROGRESS(message):
 					onProgress.dispatch(message);
-				}
+
+				case COMPLETE(message):
+					Application.current.onUpdate.remove(__update);
+					canceled = true;
+					onComplete.dispatch(message);
+					return;
+
+				case ERROR(message):
+					Application.current.onUpdate.remove(__update);
+					canceled = true;
+					onError.dispatch(message);
+					return;
 			}
+
+			// A listener ran the worker again, and the new run is heard from the next frame
+			if (__messageQueue != queue || haxe.Timer.stamp() >= endTime) return;
 		}
+
+		// Nothing more is heard from a canceled run, and a job that returns once it sees it was
+		// canceled sends no completion to stop the listening
+		if (canceled) Application.current.onUpdate.remove(__update);
 		#end
 	}
 }
+
+#if (cpp || neko || (haxe4 && hl))
+// One entry each, so a completion or error can't be read apart from its message, and a null
+// progress message is still heard
+private enum BackgroundWorkerMessage
+{
+	PROGRESS(message:Dynamic);
+	COMPLETE(message:Dynamic);
+	ERROR(message:Dynamic);
+}
+#end
