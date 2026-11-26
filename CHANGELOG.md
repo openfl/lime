@@ -167,6 +167,7 @@ Changelog
 - Fixed `::ANDROID_INSTALL_LOCATION::` in Android manifest templates copied from Lime 8.3 and earlier.
 - Fixed HTML5 gamepad connect and disconnect events.
 - Fixed HTML5 gamepads in browsers that leave a disconnected pad out of `navigator.getGamepads()`, which never reported the disconnect, and a pad that connected again at the same index.
+- Fixed a `ThreadPool` job started in an HTML5 application's constructor with `lime-threads`, whose worker looked for `undefined.js` and never ran it.
 - Fixed `projectFilePath` for HXP projects.
 - Fixed HTML5 transparent docs generation.
 - Fixed native HTTP requests freezing the application during slow name lookups (#1769).
