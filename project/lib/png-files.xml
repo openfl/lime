@@ -11,7 +11,7 @@
 
 		<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/custom/png/" />
 		<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/png/" />
-		<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/custom/zlib-ng/" />
+		<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/zlib/" />
 
 		<depend files="native-toolkit-png-depends" />
 
