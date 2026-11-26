@@ -620,7 +620,7 @@ class MacPlatform extends PlatformTarget
 
 		context.HAS_ICON = IconHelper.createMacIcon(icons, Path.combine(contentDirectory, "icon.icns"));
 
-		copyProjectAssets(targetDirectory, contentDirectory);
+		copyProjectAssets(targetDirectory, contentDirectory, context);
 	}
 
 	@ignore public override function install():Void {}

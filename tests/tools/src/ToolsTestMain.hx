@@ -24,6 +24,7 @@ class ToolsTestMain
 		runner.addCase(new AndroidIconTest());
 		runner.addCase(new IOSOutputTest());
 		runner.addCase(new WindowsOutputTest());
+		runner.addCase(new TemplateAssetOutputTest());
 		runner.addCase(new HashlinkHelperTest());
 		runner.addCase(new AppleOutputTest());
 		runner.addCase(new OpenURLTest());
