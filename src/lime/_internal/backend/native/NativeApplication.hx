@@ -1051,14 +1051,14 @@ class NativeApplication
 
 				case WINDOW_MAXIMIZE:
 					window.__maximized = true;
-					window.__fullscreen = false;
+					window.__fullscreen = window.__backend.getFullscreen();
 					window.__minimized = false;
 					window.onMaximize.dispatch();
 
 				case WINDOW_MINIMIZE:
 					window.__minimized = true;
 					window.__maximized = false;
-					window.__fullscreen = false;
+					window.__fullscreen = window.__backend.getFullscreen();
 					window.onMinimize.dispatch();
 
 				case WINDOW_MOVE:
@@ -1084,7 +1084,7 @@ class NativeApplication
 
 				case WINDOW_RESTORE:
 					if (window.__fullscreen) window.__backend.__exposeFrames = 2;
-					window.__fullscreen = false;
+					window.__fullscreen = window.__backend.getFullscreen();
 					window.__maximized = false;
 					window.__minimized = false;
 					window.onRestore.dispatch();

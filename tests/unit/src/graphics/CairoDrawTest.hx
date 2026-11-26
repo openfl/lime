@@ -7,6 +7,7 @@ import lime.graphics.cairo.CairoAntialias;
 import lime.graphics.cairo.CairoFillRule;
 import lime.graphics.cairo.CairoLineCap;
 import lime.graphics.cairo.CairoLineJoin;
+import lime.math.Matrix3;
 #end
 import utest.Assert;
 import utest.Test;
@@ -379,6 +380,47 @@ class CairoDrawTest extends Test
 		fixture.assertRows(["RRRRRRRR", "RRRRRRRR"]);
 	}
 
+	// Strokes under a matrix
+
+	// A matrix that stretches one axis by about as much as it squashes the other looked to cairo
+	// 1.18.2 as if it kept sizes, and a thick stroke under it was clipped short of the line width
+	// (#2031, cairo issue 927, fixed upstream in cairo merge request 647)
+	public function testAThickStrokeUnderAStretchAndASquashIsNotClipped():Void
+	{
+		// The issue's square, whose stroke reaches from 100 + 2.7925 * -25 = 30.2 to
+		// 100 + 2.7925 * 225 = 728.3 across, and from 100 + 0.3575 * -25 = 91.1 to
+		// 100 + 0.3575 * 225 = 180.4 down. Cairo 1.18.2 drew it from x 75 to 683.
+		var extent = strokeExtent(800, 200, new Matrix3(2.7925, 0, 0, 0.3575, 100, 100), 50, bigSquare);
+
+		assertNear(30, extent.minX, "the stroke's left edge");
+		assertNear(727, extent.maxX, "the stroke's right edge");
+		assertNear(91, extent.minY, "the stroke's top edge");
+		assertNear(179, extent.maxY, "the stroke's bottom edge");
+	}
+
+	public function testCairosBug927StrokeReachesItsRoundJoin():Void
+	{
+		// Cairo's own test for the bug: a V under (1/3, 0, 0, 3, 0, -100) with a line width of 20,
+		// whose round join reaches 3 * (50 + 10) - 100 = 80 down. Cairo 1.18.2 stopped at 59.
+		var extent = strokeExtent(30, 100, new Matrix3(1 / 3, 0, 0, 3, 0, -100), 20, function(cairo)
+		{
+			cairo.moveTo(-50, -50);
+			cairo.lineTo(50, 50);
+			cairo.lineTo(150, -50);
+		});
+
+		Assert.equals(0, extent.minY, "the top of the stroke");
+		assertNear(79, extent.maxY, "the bottom of the stroke's join");
+	}
+
+	public function testAStrokeUnderAMatrixThatKeepsSizesCoversTheLineWidth():Void
+	{
+		// The square's stroke reaches 25 past each side of it, whole pixels each way
+		Assert.equals("x 75..324, y 75..324", describe(strokeExtent(560, 340, new Matrix3(1, 0, 0, 1, 100, 100), 50, bigSquare)), "the identity");
+		Assert.equals("x 275..524, y 75..324", describe(strokeExtent(560, 340, new Matrix3(-1, 0, 0, 1, 500, 100), 50, bigSquare)), "a flip");
+		Assert.equals("x 175..424, y 75..324", describe(strokeExtent(560, 340, new Matrix3(0, 1, -1, 0, 400, 100), 50, bigSquare)), "a quarter turn");
+	}
+
 	// Antialiasing
 
 	public function testAntialiasingShadesThePixelsAnEdgeCrosses():Void
@@ -575,6 +617,61 @@ class CairoDrawTest extends Test
 		return fixture;
 	}
 
+	private static function bigSquare(cairo:Cairo):Void
+	{
+		cairo.rectangle(0, 0, 200, 200);
+	}
+
+	/**
+		Strokes `path` in white with round joins under `matrix`, and gives the smallest rectangle
+		around the pixels it covers more than half of.
+	**/
+	private static function strokeExtent(width:Int, height:Int, matrix:Matrix3, lineWidth:Float, path:Cairo->Void):StrokeExtent
+	{
+		var fixture = new CairoFixture(width, height);
+		var cairo = fixture.cairo;
+
+		cairo.setSourceRGB(1, 1, 1);
+		cairo.lineWidth = lineWidth;
+		cairo.lineJoin = CairoLineJoin.ROUND;
+		cairo.matrix = matrix;
+		path(cairo);
+		cairo.stroke();
+		fixture.surface.flush();
+
+		// Read from the bytes, as a pixel at a time is slow for this many. BGRA32 has alpha last.
+		var data = fixture.image.buffer.data;
+		var stride = fixture.image.buffer.stride;
+		var extent = {minX: width, maxX: -1, minY: height, maxY: -1};
+
+		for (y in 0...height)
+		{
+			for (x in 0...width)
+			{
+				if (data[y * stride + x * 4 + 3] > 127)
+				{
+					if (x < extent.minX) extent.minX = x;
+					if (x > extent.maxX) extent.maxX = x;
+					if (y < extent.minY) extent.minY = y;
+					if (y > extent.maxY) extent.maxY = y;
+				}
+			}
+		}
+
+		return extent;
+	}
+
+	private static function describe(extent:StrokeExtent):String
+	{
+		return "x " + extent.minX + ".." + extent.maxX + ", y " + extent.minY + ".." + extent.maxY;
+	}
+
+	/** Within two pixels, as an edge that isn't on a pixel's side can round either way **/
+	private static function assertNear(expected:Int, actual:Int, label:String, ?pos:haxe.PosInfos):Void
+	{
+		Assert.isTrue(Math.abs(expected - actual) <= 2, label + ": expected about " + expected + " but was " + actual, pos);
+	}
+
 	private static function triangle(antialias:CairoAntialias):CairoFixture
 	{
 		var fixture = new CairoFixture(8, 8);
@@ -592,3 +689,13 @@ class CairoDrawTest extends Test
 	}
 	#end
 }
+
+#if (lime_cffi && lime_cairo && !macro)
+private typedef StrokeExtent =
+{
+	var minX:Int;
+	var maxX:Int;
+	var minY:Int;
+	var maxY:Int;
+}
+#end
