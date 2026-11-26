@@ -7,6 +7,8 @@ buildscript {
 	}
 	dependencies {
 		classpath 'com.android.tools.build:gradle:::ANDROID_GRADLE_PLUGIN::'
+		::if (ANDROID_GRADLE_9_0)::// Gradle 9 no longer bundles Groovy's SwingBuilder, which app/build.gradle asks for keystore passwords with
+		classpath "org.apache.groovy:groovy-swing:${GroovySystem.version}"::end::
 
 		// NOTE: Do not place your application dependencies here; they belong
 		// in the individual module build.gradle files

@@ -173,6 +173,29 @@ class HTTPRequestTransferTest extends Test
 		});
 	}
 
+	// OpenFL passes URLRequest.idleTimeout, 30 s by default, as the timeout, so a
+	// download or upload still under way when it passes has to carry on
+	@:timeout(15000)
+	public function testABodyThatKeepsComingOutlastsTheTimeout(async:Async):Void
+	{
+		var server = serve(function(_)
+		{
+			var response = ScriptedResponse.text(200, StringTools.lpad("", "z", 3000));
+			response.pieceSize = 100;
+			response.pause = 0.1;
+			return response;
+		});
+
+		var request = new HTTPRequest<String>();
+		request.timeout = 1000;
+		LoadOutcome.watch(request.load(server.url("/steady")), async, function(outcome)
+		{
+			Assert.isTrue(outcome.completed, "a body still arriving after the timeout of 1 s failed after " + outcome.seconds + " s: " + Std.string(outcome));
+			Assert.equals(3000, outcome.value == null ? -1 : outcome.value.length);
+			async.done();
+		});
+	}
+
 	@:timeout(10000)
 	public function testAnAnswerWithinTheTimeoutCompletes(async:Async):Void
 	{
