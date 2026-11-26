@@ -2095,7 +2095,7 @@ class CommandLineTools
 				overrides.haxeflags.push(argument);
 				catchHaxeFlag = false;
 			}
-			else if (argument == "-args" || argument == "--")
+			else if (argument == "-args" || argument == "--args" || argument == "--")
 			{
 				catchArguments = true;
 			}

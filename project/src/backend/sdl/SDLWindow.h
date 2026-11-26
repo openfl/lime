@@ -40,6 +40,7 @@ namespace lime {
 			virtual int GetHeight ();
 			virtual uint32_t GetID ();
 			virtual bool Flash (int mode);
+			virtual bool GetFullscreen ();
 			virtual bool GetKeyboardGrab ();
 			virtual bool GetMinimizeOnFocusLoss ();
 			virtual bool GetMouseLock ();

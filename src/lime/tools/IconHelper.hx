@@ -6,6 +6,10 @@ package lime.tools;
 // import openfl.geom.Rectangle;
 // import openfl.utils.ByteArray;
 // import format.SVG;
+#if format
+import format.png.Data;
+import format.png.Writer;
+#end
 import haxe.io.Bytes;
 import haxe.io.BytesOutput;
 import hxp.*;
@@ -115,6 +119,83 @@ class IconHelper
 		#end
 
 		return false;
+	}
+
+	/**
+		Creates a PNG icon of `width` by `height` drawn over `backgroundColor`, an RGB color, and
+		written without an alpha channel, as App Store Connect turns down an App Store icon with one.
+	**/
+	public static function createOpaqueIcon(icons:Array<Icon>, width:Int, height:Int, targetPath:String, backgroundColor:Int = 0xFFFFFF):Bool
+	{
+		#if (lime && lime_cffi && !macro && format)
+		// An icon cached by an earlier Lime has an alpha channel, so only an RGB one is kept
+		if (canUseCache(targetPath, icons) && isRGBPNG(targetPath))
+		{
+			return true;
+		}
+
+		var image = getIconImage(icons, width, height);
+
+		if (image != null)
+		{
+			var pixels = image.getPixels(image.rect, RGBA32);
+			var red = (backgroundColor >> 16) & 0xFF;
+			var green = (backgroundColor >> 8) & 0xFF;
+			var blue = backgroundColor & 0xFF;
+
+			// Each row starts with its filter type, none, as Lime's own PNG encoder writes them
+			var data = Bytes.alloc(image.width * image.height * 3 + image.height);
+			var index = 0, source = 0;
+
+			for (y in 0...image.height)
+			{
+				data.set(index++, 0);
+
+				for (x in 0...image.width)
+				{
+					var alpha = pixels.get(source + 3);
+					data.set(index++, blend(pixels.get(source), red, alpha));
+					data.set(index++, blend(pixels.get(source + 1), green, alpha));
+					data.set(index++, blend(pixels.get(source + 2), blue, alpha));
+					source += 4;
+				}
+			}
+
+			var png = new List();
+			png.add(CHeader({width: image.width, height: image.height, colbits: 8, color: ColTrue(false), interlaced: false}));
+			png.add(CData(lime._internal.format.Zlib.compress(data)));
+			png.add(CEnd);
+
+			var output = new BytesOutput();
+			new Writer(output).write(png);
+
+			System.mkdir(Path.directory(targetPath));
+			File.saveBytes(targetPath, output.getBytes());
+			return true;
+		}
+		#end
+
+		return false;
+	}
+
+	// A color channel of a pixel with `alpha` drawn over the same channel of an opaque background
+	private static inline function blend(color:Int, background:Int, alpha:Int):Int
+	{
+		return Math.round((color * alpha + background * (255 - alpha)) / 255);
+	}
+
+	// Whether the file at `path` is a PNG of RGB pixels, color type 2 in its header, so without alpha
+	private static function isRGBPNG(path:String):Bool
+	{
+		try
+		{
+			var bytes = File.getBytes(path);
+			return bytes.length > 25 && bytes.getString(12, 4) == "IHDR" && bytes.get(25) == 2;
+		}
+		catch (e:Dynamic)
+		{
+			return false;
+		}
 	}
 
 	public static function createMacIcon(icons:Array<Icon>, targetPath:String):Bool

@@ -290,6 +290,14 @@ Changelog
 - Fixed `FileSystem.fullPath()` on HashLink for Windows giving only the first half of each name in its case on disk.
 - Fixed decoding sounds from bytes on macOS and iOS crashing when SDL_sound's Core Audio decoder tries them, as it does for M4A, AAC and CAF data and for bytes that aren't a sound.
 - Fixed the `Assets` getters giving null with no error when an asset exists but fails to load, such as an Ogg file the decoder can't read, or throwing an unclear cache error for a sound or image. They now report it with `Log.error`, as for a missing asset, and leave it out of the cache.
+- Fixed C++ builds with the build folder outside the project running hxcpp from the global haxelib repository, rather than the project's local repository.
+- Fixed `lime run` and `lime test` not accepting `--args` as they do `-args` and `--`, reading the arguments after it as a project path rather than passing them at launch.
+- Fixed the iOS App Store icon keeping its transparency and alpha channel, which App Store Connect rejects. It is now drawn over white and written without an alpha channel.
+- Fixed iOS builds failing to sign with a distribution provisioning profile, as the entitlements always set `get-task-allow` to true. The provisioning profile now sets it, as in projects Xcode makes, so development builds can still be debugged.
+- Fixed Cairo clipping thick strokes under a matrix that stretches one axis and shrinks the other by about the same factor.
+- Fixed `System.desktopDirectory` and `System.documentsDirectory` on Linux always giving `~/Desktop` and `~/Documents`, rather than the folders the desktop's user-dirs.dirs file names, such as `~/Bureau` in French.
+- Fixed `window.displayMode.refreshRate` reading 0 where SDL has no refresh rate for the window's mode, as on Linux: it now gives the display's current rate.
+- Fixed `Window.fullscreen` reading `false` while a window is still fullscreen: after it is minimized and restored, as with Alt+Tab, when macOS enters fullscreen with a maximize, and when a maximized window goes fullscreen. It now reads SDL's own state at those events.
 
 8.3.2 (05/13/2026)
 ------------------
