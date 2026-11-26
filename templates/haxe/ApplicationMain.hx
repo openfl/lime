@@ -66,6 +66,7 @@ import ::APP_MAIN::;
 				colorDepth: ::colorDepth::,
 				depth: ::depthBuffer::,
 				hardware: ::hardware::,
+				#if html5 preserveDrawingBuffer: ::if preserveDrawingBuffer::true::else::false::end::, #end
 				stencil: ::stencilBuffer::,
 				type: null,
 				vsync: ::vsync::,

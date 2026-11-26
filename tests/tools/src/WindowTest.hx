@@ -73,6 +73,24 @@ class WindowTest extends Test
 		Assert.equals(false, window.vsync);
 	}
 
+	// <window preserve-drawing-buffer="true" /> keeps an HTML5 canvas's image after it is drawn (#1275)
+	public function testPreserveDrawingBufferIsABoolean():Void
+	{
+		var project = fixture.parse('<project>
+			<window preserve-drawing-buffer="true" />
+			<window id="1" preserveDrawingBuffer="true" />
+			<window id="2" preserve-drawing-buffer="yes" />
+			<window id="3" preserve-drawing-buffer="false" />
+			<window id="4" />
+		</project>');
+
+		Assert.equals(true, project.windows[0].preserveDrawingBuffer, "preserve-drawing-buffer=\"true\"");
+		Assert.equals(true, project.windows[1].preserveDrawingBuffer, "preserveDrawingBuffer=\"true\"");
+		Assert.equals(false, project.windows[2].preserveDrawingBuffer, "another value");
+		Assert.equals(false, project.windows[3].preserveDrawingBuffer, "false");
+		Assert.isTrue(project.windows[4].preserveDrawingBuffer != true, "a window without it");
+	}
+
 	// "The orientation value expects either “portrait” or “landscape” ... the default is “auto”"
 	public function testOrientationAcceptsPortraitLandscapeAndAuto():Void
 	{
