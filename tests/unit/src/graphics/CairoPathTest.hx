@@ -2,9 +2,11 @@ package graphics;
 
 #if (lime_cffi && lime_cairo && !macro)
 import graphics.CairoFixture.*;
+import haxe.PosInfos;
 import lime.graphics.cairo.CairoFillRule;
 import lime.graphics.cairo.CairoLineCap;
 import lime.graphics.cairo.CairoStatus;
+import lime.math.Rectangle;
 #end
 import utest.Assert;
 import utest.Test;
@@ -439,6 +441,134 @@ class CairoPathTest extends Test
 		assertPoint(1, 0, cairo.currentPoint);
 		cairo.fill();
 		fixture.assertRows([".RR.", ".RR."]);
+	}
+
+	// getClipExtents(), getFillExtents() and getStrokeExtents() give cairo's x1, y1, x2 and y2 as a
+	// rectangle from (x1, y1) to (x2, y2), in user space (#2257)
+
+	public function testFillExtentsGiveTheBoundsOfThePath():Void
+	{
+		// The surface and the clip play no part, so a path past the edges of a small surface is measured whole
+		var cairo = new CairoFixture(4, 4).cairo;
+		cairo.rectangle(10, 20, 30, 40);
+
+		assertRect(10, 20, 30, 40, cairo.getFillExtents());
+	}
+
+	public function testFillExtentsOfAnEmptyPathAreZero():Void
+	{
+		// "If the current path is empty, returns an empty rectangle ((0,0), (0,0))"
+		var cairo = new CairoFixture(4, 4).cairo;
+
+		assertRect(0, 0, 0, 0, cairo.getFillExtents());
+	}
+
+	public function testStrokeExtentsIncludeHalfTheLineWidth():Void
+	{
+		var cairo = new CairoFixture(4, 4).cairo;
+		cairo.lineWidth = 6;
+		cairo.moveTo(10, 20);
+		cairo.lineTo(50, 20);
+
+		// Butt caps, the default, end the stroke where the line does
+		assertRect(10, 17, 40, 6, cairo.getStrokeExtents(), "a line");
+
+		cairo.newPath();
+		cairo.lineWidth = 4;
+		cairo.rectangle(10, 20, 30, 40);
+
+		// Mitered right angles, the default, reach as far as the sides do
+		assertRect(8, 18, 34, 44, cairo.getStrokeExtents(), "a rectangle");
+	}
+
+	public function testStrokeExtentsOfAnEmptyPathAreZero():Void
+	{
+		var cairo = new CairoFixture(4, 4).cairo;
+		cairo.lineWidth = 6;
+
+		assertRect(0, 0, 0, 0, cairo.getStrokeExtents());
+	}
+
+	public function testClipExtentsOfANewContextAreTheWholeSurface():Void
+	{
+		var cairo = new CairoFixture(64, 32).cairo;
+
+		assertRect(0, 0, 64, 32, cairo.getClipExtents());
+	}
+
+	public function testClipExtentsGiveTheBoundsOfTheClip():Void
+	{
+		var cairo = new CairoFixture(64, 64).cairo;
+		cairo.rectangle(10, 20, 30, 40);
+		cairo.clip();
+
+		assertRect(10, 20, 30, 40, cairo.getClipExtents(), "clipped");
+
+		cairo.resetClip();
+		assertRect(0, 0, 64, 64, cairo.getClipExtents(), "after resetClip()");
+	}
+
+	public function testExtentsAreInUserSpace():Void
+	{
+		var cairo = new CairoFixture(64, 64).cairo;
+
+		cairo.translate(10, 10);
+		assertRect(-10, -10, 64, 64, cairo.getClipExtents(), "clip, translated");
+
+		cairo.identityMatrix();
+		cairo.scale(2, 2);
+		assertRect(0, 0, 32, 32, cairo.getClipExtents(), "clip, scaled");
+
+		// The line width is in user units too
+		cairo.lineWidth = 6;
+		cairo.moveTo(10, 20);
+		cairo.lineTo(50, 20);
+		assertRect(10, 17, 40, 6, cairo.getStrokeExtents(), "stroke, scaled");
+
+		// A path keeps where it was drawn, and is measured in the user space of the moment
+		cairo.newPath();
+		cairo.identityMatrix();
+		cairo.rectangle(10, 20, 30, 40);
+		cairo.scale(2, 2);
+		assertRect(5, 10, 15, 20, cairo.getFillExtents(), "fill, scaled after the path was drawn");
+	}
+
+	public function testGettingExtentsLeavesThePathInPlace():Void
+	{
+		var fixture = new CairoFixture(4, 2);
+		var cairo = fixture.cairo;
+
+		cairo.setSourceRGB(1, 0, 0);
+		cairo.rectangle(1, 0, 2, 2);
+		cairo.getFillExtents();
+		cairo.getStrokeExtents();
+		cairo.getClipExtents();
+
+		Assert.equals(CairoStatus.SUCCESS, cairo.status());
+		assertPoint(1, 0, cairo.currentPoint);
+		cairo.fill();
+		fixture.assertRows([".RR.", ".RR."]);
+	}
+
+	private static function assertRect(x:Float, y:Float, width:Float, height:Float, rect:Rectangle, ?label:String, ?pos:PosInfos):Void
+	{
+		var prefix = (label != null ? label + ": " : "");
+
+		if (rect == null)
+		{
+			Assert.fail(prefix + "expected " + describe(x, y, width, height) + " but was null", pos);
+			return;
+		}
+
+		var close = function(a:Float, b:Float) return Math.abs(a - b) < 0.00001;
+
+		Assert.isTrue(close(x, rect.x) && close(y, rect.y) && close(width, rect.width) && close(height, rect.height),
+			prefix + "expected " + describe(x, y, width, height) + " but was " + describe(rect.x, rect.y, rect.width, rect.height), pos);
+	}
+
+	private static function describe(x:Float, y:Float, width:Float, height:Float):String
+	{
+		return "(" + x + ", " + y + ") " + width + "x" + height;
 	}
 	#end
 }

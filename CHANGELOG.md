@@ -23,7 +23,7 @@ Changelog
 - Added `Assets.getAudioBufferStream()` and `Assets.loadAudioBufferStream()` for streamed sound assets.
 - Added `AudioBuffer.readSamples()`, which reads PCM from any position of a decoded buffer, and of a streamed one on native targets.
 - Added recovery of OpenAL Soft audio after its output device changes or is disconnected.
-- Added `AudioSource.playTogether()`, which starts several sources in the same mixer update on native targets, for tracks that must stay aligned.
+- Added `AudioSource.playTogether()`, which starts several sources in the same mixer update on native targets, and on the same Web Audio time on HTML5, for tracks that must stay aligned.
 - Added `Window.alwaysOnTop` and transparent window support.
 - Added `Window.orderToBack()`, `orderAbove()`, `orderBelow()`, `startMove()` and `startResize()`, with `WindowEdge`, on Windows, macOS and X11.
 - Added `Window.onDropStart`, `onDropText` and `onDropEnd`, so files dropped together can be handled as one group, and text drops on macOS, Linux and HTML5.
@@ -41,11 +41,14 @@ Changelog
 - Added `Font.setVariation()` to set the axes of variable fonts.
 - Added `Font.stemDarkening` and `Font.stemDarkeningParameters` to make text more readable.
 - Added a subpixel offset to `Font.renderGlyphWithLoadFlags()`.
+- Added `Cairo.getClipExtents()`, `getFillExtents()` and `getStrokeExtents()`, which give the extents as a `Rectangle`. `clipExtents()`, `fillExtents()` and `strokeExtents()` couldn't give their results and are deprecated.
 - Added project.xml support for Android manifest tags and Gradle plugin entries.
+- Added Android adaptive icons, which launchers on Android 8 and later mask to their own shape: the project's icon on a background color, with `<config:android adaptive-icon-background="#RRGGBB" />`, or layers given with `<icon path="" adaptive="foreground" />`, `background` and `monochrome`.
 - Added AIR options for Android App Bundles, Android Studio output, and shared runtime deployment.
 - Added VAO support on macOS.
 - Added `GL.copyImageSubData()` for desktop OpenGL 4.3 and `ARB_copy_image`.
 - Added `GL.polygonMode()`, for wireframes on desktop OpenGL, with `GL.supportsPolygonMode` and the `POINT`, `LINE`, `FILL` and `POLYGON_MODE` constants.
+- Added an `endian` argument to `Image.getPixels()`, as `setPixels()` has, so pixels can be read in the order `setPixels()` writes them back.
 - Added support for libhxcpp's incremental collector. With `HXCPP_GC_INCREMENTAL`, native C++ builds use it and advance a collection in the time left before a frame, unless `no-idle-gc` is defined.
 - Windows builds tell hxcpp where the application runs (`HXCPP_PGO_RUN_DIR`), so libhxcpp's profile-guided optimisation (`HXCPP_PGO`) works on the application in its own folder.
 - Added `VideoSource` and `VideoDecoder` for native video playback, with Media Foundation, AVFoundation, MediaCodec, and GStreamer backends.
@@ -58,18 +61,23 @@ Changelog
 - Added the Vorbis sound of Matroska and WebM videos on Windows, which Media Foundation has no decoder for, read with libwebm and decoded with libvorbis.
 - Added `Window.flash()`, `Window.mouseRect`, and `Window.keyboardGrab`.
 - Added `Window.preciseMouseWheel` for smooth scrolling on touchpads and smooth wheels.
+- Added `Window.mouseLock` on HTML5, through the browser's pointer lock, with `onMouseMoveRelative` reporting the mouse's movement while it is locked.
 - Added `Window.appearance` and `Window.effectiveAppearance` to prefer light or dark window decorations.
 - Added `Window.onDisplayScaleChange`.
 - Added `Display.onConnect`, `Display.onDisconnect`, and `Display.onMove`.
+- Added `WindowAttributes.display`, to open a window centered on a chosen display, which `<window display="1" />` in project.xml now sets, and `WindowAttributes.displayMode`, to open a window in exclusive fullscreen at a display mode.
+- Added `Window.minimizeOnFocusLoss`, to keep a window in exclusive fullscreen while another window has focus.
 - Added `Gamepad.type`, motion sensors, touchpad events, trigger rumble, and light color.
 - Added AIR externs for `air.net.WebSocket` and `flash.events.WebSocketEvent`.
 - Added `Locale.preferredLocales`.
 - Added `ThreadPool.idleTimeout`, so idle threads wait for more work before they exit.
 - Added `CURL.versionInfo()` values for the library's age, version number, and features.
+- Added a `level` argument to `Bytes.compress()`, from 0 to 9, for each algorithm. Without it, compression is unchanged.
 - Added `HTTPRequest.verifyCertificates`.
 - Added `Menu`, `MenuItem`, `TrayIcon`, and `DockIcon` for native menu bars, context menus, system tray icons, and the macOS Dock, through the new native-desktop dependency.
 - Added the default macOS menu bar to `Application.menu`, which starts as a copy of it whose About, Hide, Services, Quit, and Window items keep working when items are added.
 - Added menu bars and context menus on HTML5, drawn in the page, for `Window.menu`, `Application.menu`, and `Menu.popup()`.
+- Added `FileDialog.open()` on HTML5, through the browser's file picker. Call it from a user input event, as browsers require.
 - Added `Clipboard.hasFormat()`, `getData()`, `setData()` and `clear()`, with `ClipboardFormat`, for HTML, rich text, URLs, file lists and images on Windows, macOS and Linux with GTK, and text, HTML and images on HTML5.
 - Added `TrayIcon.onMouseDown`, `onMouseUp` and `onDoubleClick`, and the pointer's screen position on `TrayIcon.onClick` and `onRightClick`, on Windows and macOS.
 - Added `Menu.onOpen`, dispatched before a menu is shown so its items can still change, and `Menu.onClose`, including for context menus closed without a selection.
@@ -91,6 +99,7 @@ Changelog
 - Added the `lime_skip_invisible_windows` define to stop rendering windows that are hidden.
 - Added `&&`, `!` and parentheses to project.xml `if` and `unless` conditions, read as in Haxe's `#if`, and a warning for a condition that can't be read, which is false.
 - Added `<window preserve-drawing-buffer="true" />` and the `preserveDrawingBuffer` option of `lime.embed()`, so an HTML5 application's main window can keep its drawing buffer for `readPixels()` and `toDataURL()`.
+- Added deprecation warnings to the command-line tools for what Lime 9 removes: the YUI Compressor (`-yui`), the armv5 and armv6 Android architectures, and Haxe 3.
 - Changed native streamed audio to refill from a thread of its own, so a stall on the main thread no longer drains a stream's buffers and drops its sound. Define `lime_audio_no_stream_thread` to refill from the main thread as before.
 - Changed native audio loading to decode through SDL_sound first, then Lime's own WAV and Ogg Vorbis decoders.
 - Changed asset copying and embedding to behave consistently across targets.
@@ -104,13 +113,15 @@ Changelog
 - Changed HTML5 asset URLs to carry a version made from each asset's content, so a build that only changes code or other assets leaves an asset's URL, and the browser's cached copy, as they were. `lime-assets-version` still gives every asset the same version, and `lime-disable-assets-version` none.
 - Changed libraries made from asset bundles to decode images, sounds and fonts when they are first asked for, or at `load()` when marked to preload, and to stream music from the bundle. Reading a bundle lets go of each compressed file once it is inflated.
 - Changed the default Android target SDK to 36, which Google Play requires, with Android Gradle plugin 8.9.1 and Gradle 8.11.1. On Android 16, the back gesture and back key still reach the application as `APP_CONTROL_BACK`, and an Android application is a game by default (`android:appCategory="game"`), so it keeps its orientation on large screens.
+- Changed icons the tools scale down from larger images to average the pixels each one covers, rather than read four of them, so small icons come out smooth.
 - Added support for Android Gradle plugin 9 and Gradle 9, which removed `applicationVariants` and Groovy's SwingBuilder.
 - Changed native HTTP requests to look up names on a thread of their own on every platform.
 - Changed native HTTPS requests to check the server's certificate, against the system's trusted certificates (Mozilla's on iOS and tvOS). Set `HTTPRequest.verifyCertificates` to `false`, or define `lime-insecure-https`, for servers with self-signed certificates.
 - Changed static builds to use Lime's own mbedTLS rather than the one bundled with hxcpp.
 - Changed asset library load errors to say which bundle or manifest failed to load, and why.
-- Changed Windows HashLink builds to hide the console window. Set the `SHOW_CONSOLE` environment variable, or `<setenv name="SHOW_CONSOLE" />`, to keep it.
+- Changed Windows HashLink release builds to hide the console window. Debug builds keep it, so `trace` output and uncaught errors reach the terminal they run from. Set the `SHOW_CONSOLE` environment variable, or `<setenv name="SHOW_CONSOLE" />`, to keep it in release builds.
 - Changed HTML5 on iOS Safari to pause and resume with the page's visibility, rather than window focus.
+- Changed `Font.loadFromName()` on HTML5 to use the browser's CSS Font Loading API in Safari, as in other browsers, rather than measuring text for up to three seconds.
 - Changed HTML5 applications with a frame rate of 0 to update on every animation frame.
 - Changed the error when the main class isn't found to also mention a missing `<source />` path.
 - Changed `Window.scale` to follow changes to the display scale, which `Window.onDisplayScaleChange` reports. Define `lime_disable_window_scale_change` to keep the scale a window was created with.
@@ -157,6 +168,8 @@ Changelog
 - Fixed 64-bit Android libraries built with NDK r27 or older and hxcpp 4.3.2 not being aligned for devices with 16 KB pages.
 - Fixed `::ANDROID_INSTALL_LOCATION::` in Android manifest templates copied from Lime 8.3 and earlier.
 - Fixed HTML5 gamepad connect and disconnect events.
+- Fixed a `ThreadPool` job started in an HTML5 application's constructor with `lime-threads`, whose worker looked for `undefined.js` and never ran it.
+- Fixed HTML5 gamepads in browsers that leave a disconnected pad out of `navigator.getGamepads()`, which never reported the disconnect, and a pad that connected again at the same index.
 - Fixed `projectFilePath` for HXP projects.
 - Fixed HTML5 transparent docs generation.
 - Fixed native HTTP requests freezing the application during slow name lookups (#1769).
@@ -169,6 +182,7 @@ Changelog
 - Fixed `AudioBuffer.fromBytes()`, `AudioBuffer.fromBytesStream()`, and WAV files without a `.wav` extension decoding as MP3, such as sounds that fade out to near silence.
 - Fixed WAV files with an odd-sized chunk before their samples, or a format chunk longer than 16 bytes, failing to decode.
 - Fixed `System.getTimer()`, `Timer`, and `Timer.stamp()` stopping after 24.8 days of uptime.
+- Fixed `System.openFile()` and `System.openURL()` on Windows showing a console window for a moment. They open through the shell rather than `cmd`.
 - Fixed the main loop freezing on Linux when the system clock changes.
 - Fixed SDL frame timing and event handling, and input and window pacing on Windows.
 - Fixed HTML5 frame pacing at 60 fps.
@@ -198,6 +212,8 @@ Changelog
 - Fixed `Font` glyph lookups for characters beyond U+FFFF, such as emoji, and for UTF-8 led by the bytes 0xE0, 0xED, and 0xF0, such as Devanagari and Thai.
 - Fixed `Window.maxWidth` setting the minimum size.
 - Fixed `Window.maximized` staying `true` after the system restores a maximized window, from its title bar or a keyboard shortcut.
+- Fixed `WindowAttributes.x` and `y`, and `<window x="" y="" />`, which native windows ignored, and `Window.x` and `y` on CommonJS builds, which used each other's accessors.
+- Fixed a window staying black after it entered or left fullscreen until something drew it again. `onExpose` is now dispatched for the first frames after the change.
 - Fixed the AIR `DNSResolverEvent` extern giving `bubbles` a String default, which failed builds that use it.
 - Fixed Android windows that aren't fullscreen drawing under the status and navigation bars on Android 15 and later, which draw applications that target API 35 or later edge to edge.
 - Fixed natively decoded PNG and JPEG images always being marked as transparent, JPEGs included, so OpenFL drew opaque bitmaps with blending.

@@ -16,7 +16,7 @@ namespace lime {
 
 		public:
 
-			SDLWindow (Application* application, int width, int height, int flags, const char* title);
+			SDLWindow (Application* application, int width, int height, int flags, const char* title, int x = 0, int y = 0, int display = 0);
 			~SDLWindow ();
 
 			virtual void Alert (const char* message, const char* title);
@@ -41,6 +41,7 @@ namespace lime {
 			virtual uint32_t GetID ();
 			virtual bool Flash (int mode);
 			virtual bool GetKeyboardGrab ();
+			virtual bool GetMinimizeOnFocusLoss ();
 			virtual bool GetMouseLock ();
 			virtual bool GetMouseRect (int* x, int* y, int* width, int* height);
 			virtual int GetNativeHandle (void** handle, void** display);
@@ -67,6 +68,7 @@ namespace lime {
 			virtual bool SetMenu (const unsigned char* data, int length);
 			virtual bool SetMinimized (bool minimized);
 			virtual void SetKeyboardGrab (bool keyboardGrab);
+			virtual void SetMinimizeOnFocusLoss (bool value);
 			virtual void SetMouseLock (bool mouseLock);
 			virtual void SetMouseRect (int x, int y, int width, int height);
 			virtual void SetOpacity (float opacity);

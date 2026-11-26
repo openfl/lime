@@ -42,7 +42,7 @@ import ::APP_MAIN::;
 				allowHighDPI: ::allowHighDPI::,
 				alwaysOnTop: ::alwaysOnTop::,
 				borderless: ::borderless::,
-				// display: ::display::,
+				display: ::display::,
 				element: null,
 				frameRate: ::fps::,
 				#if !web fullscreen: ::fullscreen::, #end
