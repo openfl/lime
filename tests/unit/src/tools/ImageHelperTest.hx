@@ -121,6 +121,56 @@ class ImageHelperTest extends Test
 		assertAll(0x800000FF, icon, 8, "64 to 8");
 	}
 
+	public function testAnAdaptiveForegroundHasTheIconInTheCircleEveryMaskKeeps():Void
+	{
+		// Android draws an adaptive icon's layers on 108 dp, and every mask keeps a circle 66 dp across
+		// in the middle, so an icon made into a foreground fills the middle 66 dp and leaves the rest
+		// transparent (#1114)
+		var scale = 66 / 108;
+		var source = hxp.System.getTemporaryFile(".png");
+		File.saveBytes(source, ImageFixture.create(256, 256, 0xFFFF0000).encode(lime.graphics.ImageFileFormat.PNG));
+
+		for (size in [81, 108, 432])
+		{
+			var target = hxp.System.getTemporaryFile(".png");
+			var created = lime.tools.IconHelper.createInsetIcon([new lime.tools.Icon(source)], size, size, scale, target);
+			var icon = (created && FileSystem.exists(target)) ? lime.graphics.Image.fromFile(target) : null;
+			if (FileSystem.exists(target)) FileSystem.deleteFile(target);
+
+			if (icon == null)
+			{
+				Assert.fail(size + ": no foreground was written");
+				continue;
+			}
+
+			Assert.equals(size + "x" + size, icon.width + "x" + icon.height);
+
+			// Pixels wholly outside the middle, and wholly inside it
+			var low = (size - size * scale) / 2;
+			var high = low + size * scale;
+			var differences = [];
+
+			for (y in 0...size)
+			{
+				for (x in 0...size)
+				{
+					var outside = x + 1 <= Math.floor(low) || y + 1 <= Math.floor(low) || x >= Math.ceil(high) || y >= Math.ceil(high);
+					var inside = x >= Math.ceil(low) && y >= Math.ceil(low) && x + 1 <= Math.floor(high) && y + 1 <= Math.floor(high);
+					var color = ImageFixture.read(icon, x, y);
+
+					if ((outside && (color >>> 24) != 0) || (inside && !ImageFixture.sameColor(0xFFFF0000, color, 2)))
+					{
+						if (differences.length < 8) differences.push(x + "," + y + " " + ImageFixture.hex(color));
+					}
+				}
+			}
+
+			Assert.isTrue(differences.length == 0, size + ": not transparent around the middle 66 of 108 and red inside it: " + differences.join("; "));
+		}
+
+		FileSystem.deleteFile(source);
+	}
+
 	/** Writes `image` as a PNG icon, has the tools make it `size` pixels square, and reads that back **/
 	private static function createIcon(image:lime.graphics.Image, size:Int):lime.graphics.Image
 	{
