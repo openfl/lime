@@ -145,27 +145,30 @@ namespace lime {
 					for (int x = 0; x < destView.width; x++) {
 
 						sourcePixel.ReadUInt8 (sourceData, sourcePosition, sourceFormat, sourcePremultiplied, LIME_BIG_ENDIAN);
-						destPixel.ReadUInt8 (destData, destPosition, destFormat, destPremultiplied, LIME_BIG_ENDIAN);
 
-						sourceAlpha = sourcePixel.a / 255.0;
-						destAlpha = destPixel.a / 255.0;
-						oneMinusSourceAlpha = 1 - sourceAlpha;
-						blendAlpha = sourceAlpha + (destAlpha * oneMinusSourceAlpha);
+						// An opaque pixel blends to itself, and a transparent one leaves
+						// the destination as it is, so only the others are blended
+						if (sourcePixel.a == 0xFF) {
 
-						if (blendAlpha == 0) {
+							sourcePixel.WriteUInt8 (destData, destPosition, destFormat, destPremultiplied);
 
-							destPixel.Set (0, 0, 0, 0);
+						} else if (sourcePixel.a != 0) {
 
-						} else {
+							destPixel.ReadUInt8 (destData, destPosition, destFormat, destPremultiplied, LIME_BIG_ENDIAN);
+
+							sourceAlpha = sourcePixel.a / 255.0;
+							destAlpha = destPixel.a / 255.0;
+							oneMinusSourceAlpha = 1 - sourceAlpha;
+							blendAlpha = sourceAlpha + (destAlpha * oneMinusSourceAlpha);
 
 							destPixel.r = __clamp[int (0.5 + (sourcePixel.r * sourceAlpha + destPixel.r * destAlpha * oneMinusSourceAlpha) / blendAlpha)];
 							destPixel.g = __clamp[int (0.5 + (sourcePixel.g * sourceAlpha + destPixel.g * destAlpha * oneMinusSourceAlpha) / blendAlpha)];
 							destPixel.b = __clamp[int (0.5 + (sourcePixel.b * sourceAlpha + destPixel.b * destAlpha * oneMinusSourceAlpha) / blendAlpha)];
 							destPixel.a = __clamp[int (0.5 + blendAlpha * 255.0)];
 
-						}
+							destPixel.WriteUInt8 (destData, destPosition, destFormat, destPremultiplied);
 
-						destPixel.WriteUInt8 (destData, destPosition, destFormat, destPremultiplied);
+						}
 
 						sourcePosition += 4;
 						destPosition += 4;
