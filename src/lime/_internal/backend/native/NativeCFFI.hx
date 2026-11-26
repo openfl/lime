@@ -158,7 +158,7 @@ class NativeCFFI
 
 	@:cffi private static function lime_data_pointer_offset(dataPointer:DataPointer, offset:Int):Float;
 
-	@:cffi private static function lime_deflate_compress(data:Dynamic, bytes:Dynamic):Dynamic;
+	@:cffi private static function lime_deflate_compress(data:Dynamic, bytes:Dynamic, level:Int):Dynamic;
 
 	@:cffi private static function lime_deflate_decompress(data:Dynamic, bytes:Dynamic):Dynamic;
 
@@ -285,7 +285,7 @@ class NativeCFFI
 
 	@:cffi private static function lime_gamepad_event_manager_register(callback:Dynamic, eventObject:Dynamic):Void;
 
-	@:cffi private static function lime_gzip_compress(data:Dynamic, bytes:Dynamic):Dynamic;
+	@:cffi private static function lime_gzip_compress(data:Dynamic, bytes:Dynamic, level:Int):Dynamic;
 
 	@:cffi private static function lime_gzip_decompress(data:Dynamic, bytes:Dynamic):Dynamic;
 
@@ -381,7 +381,7 @@ class NativeCFFI
 
 	@:cffi private static function lime_network_interface_is_supported():Bool;
 
-	@:cffi private static function lime_lzma_compress(data:Dynamic, bytes:Dynamic):Dynamic;
+	@:cffi private static function lime_lzma_compress(data:Dynamic, bytes:Dynamic, level:Int):Dynamic;
 
 	@:cffi private static function lime_lzma_decompress(data:Dynamic, bytes:Dynamic):Dynamic;
 
@@ -999,7 +999,7 @@ class NativeCFFI
 
 	@:cffi private static function lime_window_event_manager_register(callback:Dynamic, eventObject:Dynamic):Void;
 
-	@:cffi private static function lime_zlib_compress(data:Dynamic, bytes:Dynamic):Dynamic;
+	@:cffi private static function lime_zlib_compress(data:Dynamic, bytes:Dynamic, level:Int):Dynamic;
 
 	@:cffi private static function lime_zlib_decompress(data:Dynamic, bytes:Dynamic):Dynamic;
 	#else
@@ -1092,8 +1092,8 @@ class NativeCFFI
 	private static var lime_clipboard_set_items = new cpp.Callable<cpp.Object->Bool>(cpp.Prime._loadPrime("lime", "lime_clipboard_set_items", "ob", false));
 	private static var lime_data_pointer_offset = new cpp.Callable<lime.utils.DataPointer->Int->Float>(cpp.Prime._loadPrime("lime",
 		"lime_data_pointer_offset", "did", false));
-	private static var lime_deflate_compress = new cpp.Callable<cpp.Object->cpp.Object->cpp.Object>(cpp.Prime._loadPrime("lime", "lime_deflate_compress",
-		"ooo", false));
+	private static var lime_deflate_compress = new cpp.Callable<cpp.Object->cpp.Object->Int->cpp.Object>(cpp.Prime._loadPrime("lime", "lime_deflate_compress",
+		"ooio", false));
 	private static var lime_deflate_decompress = new cpp.Callable<cpp.Object->cpp.Object->cpp.Object>(cpp.Prime._loadPrime("lime", "lime_deflate_decompress",
 		"ooo", false));
 	private static var lime_dock_icon_bounce = new cpp.Callable<Bool->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_dock_icon_bounce", "bv", false));
@@ -1191,7 +1191,7 @@ class NativeCFFI
 		"io", false));
 	private static var lime_gamepad_event_manager_register = new cpp.Callable<cpp.Object->cpp.Object->cpp.Void>(cpp.Prime._loadPrime("lime",
 		"lime_gamepad_event_manager_register", "oov", false));
-	private static var lime_gzip_compress = new cpp.Callable<cpp.Object->cpp.Object->cpp.Object>(cpp.Prime._loadPrime("lime", "lime_gzip_compress", "ooo",
+	private static var lime_gzip_compress = new cpp.Callable<cpp.Object->cpp.Object->Int->cpp.Object>(cpp.Prime._loadPrime("lime", "lime_gzip_compress", "ooio",
 		false));
 	private static var lime_gzip_decompress = new cpp.Callable<cpp.Object->cpp.Object->cpp.Object>(cpp.Prime._loadPrime("lime", "lime_gzip_decompress", "ooo",
 		false));
@@ -1271,7 +1271,7 @@ class NativeCFFI
 		"lime_network_interface_get_interfaces", "o", false));
 	private static var lime_network_interface_is_supported = new cpp.Callable<Void->Bool>(cpp.Prime._loadPrime("lime",
 		"lime_network_interface_is_supported", "b", false));
-	private static var lime_lzma_compress = new cpp.Callable<cpp.Object->cpp.Object->cpp.Object>(cpp.Prime._loadPrime("lime", "lime_lzma_compress", "ooo",
+	private static var lime_lzma_compress = new cpp.Callable<cpp.Object->cpp.Object->Int->cpp.Object>(cpp.Prime._loadPrime("lime", "lime_lzma_compress", "ooio",
 		false));
 	private static var lime_lzma_decompress = new cpp.Callable<cpp.Object->cpp.Object->cpp.Object>(cpp.Prime._loadPrime("lime", "lime_lzma_decompress", "ooo",
 		false));
@@ -1731,7 +1731,7 @@ class NativeCFFI
 		"oiiv", false));
 	private static var lime_window_event_manager_register = new cpp.Callable<cpp.Object->cpp.Object->cpp.Void>(cpp.Prime._loadPrime("lime",
 		"lime_window_event_manager_register", "oov", false));
-	private static var lime_zlib_compress = new cpp.Callable<cpp.Object->cpp.Object->cpp.Object>(cpp.Prime._loadPrime("lime", "lime_zlib_compress", "ooo",
+	private static var lime_zlib_compress = new cpp.Callable<cpp.Object->cpp.Object->Int->cpp.Object>(cpp.Prime._loadPrime("lime", "lime_zlib_compress", "ooio",
 		false));
 	private static var lime_zlib_decompress = new cpp.Callable<cpp.Object->cpp.Object->cpp.Object>(cpp.Prime._loadPrime("lime", "lime_zlib_decompress", "ooo",
 		false));
@@ -1789,7 +1789,7 @@ class NativeCFFI
 	private static var lime_clipboard_has_format = CFFI.load("lime", "lime_clipboard_has_format", 1);
 	private static var lime_clipboard_set_items = CFFI.load("lime", "lime_clipboard_set_items", 1);
 	private static var lime_data_pointer_offset = CFFI.load("lime", "lime_data_pointer_offset", 2);
-	private static var lime_deflate_compress = CFFI.load("lime", "lime_deflate_compress", 2);
+	private static var lime_deflate_compress = CFFI.load("lime", "lime_deflate_compress", 3);
 	private static var lime_deflate_decompress = CFFI.load("lime", "lime_deflate_decompress", 2);
 	private static var lime_dock_icon_bounce = CFFI.load("lime", "lime_dock_icon_bounce", 1);
 	private static var lime_dock_icon_is_supported = CFFI.load("lime", "lime_dock_icon_is_supported", 0);
@@ -1853,7 +1853,7 @@ class NativeCFFI
 	private static var lime_gamepad_detach_virtual = CFFI.load("lime", "lime_gamepad_detach_virtual", 1);
 	private static var lime_gamepad_get_virtual_output = CFFI.load("lime", "lime_gamepad_get_virtual_output", 1);
 	private static var lime_gamepad_event_manager_register = CFFI.load("lime", "lime_gamepad_event_manager_register", 2);
-	private static var lime_gzip_compress = CFFI.load("lime", "lime_gzip_compress", 2);
+	private static var lime_gzip_compress = CFFI.load("lime", "lime_gzip_compress", 3);
 	private static var lime_gzip_decompress = CFFI.load("lime", "lime_gzip_decompress", 2);
 	private static var lime_haptic_vibrate = CFFI.load("lime", "lime_haptic_vibrate", 2);
 	private static var lime_image_encode = CFFI.load("lime", "lime_image_encode", 4);
@@ -1899,7 +1899,7 @@ class NativeCFFI
 	private static var lime_local_socket_update = CFFI.load("lime", "lime_local_socket_update", 0);
 	private static var lime_network_interface_get_interfaces = CFFI.load("lime", "lime_network_interface_get_interfaces", 0);
 	private static var lime_network_interface_is_supported = CFFI.load("lime", "lime_network_interface_is_supported", 0);
-	private static var lime_lzma_compress = CFFI.load("lime", "lime_lzma_compress", 2);
+	private static var lime_lzma_compress = CFFI.load("lime", "lime_lzma_compress", 3);
 	private static var lime_lzma_decompress = CFFI.load("lime", "lime_lzma_decompress", 2);
 	private static var lime_menu_event_manager_register = CFFI.load("lime", "lime_menu_event_manager_register", 2);
 	private static var lime_menu_get_application_menu = CFFI.load("lime", "lime_menu_get_application_menu", 1);
@@ -2164,7 +2164,7 @@ class NativeCFFI
 	private static var lime_window_set_always_on_top = CFFI.load("lime", "lime_window_set_always_on_top", 2);
 	private static var lime_window_warp_mouse = CFFI.load("lime", "lime_window_warp_mouse", 3);
 	private static var lime_window_event_manager_register = CFFI.load("lime", "lime_window_event_manager_register", 2);
-	private static var lime_zlib_compress = CFFI.load("lime", "lime_zlib_compress", 2);
+	private static var lime_zlib_compress = CFFI.load("lime", "lime_zlib_compress", 3);
 	private static var lime_zlib_decompress = CFFI.load("lime", "lime_zlib_decompress", 2);
 	#end
 
@@ -2378,7 +2378,7 @@ class NativeCFFI
 		return 0;
 	}
 
-	@:hlNative("lime", "hl_deflate_compress") private static function lime_deflate_compress(data:Bytes, bytes:Bytes):Bytes
+	@:hlNative("lime", "hl_deflate_compress") private static function lime_deflate_compress(data:Bytes, bytes:Bytes, level:Int):Bytes
 	{
 		return null;
 	}
@@ -2663,7 +2663,7 @@ class NativeCFFI
 	@:hlNative("lime", "hl_gamepad_event_manager_register") private static function lime_gamepad_event_manager_register(callback:Void->Void,
 		eventObject:GamepadEventInfo):Void {}
 
-	@:hlNative("lime", "hl_gzip_compress") private static function lime_gzip_compress(data:Bytes, bytes:Bytes):Bytes
+	@:hlNative("lime", "hl_gzip_compress") private static function lime_gzip_compress(data:Bytes, bytes:Bytes, level:Int):Bytes
 	{
 		return null;
 	}
@@ -2848,7 +2848,7 @@ class NativeCFFI
 		return false;
 	}
 
-	@:hlNative("lime", "hl_lzma_compress") private static function lime_lzma_compress(data:Bytes, bytes:Bytes):Bytes
+	@:hlNative("lime", "hl_lzma_compress") private static function lime_lzma_compress(data:Bytes, bytes:Bytes, level:Int):Bytes
 	{
 		return null;
 	}
@@ -4053,7 +4053,7 @@ class NativeCFFI
 	@:hlNative("lime", "hl_window_event_manager_register") private static function lime_window_event_manager_register(callback:Void->Void,
 		eventObject:WindowEventInfo):Void {}
 
-	@:hlNative("lime", "hl_zlib_compress") private static function lime_zlib_compress(data:Bytes, bytes:Bytes):Bytes
+	@:hlNative("lime", "hl_zlib_compress") private static function lime_zlib_compress(data:Bytes, bytes:Bytes, level:Int):Bytes
 	{
 		return null;
 	}
