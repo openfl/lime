@@ -109,8 +109,8 @@ class LaunchArgumentsTest extends Test
 		}
 
 		Sys.setCwd(cwd);
-		Sys.putEnv("LIME_CONFIG", previousConfig);
-		Sys.putEnv(RUN_TOOLS, null);
+		Environment.restore("LIME_CONFIG", previousConfig);
+		Environment.restore(RUN_TOOLS, null);
 
 		return output;
 	}
