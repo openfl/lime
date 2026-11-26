@@ -224,9 +224,89 @@ class ImageHelper
 			return image;
 		}
 
+		// Image.resize() reads the four source pixels nearest each new one, and makes a pixel transparent
+		// when any of them is, so a large icon made small skipped most of its pixels and lost its partly
+		// transparent edges. A smaller icon is the average of the pixels each of its pixels covers,
+		// weighted by their alpha, so transparent pixels add no color. A larger one is still resized.
+		if (width <= image.width && height <= image.height)
+		{
+			return __averageDown(image, width, height);
+		}
+
 		image.resize(width, height);
 		#end
 
 		return image;
 	}
+
+	#if (lime && lime_cffi && !macro)
+	// Each new pixel is the average of the source pixels it covers, in part at its edges, with each
+	// one's color weighted by its alpha, as premultiplied alpha averages, and given back without it
+	private static function __averageDown(image:Image, width:Int, height:Int):Image
+	{
+		var sourceWidth = image.width;
+		var sourceHeight = image.height;
+		var source = image.getPixels(image.rect, RGBA32);
+		var output = haxe.io.Bytes.alloc(width * height * 4);
+
+		var scaleX = sourceWidth / width;
+		var scaleY = sourceHeight / height;
+
+		for (y in 0...height)
+		{
+			var top = y * scaleY;
+			var bottom = (y + 1) * scaleY;
+			var firstRow = Std.int(top);
+			var lastRow = Std.int(Math.ceil(bottom));
+			if (lastRow > sourceHeight) lastRow = sourceHeight;
+
+			for (x in 0...width)
+			{
+				var left = x * scaleX;
+				var right = (x + 1) * scaleX;
+				var firstColumn = Std.int(left);
+				var lastColumn = Std.int(Math.ceil(right));
+				if (lastColumn > sourceWidth) lastColumn = sourceWidth;
+
+				var red = 0.0, green = 0.0, blue = 0.0, alpha = 0.0, area = 0.0;
+
+				for (row in firstRow...lastRow)
+				{
+					var coverY = Math.min(row + 1, bottom) - Math.max(row, top);
+
+					for (column in firstColumn...lastColumn)
+					{
+						var cover = (Math.min(column + 1, right) - Math.max(column, left)) * coverY;
+						var index = (row * sourceWidth + column) * 4;
+						var weight = source.get(index + 3) * cover;
+
+						red += source.get(index) * weight;
+						green += source.get(index + 1) * weight;
+						blue += source.get(index + 2) * weight;
+						alpha += weight;
+						area += cover;
+					}
+				}
+
+				var index = (y * width + x) * 4;
+
+				if (alpha > 0)
+				{
+					output.set(index, __channel(red / alpha));
+					output.set(index + 1, __channel(green / alpha));
+					output.set(index + 2, __channel(blue / alpha));
+					output.set(index + 3, __channel(alpha / area));
+				}
+			}
+		}
+
+		return new Image(new ImageBuffer(UInt8Array.fromBytes(output), width, height), 0, 0, width, height);
+	}
+
+	private static inline function __channel(value:Float):Int
+	{
+		var rounded = Math.round(value);
+		return rounded < 0 ? 0 : (rounded > 255 ? 255 : rounded);
+	}
+	#end
 }

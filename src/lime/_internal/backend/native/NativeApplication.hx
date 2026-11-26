@@ -816,6 +816,13 @@ class NativeApplication
 					if (window.context != null)
 					{
 						NativeWindow.rendering = window;
+
+						if (window.__backend.__exposeFrames > 0)
+						{
+							window.__backend.__exposeFrames--;
+							window.onExpose.dispatch();
+						}
+
 						window.__backend.render();
 						window.onRender.dispatch(window.context);
 
@@ -1038,6 +1045,7 @@ class NativeApplication
 					window.onResize.dispatch(windowEventInfo.width, windowEventInfo.height);
 
 				case WINDOW_RESTORE:
+					if (window.__fullscreen) window.__backend.__exposeFrames = 2;
 					window.__fullscreen = false;
 					window.__maximized = false;
 					window.__minimized = false;

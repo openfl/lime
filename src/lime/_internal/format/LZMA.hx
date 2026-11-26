@@ -23,18 +23,25 @@ class LZMA
 	}
 	#end
 
-	public static function compress(bytes:Bytes):Bytes
+	/**
+		Compresses `bytes`. `level` is 0 to 9, LZMA's presets from fastest to smallest,
+		or -1 for this target's default. Flash ignores it.
+	**/
+	public static function compress(bytes:Bytes, level:Int = -1):Bytes
 	{
+		if (level < -1) level = 0;
+		if (level > 9) level = 9;
+
 		#if (lime_cffi && !macro)
 		#if !cs
-		return NativeCFFI.lime_lzma_compress(bytes, Bytes.alloc(0));
+		return NativeCFFI.lime_lzma_compress_level(bytes, Bytes.alloc(0), level);
 		#else
-		var data:Dynamic = NativeCFFI.lime_lzma_compress(bytes, null);
+		var data:Dynamic = NativeCFFI.lime_lzma_compress_level(bytes, null, level);
 		if (data == null) return null;
 		return @:privateAccess new Bytes(data.length, data.b);
 		#end
 		#elseif js
-		var data = untyped #if haxe4 js.Syntax.code #else __js__ #end ("LZMA.compress")(@:privateAccess bytes.b, 5);
+		var data = untyped #if haxe4 js.Syntax.code #else __js__ #end ("LZMA.compress")(@:privateAccess bytes.b, level < 0 ? 5 : (level < 1 ? 1 : level));
 		return __jsBytes(data);
 		#elseif flash
 		// Flash compresses nothing to nothing. An .lzma stream of nothing is its header, as Flash writes it, with

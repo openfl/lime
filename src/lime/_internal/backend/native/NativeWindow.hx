@@ -69,6 +69,11 @@ class NativeWindow
 	private var closing:Bool;
 	private var cursor:MouseCursor;
 	private var displayMode:DisplayMode;
+
+	// Frames left that dispatch onExpose before rendering, after a change of fullscreen, as a window
+	// may not keep what was drawn while it changes, and an application that draws only when
+	// something changed would otherwise leave it blank
+	@:noCompletion public var __exposeFrames:Int = 0;
 	private var dropTarget:Bool = false;
 	private var frameRate:Float;
 	private var menuItems:Array<MenuItem>;
@@ -131,6 +136,20 @@ class NativeWindow
 		if (transparent) flags |= cast WindowFlags.WINDOW_FLAG_TRANSPARENT;
 
 		if (Reflect.hasField(attributes, "hidden") && attributes.hidden) flags |= cast WindowFlags.WINDOW_FLAG_HIDDEN;
+
+		// A position is on the whole desktop. Without one, the window is centered on its display.
+		var x:Null<Int> = Reflect.hasField(attributes, "x") ? attributes.x : null;
+		var y:Null<Int> = Reflect.hasField(attributes, "y") ? attributes.y : null;
+		if (x != null) flags |= cast WindowFlags.WINDOW_FLAG_POSITION_X;
+		if (y != null) flags |= cast WindowFlags.WINDOW_FLAG_POSITION_Y;
+		var display:Null<Int> = Reflect.hasField(attributes, "display") ? attributes.display : null;
+
+		// A window to open in exclusive fullscreen is shown once its display mode is set, so the
+		// display changes mode once
+		var startDisplayMode:DisplayMode = Reflect.hasField(attributes, "displayMode") ? attributes.displayMode : null;
+		var showOnceModeIsSet = (startDisplayMode != null && (flags & cast WindowFlags.WINDOW_FLAG_FULLSCREEN) != 0
+			&& (flags & cast WindowFlags.WINDOW_FLAG_HIDDEN) == 0);
+		if (showOnceModeIsSet) flags |= cast WindowFlags.WINDOW_FLAG_HIDDEN;
 		if (Reflect.hasField(attributes, "maximized") && attributes.maximized) flags |= cast WindowFlags.WINDOW_FLAG_MAXIMIZED;
 		if (Reflect.hasField(attributes, "minimized") && attributes.minimized) flags |= cast WindowFlags.WINDOW_FLAG_MINIMIZED;
 
@@ -164,7 +183,8 @@ class NativeWindow
 		var mainWindow = getMainOpenGLWindow(parent.application, parent);
 		if (mainWindow != null) mainWindow.__backend.contextMakeCurrent();
 
-		handle = NativeCFFI.lime_window_create(parent.application.__backend.handle, width, height, flags, title);
+		handle = NativeCFFI.lime_window_create_at(parent.application.__backend.handle, width, height, flags, title, x != null ? x : 0, y != null ? y : 0,
+			display != null ? display : 0);
 
 		if (handle == null)
 		{
@@ -245,6 +265,12 @@ class NativeWindow
 		restoreCurrentContext(parent.application, parent);
 
 		frameRate = resolvedFrameRate;
+
+		if (startDisplayMode != null)
+		{
+			setDisplayMode(startDisplayMode);
+			if (showOnceModeIsSet) NativeCFFI.lime_window_set_visible(handle, true);
+		}
 		#end
 		// SDL 2 enables text input events by default, but we want them only
 		// when requested. otherwise, we might get weird behavior like IME
@@ -446,6 +472,17 @@ class NativeWindow
 		}
 		#end
 		return null;
+	}
+
+	public function getMinimizeOnFocusLoss():Bool
+	{
+		if (handle != null)
+		{
+			#if (!macro && lime_cffi)
+			return NativeCFFI.lime_window_get_minimize_on_focus_loss(handle);
+			#end
+		}
+		return true;
 	}
 
 	public function getMouseLock():Bool
@@ -866,6 +903,17 @@ class NativeWindow
 		#end
 	}
 
+	public function setMinimizeOnFocusLoss(value:Bool):Bool
+	{
+		if (handle != null)
+		{
+			#if (!macro && lime_cffi)
+			NativeCFFI.lime_window_set_minimize_on_focus_loss(handle, value);
+			#end
+		}
+		return value;
+	}
+
 	public function setMouseLock(value:Bool):Bool
 	{
 		if (mouseLock != value)
@@ -923,6 +971,8 @@ class NativeWindow
 
 			// Set before the events, so their listeners read the new state
 			parent.__fullscreen = value;
+
+			if (value != wasFullscreen) __exposeFrames = 2;
 
 			if (value && !wasFullscreen)
 			{
@@ -1114,4 +1164,6 @@ class NativeWindow
 	var WINDOW_FLAG_VULKAN = 0x00020000;
 	var WINDOW_FLAG_TRANSPARENT = 0x00040000;
 	var WINDOW_FLAG_SOFTWARE_OPENGL = 0x00080000;
+	var WINDOW_FLAG_POSITION_X = 0x00100000;
+	var WINDOW_FLAG_POSITION_Y = 0x00200000;
 }
