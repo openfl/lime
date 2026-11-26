@@ -632,8 +632,7 @@ class IOSPlatform extends PlatformTarget
 			{name: "Icon-72@2x.png", size: 144},
 			{name: "Icon-76@2x.png", size: 152},
 			{name: "Icon-83.5@2x.png", size: 167},
-			{name: "Icon-60@3x.png", size: 180},
-			{name: "Icon-Marketing.png", size: 1024}
+			{name: "Icon-60@3x.png", size: 180}
 		];
 
 		context.HAS_ICON = true;
@@ -654,6 +653,12 @@ class IOSPlatform extends PlatformTarget
 			{
 				context.HAS_ICON = false;
 			}
+		}
+
+		// App Store Connect turns down an App Store icon with an alpha channel, so it is drawn over white
+		if (!IconHelper.createOpaqueIcon(icons, 1024, 1024, Path.combine(iconPath, "Icon-Marketing.png"), 0xFFFFFF))
+		{
+			context.HAS_ICON = false;
 		}
 
 		if (project.launchStoryboard != null)

@@ -14,6 +14,7 @@ class IOSOutputTest extends Test
 	private static inline var INFO_PLIST = "MyApplication/MyApplication-Info.plist";
 	private static inline var PRIVACY_MANIFEST = "MyApplication/PrivacyInfo.xcprivacy";
 	private static inline var XCODE_PROJECT = "MyApplication.xcodeproj/project.pbxproj";
+	private static inline var ENTITLEMENTS = "MyApplication/MyApplication.entitlements";
 
 	private var fixture:Fixture;
 	private var output:PlatformFixture;
@@ -233,6 +234,55 @@ class IOSOutputTest extends Test
 		</project>');
 
 		assertLinksSecurityOnce(output.read(XCODE_PROJECT));
+	}
+
+	// The provisioning profile gives get-task-allow, true for development and false for
+	// distribution, and an entitlement of the application's own that set it true kept a build
+	// from being signed for distribution (#1335)
+	public function testTheEntitlementsLeaveGetTaskAllowToTheProvisioningProfile():Void
+	{
+		for (build in ["release", "debug", "final"])
+		{
+			fixture.debug = build == "debug";
+			if (build == "final") fixture.targetFlags.set("final", "") else fixture.targetFlags.remove("final");
+
+			output.update('<project>
+				<app main="Main" file="MyApplication" />
+			</project>');
+
+			var entitlements = Plist.parse(output.read(ENTITLEMENTS));
+			Assert.isFalse(entitlements.exists("get-task-allow"), "get-task-allow in the entitlements of a " + build + " build");
+
+			// The application's build configurations sign with them still
+			Fixture.assertSame(["Debug: " + ENTITLEMENTS, "Release: " + ENTITLEMENTS], signingEntitlements(output.read(XCODE_PROJECT)));
+		}
+	}
+
+	/**
+		Each build configuration of an Xcode project that signs with an entitlements file, as
+		"Debug: MyApplication/MyApplication.entitlements", sorted.
+	**/
+	private static function signingEntitlements(project:String):Array<String>
+	{
+		var start = project.indexOf("/* Begin XCBuildConfiguration section */");
+		var end = project.indexOf("/* End XCBuildConfiguration section */");
+		if (start == -1 || end < start) return [];
+
+		var found = [];
+		var entitlements = ~/CODE_SIGN_ENTITLEMENTS = "?([^";]*)"?;/;
+		var name = ~/\bname = "?([^";]*)"?;/;
+
+		for (configuration in project.substring(start, end).split("isa = XCBuildConfiguration;").slice(1))
+		{
+			if (entitlements.match(configuration))
+			{
+				var path = entitlements.matched(1);
+				found.push((name.match(configuration) ? name.matched(1) : "?") + ": " + path);
+			}
+		}
+
+		found.sort(Reflect.compare);
+		return found;
 	}
 
 	private function accessedAPITypes():Map<String, Array<String>>
