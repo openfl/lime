@@ -103,6 +103,7 @@ Changelog
 - Changed HTML5 asset URLs to carry a version made from each asset's content, so a build that only changes code or other assets leaves an asset's URL, and the browser's cached copy, as they were. `lime-assets-version` still gives every asset the same version, and `lime-disable-assets-version` none.
 - Changed libraries made from asset bundles to decode images, sounds and fonts when they are first asked for, or at `load()` when marked to preload, and to stream music from the bundle. Reading a bundle lets go of each compressed file once it is inflated.
 - Changed the default Android target SDK to 36, which Google Play requires, with Android Gradle plugin 8.9.1 and Gradle 8.11.1. On Android 16, the back gesture and back key still reach the application as `APP_CONTROL_BACK`, and an Android application is a game by default (`android:appCategory="game"`), so it keeps its orientation on large screens.
+- Added support for Android Gradle plugin 9 and Gradle 9, which removed `applicationVariants` and Groovy's SwingBuilder.
 - Changed native HTTP requests to look up names on a thread of their own on every platform.
 - Changed native HTTPS requests to check the server's certificate, against the system's trusted certificates (Mozilla's on iOS and tvOS). Set `HTTPRequest.verifyCertificates` to `false`, or define `lime-insecure-https`, for servers with self-signed certificates.
 - Changed static builds to use Lime's own mbedTLS rather than the one bundled with hxcpp.
