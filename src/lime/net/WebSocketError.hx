@@ -15,8 +15,8 @@ package lime.net;
 	/**
 		The connection could not be made: the URL is not a `ws://` or `wss://`
 		one, its host name did not resolve, nothing took the TCP connection, or
-		the TLS handshake failed, as it does for a certificate that is not
-		trusted.
+		the TLS handshake failed for a reason other than the server's
+		certificate (`CERTIFICATE_REJECTED`).
 	**/
 	public var CONNECT_FAILED = 1;
 
@@ -44,4 +44,12 @@ package lime.net;
 		host is not an address of this machine.
 	**/
 	public var LISTEN_FAILED = 5;
+
+	/**
+		A `wss://` server's certificate did not verify: no authority the
+		system trusts issued it, it names another host, or it is out of date.
+		Native targets only: a browser does not say why a connection failed,
+		and reports this as `CONNECT_FAILED`.
+	**/
+	public var CERTIFICATE_REJECTED = 6;
 }

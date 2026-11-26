@@ -285,7 +285,7 @@ class WebSocketTest extends Test
 		Assert.equals(1006, closed);
 		Assert.isFalse(client.connected);
 		Assert.equals(1, errors.length);
-		Assert.equals(WebSocketError.CONNECT_FAILED, errors[0]);
+		Assert.equals(WebSocketError.CERTIFICATE_REJECTED, errors[0]);
 	}
 
 	public function testTimingIsInMilliseconds():Void

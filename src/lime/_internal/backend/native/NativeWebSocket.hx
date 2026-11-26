@@ -5,6 +5,7 @@ import lime.net.WebSocket;
 import lime.net.WebSocketError;
 #if (haxe4 && (cpp || hl || neko))
 import wsproto.socket.Connection;
+import wsproto.socket.ConnectionError;
 import wsproto.socket.Loop;
 #end
 
@@ -258,8 +259,23 @@ class NativeWebSocket
 		connection.onOpen = function() parent.onConnect.dispatch();
 		connection.onText = function(text) parent.onText.dispatch(text);
 		connection.onBinary = function(data) parent.onData.dispatch(data);
-		connection.onError = function(error, message) parent.onError.dispatch((error : Int), message);
+		connection.onError = function(error, message) parent.onError.dispatch(toWebSocketError(error), message);
 		connection.onClose = function(code, reason) parent.onClose.dispatch(code, reason);
+	}
+
+	// wsproto's reason as Lime's. They are numbered alike up to OVERFLOW, but
+	// wsproto's CERTIFICATE_REJECTED is 5, which Lime's LISTEN_FAILED has.
+	private static function toWebSocketError(error:ConnectionError):WebSocketError
+	{
+		return switch (error)
+		{
+			case ConnectionError.CONNECT_FAILED: WebSocketError.CONNECT_FAILED;
+			case ConnectionError.TIMEOUT: WebSocketError.TIMEOUT;
+			case ConnectionError.REFUSED: WebSocketError.REFUSED;
+			case ConnectionError.OVERFLOW: WebSocketError.OVERFLOW;
+			case ConnectionError.CERTIFICATE_REJECTED: WebSocketError.CERTIFICATE_REJECTED;
+			default: WebSocketError.CONNECT_FAILED;
+		}
 	}
 
 	private static function getLoop():Loop

@@ -52,7 +52,7 @@ It includes webview, under an "MIT" license, and headers from the WebView2 SDK, 
 
 _StageWebView is only included in Windows, macOS and iOS builds, in Android applications as Java, and beside Linux applications as a library that they open when a `WebView` is created._
 
-This product bundles wsproto 1.0.0, which is available under an
+This product bundles wsproto 1.1.0, which is available under an
 "Apache 2.0" license. For details, see [DimensionscapeOrg/wsproto](https://github.com/DimensionscapeOrg/wsproto).
 
 _wsproto is only included in native applications that use `WebSocket` or `WebSocketServer`._
