@@ -230,6 +230,37 @@ class OpenGLTest extends Test
 		finishProgramTest(gl, program);
 	}
 
+	public function testActiveAttributesAndUniformsGiveTheirWholeNames():Void
+	{
+		var main = getMainWindow();
+		if (main == null) return;
+
+		var gl = main.context.gl;
+		makeCurrent(main);
+
+		// Names longer than a few characters, so a name read through the wrong buffer or cut short shows
+		var attribute = "aVertexPositionWithAVeryLongName";
+		var uniform = "uTransformationMatrixWithAVeryLongName";
+		var program = createProgram(gl,
+			'attribute vec4 $attribute; attribute vec4 aColor; uniform mat4 $uniform; uniform float uAlpha; varying vec4 vColor; void main () { vColor = aColor * uAlpha; gl_Position = $uniform * $attribute; }',
+			"varying vec4 vColor; void main () { gl_FragColor = vColor; }");
+
+		var attributes = [for (i in 0...(gl.getProgramParameter(program, gl.ACTIVE_ATTRIBUTES) : Int)) gl.getActiveAttrib(program, i)];
+		var uniforms = [for (i in 0...(gl.getProgramParameter(program, gl.ACTIVE_UNIFORMS) : Int)) gl.getActiveUniform(program, i)];
+		var attributeNames = [for (info in attributes) info.name];
+		var uniformNames = [for (info in uniforms) info.name];
+		attributeNames.sort(Reflect.compare);
+		uniformNames.sort(Reflect.compare);
+
+		Assert.same(["aColor", attribute], attributeNames);
+		Assert.same(["uAlpha", uniform], uniformNames);
+
+		for (info in attributes) if (info.name == attribute) Assert.equals(gl.FLOAT_VEC4, info.type);
+		for (info in uniforms) if (info.name == uniform) Assert.equals(gl.FLOAT_MAT4, info.type);
+
+		finishProgramTest(gl, program);
+	}
+
 	// WebGL2RenderContext's srcOffset, srcLength and length count elements of the view, as in WebGL 2.
 	// The views here start partway into their buffers, so a read that runs past a view stays in its buffer.
 

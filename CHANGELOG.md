@@ -216,6 +216,7 @@ Changelog
 - Fixed typed arrays on native targets throwing when made from another type, copying past the view, writing `set()` at the wrong offset, and taking `subarray()` indices outside the view, and `UInt8ClampedArray` not clamping negative values to 0 on every CPU. Element access outside a view is ignored in debug builds.
 - Fixed the `WebGL2RenderContext` overloads that take `srcOffset`, `srcLength` or `length` counting bytes rather than elements on native targets.
 - Fixed `GL.getUniform()` on native targets reading another uniform, or with the wrong type, where the driver's locations differ from the indices.
+- Fixed `GL.getActiveAttrib()` and `GL.getActiveUniform()` on native targets sizing the name's buffer from a GL constant rather than the longest name the program has, and leaking the name on HashLink.
 - Fixed a crash when OpenGL objects are made or deleted while another thread collects.
 - Fixed `Bytes.decompress()` on native targets accepting truncated ZLIB, GZIP and DEFLATE data and reading only the first member of a GZIP file, and LZMA ending the process for empty or short data and failing on streams of unknown size.
 - Fixed `GZip.compress()` and `decompress()` on Flash, and empty streams and concatenated GZIP members on Flash and AIR.
