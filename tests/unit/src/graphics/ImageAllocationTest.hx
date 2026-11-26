@@ -26,7 +26,6 @@ class ImageAllocationTest extends Test
 	}
 
 	#if hl
-	@Ignored("Waiting on #2131")
 	public function testSetPixelAllocatesNoMoreThanSetPixel32():Void
 	{
 		// setPixel only has to read the alpha it keeps, where setPixel32 reads nothing. Today it reads all four
