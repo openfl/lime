@@ -1561,7 +1561,24 @@ namespace lime {
 	void SDLWindow::GetDisplayMode (DisplayMode* displayMode) {
 
 		SDL_DisplayMode mode;
-		SDL_GetWindowDisplayMode (sdlWindow, &mode);
+		SDL_zero (mode);
+		int displayIndex = SDL_GetWindowDisplayIndex (sdlWindow);
+
+		if (SDL_GetWindowDisplayMode (sdlWindow, &mode) != 0 && displayIndex >= 0) {
+
+			SDL_GetCurrentDisplayMode (displayIndex, &mode);
+
+		}
+
+		// SDL can give the window's mode a refresh rate of 0, as on Linux (#1951): the display's
+		// current mode has it, as GetRefreshRate reads it
+		SDL_DisplayMode current;
+
+		if (mode.refresh_rate == 0 && displayIndex >= 0 && SDL_GetCurrentDisplayMode (displayIndex, &current) == 0) {
+
+			mode.refresh_rate = current.refresh_rate;
+
+		}
 
 		displayMode->width = mode.w;
 		displayMode->height = mode.h;
@@ -1605,6 +1622,14 @@ namespace lime {
 	uint32_t SDLWindow::GetID () {
 
 		return SDL_GetWindowID (sdlWindow);
+
+	}
+
+
+	// SDL keeps the flag while a fullscreen window is minimized, and puts it back in fullscreen on restore
+	bool SDLWindow::GetFullscreen () {
+
+		return sdlWindow && (SDL_GetWindowFlags (sdlWindow) & SDL_WINDOW_FULLSCREEN) != 0;
 
 	}
 

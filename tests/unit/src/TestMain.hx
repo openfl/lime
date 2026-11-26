@@ -108,6 +108,7 @@ class TestMain extends Application
 		runner.addCase(new system.TrashTest());
 		runner.addCase(new system.StorageVolumeTest());
 		runner.addCase(new system.TimerTest());
+		runner.addCase(new system.UserDirectoryTest());
 		runner.addCase(new ui.DragDropTest());
 		runner.addCase(new ui.FileDialogTest());
 		runner.addCase(new ui.GamepadTest());
@@ -123,6 +124,7 @@ class TestMain extends Application
 		runner.addCase(new ui.WindowDisplayTest());
 		runner.addCase(new ui.WindowEventTest());
 		runner.addCase(new ui.WindowFullscreenTest());
+		runner.addCase(new ui.WindowFullscreenStateTest());
 		runner.addCase(new ui.WindowOrderTest());
 		runner.addCase(new ui.WindowTest());
 		runner.addCase(new utils.ArrayBufferTest());
