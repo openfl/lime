@@ -2,8 +2,8 @@ name: CI
 on:
   push:
   pull_request:
-    # labeled, so adding the full-ci label runs the rest of the jobs
-    types: [opened, synchronize, reopened, ready_for_review, labeled]
+    # ready_for_review, so a draft starts its run when it is marked ready
+    types: [opened, synchronize, reopened, ready_for_review]
   # A manual run can be narrowed to some jobs and some unit tests, to check a fix to a few failures
   workflow_dispatch:
     inputs:
@@ -34,20 +34,16 @@ jobs:
   # pull request is tested by the pull request's run, which would otherwise run the
   # same jobs again. In forks every push runs, and any branch can be run by hand.
   #
-  # A draft pull request runs nothing, and a pull request runs only linux, windows and docs,
-  # the unit tests on each target with the native build, unless it has the full-ci label.
-  # macOS runners are few, so the macOS, iOS and other platform jobs run on the long-lived
-  # and train/ branches, by hand, and on pull requests labeled full-ci.
+  # A draft pull request runs nothing until it is marked ready: changes tested together on a
+  # train/ branch can wait as drafts without each queueing the whole matrix.
   gate:
     runs-on: ubuntu-22.04
     outputs:
       run: ${{ steps.check.outputs.run }}
-      full: ${{ steps.check.outputs.full }}
     steps:
       - id: check
         run: |
           echo "run=${{ (github.event_name != 'push' || github.repository != 'openfl/lime' || github.ref == 'refs/heads/develop' || github.ref == 'refs/heads/master' || endsWith(github.ref, '-dev') || endsWith(github.ref, '-Dev') || startsWith(github.ref, 'refs/heads/train/')) && !(github.event_name == 'pull_request' && github.event.pull_request.draft) }}" >> "$GITHUB_OUTPUT"
-          echo "full=${{ github.event_name != 'pull_request' || contains(github.event.pull_request.labels.*.name, 'full-ci') }}" >> "$GITHUB_OUTPUT"
 
   linux:
     needs: gate
@@ -264,7 +260,7 @@ jobs:
 
   linux-arm64:
     needs: gate
-    if: needs.gate.outputs.run == 'true' && (inputs.jobs == '' || inputs.jobs == null || contains(format(',{0},', inputs.jobs), ',linux-arm64,')) && needs.gate.outputs.full == 'true'
+    if: needs.gate.outputs.run == 'true' && (inputs.jobs == '' || inputs.jobs == null || contains(format(',{0},', inputs.jobs), ',linux-arm64,'))
     runs-on: ubuntu-22.04-arm
     steps:
 
@@ -422,7 +418,7 @@ jobs:
 
   vulkan-smoke:
     needs: gate
-    if: needs.gate.outputs.run == 'true' && (inputs.jobs == '' || inputs.jobs == null || contains(format(',{0},', inputs.jobs), ',vulkan-smoke,')) && needs.gate.outputs.full == 'true'
+    if: needs.gate.outputs.run == 'true' && (inputs.jobs == '' || inputs.jobs == null || contains(format(',{0},', inputs.jobs), ',vulkan-smoke,'))
     runs-on: ubuntu-22.04
     steps:
 
@@ -497,7 +493,7 @@ jobs:
 
   macos:
     needs: gate
-    if: needs.gate.outputs.run == 'true' && (inputs.jobs == '' || inputs.jobs == null || contains(format(',{0},', inputs.jobs), ',macos,')) && needs.gate.outputs.full == 'true'
+    if: needs.gate.outputs.run == 'true' && (inputs.jobs == '' || inputs.jobs == null || contains(format(',{0},', inputs.jobs), ',macos,'))
     runs-on: macos-15
     steps:
 
@@ -628,7 +624,7 @@ jobs:
 
   macos-intel:
     needs: gate
-    if: needs.gate.outputs.run == 'true' && (inputs.jobs == '' || inputs.jobs == null || contains(format(',{0},', inputs.jobs), ',macos-intel,')) && needs.gate.outputs.full == 'true'
+    if: needs.gate.outputs.run == 'true' && (inputs.jobs == '' || inputs.jobs == null || contains(format(',{0},', inputs.jobs), ',macos-intel,'))
     runs-on: macos-15-intel
     steps:
 
@@ -990,7 +986,7 @@ jobs:
 
   webassembly:
     needs: gate
-    if: needs.gate.outputs.run == 'true' && (inputs.jobs == '' || inputs.jobs == null || contains(format(',{0},', inputs.jobs), ',webassembly,')) && needs.gate.outputs.full == 'true'
+    if: needs.gate.outputs.run == 'true' && (inputs.jobs == '' || inputs.jobs == null || contains(format(',{0},', inputs.jobs), ',webassembly,'))
     runs-on: ubuntu-22.04
     steps:
 
@@ -1074,7 +1070,7 @@ jobs:
 
   android:
     needs: gate
-    if: needs.gate.outputs.run == 'true' && (inputs.jobs == '' || inputs.jobs == null || contains(format(',{0},', inputs.jobs), ',android,')) && needs.gate.outputs.full == 'true'
+    if: needs.gate.outputs.run == 'true' && (inputs.jobs == '' || inputs.jobs == null || contains(format(',{0},', inputs.jobs), ',android,'))
     runs-on: ubuntu-22.04
     strategy:
       matrix:
@@ -1205,7 +1201,7 @@ jobs:
 
   ios:
     needs: gate
-    if: needs.gate.outputs.run == 'true' && (inputs.jobs == '' || inputs.jobs == null || contains(format(',{0},', inputs.jobs), ',ios,')) && needs.gate.outputs.full == 'true'
+    if: needs.gate.outputs.run == 'true' && (inputs.jobs == '' || inputs.jobs == null || contains(format(',{0},', inputs.jobs), ',ios,'))
     runs-on: macos-15
     steps:
 
@@ -1471,7 +1467,7 @@ jobs:
 
   flash-samples:
     needs: gate
-    if: needs.gate.outputs.run == 'true' && (inputs.jobs == '' || inputs.jobs == null || contains(format(',{0},', inputs.jobs), ',flash-samples,')) && needs.gate.outputs.full == 'true'
+    if: needs.gate.outputs.run == 'true' && (inputs.jobs == '' || inputs.jobs == null || contains(format(',{0},', inputs.jobs), ',flash-samples,'))
     runs-on: ubuntu-22.04
     steps:
 
@@ -1528,7 +1524,7 @@ jobs:
 
   air-samples:
     needs: gate
-    if: needs.gate.outputs.run == 'true' && (inputs.jobs == '' || inputs.jobs == null || contains(format(',{0},', inputs.jobs), ',air-samples,')) && needs.gate.outputs.full == 'true'
+    if: needs.gate.outputs.run == 'true' && (inputs.jobs == '' || inputs.jobs == null || contains(format(',{0},', inputs.jobs), ',air-samples,'))
     runs-on: windows-latest
     strategy:
       matrix:
