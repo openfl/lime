@@ -1129,9 +1129,20 @@ class HTML5Window
 
 					if (locked)
 					{
-						var scale = __mouseMovementScale();
-						movementX = (untyped event.movementX : Float) * scale;
-						movementY = (untyped event.movementY : Float) * scale;
+						// From CSS pixels to the window's own units on each axis, as for its position
+						var scaleX = 1.0;
+						var scaleY = 1.0;
+						var target:Element = canvas != null ? canvas : (div != null ? null : parent.element);
+
+						if (target != null)
+						{
+							var rect = target.getBoundingClientRect();
+							if (rect.width > 0) scaleX = parent.__width / rect.width;
+							if (rect.height > 0) scaleY = parent.__height / rect.height;
+						}
+
+						movementX = (untyped event.movementX : Float) * scaleX;
+						movementY = (untyped event.movementY : Float) * scaleY;
 					}
 
 					if (locked ? (movementX != 0 || movementY != 0) : (x != cacheMouseX || y != cacheMouseY))
@@ -1674,16 +1685,6 @@ class HTML5Window
 		{
 			document.exitPointerLock();
 		}
-	}
-
-	// From the CSS pixels of a mouse event's movement to the window's own units, as for its position
-	private function __mouseMovementScale():Float
-	{
-		var target:Element = canvas != null ? canvas : (div != null ? null : parent.element);
-		if (target == null) return 1;
-
-		var rect = target.getBoundingClientRect();
-		return rect.width > 0 ? parent.__width / rect.width : 1;
 	}
 
 	public function setMouseRect(value:Rectangle):Void {}
