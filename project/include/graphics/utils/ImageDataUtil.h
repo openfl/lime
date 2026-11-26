@@ -27,7 +27,7 @@ namespace lime {
 			static void CopyPixels (Image* image, Image* sourceImage, Rectangle* sourceRect, Vector2* destPoint, Image* alphaImage, Vector2* alphaPoint, bool mergeAlpha);
 			static void FillRect (Image* image, Rectangle* rect, int32_t color);
 			static void FloodFill (Image* image, int x, int y, int32_t color);
-			static void GetPixels (Image* image, Rectangle* rect, PixelFormat format, Bytes* pixels);
+			static void GetPixels (Image* image, Rectangle* rect, PixelFormat format, Bytes* pixels, Endian endian = LIME_BIG_ENDIAN);
 			static void Merge (Image* image, Image* sourceImage, Rectangle* sourceRect, Vector2* destPoint, int redMultiplier, int greenMultiplier, int blueMultiplier, int alphaMultiplier);
 			static void MultiplyAlpha (Image* image);
 			static void Resize (Image* image, ImageBuffer* buffer, int width, int height);

@@ -50,6 +50,8 @@ namespace lime {
 			void RegisterWindow (SDLWindow *window);
 			void UnregisterWindow (SDLWindow *window);
 			static void NoteContextFlip ();
+			static void EnterSwapBlocking ();
+			static void ExitSwapBlocking ();
 			static void CallFromEventPump (void (*callback) (void*), void* data);
 #if defined(HX_WINDOWS) && !defined(HX_WINRT)
 			static void EnterNativeModalLoop ();
@@ -77,6 +79,7 @@ namespace lime {
 			bool IsSchedulerUnthrottled () const;
 			void PaceFrameAfterRender (bool swapped, double renderMs);
 			void RefreshVSyncState ();
+			static int MinimizeOnFocusLossWatch (void* userdata, SDL_Event* event);
 #if defined(HX_WINDOWS) && !defined(HX_WINRT)
 			void PumpOneFrameFromWatch (SDL_Event* watchEvent = 0);
 			static int ModalEventWatch (void* userdata, SDL_Event* event);

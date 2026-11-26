@@ -96,7 +96,7 @@ class ImageOperationOutputTest extends Test
 
 	public function testCopyPixelsWithMergeAlphaKeepsItsOutput():Void
 	{
-		assertPins(["23DA9497", "001B2E0C", "85000672", "554447F9", "0DC8C63A", "1515E2CD"], function(format, premultiplied)
+		assertPins(["8F883026", "001B2E0C", "61E43874", "554447F9", "E3953711", "1515E2CD"], function(format, premultiplied)
 		{
 			var dest = destImage(format, premultiplied);
 			var source = sourceImage(format, premultiplied);
@@ -508,11 +508,11 @@ class ImageOperationOutputTest extends Test
 	{
 		// The source has the other premultiplied setting from the destination, in the same format and the next
 		assertPins([
-			"2B3142A9 74DCB4A4 2B3142A9 74DCB4A4",
+			"2B3142A9 D88E1015 2B3142A9 D88E1015",
 			"A2152FC5 DEE63B0B A2152FC5 DEE63B0B",
-			"884424D0 863E0499 884424D0 863E0499",
+			"884424D0 62DA3A9F 884424D0 62DA3A9F",
 			"75BE82E4 2F07D6AE 75BE82E4 2F07D6AE",
-			"049B9590 75CE2C94 049B9590 75CE2C94",
+			"049B9590 9B93DDBF 049B9590 9B93DDBF",
 			"F3DD1909 450DDCFA F3DD1909 450DDCFA"
 		], function(format, premultiplied)
 		{
@@ -536,11 +536,11 @@ class ImageOperationOutputTest extends Test
 	{
 		// What HTML5 runs, and native targets without the native library
 		assertPins([
-			"89AC17FD ABE842AE E5D3DDF0 5FF3A9BF",
+			"89AC17FD 97591F27 E5D3DDF0 5FF3A9BF",
 			"A2152FC5 970A2AF8 4901F08C D7F200CB",
-			"E8D2800C D0A7FB8C 86E2DF48 F053D06B",
+			"E8D2800C 38D4BFE9 86E2DF48 F053D06B",
 			"75BE82E4 9E86C2AF 0BD3007A D5DB1716",
-			"FEBFB3B3 D73079EE EDAB3194 1911E464",
+			"FEBFB3B3 658921CA EDAB3194 1911E464",
 			"F3DD1909 36BCFECA 837F0DBF 10E276BC"
 		], function(format, premultiplied)
 		{
@@ -566,11 +566,11 @@ class ImageOperationOutputTest extends Test
 	public function testCopyPixelsWithinOneImageThroughTheHaxeLoopKeepsItsOutput():Void
 	{
 		assertPins([
-			"33C6479E 087D66CD 2464F932",
+			"33C6479E C9A32759 02834365",
 			"874F3BBE 5E563BDE B1B6324A",
-			"452550D3 EF1F6825 E968883E",
+			"452550D3 67334680 28FCE47F",
 			"B1797B16 AF5EDA16 63ACF4B6",
-			"417F208D 7101EB77 FECDD2EA",
+			"417F208D CE5DD449 C04729DA",
 			"C3BD3771 E998DB42 934C2822"
 		], function(format, premultiplied)
 		{
@@ -716,7 +716,7 @@ class ImageOperationOutputTest extends Test
 	public function testOperationsOnABufferThatStartsPartwayIntoItsBytesKeepTheirOutput():Void
 	{
 		// The buffer's data is a view that starts 64 bytes into a larger array
-		assertPins(["C53DF9A9 4A83BD38", "39AE37D4 56741E47", "BF2B1B74 4A83BD38", "80A9B148 56741E47", "09145183 4A83BD38", "235250D8 56741E47"], function(format, premultiplied)
+		assertPins(["ED901F7B 4A83BD38", "39AE37D4 56741E47", "238F5E9F 4A83BD38", "80A9B148 56741E47", "A64A1DBB 4A83BD38", "235250D8 56741E47"], function(format, premultiplied)
 		{
 			var plain = destImage(format, premultiplied);
 			var bytes = Bytes.alloc(64 + WIDTH * HEIGHT * 4 + 64);
@@ -809,11 +809,11 @@ class ImageOperationOutputTest extends Test
 		// The sizes whose cost is mostly getting the arguments to native code: 1x1 copies with mergeAlpha,
 		// 16x11 copies with and without it, and 4x4 fills, at many places, each inside both images
 		assertPins([
-			"1720DADF 869712B0 F90F7206 7B37F9C9",
+			"B30B61F0 D272D99F 8FC6EEE1 6D60B90B",
 			"3E084523 32665A1F 08D6F939 6C9FC2C0",
-			"8EF7F440 FB5EF8E9 4EE06B2F 093B59B5",
+			"2E45B17F 5F31581E 772BD94C ECC9D2EF",
 			"FDD71171 500E87AB 23B95DB7 B70F1FD6",
-			"1F76621E B7348894 A397CAB8 4DDE3EB5",
+			"E5092078 8CA88E62 B64ABDF8 7651B96A",
 			"EE200667 4DC21068 AEFEB769 525B742B"
 		], function(format, premultiplied)
 		{

@@ -15,7 +15,7 @@ import utest.Test;
 /**
 	Pins the bytes today's native PNG and JPEG encoders write, as each file's length and a CRC-32 of it.
 
-	Lime builds its own libpng, zlib and libjpeg-turbo, so the bytes are the same on every platform. These
+	Lime builds its own libpng, zlib-ng and libjpeg-turbo, so the bytes are the same on every platform. These
 	pin current output for the performance work on encoding, which changes how the output is collected
 	and not what is written, so each file must come out the same afterwards.
 
@@ -38,7 +38,7 @@ class ImageEncodeOutputTest extends Test
 	public function testPNGEncodingOfAGradientKeepsItsBytes():Void
 	{
 		// Compresses well, so zlib's output arrives in a few large writes rather than many full ones
-		assertEncodes("3909:280DED54", gradient(640, 480).encode(PNG), "a gradient as a PNG");
+		assertEncodes("3924:A23FB52D", gradient(640, 480).encode(PNG), "a gradient as a PNG");
 	}
 
 	public function testPNGEncodingOfEachFormatKeepsItsBytes():Void
@@ -92,7 +92,7 @@ class ImageEncodeOutputTest extends Test
 		}
 
 		assertPin([
-			"795:99F73BC0/1071:80621DF0",
+			"788:8B2B544B/1071:80621DF0",
 			"263:63FE28E9/1601:BF75BDCC",
 			"3961:B56E7B29/1199:25CF6E5F"
 		].join(" "), results.join(" "), "the decoded image files as PNGs and JPEGs");

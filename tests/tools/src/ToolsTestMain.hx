@@ -20,8 +20,10 @@ class ToolsTestMain
 		runner.addCase(new TemplateContextTest());
 		runner.addCase(new HTML5OutputTest());
 		runner.addCase(new AndroidOutputTest());
+		runner.addCase(new AndroidIconTest());
 		runner.addCase(new IOSOutputTest());
 		runner.addCase(new WindowsOutputTest());
+		runner.addCase(new HashlinkHelperTest());
 		runner.addCase(new AppleOutputTest());
 		runner.addCase(new OpenURLTest());
 

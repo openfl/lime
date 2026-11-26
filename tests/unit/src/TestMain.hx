@@ -46,10 +46,13 @@ class TestMain extends Application
 		runner.addCase(new math.Vector2Test());
 		runner.addCase(new math.Vector4Test());
 		runner.addCase(new media.AudioBufferTest());
+		runner.addCase(new media.AudioBufferLoadTest());
+		runner.addCase(new media.AudioBufferDecodeTest());
 		runner.addCase(new media.AudioBufferReadSamplesTest());
 		runner.addCase(new media.AudioInputTest());
 		runner.addCase(new media.AudioInputOptionsTest());
 		runner.addCase(new media.AudioSourceTest());
+		runner.addCase(new media.AudioStreamQueueTest());
 		runner.addCase(new media.CameraInputTest());
 		runner.addCase(new media.OpenALSourceTest());
 		runner.addCase(new media.OpenALStateTest());
@@ -91,6 +94,7 @@ class TestMain extends Application
 		runner.addCase(new system.StorageVolumeTest());
 		runner.addCase(new system.TimerTest());
 		runner.addCase(new ui.DragDropTest());
+		runner.addCase(new ui.FileDialogTest());
 		runner.addCase(new ui.GamepadTest());
 		runner.addCase(new ui.HighDPITest());
 		runner.addCase(new ui.InputEventTest());
@@ -98,8 +102,10 @@ class TestMain extends Application
 		runner.addCase(new ui.KeyModifierTest());
 		runner.addCase(new ui.MenuTest());
 		runner.addCase(new ui.MenuOpenCloseTest());
+		runner.addCase(new ui.MouseLockTest());
 		runner.addCase(new ui.TrayIconTest());
 		runner.addCase(new ui.WebViewTest());
+		runner.addCase(new ui.WindowDisplayTest());
 		runner.addCase(new ui.WindowEventTest());
 		runner.addCase(new ui.WindowFullscreenTest());
 		runner.addCase(new ui.WindowOrderTest());

@@ -474,6 +474,268 @@ class CompressionTest extends Test
 		assertFails(Base64.decode(ZLIB_FOX), LZMA, "zlib as lzma");
 	}
 
+	// Compression levels (#1311): 0 to 9 as zlib's levels for DEFLATE, GZIP and ZLIB and as the LZMA SDK's
+	// presets for LZMA, -1 for each algorithm's default as before, and anything else clamped to 0 to 9
+
+	public function testEveryLevelRoundTrips():Void
+	{
+		for (data in [Bytes.alloc(0), Bytes.ofString(FOX), random(70000, 20), words(100000, 21)])
+		{
+			for (algorithm in ALGORITHMS)
+			{
+				for (level in -1...10)
+				{
+					var name = algorithm + " at level " + level + " of " + data.length + " bytes";
+					var compressed:Bytes = null;
+					var result:Bytes = null;
+
+					try
+					{
+						compressed = compressAt(data, algorithm, level);
+						if (compressed != null) result = decompress(compressed, algorithm);
+					}
+					catch (e:Dynamic)
+					{
+						Assert.fail(name + " threw " + e);
+						continue;
+					}
+
+					Assert.notNull(compressed, name + ": compressing gave null");
+					if (compressed == null) continue;
+					Assert.notNull(result, name + ": decompressing gave null");
+					if (result == null) continue;
+
+					Assert.equals(-1, firstDifference(data, result), name + ": decompressed to " + result.length + " bytes, which differ at byte " + firstDifference(data, result));
+				}
+			}
+		}
+	}
+
+	#if flash
+	@Ignored("haxe.zip.InflateImpl can't read these streams on Flash, though Lime's own inflate reads them back")
+	#end
+	public function testEveryLevelInflatesWithAnotherDecoder():Void
+	{
+		// Each level is still a valid stream for any inflater, not only for Lime's own
+		for (data in [Bytes.ofString(FOX), words(100000, 22)])
+		{
+			for (level in 0...10)
+			{
+				var zlib = compressAtQuietly(data, ZLIB, level);
+				var deflate = compressAtQuietly(data, DEFLATE, level);
+				Assert.notNull(zlib, "ZLIB at level " + level);
+				Assert.notNull(deflate, "DEFLATE at level " + level);
+
+				if (zlib != null)
+				{
+					var inflated = inflate(new BytesInput(zlib), true);
+					Assert.isTrue(inflated != null && data.compare(inflated) == 0, "ZLIB at level " + level + " of " + data.length + " bytes did not inflate to them");
+				}
+
+				if (deflate != null)
+				{
+					var inflated = inflate(new BytesInput(deflate), false);
+					Assert.isTrue(inflated != null && data.compare(inflated) == 0, "DEFLATE at level " + level + " of " + data.length + " bytes did not inflate to them");
+				}
+			}
+		}
+	}
+
+	#if flash
+	@Ignored("Flash has no compression level, so it ignores the level")
+	#end
+	public function testLevelMinusOneKeepsTheOutputOfBefore():Void
+	{
+		// Leaving the level out and giving -1 are the same: each algorithm's default, as it was before levels
+		for (data in [Bytes.alloc(0), Bytes.ofString(FOX), random(70000, 23), words(100000, 24)])
+		{
+			for (algorithm in ALGORITHMS)
+			{
+				var before = compressQuietly(data, algorithm);
+				var minusOne = compressAtQuietly(data, algorithm, -1);
+				Assert.isTrue(before != null && minusOne != null && before.compare(minusOne) == 0,
+					algorithm + " of " + data.length + " bytes at level -1: " + describeDifference(before, minusOne));
+			}
+		}
+	}
+
+	#if flash
+	@Ignored("Flash has no compression level, so it ignores the level")
+	#end
+	public function testLevelZeroStoresTheData():Void
+	{
+		// zlib's level 0 writes stored blocks, BTYPE 00 (RFC 1951 §3.2.3), so data that would compress
+		// well comes out no smaller
+		var data = repeated("abc", 100000);
+
+		for (algorithm in [DEFLATE, GZIP, ZLIB])
+		{
+			var stored = compressAtQuietly(data, algorithm, 0);
+			Assert.notNull(stored, algorithm + " at level 0");
+			if (stored == null) continue;
+
+			Assert.isTrue(stored.length >= data.length, algorithm + " at level 0 gave " + stored.length + " bytes for " + data.length + " that compress well");
+
+			var start = switch (algorithm)
+			{
+				case ZLIB: 2;
+				case GZIP: gzipHeaderLength(stored);
+				default: 0;
+			}
+
+			if (stored.length > start)
+			{
+				Assert.equals(0, (stored.get(start) >> 1) & 3, algorithm + " at level 0 starts with a block of BTYPE " + ((stored.get(start) >> 1) & 3) + ", not a stored block");
+			}
+		}
+
+		// Data that doesn't compress doesn't get smaller at level 0 either, LZMA's preset 0 included
+		var noise = random(65536, 25);
+
+		for (algorithm in ALGORITHMS)
+		{
+			var stored = compressAtQuietly(noise, algorithm, 0);
+			Assert.notNull(stored, algorithm + " at level 0 of random bytes");
+			if (stored == null) continue;
+
+			Assert.isTrue(stored.length >= noise.length, algorithm + " at level 0 gave " + stored.length + " bytes for " + noise.length + " random bytes");
+		}
+	}
+
+	#if flash
+	@Ignored("Flash has no compression level, so it ignores the level")
+	#end
+	public function testHigherLevelsCompressTextNoLess():Void
+	{
+		// On data that compresses, level 9 is no larger than level 1, which is smaller than level 0's
+		// stored blocks. LZMA's presets trade speed for size without promising it, so they aren't compared.
+		var data = words(200000, 26);
+
+		for (algorithm in [DEFLATE, GZIP, ZLIB])
+		{
+			var stored = compressAtQuietly(data, algorithm, 0);
+			var fast = compressAtQuietly(data, algorithm, 1);
+			var best = compressAtQuietly(data, algorithm, 9);
+			Assert.isTrue(stored != null && fast != null && best != null, algorithm + " at level 0, 1 or 9 gave nothing");
+			if (stored == null || fast == null || best == null) continue;
+
+			Assert.isTrue(best.length <= fast.length, algorithm + ": level 9 gave " + best.length + " bytes and level 1 " + fast.length);
+			Assert.isTrue(fast.length < stored.length, algorithm + ": level 1 gave " + fast.length + " bytes and level 0 " + stored.length);
+		}
+	}
+
+	#if flash
+	@Ignored("Flash has no compression level, so it ignores the level")
+	#end
+	public function testLevelMinusOneIsTheDefaultOfBefore():Void
+	{
+		// The zlib formats were compressed at zlib's best natively, and at pako's default, 6, on HTML5
+		var data = words(20000, 32);
+		var level = #if (js && html5) 6 #else 9 #end;
+
+		for (algorithm in [DEFLATE, GZIP, ZLIB])
+		{
+			var minusOne = compressAtQuietly(data, algorithm, -1);
+			var leveled = compressAtQuietly(data, algorithm, level);
+			Assert.isTrue(minusOne != null && leveled != null && minusOne.compare(leveled) == 0,
+				algorithm + " at level -1 is not level " + level + ": " + describeDifference(leveled, minusOne));
+		}
+	}
+
+	#if flash
+	@Ignored("Flash has no compression level, so it ignores the level")
+	#end
+	public function testZlibHeaderSaysHowHardItCompressed():Void
+	{
+		// FLG's FLEVEL is 0 for the fastest algorithm and 3 for maximum compression (RFC 1950 §2.2)
+		var data = words(20000, 27);
+
+		var fastest = compressAtQuietly(data, ZLIB, 1);
+		Assert.notNull(fastest, "level 1");
+		if (fastest != null) Assert.equals(0, fastest.get(1) >> 6, "FLEVEL at level 1");
+
+		var best = compressAtQuietly(data, ZLIB, 9);
+		Assert.notNull(best, "level 9");
+		if (best != null) Assert.equals(3, best.get(1) >> 6, "FLEVEL at level 9");
+	}
+
+	#if flash
+	@Ignored("Flash has no compression level, so it ignores the level")
+	#end
+	public function testGZipHeaderSaysHowHardItCompressed():Void
+	{
+		// XFL is 2 for maximum compression and 4 for the fastest algorithm (RFC 1952 §2.3.1)
+		var data = words(20000, 28);
+
+		var fastest = compressAtQuietly(data, GZIP, 1);
+		Assert.notNull(fastest, "level 1");
+		if (fastest != null) Assert.equals(4, fastest.get(8), "XFL at level 1");
+
+		var best = compressAtQuietly(data, GZIP, 9);
+		Assert.notNull(best, "level 9");
+		if (best != null) Assert.equals(2, best.get(8), "XFL at level 9");
+	}
+
+	#if flash
+	@Ignored("Flash has no compression level, so it ignores the level")
+	#end
+	public function testLZMAPresetsReachTheEncoder():Void
+	{
+		// Preset 0 is a fast mode and preset 9 a thorough one, so they don't write the same stream
+		var data = words(100000, 29);
+		var fastest = compressAtQuietly(data, LZMA, 0);
+		var best = compressAtQuietly(data, LZMA, 9);
+
+		Assert.isTrue(fastest != null && best != null, "LZMA at preset 0 or 9 gave nothing");
+		if (fastest == null || best == null) return;
+
+		Assert.isFalse(fastest.compare(best) == 0, "LZMA wrote the same " + best.length + " bytes at presets 0 and 9");
+	}
+
+	public function testLevelsOutsideTheRangeAreClamped():Void
+	{
+		var data = words(20000, 30);
+
+		for (algorithm in ALGORITHMS)
+		{
+			var lowest = compressAtQuietly(data, algorithm, 0);
+			var highest = compressAtQuietly(data, algorithm, 9);
+
+			for (level in [10, 11, 100, 0x7FFFFFFF])
+			{
+				var clamped = compressAtQuietly(data, algorithm, level);
+				Assert.isTrue(highest != null && clamped != null && highest.compare(clamped) == 0,
+					algorithm + " at level " + level + " is not level 9: " + describeDifference(highest, clamped));
+			}
+
+			for (level in [-2, -10, -100, 0x80000000])
+			{
+				var clamped = compressAtQuietly(data, algorithm, level);
+				Assert.isTrue(lowest != null && clamped != null && lowest.compare(clamped) == 0,
+					algorithm + " at level " + level + " is not level 0: " + describeDifference(lowest, clamped));
+			}
+		}
+	}
+
+	#if flash
+	public function testFlashIgnoresTheLevel():Void
+	{
+		var data = words(20000, 31);
+
+		for (algorithm in ALGORITHMS)
+		{
+			var before = compressQuietly(data, algorithm);
+
+			for (level in [-1, 0, 1, 9])
+			{
+				var leveled = compressAtQuietly(data, algorithm, level);
+				Assert.isTrue(before != null && leveled != null && before.compare(leveled) == 0,
+					algorithm + " at level " + level + ": " + describeDifference(before, leveled));
+			}
+		}
+	}
+	#end
+
 	// Helpers
 
 	private static function compress(data:Bytes, algorithm:CompressionAlgorithm):Bytes
@@ -484,6 +746,32 @@ class CompressionTest extends Test
 	private static function decompress(data:Bytes, algorithm:CompressionAlgorithm):Bytes
 	{
 		return (data : LimeBytes).decompress(algorithm);
+	}
+
+	private static function compressAt(data:Bytes, algorithm:CompressionAlgorithm, level:Int):Bytes
+	{
+		return (data : LimeBytes).compress(algorithm, level);
+	}
+
+	private static function compressAtQuietly(data:Bytes, algorithm:CompressionAlgorithm, level:Int):Bytes
+	{
+		try
+		{
+			return compressAt(data, algorithm, level);
+		}
+		catch (e:Dynamic)
+		{
+			return null;
+		}
+	}
+
+	/** How two streams that should be the same differ, for a message **/
+	private static function describeDifference(expected:Bytes, actual:Bytes):String
+	{
+		if (expected == null) return "the stream to compare with is null";
+		if (actual == null) return "compressing gave null";
+		if (expected.compare(actual) == 0) return "the same";
+		return expected.length + " and " + actual.length + " bytes, which differ from byte " + firstDifference(expected, actual);
 	}
 
 	private static function compressQuietly(data:Bytes, algorithm:CompressionAlgorithm):Bytes
@@ -590,7 +878,10 @@ class CompressionTest extends Test
 		{
 			var inflater = new InflateImpl(input, zlibHeader, zlibHeader);
 			var out = new haxe.io.BytesBuffer();
-			var buffer = Bytes.alloc(65536);
+			// Read in parts of 16 KB: InflateImpl copies up to a whole read of a stored block into its
+			// 64 KB window at once, and throws OutsideBounds when that is more than the 32 KB it slides
+			// by, as with zlib's level 0 blocks of 65535 bytes
+			var buffer = Bytes.alloc(16384);
 
 			while (true)
 			{
@@ -683,6 +974,40 @@ class CompressionTest extends Test
 		{
 			bytes.set(i, text.charCodeAt(i % text.length));
 		}
+		return bytes;
+	}
+
+	/**
+		Words in an order from the xorshift generator, separated by spaces: text that compresses well,
+		but not so simply that how hard a compressor looks for matches makes no difference
+	**/
+	private static function words(length:Int, seed:Int):Bytes
+	{
+		var list = [
+			"the", "quick", "brown", "fox", "jumps", "over", "lazy", "dog", "and", "of", "to", "in", "is", "that", "it", "was", "for", "on",
+			"are", "with", "as", "they", "be", "at", "one", "have", "this", "from", "or", "had", "by", "word", "but", "what", "some", "we",
+			"can", "out", "other", "were", "all", "there", "when", "up", "use", "your", "how", "said", "each", "which", "do", "their",
+			"time", "if", "will", "way", "about", "many", "then", "them", "write", "would", "like", "so", "these", "long", "make", "thing",
+			"see", "two", "has", "look", "more", "day", "could", "go", "come", "did", "number", "sound", "no", "most", "people", "water"
+		];
+		var bytes = Bytes.alloc(length);
+		var state = 0x2545F491 ^ (seed << 8);
+		var position = 0;
+
+		while (position < length)
+		{
+			state ^= state << 13;
+			state ^= state >>> 17;
+			state ^= state << 5;
+
+			var word = list[(state >>> 8) % list.length] + " ";
+			for (i in 0...word.length)
+			{
+				if (position == length) break;
+				bytes.set(position++, word.charCodeAt(i));
+			}
+		}
+
 		return bytes;
 	}
 

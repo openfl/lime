@@ -85,6 +85,8 @@ class NativeAudioSource
 	// A time set while the source isn't playing: OpenAL reports a rewound source's offset as 0 until it plays,
 	// so play() would otherwise start from the beginning
 	private var pendingTime:Int = -1;
+	// A stream paused by pause() and not sought since, which play() resumes as it is
+	private var resumable:Bool = false;
 
 	// Set while AudioSource.playTogether plays this source, which then starts with the rest in one alSourcePlayv
 	private var playTogetherHandles:Array<ALSource>;
@@ -550,8 +552,20 @@ class NativeAudioSource
 
 		if (stream)
 		{
-			var time = completed ? 0 : getCurrentTime();
-			setCurrentTime(time);
+			if (resumable && !completed && AL.__getSourceInt(handle, AL.SOURCE_STATE) == AL.PAUSED)
+			{
+				// The paused source carries on with the buffers it has queued, so the
+				// decoder isn't sought and refilled
+				resumable = false;
+				startSource();
+				scheduleCompletion(__getCurrentTime());
+			}
+			else
+			{
+				resumable = false;
+				var time = completed ? 0 : (pendingTime >= 0 ? pendingTime : getCurrentTime());
+				setCurrentTime(time);
+			}
 
 			streamTimer = new Timer(STREAM_TIMER_FREQUENCY);
 			streamTimer.run = streamTimer_onRun;
@@ -631,12 +645,14 @@ class NativeAudioSource
 	public function pause():Void
 	{
 		lockState();
+		var wasPlaying = playing;
 		playing = false;
 		stopFeeding();
 
 		if (handle != null)
 		{
 			AL.sourcePause(handle);
+			resumable = stream && wasPlaying;
 
 			if (streamTimer != null)
 			{
@@ -1560,10 +1576,21 @@ class NativeAudioSource
 				return value;
 		}*/
 
+		resumable = false;
+
 		if (handle != null)
 		{
-			if (stream)
+			if (stream && !playing)
 			{
+				// A stream that isn't playing is sought and filled when it plays, so
+				// stopping or disposing one doesn't decode buffers that are thrown away
+				AL.sourceStop(handle);
+				clearQueuedBuffers();
+				pendingTime = value < 0 ? 0 : value;
+			}
+			else if (stream)
+			{
+				pendingTime = -1;
 				AL.sourceStop(handle);
 				var streamTime = value + parent.offset;
 
@@ -1623,33 +1650,39 @@ class NativeAudioSource
 
 		if (playing)
 		{
-			if (timer != null)
-			{
-				timer.stop();
-			}
-
-			var totalLength = getLength();
-			var timeRemaining = Std.int((totalLength - value) / getPitch());
-
-			if (timeRemaining > 0 && !shouldLoopStreamInline())
-			{
-				completed = false;
-				timer = new Timer(timeRemaining);
-				timer.run = timer_onRun;
-			}
-			else if (stream && (totalLength <= 0 || shouldLoopStreamInline()))
-			{
-				completed = false;
-				timer = null;
-			}
-			else
-			{
-				playing = false;
-				completed = true;
-			}
+			scheduleCompletion(value);
 		}
 
 		return value;
+	}
+
+	// Times the end of a playing source from value, its current time
+	private function scheduleCompletion(value:Int):Void
+	{
+		if (timer != null)
+		{
+			timer.stop();
+		}
+
+		var totalLength = getLength();
+		var timeRemaining = Std.int((totalLength - value) / getPitch());
+
+		if (timeRemaining > 0 && !shouldLoopStreamInline())
+		{
+			completed = false;
+			timer = new Timer(timeRemaining);
+			timer.run = timer_onRun;
+		}
+		else if (stream && (totalLength <= 0 || shouldLoopStreamInline()))
+		{
+			completed = false;
+			timer = null;
+		}
+		else
+		{
+			playing = false;
+			completed = true;
+		}
 	}
 
 	public function getGain():Float
