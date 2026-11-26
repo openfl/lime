@@ -48,6 +48,36 @@ class WindowsOutputTest extends Test
 		Assert.equals("com.example.app", value(resource, "ProductName"));
 	}
 
+	// <window display="1" /> is the display the window opens on, which used to be parsed and then left out
+	public function testTheWindowOpensOnTheDisplayTheProjectNames():Void
+	{
+		output.update('<project>
+			<app main="Main" file="MyApplication" />
+			<window display="1" />
+			<window id="1" display="2" />
+		</project>');
+
+		var windows = PlatformFixture.windowAttributes(output.read("haxe/ApplicationMain.hx"));
+
+		Assert.equals(2, windows.length);
+		if (windows.length != 2) return;
+
+		Assert.equals("1", windows[0].get("display"), "the first window");
+		Assert.equals("2", windows[1].get("display"), "the second window");
+	}
+
+	public function testWithoutADisplayTheWindowOpensOnThePrimaryOne():Void
+	{
+		output.update('<project>
+			<app main="Main" file="MyApplication" />
+		</project>');
+
+		var windows = PlatformFixture.windowAttributes(output.read("haxe/ApplicationMain.hx"));
+
+		Assert.equals(1, windows.length);
+		if (windows.length == 1) Assert.equals("0", windows[0].get("display"));
+	}
+
 	/**
 		The string a resource file's VALUE line gives a name, read as the resource compiler
 		reads it, or null where what follows the name isn't one string.

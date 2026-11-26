@@ -19,17 +19,21 @@ extern "C" int zlib_register_prims()
 namespace lime {
 
 
-	static void Deflate (ZlibType type, Bytes* data, Bytes* result);
+	static void Deflate (ZlibType type, Bytes* data, Bytes* result, int level);
 	static bool Inflate (ZlibType type, Bytes* data, Bytes* result);
 
 
 	// zlib only reads the input and writes the result's own memory, so the
 	// collector needn't wait for this thread: compressing on a worker thread
 	// otherwise holds up every collection until it finishes
-	void Zlib::Compress (ZlibType type, Bytes* data, Bytes* result) {
+	void Zlib::Compress (ZlibType type, Bytes* data, Bytes* result, int level) {
+
+		// No level is the best compression, as before levels could be chosen
+		if (level < 0) level = Z_BEST_COMPRESSION;
+		if (level > Z_BEST_COMPRESSION) level = Z_BEST_COMPRESSION;
 
 		System::GCEnterBlocking ();
-		Deflate (type, data, result);
+		Deflate (type, data, result, level);
 		System::GCExitBlocking ();
 
 	}
@@ -46,7 +50,7 @@ namespace lime {
 	}
 
 
-	static void Deflate (ZlibType type, Bytes* data, Bytes* result) {
+	static void Deflate (ZlibType type, Bytes* data, Bytes* result, int level) {
 
 		int windowBits = 15;
 
@@ -65,7 +69,7 @@ namespace lime {
 
 		int ret = 0;
 
-		if ((ret = deflateInit2 (stream, Z_BEST_COMPRESSION, Z_DEFLATED, windowBits, 8, Z_DEFAULT_STRATEGY) != Z_OK)) {
+		if ((ret = deflateInit2 (stream, level, Z_DEFLATED, windowBits, 8, Z_DEFAULT_STRATEGY) != Z_OK)) {
 
 			//val_throw (stream->msg);
 			free (stream);

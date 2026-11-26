@@ -2,6 +2,7 @@
 #include <cairo-ft.h>
 #include <map>
 #include <math/Matrix3.h>
+#include <math/Rectangle.h>
 #include <math/Vector2.h>
 #include <system/CFFI.h>
 #include <system/CFFIPointer.h>
@@ -227,6 +228,29 @@ namespace lime {
 	}
 
 
+	value lime_cairo_get_clip_extents (value handle) {
+
+		double x1, y1, x2, y2;
+		cairo_clip_extents ((cairo_t*)val_data (handle), &x1, &y1, &x2, &y2);
+		Rectangle rect = Rectangle (x1, y1, x2 - x1, y2 - y1);
+		return rect.Value ();
+
+	}
+
+
+	HL_PRIM Rectangle* HL_NAME(hl_cairo_get_clip_extents) (HL_CFFIPointer* handle, Rectangle* out) {
+
+		double x1, y1, x2, y2;
+		cairo_clip_extents ((cairo_t*)handle->ptr, &x1, &y1, &x2, &y2);
+		out->x = x1;
+		out->y = y1;
+		out->width = x2 - x1;
+		out->height = y2 - y1;
+		return out;
+
+	}
+
+
 	void lime_cairo_clip_preserve (value handle) {
 
 		cairo_clip_preserve ((cairo_t*)val_data (handle));
@@ -333,6 +357,29 @@ namespace lime {
 	HL_PRIM void HL_NAME(hl_cairo_fill_extents) (HL_CFFIPointer* handle, double x1, double y1, double x2, double y2) {
 
 		cairo_fill_extents ((cairo_t*)handle->ptr, &x1, &y1, &x2, &y2);
+
+	}
+
+
+	value lime_cairo_get_fill_extents (value handle) {
+
+		double x1, y1, x2, y2;
+		cairo_fill_extents ((cairo_t*)val_data (handle), &x1, &y1, &x2, &y2);
+		Rectangle rect = Rectangle (x1, y1, x2 - x1, y2 - y1);
+		return rect.Value ();
+
+	}
+
+
+	HL_PRIM Rectangle* HL_NAME(hl_cairo_get_fill_extents) (HL_CFFIPointer* handle, Rectangle* out) {
+
+		double x1, y1, x2, y2;
+		cairo_fill_extents ((cairo_t*)handle->ptr, &x1, &y1, &x2, &y2);
+		out->x = x1;
+		out->y = y1;
+		out->width = x2 - x1;
+		out->height = y2 - y1;
+		return out;
 
 	}
 
@@ -2228,6 +2275,29 @@ namespace lime {
 	}
 
 
+	value lime_cairo_get_stroke_extents (value handle) {
+
+		double x1, y1, x2, y2;
+		cairo_stroke_extents ((cairo_t*)val_data (handle), &x1, &y1, &x2, &y2);
+		Rectangle rect = Rectangle (x1, y1, x2 - x1, y2 - y1);
+		return rect.Value ();
+
+	}
+
+
+	HL_PRIM Rectangle* HL_NAME(hl_cairo_get_stroke_extents) (HL_CFFIPointer* handle, Rectangle* out) {
+
+		double x1, y1, x2, y2;
+		cairo_stroke_extents ((cairo_t*)handle->ptr, &x1, &y1, &x2, &y2);
+		out->x = x1;
+		out->y = y1;
+		out->width = x2 - x1;
+		out->height = y2 - y1;
+		return out;
+
+	}
+
+
 	void lime_cairo_stroke_preserve (value handle) {
 
 		cairo_stroke_preserve ((cairo_t*)val_data (handle));
@@ -2343,6 +2413,7 @@ namespace lime {
 	DEFINE_PRIME6v (lime_cairo_arc_negative);
 	DEFINE_PRIME1v (lime_cairo_clip);
 	DEFINE_PRIME5v (lime_cairo_clip_extents);
+	DEFINE_PRIME1 (lime_cairo_get_clip_extents);
 	DEFINE_PRIME1v (lime_cairo_clip_preserve);
 	DEFINE_PRIME1v (lime_cairo_close_path);
 	DEFINE_PRIME1v (lime_cairo_copy_page);
@@ -2350,6 +2421,7 @@ namespace lime {
 	DEFINE_PRIME7v (lime_cairo_curve_to);
 	DEFINE_PRIME1v (lime_cairo_fill);
 	DEFINE_PRIME5v (lime_cairo_fill_extents);
+	DEFINE_PRIME1 (lime_cairo_get_fill_extents);
 	DEFINE_PRIME1v (lime_cairo_fill_preserve);
 	DEFINE_PRIME2 (lime_cairo_ft_font_face_create);
 	DEFINE_PRIME1 (lime_cairo_font_face_status);
@@ -2450,6 +2522,7 @@ namespace lime {
 	DEFINE_PRIME1 (lime_cairo_status);
 	DEFINE_PRIME1v (lime_cairo_stroke);
 	DEFINE_PRIME5v (lime_cairo_stroke_extents);
+	DEFINE_PRIME1 (lime_cairo_get_stroke_extents);
 	DEFINE_PRIME1v (lime_cairo_stroke_preserve);
 	DEFINE_PRIME1v (lime_cairo_surface_flush);
 	DEFINE_PRIME2v (lime_cairo_text_path);
@@ -2462,12 +2535,14 @@ namespace lime {
 	#define _TBYTES _OBJ (_I32 _BYTES)
 	#define _TCFFIPOINTER _DYN
 	#define _TMATRIX3 _OBJ (_F64 _F64 _F64 _F64 _F64 _F64)
+	#define _TRECTANGLE _OBJ (_F64 _F64 _F64 _F64)
 	#define _TVECTOR2 _OBJ (_F64 _F64)
 
 	DEFINE_HL_PRIM (_VOID, hl_cairo_arc, _TCFFIPOINTER _F64 _F64 _F64 _F64 _F64);
 	DEFINE_HL_PRIM (_VOID, hl_cairo_arc_negative, _TCFFIPOINTER _F64 _F64 _F64 _F64 _F64);
 	DEFINE_HL_PRIM (_VOID, hl_cairo_clip, _TCFFIPOINTER);
 	DEFINE_HL_PRIM (_VOID, hl_cairo_clip_extents, _TCFFIPOINTER _F64 _F64 _F64 _F64);
+	DEFINE_HL_PRIM (_TRECTANGLE, hl_cairo_get_clip_extents, _TCFFIPOINTER _TRECTANGLE);
 	DEFINE_HL_PRIM (_VOID, hl_cairo_clip_preserve, _TCFFIPOINTER);
 	DEFINE_HL_PRIM (_VOID, hl_cairo_close_path, _TCFFIPOINTER);
 	DEFINE_HL_PRIM (_VOID, hl_cairo_copy_page, _TCFFIPOINTER);
@@ -2475,6 +2550,7 @@ namespace lime {
 	DEFINE_HL_PRIM (_VOID, hl_cairo_curve_to, _TCFFIPOINTER _F64 _F64 _F64 _F64 _F64 _F64);
 	DEFINE_HL_PRIM (_VOID, hl_cairo_fill, _TCFFIPOINTER);
 	DEFINE_HL_PRIM (_VOID, hl_cairo_fill_extents, _TCFFIPOINTER _F64 _F64 _F64 _F64);
+	DEFINE_HL_PRIM (_TRECTANGLE, hl_cairo_get_fill_extents, _TCFFIPOINTER _TRECTANGLE);
 	DEFINE_HL_PRIM (_VOID, hl_cairo_fill_preserve, _TCFFIPOINTER);
 	DEFINE_HL_PRIM (_TCFFIPOINTER, hl_cairo_ft_font_face_create, _TCFFIPOINTER _I32);
 	DEFINE_HL_PRIM (_I32, hl_cairo_font_face_status, _TCFFIPOINTER);
@@ -2574,6 +2650,7 @@ namespace lime {
 	DEFINE_HL_PRIM (_I32, hl_cairo_status, _TCFFIPOINTER);
 	DEFINE_HL_PRIM (_VOID, hl_cairo_stroke, _TCFFIPOINTER);
 	DEFINE_HL_PRIM (_VOID, hl_cairo_stroke_extents, _TCFFIPOINTER _F64 _F64 _F64 _F64);
+	DEFINE_HL_PRIM (_TRECTANGLE, hl_cairo_get_stroke_extents, _TCFFIPOINTER _TRECTANGLE);
 	DEFINE_HL_PRIM (_VOID, hl_cairo_stroke_preserve, _TCFFIPOINTER);
 	DEFINE_HL_PRIM (_VOID, hl_cairo_surface_flush, _TCFFIPOINTER);
 	DEFINE_HL_PRIM (_VOID, hl_cairo_text_path, _TCFFIPOINTER _STRING);

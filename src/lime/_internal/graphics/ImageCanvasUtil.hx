@@ -288,11 +288,11 @@ class ImageCanvasUtil
 		return ImageDataUtil.getPixel32(image, x, y, format);
 	}
 
-	public static function getPixels(image:Image, rect:Rectangle, format:PixelFormat):Bytes
+	public static function getPixels(image:Image, rect:Rectangle, format:PixelFormat, endian:Endian = null):Bytes
 	{
 		convertToData(image);
 
-		return ImageDataUtil.getPixels(image, rect, format);
+		return ImageDataUtil.getPixels(image, rect, format, endian);
 	}
 
 	public static function merge(image:Image, sourceImage:Image, sourceRect:Rectangle, destPoint:Vector2, redMultiplier:Int, greenMultiplier:Int,
