@@ -15,6 +15,7 @@ import lime.tools.HTML5Helper;
 import lime.tools.HXProject;
 import lime.tools.Icon;
 import lime.tools.IconHelper;
+import lime.tools.NativeSourcesHelper;
 import lime.tools.Orientation;
 import lime.tools.PlatformTarget;
 import lime.tools.ProjectHelper;
@@ -161,6 +162,7 @@ class WebAssemblyPlatform extends PlatformTarget
 		for (ndll in project.ndlls)
 		{
 			var path = NDLL.getLibraryPath(ndll, "Emscripten", "lib", ".a", project.debug);
+			NativeSourcesHelper.checkLibrary(path);
 			args.push(path);
 		}
 
