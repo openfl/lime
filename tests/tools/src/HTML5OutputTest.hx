@@ -640,4 +640,70 @@ class HTML5OutputTest extends Test
 		var pattern = ~/<title>(.*)<\/title>/;
 		return pattern.match(html) ? pattern.matched(1) : null;
 	}
+
+	// The application as the compiler would write it, with a comment and long names a minifier drops
+	private static inline var APPLICATION = "(function () {\n\t/* an application comment */\n\tfunction applicationMarker(aRatherLongArgumentName) {\n\t\tvar aRatherLongLocalName = aRatherLongArgumentName + 41;\n\t\treturn aRatherLongLocalName;\n\t}\n\twindow.applicationResult = applicationMarker(1);\n})();\n";
+
+	// A library with a comment and a sum a minifier would change
+	private static inline var LIBRARY = "/* a library comment */\nvar libraryAnswer = 41+1;\n";
+
+	// -minify minifies the application before the libraries it embeds are added to it, so they go
+	// in as they are written, where minifying the whole file changed them (#1317)
+	public function testMinifyLeavesTheEmbeddedLibrariesAsTheyAreWritten():Void
+	{
+		if (!closureRuns()) return;
+
+		var minified = buildWithALibrary(true);
+		Assert.isTrue(minified.indexOf(LIBRARY) > -1, "the library was changed: " + minified);
+		Assert.equals(-1, minified.indexOf("an application comment"), "the application kept its comment");
+		Assert.equals(-1, minified.indexOf("aRatherLongLocalName"), "the application kept its long names");
+
+		var plain = buildWithALibrary(false);
+		Assert.isTrue(plain.indexOf(LIBRARY) > -1, "the library was changed without -minify: " + plain);
+		Assert.isTrue(plain.indexOf(APPLICATION) > -1, "the application was changed without -minify: " + plain);
+	}
+
+	/**
+		Builds a project that embeds lib/library.js, with -minify or without, and gives the
+		JavaScript written. The compiler isn't run: the build's HXML is left doing nothing, and the
+		application is written where the compiler writes it.
+	**/
+	private function buildWithALibrary(minify:Bool):String
+	{
+		var xml = '<project>
+			<app main="Main" file="Minified" path="Export" />
+			<dependency path="lib/library.js" embed="true" />
+		</project>';
+
+		fixture.write("lib/library.js", LIBRARY);
+		if (minify) fixture.targetFlags.set("minify", "") else fixture.targetFlags.remove("minify");
+
+		output.update(xml);
+		sys.io.File.saveContent(output.path("haxe/release.hxml"), "--version\n");
+		sys.io.File.saveContent(output.path("bin/Minified.js"), APPLICATION);
+		output.build(xml);
+
+		fixture.targetFlags.remove("minify");
+		return output.read("bin/Minified.js");
+	}
+
+	// The Closure Compiler, which -minify runs, needs Java, which a test machine may not have, and
+	// a minify that fails ends the tools
+	private static function closureRuns():Bool
+	{
+		try
+		{
+			var process = new sys.io.Process("java", ["-jar", hxp.Path.combine(PlatformFixture.templates(), "bin/compiler.jar"), "--version"]);
+			process.stdout.readAll();
+			process.stderr.readAll();
+			var code = process.exitCode();
+			process.close();
+			if (code == 0) return true;
+		}
+		catch (e:Dynamic) {}
+
+		trace("The Closure Compiler can't run here, without Java, so -minify was not tested");
+		Assert.pass();
+		return false;
+	}
 }
