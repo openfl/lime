@@ -212,9 +212,36 @@ class AudioBuffer
 		var audioBuffer = new AudioBuffer();
 
 		#if force_html5_audio
+		// An audio element may read its source again, as it seeks or loops, so it keeps a data URI
 		audioBuffer.src = new Howl({src: ["data:" + __getCodec(bytes) + ";base64," + Base64.encode(bytes)], html5: true, preload: true});
 		#else
-		audioBuffer.src = new Howl({src: ["data:" + __getCodec(bytes) + ";base64," + Base64.encode(bytes)], preload: true});
+		// Web Audio reads the bytes once from a Blob, rather than from a Base64 data URI that Howler
+		// decodes a character at a time and keeps as the key of the decoded sound. Howler can't tell the
+		// format from a blob: URL, so it's given.
+		var codec = __getCodec(bytes);
+		var url:String = null;
+		if (codec != null)
+		{
+			try
+			{
+				url = js.html.URL.createObjectURL(new js.html.Blob([
+					untyped #if haxe4 js.Syntax.code #else __js__ #end ("new Uint8Array({0}, 0, {1})", bytes.getData(), bytes.length)], {type: codec}));
+			}
+			catch (e:Dynamic) {}
+		}
+
+		if (url != null)
+		{
+			var howl = new Howl({src: [url], format: [codec.substr(codec.indexOf("/") + 1)], preload: true});
+			// Where Web Audio is missing, Howler plays through an audio element, which may read it again
+			howl.once("load", function() if (lime.media.howlerjs.Howler.usingWebAudio) js.html.URL.revokeObjectURL(url));
+			howl.once("loaderror", function() js.html.URL.revokeObjectURL(url));
+			audioBuffer.src = howl;
+		}
+		else
+		{
+			audioBuffer.src = new Howl({src: ["data:" + codec + ";base64," + Base64.encode(bytes)], preload: true});
+		}
 		#end
 
 		return audioBuffer;
@@ -494,20 +521,25 @@ class AudioBuffer
 		#else
 		// TODO: Streaming
 
-		var request = new HTTPRequest<AudioBuffer>();
-		return request.load(path).then(function(buffer)
-		{
-			if (buffer != null)
-			{
-				return Future.withValue(buffer);
-			}
-			else
-			{
-				return cast Future.withError("");
-			}
-		});
+		// The bytes are decoded on a worker: a request for an AudioBuffer would decode them as it
+		// completes, on the main thread
+		var request = new HTTPRequest<Bytes>();
+		return request.load(path).then(__decodeOnWorker);
 		#end
 	}
+
+	#if (!flash && !(js && html5))
+	// Decodes bytes on a worker where threads are available, as decoding a long sound takes a while
+	@:noCompletion private static function __decodeOnWorker(bytes:Bytes):Future<AudioBuffer>
+	{
+		if (bytes == null) return cast Future.withError("");
+
+		return new Future(fromBytes.bind(bytes), true).then(function(buffer)
+		{
+			return buffer != null ? Future.withValue(buffer) : cast Future.withError("");
+		});
+	}
+	#end
 
 	/**
 		Asynchronously loads a streamed `AudioBuffer` from a file or URL.

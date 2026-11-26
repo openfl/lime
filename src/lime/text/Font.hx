@@ -798,11 +798,9 @@ class Font
 		#if (js && html5)
 		this.name = name;
 
-		var userAgent = Browser.navigator.userAgent.toLowerCase();
-		var isSafari = (userAgent.indexOf(" safari/") >= 0 && userAgent.indexOf(" chrome/") < 0);
-		var isUIWebView = ~/(iPhone|iPod|iPad).*AppleWebKit(?!.*Version)/i.match(userAgent);
-
-		if (!isSafari && !isUIWebView && untyped (Browser.document).fonts && untyped (Browser.document).fonts.load)
+		// The CSS Font Loading API, which Safari has had since version 10. Without it, the font is
+		// taken as loaded once text in it measures differently from the fallback fonts.
+		if (untyped (Browser.document).fonts && untyped (Browser.document).fonts.load)
 		{
 			untyped (Browser.document).fonts.load("1em '" + name + "'").then(function(_)
 			{

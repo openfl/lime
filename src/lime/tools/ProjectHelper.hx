@@ -21,6 +21,8 @@ class ProjectHelper
 
 		if (FileSystem.exists(path))
 		{
+			NativeSourcesHelper.checkLibrary(path);
+
 			var targetPath = Path.combine(targetDirectory, namePrefix + ndll.name);
 
 			if (targetSuffix != null)

@@ -5,6 +5,8 @@
 #include <comutil.h>
 #pragma comment(lib, "wbemuuid.lib")
 #include <windows.h>
+#include <shellapi.h>
+#include <string>
 #endif
 
 #include <system/System.h>
@@ -256,6 +258,34 @@ namespace lime {
 
 
 	#if defined (HX_WINDOWS) && !defined (HX_WINRT)
+	// Through the shell, which opens the file or URL with its default application, as cmd's start
+	// does, but without starting cmd, whose console window a windowed application shows for a moment
+	void System::OpenFile (const char* path) {
+
+		if (!path || !*path) return;
+
+		int length = MultiByteToWideChar (CP_UTF8, 0, path, -1, NULL, 0);
+		if (length <= 0) return;
+
+		std::wstring widePath (length, 0);
+		MultiByteToWideChar (CP_UTF8, 0, path, -1, &widePath[0], length);
+
+		// Shell extensions that open some files are COM objects, so COM is initialized as
+		// ShellExecute asks, unless this thread has it already
+		HRESULT result = CoInitializeEx (NULL, COINIT_APARTMENTTHREADED | COINIT_DISABLE_OLE1DDE);
+		ShellExecuteW (NULL, L"open", widePath.c_str (), NULL, NULL, SW_SHOWNORMAL);
+		if (SUCCEEDED (result)) CoUninitialize ();
+
+	}
+
+
+	void System::OpenURL (const char* url, const char* target) {
+
+		OpenFile (url);
+
+	}
+
+
 	bool System::SetWindowsConsoleMode (int handleType, int mode) {
 
 		HANDLE handle = GetStdHandle ((DWORD)handleType);

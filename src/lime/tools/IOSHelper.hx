@@ -80,6 +80,66 @@ class IOSHelper
 		}
 	}
 
+	/**
+		Whether an app built with the hxcpp at `buildLibrary` links Security.framework.
+		libhxcpp's TLS checks a server's certificate against the system's trust store on
+		iOS and tvOS, and a static build there leaves the framework to the app's link;
+		hxcpp up to 4.3 uses it on macOS only. Read from the hxcpp's own TLS build file,
+		so an hxcpp that does not ask for it is built as before.
+	**/
+	public static function linksSecurityFramework(buildLibrary:String = "hxcpp"):Bool
+	{
+		try
+		{
+			var path = Haxelib.getPath(new Haxelib(buildLibrary));
+			if (path == null || path == "") return false;
+
+			var buildXml = Path.combine(path, "src/hx/libs/ssl/Build.xml");
+			return FileSystem.exists(buildXml) && sslBuildLinksSecurity(sys.io.File.getContent(buildXml));
+		}
+		catch (e:Dynamic)
+		{
+			return false;
+		}
+	}
+
+	/**
+		Whether `buildXml`, an hxcpp TLS library's Build.xml, links Security.framework on
+		an Apple platform other than macOS: a `Security` flag with no condition, or none
+		that limits it to macOS, on it or on a section around it.
+	**/
+	@:noCompletion public static function sslBuildLinksSecurity(buildXml:String):Bool
+	{
+		try
+		{
+			return hasSecurityFlag(Xml.parse(buildXml), false);
+		}
+		catch (e:Dynamic)
+		{
+			return false;
+		}
+	}
+
+	private static function hasSecurityFlag(parent:Xml, macOSOnly:Bool):Bool
+	{
+		for (element in parent.elements())
+		{
+			var condition = element.get("if");
+			var limited = macOSOnly || (condition != null && (StringTools.trim(condition) == "macos" || StringTools.trim(condition) == "mac"));
+
+			switch (element.nodeName)
+			{
+				case "flag", "vflag":
+					if (element.get("value") == "Security" && !limited) return true;
+
+				default:
+					if (hasSecurityFlag(element, limited)) return true;
+			}
+		}
+
+		return false;
+	}
+
 	private static var appleSiliconMac:Null<Bool>;
 
 	// The Mac itself, which uname reports as x86_64 to tools that run through Rosetta

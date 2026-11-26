@@ -17,6 +17,7 @@ import lime.tools.Asset;
 import lime.tools.AssetHelper;
 import lime.tools.AssetType;
 import lime.tools.CPPHelper;
+import lime.tools.Dependency;
 import lime.tools.DeploymentHelper;
 import lime.tools.HXProject;
 import lime.tools.Icon;
@@ -25,6 +26,7 @@ import lime.tools.ImageHelper;
 import lime.tools.IOSHelper;
 import lime.tools.Keystore;
 import lime.tools.LaunchStoryboard;
+import lime.tools.NativeSourcesHelper;
 import lime.tools.Orientation;
 import lime.tools.Platform;
 import lime.tools.PlatformTarget;
@@ -414,7 +416,17 @@ class IOSPlatform extends PlatformTarget
 
 		context.frameworkSearchPaths = [];
 
-		for (dependency in project.dependencies)
+		var dependencies = project.dependencies.copy();
+
+		// libhxcpp's TLS checks certificates with the system's trust store, and leaves
+		// Security.framework to the app's link
+		if (IOSHelper.linksSecurityFramework(project.config.getString("cpp.buildLibrary", "hxcpp"))
+			&& !Lambda.exists(dependencies, function(dependency) return dependency.name == "Security.framework"))
+		{
+			dependencies.push(new Dependency("Security.framework", null));
+		}
+
+		for (dependency in dependencies)
 		{
 			var name:String = null;
 			var path:String = null;
@@ -631,7 +643,7 @@ class IOSPlatform extends PlatformTarget
 
 		var icons = project.icons;
 
-		if (icons.length == 0)
+		if (!IconHelper.hasIcons(icons))
 		{
 			icons = [new Icon(System.findTemplate(project.templatePaths, "default/icon.svg"))];
 		}
@@ -879,10 +891,12 @@ class IOSPlatform extends PlatformTarget
 					debugLib = NDLL.getLibraryPath(ndll, "iPhone", "lib", ".iphoneos.a", true);
 				}
 
+				NativeSourcesHelper.checkLibrary(releaseLib);
 				System.copyIfNewer(releaseLib, releaseDest);
 
 				if (FileSystem.exists(debugLib) && debugLib != releaseLib)
 				{
+					NativeSourcesHelper.checkLibrary(debugLib);
 					System.copyIfNewer(debugLib, debugDest);
 				}
 				else if (FileSystem.exists(debugDest))

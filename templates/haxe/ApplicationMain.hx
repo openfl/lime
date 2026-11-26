@@ -42,7 +42,7 @@ import ::APP_MAIN::;
 				allowHighDPI: ::allowHighDPI::,
 				alwaysOnTop: ::alwaysOnTop::,
 				borderless: ::borderless::,
-				// display: ::display::,
+				display: ::display::,
 				element: null,
 				frameRate: ::fps::,
 				#if !web fullscreen: ::fullscreen::, #end
@@ -66,6 +66,7 @@ import ::APP_MAIN::;
 				colorDepth: ::colorDepth::,
 				depth: ::depthBuffer::,
 				hardware: ::hardware::,
+				#if html5 preserveDrawingBuffer: ::if preserveDrawingBuffer::true::else::false::end::, #end
 				stencil: ::stencilBuffer::,
 				type: null,
 				vsync: ::vsync::,

@@ -87,6 +87,15 @@ class PlatformFixture
 
 		if (configure != null) configure(parsed);
 
+		if (fixture.target == IOS)
+		{
+			// The iOS target reads the TLS build file of the hxcpp an application is built with.
+			// Unless a test gives that hxcpp, one without the file stands in, so the haxelib
+			// command doesn't run and the output doesn't depend on the hxcpp installed.
+			var buildLibrary = parsed.config.getString("cpp.buildLibrary", "hxcpp");
+			if (!Haxelib.pathOverrides.exists(buildLibrary)) fixture.addHaxelib(buildLibrary, "<project />");
+		}
+
 		var cwd = Sys.getCwd();
 		var dryRun = System.dryRun;
 		var mute = Log.mute;
