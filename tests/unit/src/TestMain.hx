@@ -39,6 +39,7 @@ class TestMain extends Application
 		runner.addCase(new math.Vector2Test());
 		runner.addCase(new math.Vector4Test());
 		runner.addCase(new media.AudioBufferTest());
+		runner.addCase(new media.AudioBufferLoadTest());
 		runner.addCase(new media.AudioBufferDecodeTest());
 		runner.addCase(new media.AudioBufferReadSamplesTest());
 		runner.addCase(new media.AudioInputTest());

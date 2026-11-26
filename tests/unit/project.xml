@@ -11,6 +11,8 @@
 	<assets path="assets" rename="assets" />
 	<!-- VideoBytesTest opens a video embedded in the application, which has no file of its own -->
 	<assets path="assets/video.mp4" rename="embedded/video.mp4" embed="true" />
+	<!-- AudioBufferLoadTest loads a sound embedded in the application -->
+	<assets path="assets/tone.ogg" rename="embedded/tone.ogg" embed="true" unless="web" />
 
 	<haxelib name="lime" />
 	<haxelib name="utest" />
