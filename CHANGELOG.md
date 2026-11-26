@@ -23,7 +23,7 @@ Changelog
 - Added `Assets.getAudioBufferStream()` and `Assets.loadAudioBufferStream()` for streamed sound assets.
 - Added `AudioBuffer.readSamples()`, which reads PCM from any position of a decoded buffer, and of a streamed one on native targets.
 - Added recovery of OpenAL Soft audio after its output device changes or is disconnected.
-- Added `AudioSource.playTogether()`, which starts several sources in the same mixer update on native targets, for tracks that must stay aligned.
+- Added `AudioSource.playTogether()`, which starts several sources in the same mixer update on native targets, and on the same Web Audio time on HTML5, for tracks that must stay aligned.
 - Added `Window.alwaysOnTop` and transparent window support.
 - Added `Window.orderToBack()`, `orderAbove()`, `orderBelow()`, `startMove()` and `startResize()`, with `WindowEdge`, on Windows, macOS and X11.
 - Added `Window.onDropStart`, `onDropText` and `onDropEnd`, so files dropped together can be handled as one group, and text drops on macOS, Linux and HTML5.

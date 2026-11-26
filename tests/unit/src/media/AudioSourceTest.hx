@@ -271,4 +271,65 @@ class AudioSourceTest extends Test
 		return @:privateAccess source.__backend.timer;
 	}
 	#end
+
+	#if (js && html5 && lime_howlerjs)
+	@:timeout(15000)
+	public function testSourcesPlayedTogetherStartOnOneWebAudioTime(async:utest.Async):Void
+	{
+		// With Web Audio, every node of sources played together starts on one AudioContext time a moment
+		// ahead, so they begin on the same sample (#2117). Played in turn, as before, each node starts at 0,
+		// which is as soon as the audio thread gets to it.
+		lime.media.AudioBuffer.loadFromFile("assets/tone.ogg").onComplete(function(buffer)
+		{
+			var context:Dynamic = js.Syntax.code("(typeof Howler != 'undefined' && Howler.usingWebAudio) ? Howler.ctx : null");
+			if (context == null || context.state != "running")
+			{
+				// utest takes a warning as a failure, so the test passes, saying why
+				trace("No running AudioContext here, which a browser starts only from a user gesture, so playTogether was not tested");
+				Assert.pass();
+				async.done();
+				return;
+			}
+
+			var sources = [for (i in 0...3) new lime.media.AudioSource(buffer)];
+			var starts:Array<Float> = [];
+			var record = function(when:Float) starts.push(when);
+			js.Syntax.code("window.__limeTestStart = AudioBufferSourceNode.prototype.start;
+				AudioBufferSourceNode.prototype.start = function (when) { {0}(when === undefined ? 0 : when); return window.__limeTestStart.apply(this, arguments); };", record);
+
+			var now:Float = context.currentTime;
+
+			try
+			{
+				lime.media.AudioSource.playTogether(sources);
+			}
+			catch (e:Dynamic)
+			{
+				Assert.fail("playTogether threw " + e);
+			}
+
+			js.Syntax.code("AudioBufferSourceNode.prototype.start = window.__limeTestStart; delete window.__limeTestStart;");
+			for (source in sources)
+			{
+				source.stop();
+			}
+
+			var distinct = [];
+			for (when in starts)
+			{
+				if (distinct.indexOf(when) == -1) distinct.push(when);
+			}
+
+			Assert.isTrue(starts.length >= sources.length, "nodes started: " + starts.length);
+			Assert.equals(1, distinct.length, "the times the nodes started on: " + distinct.join(", "));
+			Assert.isTrue(distinct.length > 0 && distinct[0] > 0 && distinct[0] >= now,
+				"the nodes started on " + distinct.join(", ") + ", where the context's time was " + now);
+			async.done();
+		}).onError(function(error)
+		{
+			Assert.fail("assets/tone.ogg did not load: " + error);
+			async.done();
+		});
+	}
+	#end
 }
