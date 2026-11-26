@@ -289,6 +289,7 @@ Changelog
 - Fixed iOS and tvOS applications built with libhxcpp not linking Security.framework, which libhxcpp's TLS (`sys.ssl`, HTTPS through `haxe.Http`, `WebSocket` over `wss://`) uses there to check certificates. Lime links it only when the hxcpp in use asks for it, so builds with hxcpp 4.3 are unchanged.
 - Fixed `FileSystem.fullPath()` on HashLink for Windows giving only the first half of each name in its case on disk.
 - Fixed decoding sounds from bytes on macOS and iOS crashing when SDL_sound's Core Audio decoder tries them, as it does for M4A, AAC and CAF data and for bytes that aren't a sound.
+- Fixed HTML5 `-minify` and `-final` builds minifying the embedded JavaScript libraries along with the application, so libraries such as howler.min.js were minified a second time. Only the application is minified now, and the embedded libraries are added as they are.
 
 8.3.2 (05/13/2026)
 ------------------
