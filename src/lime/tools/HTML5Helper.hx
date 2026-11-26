@@ -145,6 +145,8 @@ class HTML5Helper
 			}
 			else if (project.targetFlags.exists("yui"))
 			{
+				Log.warn("The YUI Compressor (-yui) is deprecated, and Lime 9 removes it. Minify with -minify alone, which uses the Google Closure Compiler, or with -minify -terser.");
+
 				var templatePaths = [
 					Path.combine(Haxelib.getPath(new Haxelib(#if lime "lime" #else "hxp" #end)), #if lime "templates" #else "" #end)
 				].concat(project.templatePaths);
