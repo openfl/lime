@@ -58,6 +58,119 @@ class VideoTextureOpenGLTest extends Test
 		for (texture in alternating) Assert.isFalse(gl.isTexture(texture), "texture " + @:privateAccess texture.id + " is still alive");
 	}
 
+	public function testTextureFramesShowWhatColorFramesDo():Void
+	{
+		// The GPU converts texture frames, so they are compared with the frames Lime converts, near enough,
+		// rather than byte for byte. The texture frames are read back and their decoder closed before the
+		// color frames are read, so only one decoder is open at a time.
+		#if windows
+		var software = Sys.getEnv("LIME_SOFTWARE_GL");
+		if (software != null && software != "" && software != "0")
+		{
+			// Without a GPU, Media Foundation's textures, which these are about, aren't made
+			trace("OpenGL is in software here, so the pixels of texture frames were not tested");
+			Assert.pass();
+			return;
+		}
+		#end
+
+		var main = getMainWindow();
+		if (main == null) return;
+
+		makeCurrent(main);
+		var gl = main.context.gl;
+		var decoder = VideoDecoder.isSupported ? VideoDecoder.fromFile(PATH, VideoFrameFormat.TEXTURE) : null;
+
+		if (decoder == null)
+		{
+			trace("Cannot decode H.264 here, so texture frames were not tested");
+			Assert.pass();
+			return;
+		}
+
+		decoder.dropLateFrames = false;
+		var frame = new VideoFrame();
+		var textures:Array<{time:Float, pixels:lime.utils.UInt8Array}> = [];
+		var readable = true;
+
+		for (i in 0...6)
+		{
+			if (!nextFrame(decoder, frame) || frame.texture == null) break;
+
+			var pixels = new lime.utils.UInt8Array(frame.width * frame.height * 4);
+			var framebuffer = gl.createFramebuffer();
+			gl.bindFramebuffer(gl.FRAMEBUFFER, framebuffer);
+			gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, frame.texture, 0);
+			readable = gl.checkFramebufferStatus(gl.FRAMEBUFFER) == gl.FRAMEBUFFER_COMPLETE;
+			if (readable) gl.readPixels(0, 0, frame.width, frame.height, gl.RGBA, gl.UNSIGNED_BYTE, pixels);
+			gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+			gl.deleteFramebuffer(framebuffer);
+
+			if (!readable) break;
+			textures.push({time: frame.time, pixels: pixels});
+		}
+
+		makeCurrent(main);
+		decoder.close();
+
+		if (textures.length == 0)
+		{
+			trace("The decoder gives no texture frames here" + (readable ? "" : " that a framebuffer can read") + ", so their pixels were not tested");
+			Assert.pass();
+			return;
+		}
+
+		var color = VideoDecoder.fromFile(PATH, VideoFrameFormat.RGBA);
+		if (color == null)
+		{
+			Assert.fail("the video decoded as texture frames but not as RGBA");
+			return;
+		}
+
+		color.dropLateFrames = false;
+		var reference = new VideoFrame();
+
+		for (i in 0...textures.length)
+		{
+			if (!nextFrame(color, reference)) break;
+			Assert.equals(textures[i].time, reference.time, "the texture and color frames are not the same frame");
+
+			// Row 0 of a texture read back is whichever row the texture holds first
+			var flipped = difference(textures[i].pixels, reference, true) < difference(textures[i].pixels, reference, false);
+			var mean = difference(textures[i].pixels, reference, flipped);
+			Assert.isTrue(mean < 3, "frame " + i + " differs from the color frame by " + mean + " a channel on average" + (flipped ? ", upside down" : ""));
+		}
+
+		color.close();
+	}
+
+	/** The mean difference a channel between the texture's pixels and the color frame's, over every fourth pixel **/
+	private static function difference(pixels:lime.utils.UInt8Array, frame:VideoFrame, flipped:Bool):Float
+	{
+		var total = 0.0;
+		var count = 0;
+
+		for (y in 0...frame.height)
+		{
+			if (y % 2 == 1) continue;
+			var row = flipped ? frame.height - 1 - y : y;
+
+			for (x in 0...frame.width)
+			{
+				if (x % 2 == 1) continue;
+				for (channel in 0...3)
+				{
+					var a:Int = pixels[(row * frame.width + x) * 4 + channel];
+					var b:Int = frame.data[(y * frame.width + x) * 4 + channel];
+					total += a > b ? a - b : b - a;
+					count++;
+				}
+			}
+		}
+
+		return Math.round(total / count * 100) / 100;
+	}
+
 	// Reads FRAMES texture frames, making each window's context current in turn,
 	// and returns the textures that the frames used
 	private static function readTextures(windows:Array<Window>):Array<GLTexture>
