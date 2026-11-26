@@ -530,7 +530,7 @@ class NativeCFFI
 
 	@:cffi private static function lime_window_context_unlock(handle:Dynamic):Void;
 
-	@:cffi private static function lime_window_create(application:Dynamic, width:Int, height:Int, flags:Int, title:String):Dynamic;
+	@:cffi private static function lime_window_create_at(application:Dynamic, width:Int, height:Int, flags:Int, title:String, x:Int, y:Int, display:Int):Dynamic;
 	@:cffi private static function lime_window_get_creation_error():Dynamic;
 
 	@:cffi private static function lime_window_focus(handle:Dynamic):Void;
@@ -558,6 +558,8 @@ class NativeCFFI
 	@:cffi private static function lime_window_flash(handle:Dynamic, mode:Int):Bool;
 
 	@:cffi private static function lime_window_get_keyboard_grab(handle:Dynamic):Bool;
+
+	@:cffi private static function lime_window_get_minimize_on_focus_loss(handle:Dynamic):Bool;
 
 	@:cffi private static function lime_window_get_mouse_lock(handle:Dynamic):Bool;
 
@@ -974,6 +976,8 @@ class NativeCFFI
 	@:cffi private static function lime_window_set_minimized(handle:Dynamic, minimized:Bool):Bool;
 
 	@:cffi private static function lime_window_set_keyboard_grab(handle:Dynamic, keyboardGrab:Bool):Void;
+
+	@:cffi private static function lime_window_set_minimize_on_focus_loss(handle:Dynamic, value:Bool):Void;
 
 	@:cffi private static function lime_window_set_mouse_lock(handle:Dynamic, mouseLock:Bool):Void;
 
@@ -1399,8 +1403,8 @@ class NativeCFFI
 		"lime_window_context_make_current", "ov", false));
 	private static var lime_window_context_unlock = new cpp.Callable<cpp.Object->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_window_context_unlock", "ov",
 		false));
-	private static var lime_window_create = new cpp.Callable<cpp.Object->Int->Int->Int->String->cpp.Object>(cpp.Prime._loadPrime("lime", "lime_window_create",
-		"oiiiso", false));
+	private static var lime_window_create_at = new cpp.Callable<cpp.Object->Int->Int->Int->String->Int->Int->Int->cpp.Object>(cpp.Prime._loadPrime("lime",
+		"lime_window_create_at", "oiiisiiio", false));
 	private static var lime_window_get_creation_error = new cpp.Callable<Void->cpp.Object>(cpp.Prime._loadPrime("lime", "lime_window_get_creation_error", "o", false));
 	private static var lime_window_focus = new cpp.Callable<cpp.Object->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_window_focus", "ov", false));
 	private static var lime_window_order_relative = new cpp.Callable<cpp.Object->cpp.Object->Bool->Bool>(cpp.Prime._loadPrime("lime",
@@ -1420,6 +1424,8 @@ class NativeCFFI
 	private static var lime_window_flash = new cpp.Callable<cpp.Object->Int->Bool>(cpp.Prime._loadPrime("lime", "lime_window_flash", "oib", false));
 	private static var lime_window_get_keyboard_grab = new cpp.Callable<cpp.Object->Bool>(cpp.Prime._loadPrime("lime", "lime_window_get_keyboard_grab", "ob",
 		false));
+	private static var lime_window_get_minimize_on_focus_loss = new cpp.Callable<cpp.Object->Bool>(cpp.Prime._loadPrime("lime",
+		"lime_window_get_minimize_on_focus_loss", "ob", false));
 	private static var lime_window_get_mouse_lock = new cpp.Callable<cpp.Object->Bool>(cpp.Prime._loadPrime("lime", "lime_window_get_mouse_lock", "ob", false));
 	private static var lime_web_view_add_init_script = new cpp.Callable<cpp.Object->String->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_web_view_add_init_script", "osv", false));
 	private static var lime_web_view_cancel_navigation = new cpp.Callable<Void->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_web_view_cancel_navigation", "v", false));
@@ -1707,6 +1713,8 @@ class NativeCFFI
 		false));
 	private static var lime_window_set_keyboard_grab = new cpp.Callable<cpp.Object->Bool->cpp.Void>(cpp.Prime._loadPrime("lime",
 		"lime_window_set_keyboard_grab", "obv", false));
+	private static var lime_window_set_minimize_on_focus_loss = new cpp.Callable<cpp.Object->Bool->cpp.Void>(cpp.Prime._loadPrime("lime",
+		"lime_window_set_minimize_on_focus_loss", "obv", false));
 	private static var lime_window_set_mouse_lock = new cpp.Callable<cpp.Object->Bool->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_window_set_mouse_lock",
 		"obv", false));
 	private static var lime_window_set_mouse_rect = new cpp.Callable<cpp.Object->Int->Int->Int->Int->cpp.Void>(cpp.Prime._loadPrime("lime",
@@ -1973,7 +1981,7 @@ class NativeCFFI
 	private static var lime_window_context_lock = CFFI.load("lime", "lime_window_context_lock", 1);
 	private static var lime_window_context_make_current = CFFI.load("lime", "lime_window_context_make_current", 1);
 	private static var lime_window_context_unlock = CFFI.load("lime", "lime_window_context_unlock", 1);
-	private static var lime_window_create = CFFI.load("lime", "lime_window_create", 5);
+	private static var lime_window_create_at = CFFI.load("lime", "lime_window_create_at", -1);
 	private static var lime_window_get_creation_error = CFFI.load("lime", "lime_window_get_creation_error", 0);
 	private static var lime_window_focus = CFFI.load("lime", "lime_window_focus", 1);
 	private static var lime_window_order_relative = CFFI.load("lime", "lime_window_order_relative", 3);
@@ -1988,6 +1996,7 @@ class NativeCFFI
 	private static var lime_window_get_id = CFFI.load("lime", "lime_window_get_id", 1);
 	private static var lime_window_flash = CFFI.load("lime", "lime_window_flash", 2);
 	private static var lime_window_get_keyboard_grab = CFFI.load("lime", "lime_window_get_keyboard_grab", 1);
+	private static var lime_window_get_minimize_on_focus_loss = CFFI.load("lime", "lime_window_get_minimize_on_focus_loss", 1);
 	private static var lime_window_get_mouse_lock = CFFI.load("lime", "lime_window_get_mouse_lock", 1);
 	private static var lime_web_view_add_init_script = CFFI.load("lime", "lime_web_view_add_init_script", 2);
 	private static var lime_web_view_cancel_navigation = CFFI.load("lime", "lime_web_view_cancel_navigation", 0);
@@ -2151,6 +2160,7 @@ class NativeCFFI
 	private static var lime_window_set_menu = CFFI.load("lime", "lime_window_set_menu", 2);
 	private static var lime_window_set_minimized = CFFI.load("lime", "lime_window_set_minimized", 2);
 	private static var lime_window_set_keyboard_grab = CFFI.load("lime", "lime_window_set_keyboard_grab", 2);
+	private static var lime_window_set_minimize_on_focus_loss = CFFI.load("lime", "lime_window_set_minimize_on_focus_loss", 2);
 	private static var lime_window_set_mouse_lock = CFFI.load("lime", "lime_window_set_mouse_lock", 2);
 	private static var lime_window_set_mouse_rect = CFFI.load("lime", "lime_window_set_mouse_rect", 5);
 	private static var lime_window_set_opacity = CFFI.load("lime", "lime_window_set_opacity", 2);
@@ -3155,8 +3165,8 @@ class NativeCFFI
 
 	@:hlNative("lime", "hl_window_context_unlock") private static function lime_window_context_unlock(handle:CFFIPointer):Void {}
 
-	@:hlNative("lime", "hl_window_create") private static function lime_window_create(application:CFFIPointer, width:Int, height:Int, flags:Int,
-			title:String):CFFIPointer
+	@:hlNative("lime", "hl_window_create_at") private static function lime_window_create_at(application:CFFIPointer, width:Int, height:Int, flags:Int,
+			title:String, x:Int, y:Int, display:Int):CFFIPointer
 	{
 		return null;
 	}
@@ -3224,6 +3234,11 @@ class NativeCFFI
 	@:hlNative("lime", "hl_window_get_keyboard_grab") private static function lime_window_get_keyboard_grab(handle:CFFIPointer):Bool
 	{
 		return false;
+	}
+
+	@:hlNative("lime", "hl_window_get_minimize_on_focus_loss") private static function lime_window_get_minimize_on_focus_loss(handle:CFFIPointer):Bool
+	{
+		return true;
 	}
 
 	@:hlNative("lime", "hl_window_get_mouse_lock") private static function lime_window_get_mouse_lock(handle:CFFIPointer):Bool
@@ -4008,6 +4023,8 @@ class NativeCFFI
 	}
 
 	@:hlNative("lime", "hl_window_set_keyboard_grab") private static function lime_window_set_keyboard_grab(handle:CFFIPointer, keyboardGrab:Bool):Void {}
+
+	@:hlNative("lime", "hl_window_set_minimize_on_focus_loss") private static function lime_window_set_minimize_on_focus_loss(handle:CFFIPointer, value:Bool):Void {}
 
 	@:hlNative("lime", "hl_window_set_mouse_lock") private static function lime_window_set_mouse_lock(handle:CFFIPointer, mouseLock:Bool):Void {}
 
