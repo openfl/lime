@@ -147,6 +147,15 @@ class Window
 	public var minHeight(get, set):Int;
 	public var minimized(get, set):Bool;
 	public var minWidth(get, set):Int;
+
+	/**
+		Whether the mouse is locked to the window. While it is, the cursor is hidden and stays
+		where it was, and `onMouseMoveRelative` reports how far the mouse moves.
+
+		On HTML5 this is the browser's pointer lock, which browsers only grant from a user input
+		event, such as a mouse button press, and which the user can leave with Escape. The browser
+		grants it after the event, so `mouseLock` reads `true` once the pointer is locked.
+	**/
 	public var mouseLock(get, set):Bool;
 
 	/**
