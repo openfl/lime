@@ -289,6 +289,7 @@ Changelog
 - Fixed iOS and tvOS applications built with libhxcpp not linking Security.framework, which libhxcpp's TLS (`sys.ssl`, HTTPS through `haxe.Http`, `WebSocket` over `wss://`) uses there to check certificates. Lime links it only when the hxcpp in use asks for it, so builds with hxcpp 4.3 are unchanged.
 - Fixed `FileSystem.fullPath()` on HashLink for Windows giving only the first half of each name in its case on disk.
 - Fixed decoding sounds from bytes on macOS and iOS crashing when SDL_sound's Core Audio decoder tries them, as it does for M4A, AAC and CAF data and for bytes that aren't a sound.
+- Fixed HTML5 `-minify` and `-final` builds minifying the embedded JavaScript libraries along with the application, so libraries such as howler.min.js were minified a second time. Only the application is minified now, and the embedded libraries are added as they are.
 - Fixed the `Assets` getters giving null with no error when an asset exists but fails to load, such as an Ogg file the decoder can't read, or throwing an unclear cache error for a sound or image. They now report it with `Log.error`, as for a missing asset, and leave it out of the cache.
 - Fixed C++ builds with the build folder outside the project running hxcpp from the global haxelib repository, rather than the project's local repository.
 - Fixed `lime run` and `lime test` not accepting `--args` as they do `-args` and `--`, reading the arguments after it as a project path rather than passing them at launch.

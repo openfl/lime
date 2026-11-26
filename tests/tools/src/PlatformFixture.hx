@@ -62,7 +62,38 @@ class PlatformFixture
 	**/
 	public function update(xml:String, configure:HXProject->Void = null, prepare:PlatformTarget->Void = null):Void
 	{
+		execute(xml, "update", true, configure, prepare);
+	}
+
+	/**
+		Parses a project file, then runs the build step of the fixture's target on what an earlier
+		`update()` wrote, as `lime build -noupdate` does. The commands the build runs, such as
+		`haxe`, are run, as `-dryrun` would skip them.
+	**/
+	public function build(xml:String, configure:HXProject->Void = null):Void
+	{
+		var noupdate = fixture.targetFlags.exists("noupdate");
+		fixture.targetFlags.set("noupdate", "");
+
+		try
+		{
+			execute(xml, "build", false, configure, null);
+		}
+		catch (e:Dynamic)
+		{
+			if (!noupdate) fixture.targetFlags.remove("noupdate");
+			throw e;
+		}
+
+		if (!noupdate) fixture.targetFlags.remove("noupdate");
+	}
+
+	private function execute(xml:String, command:String, dryRun:Bool, configure:HXProject->Void, prepare:PlatformTarget->Void):Void
+	{
+		var previousCommand = fixture.command;
+		fixture.command = command;
 		var parsed:HXProject = fixture.parse(xml);
+		fixture.command = previousCommand;
 		parsed.templatePaths.unshift(templates());
 
 		// Without a build number the tools count builds in a ".build" file, starting at 1
@@ -97,30 +128,30 @@ class PlatformFixture
 		}
 
 		var cwd = Sys.getCwd();
-		var dryRun = System.dryRun;
+		var previousDryRun = System.dryRun;
 		var mute = Log.mute;
 
 		Sys.setCwd(fixture.directory);
-		System.dryRun = true;
+		System.dryRun = dryRun;
 		Log.mute = true;
 		Haxelib.pathOverrides.set("lime", LimeRepo.path());
 
 		try
 		{
-			platform = create(parsed);
+			platform = create(parsed, command);
 			if (prepare != null) prepare(platform);
 			platform.execute([]);
 		}
 		catch (e:Dynamic)
 		{
 			Sys.setCwd(cwd);
-			System.dryRun = dryRun;
+			System.dryRun = previousDryRun;
 			Log.mute = mute;
 			throw e;
 		}
 
 		Sys.setCwd(cwd);
-		System.dryRun = dryRun;
+		System.dryRun = previousDryRun;
 		Log.mute = mute;
 	}
 
@@ -238,16 +269,16 @@ class PlatformFixture
 		return windows;
 	}
 
-	private function create(parsed:HXProject):PlatformTarget
+	private function create(parsed:HXProject, command:String):PlatformTarget
 	{
 		return switch (fixture.target)
 		{
-			case ANDROID: new AndroidPlatform("update", parsed, fixture.targetFlags);
-			case HTML5: new HTML5Platform("update", parsed, fixture.targetFlags);
-			case IOS: new IOSPlatform("update", parsed, fixture.targetFlags);
-			case LINUX: new LinuxPlatform("update", parsed, fixture.targetFlags);
-			case MAC: new MacPlatform("update", parsed, fixture.targetFlags);
-			case WINDOWS: new WindowsPlatform("update", parsed, fixture.targetFlags);
+			case ANDROID: new AndroidPlatform(command, parsed, fixture.targetFlags);
+			case HTML5: new HTML5Platform(command, parsed, fixture.targetFlags);
+			case IOS: new IOSPlatform(command, parsed, fixture.targetFlags);
+			case LINUX: new LinuxPlatform(command, parsed, fixture.targetFlags);
+			case MAC: new MacPlatform(command, parsed, fixture.targetFlags);
+			case WINDOWS: new WindowsPlatform(command, parsed, fixture.targetFlags);
 			default: throw "No platform fixture for " + Std.string(fixture.target);
 		}
 	}
