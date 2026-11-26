@@ -80,6 +80,50 @@ class ImageCopyTest extends Test
 		assertPixels([0xFF80007F], dest, 1);
 	}
 
+	public function testCopyPixelsMergingOpaqueSourcePixelsStoresThemAsTheyAre():Void
+	{
+		// An opaque source pixel covers the destination, whatever the destination held
+		forEachCopyPath(function(path)
+		{
+			for (format in FORMATS)
+			{
+				for (premultiplied in [false, true])
+				{
+					var name = path + " " + formatName(format) + (premultiplied ? " premultiplied" : "");
+					var source = noise(16, 16, 0x6A09E667, format, premultiplied, 0xFF);
+					var dest = noise(16, 16, 0x2545F491, format, premultiplied, -1);
+
+					dest.copyPixels(source, new Rectangle(0, 0, 16, 16), new Vector2(0, 0), null, null, true);
+
+					Assert.equals(0, differingPixels(source, dest), name + ": pixels that are not the opaque source pixel copied over them");
+				}
+			}
+		});
+	}
+
+	@Ignored("Waiting on #2219")
+	public function testCopyPixelsMergingClearSourcePixelsLeavesTheDestinationAlone():Void
+	{
+		// A clear source pixel adds nothing, so the destination keeps its bytes, colors under clear alpha included
+		forEachCopyPath(function(path)
+		{
+			for (format in FORMATS)
+			{
+				for (premultiplied in [false, true])
+				{
+					var name = path + " " + formatName(format) + (premultiplied ? " premultiplied" : "");
+					var source = noise(16, 16, 0x6A09E667, format, premultiplied, 0);
+					var dest = noise(16, 16, 0x2545F491, format, premultiplied, -1);
+					var before = dest.clone();
+
+					dest.copyPixels(source, new Rectangle(0, 0, 16, 16), new Vector2(0, 0), null, null, true);
+
+					Assert.equals(0, differingPixels(before, dest), name + ": destination pixels changed under clear source pixels");
+				}
+			}
+		});
+	}
+
 	public function testCopyPixelsClipsAtEveryEdge():Void
 	{
 		var points = [[-1, -1], [2, -1], [-1, 2], [2, 2], [-2, 1], [1, -2], [3, 3], [-2, -2], [4, 0], [0, 4], [-3, 0], [0, -3]];
@@ -561,6 +605,94 @@ class ImageCopyTest extends Test
 		}
 
 		return result;
+	}
+
+	/**
+		Runs `test` through the native copy where there is one, and through the Haxe loop, which is what
+		HTML5 runs, with the native library turned off.
+	**/
+	private static function forEachCopyPath(test:String->Void):Void
+	{
+		#if (lime_cffi && !macro)
+		test("native");
+
+		var enabled = lime.system.CFFI.enabled;
+		lime.system.CFFI.enabled = false;
+		try
+		{
+			test("Haxe");
+		}
+		catch (e:Dynamic)
+		{
+			lime.system.CFFI.enabled = enabled;
+			throw e;
+		}
+		lime.system.CFFI.enabled = enabled;
+		#else
+		test("Haxe");
+		#end
+	}
+
+	/**
+		An image of xorshift noise straight into its buffer, with every pixel's alpha set to `alpha`, or
+		any value when it is -1, an eighth of them zero. A premultiplied image has any color channel up to
+		its alpha, and a straight one any color under zero alpha.
+	**/
+	private static function noise(width:Int, height:Int, seed:Int, format:PixelFormat, premultiplied:Bool, alpha:Int):Image
+	{
+		var image = create(width, height, 0, format, premultiplied);
+		var data = image.buffer.data;
+		var state = seed;
+		var alphaIndex = (format == ARGB32 ? 0 : 3);
+
+		for (i in 0...width * height)
+		{
+			state ^= state << 13;
+			state ^= state >>> 17;
+			state ^= state << 5;
+			var colors = state;
+
+			state ^= state << 13;
+			state ^= state >>> 17;
+			state ^= state << 5;
+			var a = (alpha != -1 ? alpha : ((state >>> 29) == 0 ? 0 : state & 0xFF));
+
+			var color = 0;
+			for (channel in 0...4)
+			{
+				if (channel == alphaIndex)
+				{
+					data[i * 4 + channel] = a;
+				}
+				else
+				{
+					var value = (colors >>> (color * 8)) & 0xFF;
+					data[i * 4 + channel] = (premultiplied ? value % (a + 1) : value);
+					color++;
+				}
+			}
+		}
+
+		return image;
+	}
+
+	private static function differingPixels(expected:Image, actual:Image):Int
+	{
+		var count = 0;
+
+		for (i in 0...expected.width * expected.height)
+		{
+			for (channel in 0...4)
+			{
+				if (expected.buffer.data[i * 4 + channel] != actual.buffer.data[i * 4 + channel])
+				{
+					count++;
+					break;
+				}
+			}
+		}
+
+		return count;
 	}
 
 	private static function shift(channel:ImageChannel):Int
