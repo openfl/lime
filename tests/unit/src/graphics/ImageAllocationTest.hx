@@ -59,7 +59,6 @@ class ImageAllocationTest extends Test
 		}
 	}
 
-	@Ignored("Waiting on #2134")
 	public function testCopyPixelsWithinOneImageAllocatesForTheRectItCopies():Void
 	{
 		var image = new Image(null, 0, 0, 512, 512, 0x336699FF);
