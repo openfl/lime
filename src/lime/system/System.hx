@@ -487,7 +487,10 @@ class System
 	{
 		if (path != null)
 		{
-			#if (sys && windows)
+			#if (windows && lime_cffi && !macro)
+			// Through the shell, as cmd's start would without the console window cmd shows for a moment
+			NativeCFFI.lime_system_open_file(path);
+			#elseif (sys && windows)
 			Sys.command("start", ["", path]);
 			#elseif mac
 			Sys.command("/usr/bin/open", [path]);
