@@ -597,29 +597,91 @@ namespace lime {
 	}
 
 
+	// Reads up to samples frames into data as interleaved floats, as many as fit in its length.
+	// ov_read_float gives the samples of the link it read from, whose channels it may change to.
+	static long ReadFloat (OggVorbis_File* file, unsigned char* data, int length, int samples, int* bitstream) {
+
+		vorbis_info* info = ov_info (file, -1);
+		if (!info || info->channels <= 0) return OV_EINVAL;
+
+		int capacity = length / (int)(sizeof (float) * info->channels);
+		if (samples > capacity) samples = capacity;
+		if (samples <= 0) return 0;
+
+		float** pcm = NULL;
+		long result = ov_read_float (file, &pcm, samples, bitstream);
+
+		if (result > 0) {
+
+			info = ov_info (file, -1);
+			int channels = info ? info->channels : 0;
+			if (channels <= 0) return OV_EINVAL;
+
+			long fit = length / (long)(sizeof (float) * channels);
+			if (result > fit) result = fit;
+
+			for (long i = 0; i < result; i++) {
+
+				for (int channel = 0; channel < channels; channel++) {
+
+					memcpy (data + (i * channels + channel) * sizeof (float), &pcm[channel][i], sizeof (float));
+
+				}
+
+			}
+
+		}
+
+		return result;
+
+	}
+
+
 	value lime_vorbis_file_read_float (value vorbisFile, value pcmChannels, int samples) {
 
-		//Bytes bytes;
-		//bytes.Set (pcmChannels);
-		//
-		//int bitstream;
-		//
-		//OggVorbis_File* file = (OggVorbis_File*)(uintptr_t)val_data (vorbisFile);
-		//long result = ov_read_float (file, (char*)bytes.Data (), samples, &bitstream);
-		//
-		//alloc_field (readValue, id_bitstream, alloc_int (bitstream));
-		//alloc_field (readValue, id_returnValue, alloc_int (result));
-		//
-		//return readValue;
+		if (val_is_null (pcmChannels)) {
 
-		return alloc_null ();
+			return alloc_null ();
+
+		}
+
+		Bytes bytes;
+		bytes.Set (pcmChannels);
+
+		int bitstream = 0;
+
+		OggVorbis_File* file = (OggVorbis_File*)(uintptr_t)val_data (vorbisFile);
+		long result = ReadFloat (file, bytes.b, bytes.length, samples, &bitstream);
+
+		_initializeVorbis ();
+
+		alloc_field (readValue, id_bitstream, alloc_int (bitstream));
+		alloc_field (readValue, id_returnValue, alloc_int (result));
+
+		return readValue;
 
 	}
 
 
 	HL_PRIM vdynamic* HL_NAME(hl_vorbis_file_read_float) (HL_CFFIPointer* vorbisFile, Bytes* pcmChannels, int samples) {
 
-		return NULL;
+		if (!pcmChannels) {
+
+			return NULL;
+
+		}
+
+		int bitstream = 0;
+
+		OggVorbis_File* file = (OggVorbis_File*)(uintptr_t)vorbisFile->ptr;
+		long result = ReadFloat (file, pcmChannels->b, pcmChannels->length, samples, &bitstream);
+
+		_hl_initializeVorbis ();
+
+		hl_dyn_seti (hl_readValue, id_bitstream, &hlt_i32, bitstream);
+		hl_dyn_seti (hl_readValue, id_returnValue, &hlt_i32, result);
+
+		return hl_readValue;
 
 	}
 
