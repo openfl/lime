@@ -122,6 +122,12 @@ class Assets
 				{
 					var asset = symbol.library.getAsset(symbol.symbolName, type);
 
+					if (asset == null)
+					{
+						Log.error(type + " asset \"" + id + "\" exists, but failed to load");
+						return null;
+					}
+
 					if (useCache && cache.enabled)
 					{
 						cache.set(id, type, asset);
