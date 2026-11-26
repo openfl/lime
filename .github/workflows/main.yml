@@ -79,7 +79,7 @@ jobs:
           libraries: |
             native-desktop 1.2.1
             native-ipc 1.0.0
-            wsproto 1.1.1
+            wsproto 1.1.2
             crossbyte 1.0.1
             haxelib 4.2.0
             StageWebView 1.1.1
@@ -310,7 +310,7 @@ jobs:
           libraries: |
             native-desktop 1.2.1
             native-ipc 1.0.0
-            wsproto 1.1.1
+            wsproto 1.1.2
             crossbyte 1.0.1
             haxelib 4.2.0
             StageWebView 1.1.1
@@ -464,7 +464,7 @@ jobs:
           libraries: |
             native-desktop 1.2.1
             native-ipc 1.0.0
-            wsproto 1.1.1
+            wsproto 1.1.2
             crossbyte 1.0.1
             haxelib 4.2.0
             StageWebView 1.1.1
@@ -530,7 +530,7 @@ jobs:
             native-desktop 1.2.1
             native-ipc 1.0.0
             StageWebView 1.1.1
-            wsproto 1.1.1
+            wsproto 1.1.2
             crossbyte 1.0.1
             format 3.8.0
             hxp 1.3.1
@@ -693,7 +693,7 @@ jobs:
             native-desktop 1.2.1
             native-ipc 1.0.0
             StageWebView 1.1.1
-            wsproto 1.1.1
+            wsproto 1.1.2
             crossbyte 1.0.1
             format 3.8.0
             hxp 1.3.1
@@ -827,7 +827,7 @@ jobs:
             native-desktop 1.2.1
             native-ipc 1.0.0
             StageWebView 1.1.1
-            wsproto 1.1.1
+            wsproto 1.1.2
             crossbyte 1.0.1
             lime-mesa 1.0.0
             format 3.8.0
@@ -1047,7 +1047,7 @@ jobs:
             native-desktop 1.2.1
             native-ipc 1.0.0
             StageWebView 1.1.1
-            wsproto 1.1.1
+            wsproto 1.1.2
             format 3.8.0
             hxp 1.3.1
             libhxcpp 6.0.0
@@ -1139,7 +1139,7 @@ jobs:
             native-desktop 1.2.1
             native-ipc 1.0.0
             StageWebView 1.1.1
-            wsproto 1.1.1
+            wsproto 1.1.2
             format 3.8.0
             hxp 1.3.1
             libhxcpp 6.0.0
@@ -1252,7 +1252,7 @@ jobs:
             native-desktop 1.2.1
             native-ipc 1.0.0
             StageWebView 1.1.1
-            wsproto 1.1.1
+            wsproto 1.1.2
             format 3.8.0
             hxp 1.3.1
             libhxcpp 6.0.0
@@ -1331,7 +1331,7 @@ jobs:
             native-desktop 1.2.1
             native-ipc 1.0.0
             StageWebView 1.1.1
-            wsproto 1.1.1
+            wsproto 1.1.2
             crossbyte 1.0.1
             format 3.8.0
             hxp 1.3.1
@@ -1470,7 +1470,7 @@ jobs:
             native-desktop 1.2.1
             native-ipc 1.0.0
             StageWebView 1.1.1
-            wsproto 1.1.1
+            wsproto 1.1.2
             dox 1.6.0
 
       - name: Use this checkout as lime
@@ -1512,7 +1512,7 @@ jobs:
             native-desktop 1.2.1
             native-ipc 1.0.0
             StageWebView 1.1.1
-            wsproto 1.1.1
+            wsproto 1.1.2
             format 3.8.0
             hxp 1.3.1
 
@@ -1579,7 +1579,7 @@ jobs:
             native-desktop 1.2.1
             native-ipc 1.0.0
             StageWebView 1.1.1
-            wsproto 1.1.1
+            wsproto 1.1.2
             format 3.8.0
             hxp 1.3.1
             libhxcpp 6.0.0
@@ -1650,7 +1650,7 @@ jobs:
             native-desktop 1.2.1
             native-ipc 1.0.0
             StageWebView 1.1.1
-            wsproto 1.1.1
+            wsproto 1.1.2
 
       - name: Install Haxe dependencies from git
         shell: bash
@@ -1721,7 +1721,7 @@ jobs:
             native-desktop 1.2.1
             native-ipc 1.0.0
             StageWebView 1.1.1
-            wsproto 1.1.1
+            wsproto 1.1.2
 
       - name: Install Haxe dependencies from git
         shell: bash
@@ -1783,7 +1783,7 @@ jobs:
             native-desktop 1.2.1
             native-ipc 1.0.0
             StageWebView 1.1.1
-            wsproto 1.1.1
+            wsproto 1.1.2
             genes 0.4.14
 
       - name: Install Haxe dependencies from git
@@ -1880,7 +1880,7 @@ jobs:
             native-desktop 1.2.1
             native-ipc 1.0.0
             StageWebView 1.1.1
-            wsproto 1.1.1
+            wsproto 1.1.2
 
       - name: Install Haxe dependencies from git
         shell: bash
