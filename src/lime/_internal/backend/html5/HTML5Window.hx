@@ -70,6 +70,8 @@ class HTML5Window
 	private var minimizeOnFocusLoss = true;
 	private var cacheElementWidth:Float;
 	private var cacheElementScale:Float;
+	// Reports changes of the element's size, where the browser has it, so the size isn't read every frame
+	private var elementSizeObserver:Dynamic;
 	private var cacheMouseX:Float;
 	private var cacheMouseY:Float;
 	private var cursor:MouseCursor;
@@ -198,6 +200,23 @@ class HTML5Window
 			resizeElement = true;
 		}
 
+		// Reading an element's size makes the browser finish layout first, which is every frame in pages
+		// whose DOM changes every frame, so the size is read when the browser reports a change. The
+		// report comes after layout, so a change made between frames reaches the window a frame later.
+		if (element != null && untyped Browser.window.ResizeObserver != null)
+		{
+			elementSizeObserver = untyped #if haxe4 js.Syntax.code #else __js__ #end ("new ResizeObserver({0})", function(_) updateSize());
+			try
+			{
+				// The border box, as the client size also changes with the padding
+				elementSizeObserver.observe(element, {box: "border-box"});
+			}
+			catch (e:Dynamic)
+			{
+				elementSizeObserver.observe(element);
+			}
+		}
+
 		if (canvas != null)
 		{
 			canvas.width = Math.round(parent.__width * scale);
@@ -296,6 +315,12 @@ class HTML5Window
 		{
 			menus.close();
 			menus = null;
+		}
+
+		if (elementSizeObserver != null)
+		{
+			elementSizeObserver.disconnect();
+			elementSizeObserver = null;
 		}
 
 		var element = parent.element;
@@ -1833,6 +1858,13 @@ class HTML5Window
 		#end
 	}
 	#end
+
+	// The size, for a frame, where nothing reports when it changes. A window that fills the page hears
+	// of changes from the window's resize event.
+	private function updateSizeForFrame():Void
+	{
+		if (elementSizeObserver == null && parent.element != null) updateSize();
+	}
 
 	private function updateSize():Void
 	{
