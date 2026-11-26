@@ -18,6 +18,7 @@ Changelog
 - Added `AudioInput.echoCancellation`, `noiseSuppression` and `autoGain`, through the platform's voice processing on HTML5, Windows, macOS, iOS, Android and Flash, each reading whether it was applied once the input is running.
 - Added `CADisableMinimumFrameDurationOnPhone` to the iOS Info.plist when a window asks for more than 60 frames a second, so ProMotion iPhones reach it, and `<config:ios high-frame-rate="true|false" />` to decide.
 - Added a privacy manifest to iOS applications, which App Store Connect requires, declaring the required reason APIs Lime uses, and `<config:ios privacy-accessed-api="TYPE REASON..." />` for an application's own.
+- Added the UIScene life cycle on iOS 13 and later, which apps built with iOS 27's SDK need to launch, through SDL's UIKit code patched after SDL 3.4. iOS applications get Activate and Deactivate events on iOS 26 and later again, and keep their landscape layout when they return from the background.
 - Added SDL_sound decoding and streaming, including inline stream playback, streams with unknown length, and loop counts.
 - Added `AudioBuffer.fromFileStream()`, `AudioBuffer.fromFilesStream()`, `AudioBuffer.fromBytesStream()`, `AudioBuffer.loadFromFileStream()`, and `AudioBuffer.loadFromFilesStream()`, which stream through SDL_sound, or Ogg Vorbis without it.
 - Added `Assets.getAudioBufferStream()` and `Assets.loadAudioBufferStream()` for streamed sound assets.
