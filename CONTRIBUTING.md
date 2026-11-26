@@ -90,7 +90,7 @@ To check a fix for a few failures without running everything, start the CI workf
 
  - `jobs`: the jobs to run, separated by commas (`linux`, `linux-arm64`, `vulkan-smoke`, `macos`, `macos-intel`, `windows`, `webassembly`, `android`, `ios`, `docs`, `flash-samples`, `air-samples`). Empty runs them all.
 
- - `tests`: the unit tests to run, as a utest pattern, such as `WebSocketTest|ImageWorkerTest`. The job's other checks and sample builds are skipped. Empty runs them all.
+ - `tests`: the unit tests to run, as a utest pattern, such as `WebSocketTest|ImageWorkerTest`. The job's other checks and sample builds are skipped. A target with no test that matches passes with one placeholder test, so check the spelling when a run passes that quickly. Empty runs them all.
 
 ```
 gh workflow run main.yml --ref my-branch -f jobs=linux,windows -f tests='WebSocketTest'
