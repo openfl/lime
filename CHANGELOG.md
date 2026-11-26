@@ -139,6 +139,7 @@ Changelog
 - Updated FreeType to 2.14.3, libpng to 1.6.59, zlib to 1.3.2, HarfBuzz to 14.6.0, libjpeg-turbo to 2.1.5.1 and libwebm to 1.0.0.32, for security fixes in reading fonts, images, compressed data and WebM files. FreeType's auto-hinter and hinting changed between versions, so some hinted glyphs and auto-hinted outlines can differ by a few pixels.
 - Changed native builds for x86 to include libpng's SSE2 row filters, as ARM builds include its NEON ones, which undo the Sub, Average and Paeth filters of RGB and RGBA PNGs faster while decoding.
 - Updated HashLink to 1.16.
+- Updated the macOS `webify`, which converts fonts for HTML5, to 0.1.10.0, and `ios-deploy` to 1.12.2, each with an arm64 build alongside x86_64, so neither needs Rosetta on Apple silicon Macs, and removed the unused `fruitstrap`.
 - Fixed an asset embedding regression.
 - Fixed `lime test` on Linux stopping with an xdg-open error instead of opening the browser, after starting the test server or for projects with an `app.url`. xdg-open now runs in the background.
 - Fixed HashLink on macOS boxing a `false` returned by a native function as `true`, as in a `Future` result: Lime's HashLink runtime clears the upper bits of a `Bool` before boxing it, as HashLink's newer JIT does.
