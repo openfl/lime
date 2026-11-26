@@ -209,8 +209,9 @@ namespace lime {
 		jpegError.base.output_message = OnOutput;
 
 		FILE_HANDLE *file = NULL;
-		Bytes *data = NULL;
-		MySrcManager *manager = NULL;
+		// Set after setjmp, and read on the path libjpeg jumps back to, so volatile
+		Bytes* volatile data = NULL;
+		MySrcManager* volatile manager = NULL;
 
 		if (resource->path) {
 
@@ -222,9 +223,23 @@ namespace lime {
 
 			}
 
+		} else {
+
+			// A copy of the encoded bytes, so that nothing below reads Haxe memory
+			data = new Bytes ();
+			data->Resize (resource->data->length);
+			memcpy (data->b, resource->data->b, resource->data->length);
+
 		}
 
+		// libjpeg only reads the encoded bytes and writes the image's own buffer,
+		// so the collector needn't wait for this thread: a decode on a worker
+		// thread otherwise holds up every collection until it finishes
+		System::GCEnterBlocking ();
+
 		if (setjmp (jpegError.on_error)) {
+
+			System::GCExitBlocking ();
 
 			if (file) {
 
@@ -269,7 +284,7 @@ namespace lime {
 
 		} else {
 
-			manager = new MySrcManager (resource->data->b, resource->data->length);
+			manager = new MySrcManager (data->b, data->length);
 			cinfo.src = &manager->pub;
 
 		}
@@ -424,6 +439,9 @@ namespace lime {
 		}
 
 		jpeg_destroy_decompress (&cinfo);
+
+		System::GCExitBlocking ();
+
 		return decoded;
 
 	}
