@@ -264,6 +264,7 @@ Changelog
 - Fixed `vsync="adaptive"` and `vsync="auto"` in project.xml asking for plain vertical sync.
 - Fixed HashLink leaking the text of each text input event and dropped file path, and `sys.io.Process` failing for every command on HashLink on Windows.
 - Fixed the tools opening a console window titled with the address on Windows, rather than the browser, for a project's `<app url>` and `lime setup`'s download pages, and `<command open>` doing the same for a path.
+- Fixed iOS and tvOS applications built with libhxcpp not linking Security.framework, which libhxcpp's TLS (`sys.ssl`, HTTPS through `haxe.Http`, `WebSocket` over `wss://`) uses there to check certificates. Lime links it only when the hxcpp in use asks for it, so builds with hxcpp 4.3 are unchanged.
 
 8.3.2 (05/13/2026)
 ------------------

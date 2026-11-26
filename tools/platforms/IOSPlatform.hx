@@ -17,6 +17,7 @@ import lime.tools.Asset;
 import lime.tools.AssetHelper;
 import lime.tools.AssetType;
 import lime.tools.CPPHelper;
+import lime.tools.Dependency;
 import lime.tools.DeploymentHelper;
 import lime.tools.HXProject;
 import lime.tools.Icon;
@@ -414,7 +415,17 @@ class IOSPlatform extends PlatformTarget
 
 		context.frameworkSearchPaths = [];
 
-		for (dependency in project.dependencies)
+		var dependencies = project.dependencies.copy();
+
+		// libhxcpp's TLS checks certificates with the system's trust store, and leaves
+		// Security.framework to the app's link
+		if (IOSHelper.linksSecurityFramework(project.config.getString("cpp.buildLibrary", "hxcpp"))
+			&& !Lambda.exists(dependencies, function(dependency) return dependency.name == "Security.framework"))
+		{
+			dependencies.push(new Dependency("Security.framework", null));
+		}
+
+		for (dependency in dependencies)
 		{
 			var name:String = null;
 			var path:String = null;
