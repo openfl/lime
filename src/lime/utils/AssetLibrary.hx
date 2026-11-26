@@ -823,9 +823,9 @@ class AssetLibrary
 		}
 	}
 
-	@:noCompletion private function __cacheBreak(path:String):String
+	@:noCompletion private function __cacheBreak(path:String, version:String = null):String
 	{
-		return Assets.__cacheBreak(path);
+		return Assets.__cacheBreak(path, version);
 	}
 
 	@:noCompletion private function __fromBundle(bundle:AssetBundle, manifest:AssetManifest = null):Void
@@ -890,16 +890,19 @@ class AssetLibrary
 
 			if (Reflect.hasField(asset, "path"))
 			{
-				paths.set(id, __cacheBreak(__resolvePath(__underBasePath(basePath, Reflect.field(asset, "path")))));
+				paths.set(id, __cacheBreak(__resolvePath(__underBasePath(basePath, Reflect.field(asset, "path"))), Reflect.field(asset, "version")));
 			}
 
 			if (Reflect.hasField(asset, "pathGroup"))
 			{
 				pathGroup = Reflect.field(asset, "pathGroup");
+				// The version of each path in the group, from its content
+				var versionGroup:Array<String> = Reflect.field(asset, "versionGroup");
 
 				for (i in 0...pathGroup.length)
 				{
-					pathGroup[i] = __cacheBreak(__resolvePath(__underBasePath(basePath, pathGroup[i])));
+					pathGroup[i] = __cacheBreak(__resolvePath(__underBasePath(basePath, pathGroup[i])),
+						versionGroup != null && i < versionGroup.length ? versionGroup[i] : null);
 				}
 
 				pathGroups.set(id, pathGroup);
