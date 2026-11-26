@@ -1,5 +1,20 @@
 name: CI
-on: [push, pull_request, workflow_dispatch]
+on:
+  push:
+  pull_request:
+    # labeled, so adding the full-ci label runs the rest of the jobs
+    types: [opened, synchronize, reopened, ready_for_review, labeled]
+  # A manual run can be narrowed to some jobs and some unit tests, to check a fix to a few failures
+  workflow_dispatch:
+    inputs:
+      jobs:
+        description: Jobs to run, separated by commas, such as linux,windows. Empty runs them all
+        required: false
+        default: ''
+      tests:
+        description: Unit tests to run, as UTEST_PATTERN, such as WebSocketTest|ImageWorkerTest. Empty runs them all
+        required: false
+        default: ''
 
 # A newer run of the same kind on the same branch or pull request replaces one still
 # going. Push and pull request runs are kept apart, so neither cancels the other.
@@ -8,6 +23,7 @@ concurrency:
   cancel-in-progress: true
 
 env:
+  UTEST_ARGS: ${{ inputs.tests != '' && format('"-DUTEST_PATTERN={0}"', inputs.tests) || '' }}
   HAXE_VERSION: 4.2.5
   HXCPP_COMPILE_CACHE: ${{ github.workspace }}/.hxcpp_cache
   HXCPP_NONINTERACTIVE: 1
@@ -17,17 +33,25 @@ jobs:
   # In openfl/lime, a push only runs CI on the long-lived branches: a branch with a
   # pull request is tested by the pull request's run, which would otherwise run the
   # same jobs again. In forks every push runs, and any branch can be run by hand.
+  #
+  # A draft pull request runs nothing, and a pull request runs only linux, windows and docs,
+  # the unit tests on each target with the native build, unless it has the full-ci label.
+  # macOS runners are few, so the macOS, iOS and other platform jobs run on the long-lived
+  # and train/ branches, by hand, and on pull requests labeled full-ci.
   gate:
     runs-on: ubuntu-22.04
     outputs:
       run: ${{ steps.check.outputs.run }}
+      full: ${{ steps.check.outputs.full }}
     steps:
       - id: check
-        run: echo "run=${{ github.event_name != 'push' || github.repository != 'openfl/lime' || github.ref == 'refs/heads/develop' || github.ref == 'refs/heads/master' || endsWith(github.ref, '-dev') || endsWith(github.ref, '-Dev') || startsWith(github.ref, 'refs/heads/train/') }}" >> "$GITHUB_OUTPUT"
+        run: |
+          echo "run=${{ (github.event_name != 'push' || github.repository != 'openfl/lime' || github.ref == 'refs/heads/develop' || github.ref == 'refs/heads/master' || endsWith(github.ref, '-dev') || endsWith(github.ref, '-Dev') || startsWith(github.ref, 'refs/heads/train/')) && !(github.event_name == 'pull_request' && github.event.pull_request.draft) }}" >> "$GITHUB_OUTPUT"
+          echo "full=${{ github.event_name != 'pull_request' || contains(github.event.pull_request.labels.*.name, 'full-ci') }}" >> "$GITHUB_OUTPUT"
 
   linux:
     needs: gate
-    if: needs.gate.outputs.run == 'true'
+    if: needs.gate.outputs.run == 'true' && (inputs.jobs == '' || inputs.jobs == null || contains(format(',{0},', inputs.jobs), ',linux,'))
     runs-on: ubuntu-22.04
     steps:
 
@@ -140,9 +164,9 @@ jobs:
         run: |
           python -m unittest discover -s fixtures
           # The test app exits when its first window cannot be made, so it needs a display
-          xvfb-run -a lime test neko -release -verbose -nocolor
-          xvfb-run -a lime test hl -release -verbose -nocolor
-          xvfb-run -a lime test linux -release -verbose -nocolor
+          xvfb-run -a lime test neko -release -verbose -nocolor ${{ env.UTEST_ARGS }}
+          xvfb-run -a lime test hl -release -verbose -nocolor ${{ env.UTEST_ARGS }}
+          xvfb-run -a lime test linux -release -verbose -nocolor ${{ env.UTEST_ARGS }}
 
       - name: Check a plain hxml HashLink build
         working-directory: tests/plain-hxml
@@ -238,7 +262,7 @@ jobs:
 
   linux-arm64:
     needs: gate
-    if: needs.gate.outputs.run == 'true'
+    if: needs.gate.outputs.run == 'true' && (inputs.jobs == '' || inputs.jobs == null || contains(format(',{0},', inputs.jobs), ',linux-arm64,')) && needs.gate.outputs.full == 'true'
     runs-on: ubuntu-22.04-arm
     steps:
 
@@ -330,8 +354,8 @@ jobs:
         run: |
           python -m unittest discover -s fixtures
           # The test app exits when its first window cannot be made, so it needs a display
-          xvfb-run -a lime test neko -release -verbose -nocolor
-          xvfb-run -a lime test linux -release -verbose -nocolor
+          xvfb-run -a lime test neko -release -verbose -nocolor ${{ env.UTEST_ARGS }}
+          xvfb-run -a lime test linux -release -verbose -nocolor ${{ env.UTEST_ARGS }}
         # The package waits for this job, so a hang must not hold it for hours
         timeout-minutes: 60
 
@@ -394,7 +418,7 @@ jobs:
 
   vulkan-smoke:
     needs: gate
-    if: needs.gate.outputs.run == 'true'
+    if: needs.gate.outputs.run == 'true' && (inputs.jobs == '' || inputs.jobs == null || contains(format(',{0},', inputs.jobs), ',vulkan-smoke,')) && needs.gate.outputs.full == 'true'
     runs-on: ubuntu-22.04
     steps:
 
@@ -467,7 +491,7 @@ jobs:
 
   macos:
     needs: gate
-    if: needs.gate.outputs.run == 'true'
+    if: needs.gate.outputs.run == 'true' && (inputs.jobs == '' || inputs.jobs == null || contains(format(',{0},', inputs.jobs), ',macos,')) && needs.gate.outputs.full == 'true'
     runs-on: macos-15
     steps:
 
@@ -552,8 +576,8 @@ jobs:
           LIME_TEST_NETWORK: "1"
         run: |
           python -m unittest discover -s fixtures
-          lime test neko -release -verbose -nocolor
-          lime test mac -arm64 -release -verbose -nocolor
+          lime test neko -release -verbose -nocolor ${{ env.UTEST_ARGS }}
+          lime test mac -arm64 -release -verbose -nocolor ${{ env.UTEST_ARGS }}
 
       - name: Run software OpenGL tests
         working-directory: tests/unit
@@ -596,7 +620,7 @@ jobs:
 
   macos-intel:
     needs: gate
-    if: needs.gate.outputs.run == 'true'
+    if: needs.gate.outputs.run == 'true' && (inputs.jobs == '' || inputs.jobs == null || contains(format(',{0},', inputs.jobs), ',macos-intel,')) && needs.gate.outputs.full == 'true'
     runs-on: macos-15-intel
     steps:
 
@@ -713,9 +737,9 @@ jobs:
           LIME_TEST_NETWORK: "1"
         run: |
           python -m unittest discover -s fixtures
-          lime test neko -release -verbose -nocolor
-          lime test hl -release -verbose -nocolor
-          lime test mac -x86_64 -release -verbose -nocolor
+          lime test neko -release -verbose -nocolor ${{ env.UTEST_ARGS }}
+          lime test hl -release -verbose -nocolor ${{ env.UTEST_ARGS }}
+          lime test mac -x86_64 -release -verbose -nocolor ${{ env.UTEST_ARGS }}
 
       - name: Check a plain hxml HashLink build
         working-directory: tests/plain-hxml
@@ -748,7 +772,7 @@ jobs:
 
   windows:
     needs: gate
-    if: needs.gate.outputs.run == 'true'
+    if: needs.gate.outputs.run == 'true' && (inputs.jobs == '' || inputs.jobs == null || contains(format(',{0},', inputs.jobs), ',windows,'))
     runs-on: windows-latest
     steps:
 
@@ -856,13 +880,13 @@ jobs:
         run: |
           python -m unittest discover -s fixtures
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-          lime test neko -release -verbose -nocolor
+          lime test neko -release -verbose -nocolor ${{ env.UTEST_ARGS }}
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-          lime test hl -release -verbose -nocolor
+          lime test hl -release -verbose -nocolor ${{ env.UTEST_ARGS }}
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-          lime test air -release -verbose -nocolor
+          lime test air -release -verbose -nocolor ${{ env.UTEST_ARGS }}
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-          lime test windows -release -verbose -nocolor
+          lime test windows -release -verbose -nocolor ${{ env.UTEST_ARGS }}
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
       - name: Check a plain hxml HashLink build
@@ -954,7 +978,7 @@ jobs:
 
   webassembly:
     needs: gate
-    if: needs.gate.outputs.run == 'true'
+    if: needs.gate.outputs.run == 'true' && (inputs.jobs == '' || inputs.jobs == null || contains(format(',{0},', inputs.jobs), ',webassembly,')) && needs.gate.outputs.full == 'true'
     runs-on: ubuntu-22.04
     steps:
 
@@ -1036,7 +1060,7 @@ jobs:
 
   android:
     needs: gate
-    if: needs.gate.outputs.run == 'true'
+    if: needs.gate.outputs.run == 'true' && (inputs.jobs == '' || inputs.jobs == null || contains(format(',{0},', inputs.jobs), ',android,')) && needs.gate.outputs.full == 'true'
     runs-on: ubuntu-22.04
     strategy:
       matrix:
@@ -1165,7 +1189,7 @@ jobs:
 
   ios:
     needs: gate
-    if: needs.gate.outputs.run == 'true'
+    if: needs.gate.outputs.run == 'true' && (inputs.jobs == '' || inputs.jobs == null || contains(format(',{0},', inputs.jobs), ',ios,')) && needs.gate.outputs.full == 'true'
     runs-on: macos-15
     steps:
 
@@ -1385,7 +1409,7 @@ jobs:
 
   docs:
     needs: gate
-    if: needs.gate.outputs.run == 'true'
+    if: needs.gate.outputs.run == 'true' && (inputs.jobs == '' || inputs.jobs == null || contains(format(',{0},', inputs.jobs), ',docs,'))
     runs-on: ubuntu-22.04
     steps:
 
@@ -1427,7 +1451,7 @@ jobs:
 
   flash-samples:
     needs: gate
-    if: needs.gate.outputs.run == 'true'
+    if: needs.gate.outputs.run == 'true' && (inputs.jobs == '' || inputs.jobs == null || contains(format(',{0},', inputs.jobs), ',flash-samples,')) && needs.gate.outputs.full == 'true'
     runs-on: ubuntu-22.04
     steps:
 
@@ -1484,7 +1508,7 @@ jobs:
 
   air-samples:
     needs: gate
-    if: needs.gate.outputs.run == 'true'
+    if: needs.gate.outputs.run == 'true' && (inputs.jobs == '' || inputs.jobs == null || contains(format(',{0},', inputs.jobs), ',air-samples,')) && needs.gate.outputs.full == 'true'
     runs-on: windows-latest
     strategy:
       matrix:
