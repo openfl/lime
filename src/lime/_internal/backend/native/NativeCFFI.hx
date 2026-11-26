@@ -557,6 +557,8 @@ class NativeCFFI
 
 	@:cffi private static function lime_window_flash(handle:Dynamic, mode:Int):Bool;
 
+	@:cffi private static function lime_window_get_fullscreen(handle:Dynamic):Bool;
+
 	@:cffi private static function lime_window_get_keyboard_grab(handle:Dynamic):Bool;
 
 	@:cffi private static function lime_window_get_minimize_on_focus_loss(handle:Dynamic):Bool;
@@ -1422,6 +1424,7 @@ class NativeCFFI
 	private static var lime_window_get_height = new cpp.Callable<cpp.Object->Int>(cpp.Prime._loadPrime("lime", "lime_window_get_height", "oi", false));
 	private static var lime_window_get_id = new cpp.Callable<cpp.Object->Int>(cpp.Prime._loadPrime("lime", "lime_window_get_id", "oi", false));
 	private static var lime_window_flash = new cpp.Callable<cpp.Object->Int->Bool>(cpp.Prime._loadPrime("lime", "lime_window_flash", "oib", false));
+	private static var lime_window_get_fullscreen = new cpp.Callable<cpp.Object->Bool>(cpp.Prime._loadPrime("lime", "lime_window_get_fullscreen", "ob", false));
 	private static var lime_window_get_keyboard_grab = new cpp.Callable<cpp.Object->Bool>(cpp.Prime._loadPrime("lime", "lime_window_get_keyboard_grab", "ob",
 		false));
 	private static var lime_window_get_minimize_on_focus_loss = new cpp.Callable<cpp.Object->Bool>(cpp.Prime._loadPrime("lime",
@@ -1995,6 +1998,7 @@ class NativeCFFI
 	private static var lime_window_get_height = CFFI.load("lime", "lime_window_get_height", 1);
 	private static var lime_window_get_id = CFFI.load("lime", "lime_window_get_id", 1);
 	private static var lime_window_flash = CFFI.load("lime", "lime_window_flash", 2);
+	private static var lime_window_get_fullscreen = CFFI.load("lime", "lime_window_get_fullscreen", 1);
 	private static var lime_window_get_keyboard_grab = CFFI.load("lime", "lime_window_get_keyboard_grab", 1);
 	private static var lime_window_get_minimize_on_focus_loss = CFFI.load("lime", "lime_window_get_minimize_on_focus_loss", 1);
 	private static var lime_window_get_mouse_lock = CFFI.load("lime", "lime_window_get_mouse_lock", 1);
@@ -3232,6 +3236,11 @@ class NativeCFFI
 	}
 
 	@:hlNative("lime", "hl_window_get_keyboard_grab") private static function lime_window_get_keyboard_grab(handle:CFFIPointer):Bool
+	{
+		return false;
+	}
+
+	@:hlNative("lime", "hl_window_get_fullscreen") private static function lime_window_get_fullscreen(handle:CFFIPointer):Bool
 	{
 		return false;
 	}

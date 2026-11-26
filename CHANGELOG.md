@@ -290,6 +290,8 @@ Changelog
 - Fixed `FileSystem.fullPath()` on HashLink for Windows giving only the first half of each name in its case on disk.
 - Fixed decoding sounds from bytes on macOS and iOS crashing when SDL_sound's Core Audio decoder tries them, as it does for M4A, AAC and CAF data and for bytes that aren't a sound.
 - Fixed `System.desktopDirectory` and `System.documentsDirectory` on Linux always giving `~/Desktop` and `~/Documents`, rather than the folders the desktop's user-dirs.dirs file names, such as `~/Bureau` in French.
+- Fixed `window.displayMode.refreshRate` reading 0 where SDL has no refresh rate for the window's mode, as on Linux: it now gives the display's current rate.
+- Fixed `Window.fullscreen` reading `false` while a window is still fullscreen: after it is minimized and restored, as with Alt+Tab, when macOS enters fullscreen with a maximize, and when a maximized window goes fullscreen. It now reads SDL's own state at those events.
 
 8.3.2 (05/13/2026)
 ------------------
