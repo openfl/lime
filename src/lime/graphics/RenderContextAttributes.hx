@@ -36,7 +36,10 @@ typedef RenderContextAttributes =
 
 	#if html5
 	/**
-		Whether to preserve the `HTMLCanvas`'s image data after rendering
+		Whether to preserve the `HTMLCanvas`'s image data after rendering, so `readPixels()` and
+		`toDataURL()` can read what was drawn, at some cost to performance. Set it for the main window
+		with `<window preserve-drawing-buffer="true" />` in project.xml, or the `preserveDrawingBuffer`
+		option of `lime.embed()`.
 	**/
 	@:optional var preserveDrawingBuffer:Bool;
 	#end
