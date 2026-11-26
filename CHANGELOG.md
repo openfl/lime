@@ -70,6 +70,7 @@ Changelog
 - Added `Menu`, `MenuItem`, `TrayIcon`, and `DockIcon` for native menu bars, context menus, system tray icons, and the macOS Dock, through the new native-desktop dependency.
 - Added the default macOS menu bar to `Application.menu`, which starts as a copy of it whose About, Hide, Services, Quit, and Window items keep working when items are added.
 - Added menu bars and context menus on HTML5, drawn in the page, for `Window.menu`, `Application.menu`, and `Menu.popup()`.
+- Added `FileDialog.open()` on HTML5, through the browser's file picker. Call it from a user input event, as browsers require.
 - Added `Clipboard.hasFormat()`, `getData()`, `setData()` and `clear()`, with `ClipboardFormat`, for HTML, rich text, URLs, file lists and images on Windows, macOS and Linux with GTK, and text, HTML and images on HTML5.
 - Added `TrayIcon.onMouseDown`, `onMouseUp` and `onDoubleClick`, and the pointer's screen position on `TrayIcon.onClick` and `onRightClick`, on Windows and macOS.
 - Added `Menu.onOpen`, dispatched before a menu is shown so its items can still change, and `Menu.onClose`, including for context menus closed without a selection.
