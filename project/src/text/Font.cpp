@@ -1580,17 +1580,31 @@ namespace lime {
 
 	int Font::RenderGlyphs (const int* indices, int numIndices, Bytes *bytes) {
 
-		int offset = 0;
+		int startLength = bytes->length;
+		int size = 0;
 		int totalOffset = 4;
 		uint32_t count = 0;
 
+		// Each glyph is rendered aside and appended to bytes, which grows by
+		// doubling: growing it to fit each glyph in turn copied everything
+		// rendered so far for every glyph
+		Bytes glyph;
+
 		for (int i = 0; i < numIndices; i++) {
 
-			offset = RenderGlyph (indices[i], bytes, totalOffset);
+			size = RenderGlyph (indices[i], &glyph, 0);
 
-			if (offset > 0) {
+			if (size > 0) {
 
-				totalOffset += offset;
+				if (bytes->length < totalOffset + size) {
+
+					int grown = bytes->length * 2;
+					bytes->Resize (grown > totalOffset + size ? grown : totalOffset + size);
+
+				}
+
+				memcpy (bytes->b + totalOffset, glyph.b, size);
+				totalOffset += size;
 				count++;
 
 			}
@@ -1598,6 +1612,16 @@ namespace lime {
 		}
 
 		if (count > 0) {
+
+			// The glyphs' length, as growing to fit each one gave, or the length
+			// bytes had to start with if that's more
+			int length = totalOffset > startLength ? totalOffset : startLength;
+
+			if (bytes->length != length) {
+
+				bytes->Resize (length);
+
+			}
 
 			*(uint32_t*)(bytes->b) = count;
 
