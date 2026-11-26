@@ -123,6 +123,7 @@ class TestMain extends Application
 		runner.addCase(new ui.WindowDisplayTest());
 		runner.addCase(new ui.WindowEventTest());
 		runner.addCase(new ui.WindowFullscreenTest());
+		runner.addCase(new ui.WindowFullscreenStateTest());
 		runner.addCase(new ui.WindowOrderTest());
 		runner.addCase(new ui.WindowTest());
 		runner.addCase(new utils.ArrayBufferTest());

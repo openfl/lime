@@ -437,6 +437,22 @@ class NativeWindow
 		return dropTarget;
 	}
 
+	/**
+		Whether SDL has the window in fullscreen. SDL keeps a window's fullscreen while it is
+		minimized and gives it back on restore, and macOS enters fullscreen with a maximize, so the
+		window events read this rather than leaving fullscreen.
+	**/
+	public function getFullscreen():Bool
+	{
+		if (handle != null)
+		{
+			#if (!macro && lime_cffi)
+			return NativeCFFI.lime_window_get_fullscreen(handle);
+			#end
+		}
+		return parent.__fullscreen;
+	}
+
 	public function getKeyboardGrab():Bool
 	{
 		#if (!macro && lime_cffi)

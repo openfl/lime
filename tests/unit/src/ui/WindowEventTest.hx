@@ -253,7 +253,6 @@ class WindowEventTest extends Test
 		Assert.equals("|minimized", states);
 	}
 
-	@Ignored("Waiting on #873")
 	public function testAFullscreenWindowIsStillFullscreenOnceMinimizedAndRestored():Void
 	{
 		var window = open();
@@ -269,7 +268,6 @@ class WindowEventTest extends Test
 		Assert.isTrue(window.fullscreen, "a fullscreen window says it is not, once it was minimized and restored");
 	}
 
-	@Ignored("Waiting on #873")
 	public function testTheFullscreenShortcutLeavesFullscreenOnceMinimizedAndRestored():Void
 	{
 		var window = open();
@@ -285,6 +283,35 @@ class WindowEventTest extends Test
 		shortcut(window);
 
 		Assert.equals(0, entered, "the shortcut entered fullscreen in a window that was fullscreen");
+	}
+
+	// Windows restores a maximized window as it takes it fullscreen (#2081)
+	public function testAMaximizedWindowSetFullscreenIsStillFullscreenOnceRestored():Void
+	{
+		var window = open();
+		if (window == null) return;
+
+		event(MAXIMIZE, window.id);
+		window.fullscreen = true;
+		event(RESTORE, window.id);
+
+		Assert.isTrue(window.fullscreen, "a maximized window set fullscreen says it is not, once it was restored");
+	}
+
+	public function testAWindowThatIsNotFullscreenIsNotOnceMaximizedMinimizedOrRestored():Void
+	{
+		var window = open();
+		if (window == null) return;
+
+		var states = [];
+
+		for (type in [MAXIMIZE, RESTORE, MINIMIZE, RESTORE])
+		{
+			event(type, window.id);
+			states.push(window.fullscreen ? "fullscreen" : "windowed");
+		}
+
+		Assert.equals("windowed,windowed,windowed,windowed", states.join(","));
 	}
 
 	public function testAWindowCreatedFullscreenSaysItIs():Void
