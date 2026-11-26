@@ -521,20 +521,25 @@ class AudioBuffer
 		#else
 		// TODO: Streaming
 
-		var request = new HTTPRequest<AudioBuffer>();
-		return request.load(path).then(function(buffer)
-		{
-			if (buffer != null)
-			{
-				return Future.withValue(buffer);
-			}
-			else
-			{
-				return cast Future.withError("");
-			}
-		});
+		// The bytes are decoded on a worker: a request for an AudioBuffer would decode them as it
+		// completes, on the main thread
+		var request = new HTTPRequest<Bytes>();
+		return request.load(path).then(__decodeOnWorker);
 		#end
 	}
+
+	#if (!flash && !(js && html5))
+	// Decodes bytes on a worker where threads are available, as decoding a long sound takes a while
+	@:noCompletion private static function __decodeOnWorker(bytes:Bytes):Future<AudioBuffer>
+	{
+		if (bytes == null) return cast Future.withError("");
+
+		return new Future(fromBytes.bind(bytes), true).then(function(buffer)
+		{
+			return buffer != null ? Future.withValue(buffer) : cast Future.withError("");
+		});
+	}
+	#end
 
 	/**
 		Asynchronously loads a streamed `AudioBuffer` from a file or URL.
