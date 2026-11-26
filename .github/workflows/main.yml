@@ -1,5 +1,20 @@
 name: CI
-on: [push, pull_request, workflow_dispatch]
+on:
+  push:
+  pull_request:
+    # ready_for_review, so a draft starts its run when it is marked ready
+    types: [opened, synchronize, reopened, ready_for_review]
+  # A manual run can be narrowed to some jobs and some unit tests, to check a fix to a few failures
+  workflow_dispatch:
+    inputs:
+      jobs:
+        description: Jobs to run, separated by commas, such as linux,windows. Empty runs them all
+        required: false
+        default: ''
+      tests:
+        description: Unit tests to run, as UTEST_PATTERN, such as WebSocketTest|ImageWorkerTest. Empty runs them all
+        required: false
+        default: ''
 
 # A newer run of the same kind on the same branch or pull request replaces one still
 # going. Push and pull request runs are kept apart, so neither cancels the other.
@@ -8,6 +23,7 @@ concurrency:
   cancel-in-progress: true
 
 env:
+  UTEST_ARGS: ${{ inputs.tests != '' && format('"-DUTEST_PATTERN={0}"', inputs.tests) || '' }}
   HAXE_VERSION: 4.2.5
   HXCPP_COMPILE_CACHE: ${{ github.workspace }}/.hxcpp_cache
   HXCPP_NONINTERACTIVE: 1
@@ -17,17 +33,21 @@ jobs:
   # In openfl/lime, a push only runs CI on the long-lived branches: a branch with a
   # pull request is tested by the pull request's run, which would otherwise run the
   # same jobs again. In forks every push runs, and any branch can be run by hand.
+  #
+  # A draft pull request runs nothing until it is marked ready: changes tested together on a
+  # train/ branch can wait as drafts without each queueing the whole matrix.
   gate:
     runs-on: ubuntu-22.04
     outputs:
       run: ${{ steps.check.outputs.run }}
     steps:
       - id: check
-        run: echo "run=${{ github.event_name != 'push' || github.repository != 'openfl/lime' || github.ref == 'refs/heads/develop' || github.ref == 'refs/heads/master' || endsWith(github.ref, '-dev') || endsWith(github.ref, '-Dev') || startsWith(github.ref, 'refs/heads/train/') }}" >> "$GITHUB_OUTPUT"
+        run: |
+          echo "run=${{ (github.event_name != 'push' || github.repository != 'openfl/lime' || github.ref == 'refs/heads/develop' || github.ref == 'refs/heads/master' || endsWith(github.ref, '-dev') || endsWith(github.ref, '-Dev') || startsWith(github.ref, 'refs/heads/train/')) && !(github.event_name == 'pull_request' && github.event.pull_request.draft) }}" >> "$GITHUB_OUTPUT"
 
   linux:
     needs: gate
-    if: needs.gate.outputs.run == 'true'
+    if: needs.gate.outputs.run == 'true' && (inputs.jobs == '' || inputs.jobs == null || contains(format(',{0},', inputs.jobs), ',linux,'))
     runs-on: ubuntu-22.04
     steps:
 
@@ -140,16 +160,18 @@ jobs:
         run: |
           python -m unittest discover -s fixtures
           # The test app exits when its first window cannot be made, so it needs a display
-          xvfb-run -a lime test neko -release -verbose -nocolor
-          xvfb-run -a lime test hl -release -verbose -nocolor
-          xvfb-run -a lime test linux -release -verbose -nocolor
+          xvfb-run -a lime test neko -release -verbose -nocolor ${{ env.UTEST_ARGS }}
+          xvfb-run -a lime test hl -release -verbose -nocolor ${{ env.UTEST_ARGS }}
+          xvfb-run -a lime test linux -release -verbose -nocolor ${{ env.UTEST_ARGS }}
 
       - name: Check a plain hxml HashLink build
+        if: ${{ !inputs.tests }}
         working-directory: tests/plain-hxml
         timeout-minutes: 10
         run: haxe --run Run
 
       - name: Run OpenGL tests
+        if: ${{ !inputs.tests }}
         working-directory: tests/unit
         timeout-minutes: 10
         env:
@@ -162,6 +184,7 @@ jobs:
           xvfb-run -a lime test linux -release -verbose -nocolor -DUTEST_PATTERN=OpenGLTest -Dlime_test_require_opengl
 
       - name: Check window creation failure and recovery
+        if: ${{ !inputs.tests }}
         working-directory: tests/window-creation
         timeout-minutes: 10
         env:
@@ -174,6 +197,7 @@ jobs:
           python check_startup.py bin/neko/bin/WindowCreationTest
 
       - name: Run WebView tests
+        if: ${{ !inputs.tests }}
         working-directory: tests/unit
         # WebKitGTK needs a display, so the tests above do not reach it
         timeout-minutes: 10
@@ -186,6 +210,7 @@ jobs:
           xvfb-run -a lime test linux -release -verbose -nocolor -DUTEST_PATTERN=WebViewTest
 
       - name: Run software OpenGL tests
+        if: ${{ !inputs.tests }}
         working-directory: tests/unit
         timeout-minutes: 10
         env:
@@ -196,6 +221,7 @@ jobs:
           xvfb-run -a lime test linux -release -verbose -nocolor -Dsoftware-gl -DUTEST_PATTERN=OpenGLTest -Dlime_test_require_opengl
 
       - name: Run unit tests past 24.8 days
+        if: ${{ !inputs.tests }}
         working-directory: tests/unit
         # A timer stuck at the Int limit hangs the tests rather than failing them
         timeout-minutes: 10
@@ -207,38 +233,44 @@ jobs:
           xvfb-run -a lime test linux -release -verbose -nocolor -Dsimulate_uptime=2147473648
 
       - name: Run video smoke test
+        if: ${{ !inputs.tests }}
         working-directory: tests/video-smoke
         run: |
           lime build linux -release -verbose -nocolor
           SDL_AUDIODRIVER=dummy xvfb-run -a Export/linux/bin/LimeVideoSmoke
 
       - name: Install samples
+        if: ${{ !inputs.tests }}
         run: |
           haxelib git lime-samples https://github.com/openfl/lime-samples --quiet
 
       - name: Build HelloWorld sample
+        if: ${{ !inputs.tests }}
         run: |
           lime create HelloWorld -verbose -nocolor
           lime build HelloWorld linux -release -verbose -nocolor
 
       - name: Build SimpleImage sample
+        if: ${{ !inputs.tests }}
         run: |
           lime create SimpleImage -verbose -nocolor
           lime build SimpleImage linux -release -verbose -nocolor
 
       - name: Build SimpleAudio sample
+        if: ${{ !inputs.tests }}
         run: |
           lime create SimpleAudio -verbose -nocolor
           lime build SimpleAudio linux -release -verbose -nocolor
 
       - name: Build SimpleVideo sample
+        if: ${{ !inputs.tests }}
         run: |
           lime create SimpleVideo -verbose -nocolor
           lime build SimpleVideo linux -release -verbose -nocolor
 
   linux-arm64:
     needs: gate
-    if: needs.gate.outputs.run == 'true'
+    if: needs.gate.outputs.run == 'true' && (inputs.jobs == '' || inputs.jobs == null || contains(format(',{0},', inputs.jobs), ',linux-arm64,'))
     runs-on: ubuntu-22.04-arm
     steps:
 
@@ -330,12 +362,13 @@ jobs:
         run: |
           python -m unittest discover -s fixtures
           # The test app exits when its first window cannot be made, so it needs a display
-          xvfb-run -a lime test neko -release -verbose -nocolor
-          xvfb-run -a lime test linux -release -verbose -nocolor
+          xvfb-run -a lime test neko -release -verbose -nocolor ${{ env.UTEST_ARGS }}
+          xvfb-run -a lime test linux -release -verbose -nocolor ${{ env.UTEST_ARGS }}
         # The package waits for this job, so a hang must not hold it for hours
         timeout-minutes: 60
 
       - name: Run OpenGL tests
+        if: ${{ !inputs.tests }}
         working-directory: tests/unit
         timeout-minutes: 10
         env:
@@ -347,6 +380,7 @@ jobs:
           xvfb-run -a lime test linux -release -verbose -nocolor -DUTEST_PATTERN=OpenGLTest -Dlime_test_require_opengl
 
       - name: Check window creation failure and recovery
+        if: ${{ !inputs.tests }}
         working-directory: tests/window-creation
         timeout-minutes: 10
         env:
@@ -358,6 +392,7 @@ jobs:
           python check_startup.py bin/neko/bin/WindowCreationTest
 
       - name: Run WebView tests
+        if: ${{ !inputs.tests }}
         working-directory: tests/unit
         # WebKitGTK needs a display, so the tests above do not reach it
         timeout-minutes: 10
@@ -369,32 +404,37 @@ jobs:
           xvfb-run -a lime test linux -release -verbose -nocolor -DUTEST_PATTERN=WebViewTest
 
       - name: Install samples
+        if: ${{ !inputs.tests }}
         run: |
           haxelib git lime-samples https://github.com/openfl/lime-samples --quiet
 
       - name: Build HelloWorld sample
+        if: ${{ !inputs.tests }}
         run: |
           lime create HelloWorld -verbose -nocolor
           lime build HelloWorld linux -release -verbose -nocolor
 
       - name: Build SimpleImage sample
+        if: ${{ !inputs.tests }}
         run: |
           lime create SimpleImage -verbose -nocolor
           lime build SimpleImage linux -release -verbose -nocolor
 
       - name: Build SimpleAudio sample
+        if: ${{ !inputs.tests }}
         run: |
           lime create SimpleAudio -verbose -nocolor
           lime build SimpleAudio linux -release -verbose -nocolor
 
       - name: Build SimpleVideo sample
+        if: ${{ !inputs.tests }}
         run: |
           lime create SimpleVideo -verbose -nocolor
           lime build SimpleVideo linux -release -verbose -nocolor
 
   vulkan-smoke:
     needs: gate
-    if: needs.gate.outputs.run == 'true'
+    if: needs.gate.outputs.run == 'true' && (inputs.jobs == '' || inputs.jobs == null || contains(format(',{0},', inputs.jobs), ',vulkan-smoke,'))
     runs-on: ubuntu-22.04
     steps:
 
@@ -467,7 +507,7 @@ jobs:
 
   macos:
     needs: gate
-    if: needs.gate.outputs.run == 'true'
+    if: needs.gate.outputs.run == 'true' && (inputs.jobs == '' || inputs.jobs == null || contains(format(',{0},', inputs.jobs), ',macos,'))
     runs-on: macos-15
     steps:
 
@@ -552,10 +592,11 @@ jobs:
           LIME_TEST_NETWORK: "1"
         run: |
           python -m unittest discover -s fixtures
-          lime test neko -release -verbose -nocolor
-          lime test mac -arm64 -release -verbose -nocolor
+          lime test neko -release -verbose -nocolor ${{ env.UTEST_ARGS }}
+          lime test mac -arm64 -release -verbose -nocolor ${{ env.UTEST_ARGS }}
 
       - name: Run software OpenGL tests
+        if: ${{ !inputs.tests }}
         working-directory: tests/unit
         timeout-minutes: 10
         env:
@@ -566,11 +607,13 @@ jobs:
           lime test mac -arm64 -release -verbose -nocolor -Dsoftware-gl -DUTEST_PATTERN=OpenGLTest
 
       - name: Run video smoke test
+        if: ${{ !inputs.tests }}
         working-directory: tests/video-smoke
         run: |
           lime test mac -arm64 -release -verbose -nocolor
 
       - name: Install samples
+        if: ${{ !inputs.tests }}
         run: |
           haxelib git lime-samples https://github.com/openfl/lime-samples --quiet
 
@@ -580,23 +623,26 @@ jobs:
       #     lime build HelloWorld macos -release -verbose -nocolor
 
       - name: Build SimpleImage sample
+        if: ${{ !inputs.tests }}
         run: |
           lime create SimpleImage -verbose -nocolor
           lime build SimpleImage macos -arm64 -release -verbose -nocolor
 
       - name: Build SimpleAudio sample
+        if: ${{ !inputs.tests }}
         run: |
           lime create SimpleAudio -verbose -nocolor
           lime build SimpleAudio macos -arm64 -release -verbose -nocolor
 
       - name: Build SimpleVideo sample
+        if: ${{ !inputs.tests }}
         run: |
           lime create SimpleVideo -verbose -nocolor
           lime build SimpleVideo macos -arm64 -release -verbose -nocolor
 
   macos-intel:
     needs: gate
-    if: needs.gate.outputs.run == 'true'
+    if: needs.gate.outputs.run == 'true' && (inputs.jobs == '' || inputs.jobs == null || contains(format(',{0},', inputs.jobs), ',macos-intel,'))
     runs-on: macos-15-intel
     steps:
 
@@ -713,16 +759,18 @@ jobs:
           LIME_TEST_NETWORK: "1"
         run: |
           python -m unittest discover -s fixtures
-          lime test neko -release -verbose -nocolor
-          lime test hl -release -verbose -nocolor
-          lime test mac -x86_64 -release -verbose -nocolor
+          lime test neko -release -verbose -nocolor ${{ env.UTEST_ARGS }}
+          lime test hl -release -verbose -nocolor ${{ env.UTEST_ARGS }}
+          lime test mac -x86_64 -release -verbose -nocolor ${{ env.UTEST_ARGS }}
 
       - name: Check a plain hxml HashLink build
+        if: ${{ !inputs.tests }}
         working-directory: tests/plain-hxml
         timeout-minutes: 10
         run: haxe --run Run
 
       - name: Install samples
+        if: ${{ !inputs.tests }}
         run: |
           haxelib git lime-samples https://github.com/openfl/lime-samples --quiet
 
@@ -732,23 +780,26 @@ jobs:
       #     lime build HelloWorld macos -release -verbose -nocolor
 
       - name: Build SimpleImage sample
+        if: ${{ !inputs.tests }}
         run: |
           lime create SimpleImage -verbose -nocolor
           lime build SimpleImage macos -x86_64 -release -verbose -nocolor
 
       - name: Build SimpleAudio sample
+        if: ${{ !inputs.tests }}
         run: |
           lime create SimpleAudio -verbose -nocolor
           lime build SimpleAudio macos -x86_64 -release -verbose -nocolor
 
       - name: Build SimpleVideo sample
+        if: ${{ !inputs.tests }}
         run: |
           lime create SimpleVideo -verbose -nocolor
           lime build SimpleVideo macos -x86_64 -release -verbose -nocolor
 
   windows:
     needs: gate
-    if: needs.gate.outputs.run == 'true'
+    if: needs.gate.outputs.run == 'true' && (inputs.jobs == '' || inputs.jobs == null || contains(format(',{0},', inputs.jobs), ',windows,'))
     runs-on: windows-latest
     steps:
 
@@ -856,21 +907,23 @@ jobs:
         run: |
           python -m unittest discover -s fixtures
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-          lime test neko -release -verbose -nocolor
+          lime test neko -release -verbose -nocolor ${{ env.UTEST_ARGS }}
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-          lime test hl -release -verbose -nocolor
+          lime test hl -release -verbose -nocolor ${{ env.UTEST_ARGS }}
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-          lime test air -release -verbose -nocolor
+          lime test air -release -verbose -nocolor ${{ env.UTEST_ARGS }}
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-          lime test windows -release -verbose -nocolor
+          lime test windows -release -verbose -nocolor ${{ env.UTEST_ARGS }}
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
       - name: Check a plain hxml HashLink build
+        if: ${{ !inputs.tests }}
         working-directory: tests/plain-hxml
         timeout-minutes: 10
         run: haxe --run Run
 
       - name: Run software OpenGL tests
+        if: ${{ !inputs.tests }}
         working-directory: tests/unit
         timeout-minutes: 10
         env:
@@ -881,6 +934,7 @@ jobs:
           lime test windows -release -verbose -nocolor -Dsoftware-gl -DUTEST_PATTERN=OpenGLTest
 
       - name: Check window creation failure and recovery
+        if: ${{ !inputs.tests }}
         working-directory: tests/window-creation
         timeout-minutes: 10
         env:
@@ -894,16 +948,19 @@ jobs:
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
       - name: Check native desktop integration through SDL
+        if: ${{ !inputs.tests }}
         working-directory: tests/native-desktop
         timeout-minutes: 5
         run: lime test windows -release -verbose -nocolor
 
       - name: Check local sockets between processes
+        if: ${{ !inputs.tests }}
         working-directory: tests/local-socket
         timeout-minutes: 5
         run: lime test windows -release -verbose -nocolor
 
       - name: Run unit tests past 24.8 days
+        if: ${{ !inputs.tests }}
         working-directory: tests/unit
         # A timer stuck at the Int limit hangs the tests rather than failing them
         timeout-minutes: 10
@@ -915,36 +972,43 @@ jobs:
           lime test windows -release -verbose -nocolor -Dsimulate_uptime=2147473648
 
       - name: Install samples
+        if: ${{ !inputs.tests }}
         run: |
           haxelib git lime-samples https://github.com/openfl/lime-samples --quiet
 
       - name: Build HelloWorld sample
+        if: ${{ !inputs.tests }}
         run: |
           lime create HelloWorld -verbose -nocolor
           lime build HelloWorld windows -release -verbose -nocolor
 
       - name: Build SimpleImage sample
+        if: ${{ !inputs.tests }}
         run: |
           lime create SimpleImage -verbose -nocolor
           lime build SimpleImage windows -release -verbose -nocolor
 
       - name: Build SimpleAudio sample
+        if: ${{ !inputs.tests }}
         run: |
           lime create SimpleAudio -verbose -nocolor
           lime build SimpleAudio windows -release -verbose -nocolor
 
       - name: Build SimpleVideo sample
+        if: ${{ !inputs.tests }}
         run: |
           lime create SimpleVideo -verbose -nocolor
           lime build SimpleVideo windows -release -verbose -nocolor
 
       - name: Rebuild Lime (Windows, Mingw)
+        if: ${{ !inputs.tests }}
         timeout-minutes: 90
         run: |
           rm ndll/Windows64/*
           lime rebuild windows -Dmingw -D MINGW_ROOT=C:\mingw64 -64 -clean -release -nocolor -verbose -nocffi
 
       - uses: actions/upload-artifact@v7
+        if: ${{ !inputs.tests }}
         with:
           name: Windows64-MinGW-NDLL
           path: |
@@ -954,7 +1018,7 @@ jobs:
 
   webassembly:
     needs: gate
-    if: needs.gate.outputs.run == 'true'
+    if: needs.gate.outputs.run == 'true' && (inputs.jobs == '' || inputs.jobs == null || contains(format(',{0},', inputs.jobs), ',webassembly,'))
     runs-on: ubuntu-22.04
     steps:
 
@@ -1036,7 +1100,7 @@ jobs:
 
   android:
     needs: gate
-    if: needs.gate.outputs.run == 'true'
+    if: needs.gate.outputs.run == 'true' && (inputs.jobs == '' || inputs.jobs == null || contains(format(',{0},', inputs.jobs), ',android,'))
     runs-on: ubuntu-22.04
     strategy:
       matrix:
@@ -1165,7 +1229,7 @@ jobs:
 
   ios:
     needs: gate
-    if: needs.gate.outputs.run == 'true'
+    if: needs.gate.outputs.run == 'true' && (inputs.jobs == '' || inputs.jobs == null || contains(format(',{0},', inputs.jobs), ',ios,'))
     runs-on: macos-15
     steps:
 
@@ -1385,7 +1449,7 @@ jobs:
 
   docs:
     needs: gate
-    if: needs.gate.outputs.run == 'true'
+    if: needs.gate.outputs.run == 'true' && (inputs.jobs == '' || inputs.jobs == null || contains(format(',{0},', inputs.jobs), ',docs,'))
     runs-on: ubuntu-22.04
     steps:
 
@@ -1427,7 +1491,7 @@ jobs:
 
   flash-samples:
     needs: gate
-    if: needs.gate.outputs.run == 'true'
+    if: needs.gate.outputs.run == 'true' && (inputs.jobs == '' || inputs.jobs == null || contains(format(',{0},', inputs.jobs), ',flash-samples,'))
     runs-on: ubuntu-22.04
     steps:
 
@@ -1484,7 +1548,7 @@ jobs:
 
   air-samples:
     needs: gate
-    if: needs.gate.outputs.run == 'true'
+    if: needs.gate.outputs.run == 'true' && (inputs.jobs == '' || inputs.jobs == null || contains(format(',{0},', inputs.jobs), ',air-samples,'))
     runs-on: windows-latest
     strategy:
       matrix:
