@@ -872,7 +872,7 @@ class ImageDataUtil
 		var littleEndian = (endian == LITTLE_ENDIAN);
 
 		#if (lime_cffi && !disable_cffi && !macro)
-		if (CFFI.enabled) NativeCFFI.lime_image_data_util_get_pixels(image, rect, format, bytes, littleEndian ? 0 : 1);
+		if (CFFI.enabled) NativeCFFI.lime_image_data_util_get_pixels_endian(image, rect, format, bytes, littleEndian ? 0 : 1);
 		else
 		#end
 		{
