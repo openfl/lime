@@ -447,8 +447,27 @@ class Image
 
 		if (sourceImage == this && destPoint.x < sourceRect.right && destPoint.y < sourceRect.bottom)
 		{
-			// TODO: Optimize further?
-			sourceImage = clone();
+			// The pixels written would overwrite some still to be read, so the
+			// source is read from a copy: of only sourceRect, where the pixels
+			// are in a buffer and the rectangle is in whole pixels
+			#if (js && html5)
+			if (type == DATA) ImageCanvasUtil.convertToData(this);
+			#end
+
+			if (type == DATA
+				&& buffer.data != null
+				&& sourceRect.x == Std.int(sourceRect.x)
+				&& sourceRect.y == Std.int(sourceRect.y)
+				&& sourceRect.width == Std.int(sourceRect.width)
+				&& sourceRect.height == Std.int(sourceRect.height))
+			{
+				sourceImage = __copyRect(sourceRect);
+				sourceRect = new Rectangle(0, 0, sourceRect.width, sourceRect.height);
+			}
+			else
+			{
+				sourceImage = clone();
+			}
 		}
 
 		switch (type)
@@ -842,9 +861,12 @@ class Image
 		Gets a region of pixels from the `Image`, as `Bytes`
 		@param	rect	The source `Rectangle` to read from
 		@param	format	(Optional) The `PixelFormat` to use when writing to the `Bytes` object (default is `RGBA`)
+		@param	endian	(Optional) The endianness of the outgoing bytes (default is `BIG_ENDIAN`, which writes each
+		pixel's bytes in the order the format names them). `LITTLE_ENDIAN` writes them in reverse, as
+		`setPixels()` reads them with that endianness.
 		@return	A `Bytes` object representing the region, or `null` if it is not possible to read
 	**/
-	public function getPixels(rect:Rectangle, format:PixelFormat = null):Bytes
+	public function getPixels(rect:Rectangle, format:PixelFormat = null, endian:Endian = null):Bytes
 	{
 		if (buffer == null || rect == null) return null;
 
@@ -854,17 +876,18 @@ class Image
 
 		// Set here, as the native code takes it as an Int, and on Neko null isn't RGBA32
 		if (format == null) format = RGBA32;
+		if (endian == null) endian = BIG_ENDIAN;
 		switch (type)
 		{
 			case CANVAS:
-				return ImageCanvasUtil.getPixels(this, rect, format);
+				return ImageCanvasUtil.getPixels(this, rect, format, endian);
 
 			case DATA:
 				#if (js && html5)
 				ImageCanvasUtil.convertToData(this);
 				#end
 
-				return ImageDataUtil.getPixels(this, rect, format);
+				return ImageDataUtil.getPixels(this, rect, format, endian);
 
 			case FLASH:
 				#if flash
@@ -899,6 +922,23 @@ class Image
 						}
 
 						byteArray.position = 0;
+				}
+
+				if (endian == LITTLE_ENDIAN)
+				{
+					// Each pixel's bytes in reverse
+					var length = Std.int(byteArray.length / 4);
+
+					for (i in 0...length)
+					{
+						var value = byteArray.readUnsignedInt();
+						byteArray.position -= 4;
+						byteArray.endian = flash.utils.Endian.LITTLE_ENDIAN;
+						byteArray.writeUnsignedInt(value);
+						byteArray.endian = flash.utils.Endian.BIG_ENDIAN;
+					}
+
+					byteArray.position = 0;
 				}
 
 				return Bytes.ofData(byteArray);
@@ -1036,8 +1076,10 @@ class Image
 
 		return promise.future;
 		#else
-		var request = new HTTPRequest<Image>();
-		return request.load(path).then(function(image)
+		// The bytes are decoded by loadFromBytes, on a worker: a request for an
+		// Image would decode them as it completes, on the main thread
+		var request = new HTTPRequest<Bytes>();
+		return request.load(path).then(loadFromBytes).then(function(image)
 		{
 			if (image != null)
 			{
@@ -1154,7 +1196,16 @@ class Image
 				copyPixels(this, rect, new Vector2(x, y));
 
 			case FLASH:
-				buffer.__srcBitmapData.scroll(x + offsetX, y + offsetX);
+				// BitmapData.scroll moves the whole bitmap, so an image that is part of a
+				// larger one keeps to its own rectangle as the DATA path does
+				if (offsetX == 0 && offsetY == 0 && width == buffer.__srcBitmapData.width && height == buffer.__srcBitmapData.height)
+				{
+					buffer.__srcBitmapData.scroll(x, y);
+				}
+				else
+				{
+					copyPixels(this, rect, new Vector2(x, y));
+				}
 
 			default:
 		}
@@ -1394,6 +1445,35 @@ class Image
 		}
 
 		return 0;
+	}
+
+	// A new image of rect's pixels, stored as they are here, byte for byte
+	@:noCompletion private function __copyRect(rect:Rectangle):Image
+	{
+		var width = Std.int(rect.width);
+		var height = Std.int(rect.height);
+		var bytesPerPixel = Std.int(buffer.bitsPerPixel / 8);
+		var rowLength = width * bytesPerPixel;
+		var stride = buffer.stride;
+		var position = (Std.int(rect.y) + offsetY) * stride + (Std.int(rect.x) + offsetX) * bytesPerPixel;
+
+		var data = new UInt8Array(rowLength * height);
+
+		for (row in 0...height)
+		{
+			#if js
+			data.set(buffer.data.subarray(position, position + rowLength), row * rowLength);
+			#else
+			data.buffer.blit(row * rowLength, buffer.data.buffer, buffer.data.byteOffset + position, rowLength);
+			#end
+			position += stride;
+		}
+
+		var copy = new ImageBuffer(data, width, height, buffer.bitsPerPixel, buffer.format);
+		copy.premultiplied = buffer.premultiplied;
+		copy.transparent = buffer.transparent;
+
+		return new Image(copy, 0, 0, width, height, null, DATA);
 	}
 
 	// The part of sourceRect that is inside sourceImage and, put at destPoint,

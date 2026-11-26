@@ -190,4 +190,44 @@ class HaxelibTest extends Test
 
 		Assert.equals(1, Fixture.countAssets(project, "base.txt"));
 	}
+
+	// A haxelib at a path of its own gives the Haxe arguments `haxelib path` would: its
+	// extraParams.hxml, its class path and its version as a define
+	public function testAHaxelibAtAPathOfItsOwnGivesItsHaxeArguments():Void
+	{
+		var path = fixture.addHaxelib("toolstest-params", "<project />", [
+			"haxelib.json" => '{"name": "toolstest-params", "version": "2.3.4", "classPath": "src"}',
+			"extraParams.hxml" => "# a comment\n--macro toolstest.Setup.run()\r\n-D toolstest-extra\n\n"
+		]);
+
+		var project = fixture.parse('<project>
+			<haxelib name="toolstest-params" />
+		</project>');
+
+		var flags = (project.templateContext.HAXE_FLAGS : String).split("\n");
+		Assert.contains("--macro toolstest.Setup.run()", flags);
+		Assert.contains("-D toolstest-extra", flags);
+		Assert.contains("-cp " + Path.standardize(Path.combine(path, "src")), flags);
+		Assert.contains("-D toolstest-params=2.3.4", flags);
+		Assert.equals(-1, flags.indexOf("-cp # a comment"), "the comment became a class path");
+
+		for (flag in flags)
+		{
+			Assert.isFalse(StringTools.startsWith(flag, "#"), "a comment was passed on: " + flag);
+		}
+	}
+
+	public function testAHaxelibAtAPathOfItsOwnWithoutExtraParamsGivesItsClassPathAndVersion():Void
+	{
+		var path = fixture.addHaxelib("toolstest-plain", "<project />");
+
+		var project = fixture.parse('<project>
+			<haxelib name="toolstest-plain" />
+		</project>');
+
+		var flags = (project.templateContext.HAXE_FLAGS : String).split("\n");
+		Assert.contains("-D toolstest-plain=1.0.0", flags);
+		Assert.isTrue([for (flag in flags) if (StringTools.startsWith(flag, "-cp ") && Path.standardize(flag.substr(4)).indexOf("haxelib/toolstest-plain") > -1) flag].length == 1,
+			"the class path is not given once: " + flags.join(", "));
+	}
 }

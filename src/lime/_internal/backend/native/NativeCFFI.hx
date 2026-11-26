@@ -158,7 +158,7 @@ class NativeCFFI
 
 	@:cffi private static function lime_data_pointer_offset(dataPointer:DataPointer, offset:Int):Float;
 
-	@:cffi private static function lime_deflate_compress(data:Dynamic, bytes:Dynamic):Dynamic;
+	@:cffi private static function lime_deflate_compress_level(data:Dynamic, bytes:Dynamic, level:Int):Dynamic;
 
 	@:cffi private static function lime_deflate_decompress(data:Dynamic, bytes:Dynamic):Dynamic;
 
@@ -285,7 +285,7 @@ class NativeCFFI
 
 	@:cffi private static function lime_gamepad_event_manager_register(callback:Dynamic, eventObject:Dynamic):Void;
 
-	@:cffi private static function lime_gzip_compress(data:Dynamic, bytes:Dynamic):Dynamic;
+	@:cffi private static function lime_gzip_compress_level(data:Dynamic, bytes:Dynamic, level:Int):Dynamic;
 
 	@:cffi private static function lime_gzip_decompress(data:Dynamic, bytes:Dynamic):Dynamic;
 
@@ -311,7 +311,7 @@ class NativeCFFI
 
 	@:cffi private static function lime_image_data_util_flood_fill(image:Dynamic, x:Int, y:Int, rg:Int, ba:Int):Void;
 
-	@:cffi private static function lime_image_data_util_get_pixels(image:Dynamic, rect:Dynamic, format:Int, bytes:Dynamic):Void;
+	@:cffi private static function lime_image_data_util_get_pixels_endian(image:Dynamic, rect:Dynamic, format:Int, bytes:Dynamic, endian:Int):Void;
 
 	@:cffi private static function lime_image_data_util_merge(image:Dynamic, sourceImage:Dynamic, sourceRect:Dynamic, destPoint:Dynamic, redMultiplier:Int,
 		greenMultiplier:Int, blueMultiplier:Int, alphaMultiplier:Int):Void;
@@ -381,7 +381,7 @@ class NativeCFFI
 
 	@:cffi private static function lime_network_interface_is_supported():Bool;
 
-	@:cffi private static function lime_lzma_compress(data:Dynamic, bytes:Dynamic):Dynamic;
+	@:cffi private static function lime_lzma_compress_level(data:Dynamic, bytes:Dynamic, level:Int):Dynamic;
 
 	@:cffi private static function lime_lzma_decompress(data:Dynamic, bytes:Dynamic):Dynamic;
 
@@ -1003,7 +1003,7 @@ class NativeCFFI
 
 	@:cffi private static function lime_window_event_manager_register(callback:Dynamic, eventObject:Dynamic):Void;
 
-	@:cffi private static function lime_zlib_compress(data:Dynamic, bytes:Dynamic):Dynamic;
+	@:cffi private static function lime_zlib_compress_level(data:Dynamic, bytes:Dynamic, level:Int):Dynamic;
 
 	@:cffi private static function lime_zlib_decompress(data:Dynamic, bytes:Dynamic):Dynamic;
 	#else
@@ -1096,8 +1096,8 @@ class NativeCFFI
 	private static var lime_clipboard_set_items = new cpp.Callable<cpp.Object->Bool>(cpp.Prime._loadPrime("lime", "lime_clipboard_set_items", "ob", false));
 	private static var lime_data_pointer_offset = new cpp.Callable<lime.utils.DataPointer->Int->Float>(cpp.Prime._loadPrime("lime",
 		"lime_data_pointer_offset", "did", false));
-	private static var lime_deflate_compress = new cpp.Callable<cpp.Object->cpp.Object->cpp.Object>(cpp.Prime._loadPrime("lime", "lime_deflate_compress",
-		"ooo", false));
+	private static var lime_deflate_compress_level = new cpp.Callable<cpp.Object->cpp.Object->Int->cpp.Object>(cpp.Prime._loadPrime("lime", "lime_deflate_compress_level",
+		"ooio", false));
 	private static var lime_deflate_decompress = new cpp.Callable<cpp.Object->cpp.Object->cpp.Object>(cpp.Prime._loadPrime("lime", "lime_deflate_decompress",
 		"ooo", false));
 	private static var lime_dock_icon_bounce = new cpp.Callable<Bool->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_dock_icon_bounce", "bv", false));
@@ -1195,7 +1195,7 @@ class NativeCFFI
 		"io", false));
 	private static var lime_gamepad_event_manager_register = new cpp.Callable<cpp.Object->cpp.Object->cpp.Void>(cpp.Prime._loadPrime("lime",
 		"lime_gamepad_event_manager_register", "oov", false));
-	private static var lime_gzip_compress = new cpp.Callable<cpp.Object->cpp.Object->cpp.Object>(cpp.Prime._loadPrime("lime", "lime_gzip_compress", "ooo",
+	private static var lime_gzip_compress_level = new cpp.Callable<cpp.Object->cpp.Object->Int->cpp.Object>(cpp.Prime._loadPrime("lime", "lime_gzip_compress_level", "ooio",
 		false));
 	private static var lime_gzip_decompress = new cpp.Callable<cpp.Object->cpp.Object->cpp.Object>(cpp.Prime._loadPrime("lime", "lime_gzip_decompress", "ooo",
 		false));
@@ -1217,8 +1217,8 @@ class NativeCFFI
 		"lime_image_data_util_fill_rect", "ooiiv", false));
 	private static var lime_image_data_util_flood_fill = new cpp.Callable<cpp.Object->Int->Int->Int->Int->cpp.Void>(cpp.Prime._loadPrime("lime",
 		"lime_image_data_util_flood_fill", "oiiiiv", false));
-	private static var lime_image_data_util_get_pixels = new cpp.Callable<cpp.Object->cpp.Object->Int->cpp.Object->cpp.Void>(cpp.Prime._loadPrime("lime",
-		"lime_image_data_util_get_pixels", "ooiov", false));
+	private static var lime_image_data_util_get_pixels_endian = new cpp.Callable<cpp.Object->cpp.Object->Int->cpp.Object->Int->cpp.Void>(cpp.Prime._loadPrime("lime",
+		"lime_image_data_util_get_pixels_endian", "ooioiv", false));
 	private static var lime_image_data_util_merge = new cpp.Callable<cpp.Object->cpp.Object->cpp.Object->cpp.Object->Int->Int->Int->Int->
 		cpp.Void>(cpp.Prime._loadPrime("lime", "lime_image_data_util_merge", "ooooiiiiv", false));
 	private static var lime_image_data_util_multiply_alpha = new cpp.Callable<cpp.Object->cpp.Void>(cpp.Prime._loadPrime("lime",
@@ -1275,7 +1275,7 @@ class NativeCFFI
 		"lime_network_interface_get_interfaces", "o", false));
 	private static var lime_network_interface_is_supported = new cpp.Callable<Void->Bool>(cpp.Prime._loadPrime("lime",
 		"lime_network_interface_is_supported", "b", false));
-	private static var lime_lzma_compress = new cpp.Callable<cpp.Object->cpp.Object->cpp.Object>(cpp.Prime._loadPrime("lime", "lime_lzma_compress", "ooo",
+	private static var lime_lzma_compress_level = new cpp.Callable<cpp.Object->cpp.Object->Int->cpp.Object>(cpp.Prime._loadPrime("lime", "lime_lzma_compress_level", "ooio",
 		false));
 	private static var lime_lzma_decompress = new cpp.Callable<cpp.Object->cpp.Object->cpp.Object>(cpp.Prime._loadPrime("lime", "lime_lzma_decompress", "ooo",
 		false));
@@ -1739,7 +1739,7 @@ class NativeCFFI
 		"oiiv", false));
 	private static var lime_window_event_manager_register = new cpp.Callable<cpp.Object->cpp.Object->cpp.Void>(cpp.Prime._loadPrime("lime",
 		"lime_window_event_manager_register", "oov", false));
-	private static var lime_zlib_compress = new cpp.Callable<cpp.Object->cpp.Object->cpp.Object>(cpp.Prime._loadPrime("lime", "lime_zlib_compress", "ooo",
+	private static var lime_zlib_compress_level = new cpp.Callable<cpp.Object->cpp.Object->Int->cpp.Object>(cpp.Prime._loadPrime("lime", "lime_zlib_compress_level", "ooio",
 		false));
 	private static var lime_zlib_decompress = new cpp.Callable<cpp.Object->cpp.Object->cpp.Object>(cpp.Prime._loadPrime("lime", "lime_zlib_decompress", "ooo",
 		false));
@@ -1797,7 +1797,7 @@ class NativeCFFI
 	private static var lime_clipboard_has_format = CFFI.load("lime", "lime_clipboard_has_format", 1);
 	private static var lime_clipboard_set_items = CFFI.load("lime", "lime_clipboard_set_items", 1);
 	private static var lime_data_pointer_offset = CFFI.load("lime", "lime_data_pointer_offset", 2);
-	private static var lime_deflate_compress = CFFI.load("lime", "lime_deflate_compress", 2);
+	private static var lime_deflate_compress_level = CFFI.load("lime", "lime_deflate_compress_level", 3);
 	private static var lime_deflate_decompress = CFFI.load("lime", "lime_deflate_decompress", 2);
 	private static var lime_dock_icon_bounce = CFFI.load("lime", "lime_dock_icon_bounce", 1);
 	private static var lime_dock_icon_is_supported = CFFI.load("lime", "lime_dock_icon_is_supported", 0);
@@ -1861,7 +1861,7 @@ class NativeCFFI
 	private static var lime_gamepad_detach_virtual = CFFI.load("lime", "lime_gamepad_detach_virtual", 1);
 	private static var lime_gamepad_get_virtual_output = CFFI.load("lime", "lime_gamepad_get_virtual_output", 1);
 	private static var lime_gamepad_event_manager_register = CFFI.load("lime", "lime_gamepad_event_manager_register", 2);
-	private static var lime_gzip_compress = CFFI.load("lime", "lime_gzip_compress", 2);
+	private static var lime_gzip_compress_level = CFFI.load("lime", "lime_gzip_compress_level", 3);
 	private static var lime_gzip_decompress = CFFI.load("lime", "lime_gzip_decompress", 2);
 	private static var lime_haptic_vibrate = CFFI.load("lime", "lime_haptic_vibrate", 2);
 	private static var lime_image_encode = CFFI.load("lime", "lime_image_encode", 4);
@@ -1873,7 +1873,7 @@ class NativeCFFI
 	private static var lime_image_data_util_copy_pixels = CFFI.load("lime", "lime_image_data_util_copy_pixels", -1);
 	private static var lime_image_data_util_fill_rect = CFFI.load("lime", "lime_image_data_util_fill_rect", 4);
 	private static var lime_image_data_util_flood_fill = CFFI.load("lime", "lime_image_data_util_flood_fill", 5);
-	private static var lime_image_data_util_get_pixels = CFFI.load("lime", "lime_image_data_util_get_pixels", 4);
+	private static var lime_image_data_util_get_pixels_endian = CFFI.load("lime", "lime_image_data_util_get_pixels_endian", 5);
 	private static var lime_image_data_util_merge = CFFI.load("lime", "lime_image_data_util_merge", -1);
 	private static var lime_image_data_util_multiply_alpha = CFFI.load("lime", "lime_image_data_util_multiply_alpha", 1);
 	private static var lime_image_data_util_resize = CFFI.load("lime", "lime_image_data_util_resize", 4);
@@ -1907,7 +1907,7 @@ class NativeCFFI
 	private static var lime_local_socket_update = CFFI.load("lime", "lime_local_socket_update", 0);
 	private static var lime_network_interface_get_interfaces = CFFI.load("lime", "lime_network_interface_get_interfaces", 0);
 	private static var lime_network_interface_is_supported = CFFI.load("lime", "lime_network_interface_is_supported", 0);
-	private static var lime_lzma_compress = CFFI.load("lime", "lime_lzma_compress", 2);
+	private static var lime_lzma_compress_level = CFFI.load("lime", "lime_lzma_compress_level", 3);
 	private static var lime_lzma_decompress = CFFI.load("lime", "lime_lzma_decompress", 2);
 	private static var lime_menu_event_manager_register = CFFI.load("lime", "lime_menu_event_manager_register", 2);
 	private static var lime_menu_get_application_menu = CFFI.load("lime", "lime_menu_get_application_menu", 1);
@@ -2174,7 +2174,7 @@ class NativeCFFI
 	private static var lime_window_set_always_on_top = CFFI.load("lime", "lime_window_set_always_on_top", 2);
 	private static var lime_window_warp_mouse = CFFI.load("lime", "lime_window_warp_mouse", 3);
 	private static var lime_window_event_manager_register = CFFI.load("lime", "lime_window_event_manager_register", 2);
-	private static var lime_zlib_compress = CFFI.load("lime", "lime_zlib_compress", 2);
+	private static var lime_zlib_compress_level = CFFI.load("lime", "lime_zlib_compress_level", 3);
 	private static var lime_zlib_decompress = CFFI.load("lime", "lime_zlib_decompress", 2);
 	#end
 
@@ -2388,7 +2388,7 @@ class NativeCFFI
 		return 0;
 	}
 
-	@:hlNative("lime", "hl_deflate_compress") private static function lime_deflate_compress(data:Bytes, bytes:Bytes):Bytes
+	@:hlNative("lime", "hl_deflate_compress_level") private static function lime_deflate_compress_level(data:Bytes, bytes:Bytes, level:Int):Bytes
 	{
 		return null;
 	}
@@ -2673,7 +2673,7 @@ class NativeCFFI
 	@:hlNative("lime", "hl_gamepad_event_manager_register") private static function lime_gamepad_event_manager_register(callback:Void->Void,
 		eventObject:GamepadEventInfo):Void {}
 
-	@:hlNative("lime", "hl_gzip_compress") private static function lime_gzip_compress(data:Bytes, bytes:Bytes):Bytes
+	@:hlNative("lime", "hl_gzip_compress_level") private static function lime_gzip_compress_level(data:Bytes, bytes:Bytes, level:Int):Bytes
 	{
 		return null;
 	}
@@ -2718,8 +2718,8 @@ class NativeCFFI
 	@:hlNative("lime", "hl_image_data_util_flood_fill") private static function lime_image_data_util_flood_fill(image:Image, x:Int, y:Int, rg:Int,
 		ba:Int):Void {}
 
-	@:hlNative("lime", "hl_image_data_util_get_pixels") private static function lime_image_data_util_get_pixels(image:Image, rect:Rectangle, format:Int,
-		bytes:Bytes):Void {}
+	@:hlNative("lime", "hl_image_data_util_get_pixels_endian") private static function lime_image_data_util_get_pixels_endian(image:Image, rect:Rectangle, format:Int,
+		bytes:Bytes, endian:Int):Void {}
 
 	// @:cffi private static function lime_image_data_util_merge (image:Dynamic, sourceImage:Dynamic, sourceRect:Dynamic, destPoint:Dynamic, redMultiplier:Int, greenMultiplier:Int, blueMultiplier:Int, alphaMultiplier:Int):Void;
 	@:hlNative("lime", "hl_image_data_util_merge") private static function lime_image_data_util_merge(image:Image, sourceImage:Image, sourceRect:Rectangle,
@@ -2858,7 +2858,7 @@ class NativeCFFI
 		return false;
 	}
 
-	@:hlNative("lime", "hl_lzma_compress") private static function lime_lzma_compress(data:Bytes, bytes:Bytes):Bytes
+	@:hlNative("lime", "hl_lzma_compress_level") private static function lime_lzma_compress_level(data:Bytes, bytes:Bytes, level:Int):Bytes
 	{
 		return null;
 	}
@@ -4070,7 +4070,7 @@ class NativeCFFI
 	@:hlNative("lime", "hl_window_event_manager_register") private static function lime_window_event_manager_register(callback:Void->Void,
 		eventObject:WindowEventInfo):Void {}
 
-	@:hlNative("lime", "hl_zlib_compress") private static function lime_zlib_compress(data:Bytes, bytes:Bytes):Bytes
+	@:hlNative("lime", "hl_zlib_compress_level") private static function lime_zlib_compress_level(data:Bytes, bytes:Bytes, level:Int):Bytes
 	{
 		return null;
 	}
@@ -5178,6 +5178,8 @@ class NativeCFFI
 
 	@:cffi private static function lime_cairo_clip_extents(handle:CFFIPointer, x1:Float, y1:Float, x2:Float, y2:Float):Void;
 
+	@:cffi private static function lime_cairo_get_clip_extents(handle:CFFIPointer):Dynamic;
+
 	@:cffi private static function lime_cairo_close_path(handle:CFFIPointer):Void;
 
 	@:cffi private static function lime_cairo_copy_page(handle:CFFIPointer):Void;
@@ -5190,11 +5192,13 @@ class NativeCFFI
 
 	@:cffi private static function lime_cairo_fill_extents(handle:CFFIPointer, x1:Float, y1:Float, x2:Float, y2:Float):Void;
 
+	@:cffi private static function lime_cairo_get_fill_extents(handle:CFFIPointer):Dynamic;
+
 	@:cffi private static function lime_cairo_fill_preserve(handle:CFFIPointer):Void;
 
 	@:cffi private static function lime_cairo_get_antialias(handle:CFFIPointer):Int;
 
-	@:cffi private static function lime_cairo_get_current_point(handle:CFFIPointer):Dynamic;
+	@:cffi private static function lime_cairo_get_current_point(handle:CFFIPointer, out:Dynamic):Void;
 
 	@:cffi private static function lime_cairo_get_dash(handle:CFFIPointer):Dynamic;
 
@@ -5214,7 +5218,7 @@ class NativeCFFI
 
 	@:cffi private static function lime_cairo_get_line_width(handle:CFFIPointer):Float;
 
-	@:cffi private static function lime_cairo_get_matrix(handle:CFFIPointer):Dynamic;
+	@:cffi private static function lime_cairo_get_matrix(handle:CFFIPointer, out:Dynamic):Void;
 
 	@:cffi private static function lime_cairo_get_miter_limit(handle:CFFIPointer):Float;
 
@@ -5311,6 +5315,8 @@ class NativeCFFI
 
 	@:cffi private static function lime_cairo_set_tolerance(handle:CFFIPointer, tolerance:Float):Void;
 
+	@:cffi private static function lime_cairo_show_glyph_data(handle:CFFIPointer, data:Dynamic, count:Int):Void;
+
 	@:cffi private static function lime_cairo_show_glyphs(handle:CFFIPointer, glyphs:Dynamic):Void;
 
 	@:cffi private static function lime_cairo_show_page(handle:CFFIPointer):Void;
@@ -5323,11 +5329,13 @@ class NativeCFFI
 
 	@:cffi private static function lime_cairo_stroke_extents(handle:CFFIPointer, x1:Float, y1:Float, x2:Float, y2:Float):Void;
 
+	@:cffi private static function lime_cairo_get_stroke_extents(handle:CFFIPointer):Dynamic;
+
 	@:cffi private static function lime_cairo_stroke_preserve(handle:CFFIPointer):Void;
 
 	@:cffi private static function lime_cairo_text_path(handle:CFFIPointer, text:String):Void;
 
-	@:cffi private static function lime_cairo_transform(handle:CFFIPointer, matrix:Dynamic):Void;
+	@:cffi private static function lime_cairo_transform(handle:CFFIPointer, a:Float, b:Float, c:Float, d:Float, tx:Float, ty:Float):Void;
 
 	@:cffi private static function lime_cairo_translate(handle:CFFIPointer, x:Float, y:Float):Void;
 
@@ -5392,13 +5400,13 @@ class NativeCFFI
 
 	@:cffi private static function lime_cairo_pattern_get_filter(handle:CFFIPointer):Int;
 
-	@:cffi private static function lime_cairo_pattern_get_matrix(handle:CFFIPointer):Dynamic;
+	@:cffi private static function lime_cairo_pattern_get_matrix(handle:CFFIPointer, out:Dynamic):Void;
 
 	@:cffi private static function lime_cairo_pattern_set_extend(handle:CFFIPointer, extend:Int):Void;
 
 	@:cffi private static function lime_cairo_pattern_set_filter(handle:CFFIPointer, filter:Int):Void;
 
-	@:cffi private static function lime_cairo_pattern_set_matrix(handle:CFFIPointer, matrix:Dynamic):Void;
+	@:cffi private static function lime_cairo_pattern_set_matrix(handle:CFFIPointer, a:Float, b:Float, c:Float, d:Float, tx:Float, ty:Float):Void;
 
 	@:cffi private static function lime_cairo_surface_flush(surface:CFFIPointer):Void;
 	#else
@@ -5410,6 +5418,8 @@ class NativeCFFI
 	private static var lime_cairo_clip_preserve = new cpp.Callable<cpp.Object->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_cairo_clip_preserve", "ov", false));
 	private static var lime_cairo_clip_extents = new cpp.Callable<cpp.Object->Float->Float->Float->Float->cpp.Void>(cpp.Prime._loadPrime("lime",
 		"lime_cairo_clip_extents", "oddddv", false));
+	private static var lime_cairo_get_clip_extents = new cpp.Callable<cpp.Object->cpp.Object>(cpp.Prime._loadPrime("lime",
+		"lime_cairo_get_clip_extents", "oo", false));
 	private static var lime_cairo_close_path = new cpp.Callable<cpp.Object->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_cairo_close_path", "ov", false));
 	private static var lime_cairo_copy_page = new cpp.Callable<cpp.Object->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_cairo_copy_page", "ov", false));
 	private static var lime_cairo_create = new cpp.Callable<cpp.Object->cpp.Object>(cpp.Prime._loadPrime("lime", "lime_cairo_create", "oo", false));
@@ -5418,10 +5428,12 @@ class NativeCFFI
 	private static var lime_cairo_fill = new cpp.Callable<cpp.Object->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_cairo_fill", "ov", false));
 	private static var lime_cairo_fill_extents = new cpp.Callable<cpp.Object->Float->Float->Float->Float->cpp.Void>(cpp.Prime._loadPrime("lime",
 		"lime_cairo_fill_extents", "oddddv", false));
+	private static var lime_cairo_get_fill_extents = new cpp.Callable<cpp.Object->cpp.Object>(cpp.Prime._loadPrime("lime",
+		"lime_cairo_get_fill_extents", "oo", false));
 	private static var lime_cairo_fill_preserve = new cpp.Callable<cpp.Object->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_cairo_fill_preserve", "ov", false));
 	private static var lime_cairo_get_antialias = new cpp.Callable<cpp.Object->Int>(cpp.Prime._loadPrime("lime", "lime_cairo_get_antialias", "oi", false));
-	private static var lime_cairo_get_current_point = new cpp.Callable<cpp.Object->cpp.Object>(cpp.Prime._loadPrime("lime", "lime_cairo_get_current_point",
-		"oo", false));
+	private static var lime_cairo_get_current_point = new cpp.Callable<cpp.Object->cpp.Object->cpp.Void>(cpp.Prime._loadPrime("lime",
+		"lime_cairo_get_current_point", "oov", false));
 	private static var lime_cairo_get_dash = new cpp.Callable<cpp.Object->cpp.Object>(cpp.Prime._loadPrime("lime", "lime_cairo_get_dash", "oo", false));
 	private static var lime_cairo_get_dash_count = new cpp.Callable<cpp.Object->Int>(cpp.Prime._loadPrime("lime", "lime_cairo_get_dash_count", "oi", false));
 	private static var lime_cairo_get_fill_rule = new cpp.Callable<cpp.Object->Int>(cpp.Prime._loadPrime("lime", "lime_cairo_get_fill_rule", "oi", false));
@@ -5434,7 +5446,8 @@ class NativeCFFI
 	private static var lime_cairo_get_line_cap = new cpp.Callable<cpp.Object->Int>(cpp.Prime._loadPrime("lime", "lime_cairo_get_line_cap", "oi", false));
 	private static var lime_cairo_get_line_join = new cpp.Callable<cpp.Object->Int>(cpp.Prime._loadPrime("lime", "lime_cairo_get_line_join", "oi", false));
 	private static var lime_cairo_get_line_width = new cpp.Callable<cpp.Object->Float>(cpp.Prime._loadPrime("lime", "lime_cairo_get_line_width", "od", false));
-	private static var lime_cairo_get_matrix = new cpp.Callable<cpp.Object->cpp.Object>(cpp.Prime._loadPrime("lime", "lime_cairo_get_matrix", "oo", false));
+	private static var lime_cairo_get_matrix = new cpp.Callable<cpp.Object->cpp.Object->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_cairo_get_matrix",
+		"oov", false));
 	private static var lime_cairo_get_miter_limit = new cpp.Callable<cpp.Object->Float>(cpp.Prime._loadPrime("lime", "lime_cairo_get_miter_limit", "od",
 		false));
 	private static var lime_cairo_get_operator = new cpp.Callable<cpp.Object->Int>(cpp.Prime._loadPrime("lime", "lime_cairo_get_operator", "oi", false));
@@ -5513,6 +5526,8 @@ class NativeCFFI
 		"lime_cairo_set_source_surface", "ooddv", false));
 	private static var lime_cairo_set_tolerance = new cpp.Callable<cpp.Object->Float->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_cairo_set_tolerance",
 		"odv", false));
+	private static var lime_cairo_show_glyph_data = new cpp.Callable<cpp.Object->cpp.Object->Int->cpp.Void>(cpp.Prime._loadPrime("lime",
+		"lime_cairo_show_glyph_data", "ooiv", false));
 	private static var lime_cairo_show_glyphs = new cpp.Callable<cpp.Object->cpp.Object->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_cairo_show_glyphs",
 		"oov", false));
 	private static var lime_cairo_show_page = new cpp.Callable<cpp.Object->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_cairo_show_page", "ov", false));
@@ -5522,12 +5537,14 @@ class NativeCFFI
 	private static var lime_cairo_stroke = new cpp.Callable<cpp.Object->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_cairo_stroke", "ov", false));
 	private static var lime_cairo_stroke_extents = new cpp.Callable<cpp.Object->Float->Float->Float->Float->cpp.Void>(cpp.Prime._loadPrime("lime",
 		"lime_cairo_stroke_extents", "oddddv", false));
+	private static var lime_cairo_get_stroke_extents = new cpp.Callable<cpp.Object->cpp.Object>(cpp.Prime._loadPrime("lime",
+		"lime_cairo_get_stroke_extents", "oo", false));
 	private static var lime_cairo_stroke_preserve = new cpp.Callable<cpp.Object->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_cairo_stroke_preserve", "ov",
 		false));
 	private static var lime_cairo_text_path = new cpp.Callable<cpp.Object->String->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_cairo_text_path", "osv",
 		false));
-	private static var lime_cairo_transform = new cpp.Callable<cpp.Object->cpp.Object->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_cairo_transform", "oov",
-		false));
+	private static var lime_cairo_transform = new cpp.Callable<cpp.Object->Float->Float->Float->Float->Float->Float->cpp.Void>(cpp.Prime._loadPrime("lime",
+		"lime_cairo_transform", "oddddddv", false));
 	private static var lime_cairo_translate = new cpp.Callable<cpp.Object->Float->Float->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_cairo_translate",
 		"oddv", false));
 	private static var lime_cairo_version = new cpp.Callable<Void->Int>(cpp.Prime._loadPrime("lime", "lime_cairo_version", "i", false));
@@ -5588,14 +5605,14 @@ class NativeCFFI
 		false));
 	private static var lime_cairo_pattern_get_filter = new cpp.Callable<cpp.Object->Int>(cpp.Prime._loadPrime("lime", "lime_cairo_pattern_get_filter", "oi",
 		false));
-	private static var lime_cairo_pattern_get_matrix = new cpp.Callable<cpp.Object->cpp.Object>(cpp.Prime._loadPrime("lime", "lime_cairo_pattern_get_matrix",
-		"oo", false));
+	private static var lime_cairo_pattern_get_matrix = new cpp.Callable<cpp.Object->cpp.Object->cpp.Void>(cpp.Prime._loadPrime("lime",
+		"lime_cairo_pattern_get_matrix", "oov", false));
 	private static var lime_cairo_pattern_set_extend = new cpp.Callable<cpp.Object->Int->cpp.Void>(cpp.Prime._loadPrime("lime",
 		"lime_cairo_pattern_set_extend", "oiv", false));
 	private static var lime_cairo_pattern_set_filter = new cpp.Callable<cpp.Object->Int->cpp.Void>(cpp.Prime._loadPrime("lime",
 		"lime_cairo_pattern_set_filter", "oiv", false));
-	private static var lime_cairo_pattern_set_matrix = new cpp.Callable<cpp.Object->cpp.Object->cpp.Void>(cpp.Prime._loadPrime("lime",
-		"lime_cairo_pattern_set_matrix", "oov", false));
+	private static var lime_cairo_pattern_set_matrix = new cpp.Callable<cpp.Object->Float->Float->Float->Float->Float->Float->cpp.Void>(cpp.Prime._loadPrime("lime",
+		"lime_cairo_pattern_set_matrix", "oddddddv", false));
 	private static var lime_cairo_surface_flush = new cpp.Callable<cpp.Object->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_cairo_surface_flush", "ov", false));
 	#end
 	#end
@@ -5605,15 +5622,17 @@ class NativeCFFI
 	private static var lime_cairo_clip = CFFI.load("lime", "lime_cairo_clip", 1);
 	private static var lime_cairo_clip_preserve = CFFI.load("lime", "lime_cairo_clip_preserve", 1);
 	private static var lime_cairo_clip_extents = CFFI.load("lime", "lime_cairo_clip_extents", 5);
+	private static var lime_cairo_get_clip_extents = CFFI.load("lime", "lime_cairo_get_clip_extents", 1);
 	private static var lime_cairo_close_path = CFFI.load("lime", "lime_cairo_close_path", 1);
 	private static var lime_cairo_copy_page = CFFI.load("lime", "lime_cairo_copy_page", 1);
 	private static var lime_cairo_create = CFFI.load("lime", "lime_cairo_create", 1);
 	private static var lime_cairo_curve_to = CFFI.load("lime", "lime_cairo_curve_to", -1);
 	private static var lime_cairo_fill = CFFI.load("lime", "lime_cairo_fill", 1);
 	private static var lime_cairo_fill_extents = CFFI.load("lime", "lime_cairo_fill_extents", 5);
+	private static var lime_cairo_get_fill_extents = CFFI.load("lime", "lime_cairo_get_fill_extents", 1);
 	private static var lime_cairo_fill_preserve = CFFI.load("lime", "lime_cairo_fill_preserve", 1);
 	private static var lime_cairo_get_antialias = CFFI.load("lime", "lime_cairo_get_antialias", 1);
-	private static var lime_cairo_get_current_point = CFFI.load("lime", "lime_cairo_get_current_point", 1);
+	private static var lime_cairo_get_current_point = CFFI.load("lime", "lime_cairo_get_current_point", 2);
 	private static var lime_cairo_get_dash = CFFI.load("lime", "lime_cairo_get_dash", 1);
 	private static var lime_cairo_get_dash_count = CFFI.load("lime", "lime_cairo_get_dash_count", 1);
 	private static var lime_cairo_get_fill_rule = CFFI.load("lime", "lime_cairo_get_fill_rule", 1);
@@ -5623,7 +5642,7 @@ class NativeCFFI
 	private static var lime_cairo_get_line_cap = CFFI.load("lime", "lime_cairo_get_line_cap", 1);
 	private static var lime_cairo_get_line_join = CFFI.load("lime", "lime_cairo_get_line_join", 1);
 	private static var lime_cairo_get_line_width = CFFI.load("lime", "lime_cairo_get_line_width", 1);
-	private static var lime_cairo_get_matrix = CFFI.load("lime", "lime_cairo_get_matrix", 1);
+	private static var lime_cairo_get_matrix = CFFI.load("lime", "lime_cairo_get_matrix", 2);
 	private static var lime_cairo_get_miter_limit = CFFI.load("lime", "lime_cairo_get_miter_limit", 1);
 	private static var lime_cairo_get_operator = CFFI.load("lime", "lime_cairo_get_operator", 1);
 	private static var lime_cairo_get_source = CFFI.load("lime", "lime_cairo_get_source", 1);
@@ -5671,15 +5690,17 @@ class NativeCFFI
 	private static var lime_cairo_set_source_rgba = CFFI.load("lime", "lime_cairo_set_source_rgba", 5);
 	private static var lime_cairo_set_source_surface = CFFI.load("lime", "lime_cairo_set_source_surface", 4);
 	private static var lime_cairo_set_tolerance = CFFI.load("lime", "lime_cairo_set_tolerance", 2);
+	private static var lime_cairo_show_glyph_data = CFFI.load("lime", "lime_cairo_show_glyph_data", 3);
 	private static var lime_cairo_show_glyphs = CFFI.load("lime", "lime_cairo_show_glyphs", 2);
 	private static var lime_cairo_show_page = CFFI.load("lime", "lime_cairo_show_page", 1);
 	private static var lime_cairo_show_text = CFFI.load("lime", "lime_cairo_show_text", 2);
 	private static var lime_cairo_status = CFFI.load("lime", "lime_cairo_status", 1);
 	private static var lime_cairo_stroke = CFFI.load("lime", "lime_cairo_stroke", 1);
 	private static var lime_cairo_stroke_extents = CFFI.load("lime", "lime_cairo_stroke_extents", 5);
+	private static var lime_cairo_get_stroke_extents = CFFI.load("lime", "lime_cairo_get_stroke_extents", 1);
 	private static var lime_cairo_stroke_preserve = CFFI.load("lime", "lime_cairo_stroke_preserve", 1);
 	private static var lime_cairo_text_path = CFFI.load("lime", "lime_cairo_text_path", 2);
-	private static var lime_cairo_transform = CFFI.load("lime", "lime_cairo_transform", 2);
+	private static var lime_cairo_transform = CFFI.load("lime", "lime_cairo_transform", -1);
 	private static var lime_cairo_translate = CFFI.load("lime", "lime_cairo_translate", 3);
 	private static var lime_cairo_version = CFFI.load("lime", "lime_cairo_version", 0);
 	private static var lime_cairo_version_string = CFFI.load("lime", "lime_cairo_version_string", 0);
@@ -5711,10 +5732,10 @@ class NativeCFFI
 	private static var lime_cairo_pattern_get_color_stop_count = CFFI.load("lime", "lime_cairo_pattern_get_color_stop_count", 1);
 	private static var lime_cairo_pattern_get_extend = CFFI.load("lime", "lime_cairo_pattern_get_extend", 1);
 	private static var lime_cairo_pattern_get_filter = CFFI.load("lime", "lime_cairo_pattern_get_filter", 1);
-	private static var lime_cairo_pattern_get_matrix = CFFI.load("lime", "lime_cairo_pattern_get_matrix", 1);
+	private static var lime_cairo_pattern_get_matrix = CFFI.load("lime", "lime_cairo_pattern_get_matrix", 2);
 	private static var lime_cairo_pattern_set_extend = CFFI.load("lime", "lime_cairo_pattern_set_extend", 2);
 	private static var lime_cairo_pattern_set_filter = CFFI.load("lime", "lime_cairo_pattern_set_filter", 2);
-	private static var lime_cairo_pattern_set_matrix = CFFI.load("lime", "lime_cairo_pattern_set_matrix", 2);
+	private static var lime_cairo_pattern_set_matrix = CFFI.load("lime", "lime_cairo_pattern_set_matrix", -1);
 	private static var lime_cairo_surface_flush = CFFI.load("lime", "lime_cairo_surface_flush", 1);
 	#end
 
@@ -5732,6 +5753,11 @@ class NativeCFFI
 	@:hlNative("lime", "hl_cairo_clip_extents") private static function lime_cairo_clip_extents(handle:CFFIPointer, x1:Float, y1:Float, x2:Float,
 		y2:Float):Void {}
 
+	@:hlNative("lime", "hl_cairo_get_clip_extents") private static function lime_cairo_get_clip_extents(handle:CFFIPointer, out:Rectangle):Rectangle
+	{
+		return null;
+	}
+
 	@:hlNative("lime", "hl_cairo_close_path") private static function lime_cairo_close_path(handle:CFFIPointer):Void {}
 
 	@:hlNative("lime", "hl_cairo_copy_page") private static function lime_cairo_copy_page(handle:CFFIPointer):Void {}
@@ -5748,6 +5774,11 @@ class NativeCFFI
 
 	@:hlNative("lime", "hl_cairo_fill_extents") private static function lime_cairo_fill_extents(handle:CFFIPointer, x1:Float, y1:Float, x2:Float,
 		y2:Float):Void {}
+
+	@:hlNative("lime", "hl_cairo_get_fill_extents") private static function lime_cairo_get_fill_extents(handle:CFFIPointer, out:Rectangle):Rectangle
+	{
+		return null;
+	}
 
 	@:hlNative("lime", "hl_cairo_fill_preserve") private static function lime_cairo_fill_preserve(handle:CFFIPointer):Void {}
 
@@ -5940,6 +5971,8 @@ class NativeCFFI
 
 	@:hlNative("lime", "hl_cairo_set_tolerance") private static function lime_cairo_set_tolerance(handle:CFFIPointer, tolerance:Float):Void {}
 
+	@:hlNative("lime", "hl_cairo_show_glyph_data") private static function lime_cairo_show_glyph_data(handle:CFFIPointer, data:Bytes, count:Int):Void {}
+
 	@:hlNative("lime", "hl_cairo_show_glyphs") private static function lime_cairo_show_glyphs(handle:CFFIPointer, glyphs:hl.NativeArray<CairoGlyph>):Void {}
 
 	@:hlNative("lime", "hl_cairo_show_page") private static function lime_cairo_show_page(handle:CFFIPointer):Void {}
@@ -5955,6 +5988,11 @@ class NativeCFFI
 
 	@:hlNative("lime", "hl_cairo_stroke_extents") private static function lime_cairo_stroke_extents(handle:CFFIPointer, x1:Float, y1:Float, x2:Float,
 		y2:Float):Void {}
+
+	@:hlNative("lime", "hl_cairo_get_stroke_extents") private static function lime_cairo_get_stroke_extents(handle:CFFIPointer, out:Rectangle):Rectangle
+	{
+		return null;
+	}
 
 	@:hlNative("lime", "hl_cairo_stroke_preserve") private static function lime_cairo_stroke_preserve(handle:CFFIPointer):Void {}
 

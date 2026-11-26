@@ -52,6 +52,18 @@ class AssetCacheTest extends Test
 		Assets.cache = shared;
 		Assets.cache.enabled = true;
 	}
+
+	/**
+		Finishes on the next tick. utest 1.13 doesn't go on to the next class when setupClass finished
+		asynchronously and every test in the class ran synchronously: its checkSetup drops the result of
+		runFixtures, which only goes on by itself when teardownClass is asynchronous. setupClass finishes
+		asynchronously whenever this class runs before the preloader has loaded the default library, and
+		the order the classes run in changes as classes are added.
+	**/
+	public function teardownClass(async:Async):Void
+	{
+		haxe.Timer.delay(function() async.done(), 0);
+	}
 	#end
 
 	public function testANewCacheIsEnabledAndEmpty():Void

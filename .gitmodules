@@ -18,10 +18,6 @@
 	path = project/lib/ogg
 	url = https://github.com/xiph/ogg
 	shallow = true
-[submodule "project/lib/zlib"]
-	path = project/lib/zlib
-	url = https://github.com/madler/zlib
-	shallow = true
 [submodule "project/lib/neko"]
 	path = project/lib/neko
 	url = https://github.com/HaxeFoundation/neko
@@ -85,3 +81,7 @@
 [submodule "project/lib/sdl_sound"]
 	path = project/lib/sdl_sound
 	url = https://github.com/icculus/SDL_sound.git
+[submodule "project/lib/zlib-ng"]
+	path = project/lib/zlib-ng
+	url = https://github.com/zlib-ng/zlib-ng
+	shallow = true

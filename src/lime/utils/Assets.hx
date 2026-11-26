@@ -668,23 +668,27 @@ class Assets
 		#end
 	}
 
-	@:noCompletion private static function __cacheBreak(path:String):String
+	/**
+		Adds the version that makes a browser load `path` again once it changes: the
+		asset's own `version`, which the manifest gives from its content, or the build's,
+		which changes with every build unless `lime-assets-version` sets it.
+	**/
+	@:noCompletion private static function __cacheBreak(path:String, version:String = null):String
 	{
 		#if web
-		if (cache.version > 0)
-		{
-			if (path.indexOf("?") > -1)
-			{
-				path += "&" + cache.version;
-			}
-			else
-			{
-				path += "?" + cache.version;
-			}
-		}
+		#if (!lime_assets_version && !lime_disable_assets_version)
+		if (version != null && version != "") return __addVersion(path, version);
+		#end
+
+		if (cache.version > 0) return __addVersion(path, Std.string(cache.version));
 		#end
 
 		return path;
+	}
+
+	@:noCompletion private static function __addVersion(path:String, version:String):String
+	{
+		return path + (path.indexOf("?") > -1 ? "&" : "?") + version;
 	}
 
 	@:noCompletion private static function __libraryNotFound(name:String):String
