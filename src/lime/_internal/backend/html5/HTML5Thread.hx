@@ -104,11 +104,37 @@ class HTML5Thread
 	}
 
 	#if !macro
-	private static inline function zeroDelay():Promise<Dynamic>
+	private static var __yieldChannel:Dynamic;
+	private static var __yieldResolves:Array<Dynamic->Void> = [];
+
+	/**
+		Resolves once the browser has run the tasks already waiting, which delivers the messages
+		that have arrived. A message posted to a `MessageChannel` waits for them as a zero-delay
+		timer does, but browsers hold nested timers to about 4 ms and not messages, so a worker that
+		reads its messages between calls of a work function isn't held to about 250 calls a second.
+	**/
+	private static function zeroDelay():Promise<Dynamic>
 	{
 		return new Promise<Dynamic>(function(resolve, _):Void
 		{
-			js.Lib.global.setTimeout(resolve);
+			if (__yieldChannel == null)
+			{
+				if (js.Lib.global.MessageChannel == null)
+				{
+					js.Lib.global.setTimeout(resolve);
+					return;
+				}
+
+				__yieldChannel = #if !haxe4 untyped __js__ #else Syntax.code #end ("new MessageChannel()");
+				__yieldChannel.port1.onmessage = function(_):Void
+				{
+					var next = __yieldResolves.shift();
+					if (next != null) next(null);
+				};
+			}
+
+			__yieldResolves.push(resolve);
+			__yieldChannel.port2.postMessage(null);
 		});
 	}
 	#end
@@ -125,7 +151,7 @@ class HTML5Thread
 
 		// `onmessage` events are only received when the main function is
 		// suspended, so we must insert `await` even if `block` is false.
-		// TODO: find a more efficient way to read messages.
+		// `zeroDelay()` waits for the messages already sent, and no longer.
 		var zeroDelayExpr:Expr = macro @:privateAccess
 			$jsCode("await {0}", lime._internal.backend.html5.HTML5Thread.zeroDelay()).then(function(_) return
 				lime._internal.backend.html5.HTML5Thread.__messages.pop());
