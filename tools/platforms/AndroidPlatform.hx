@@ -734,8 +734,10 @@ class AndroidPlatform extends PlatformTarget
 		Writes an adaptive icon, which launchers on Android 8 and later mask to their own shape, when the
 		project gives a layer with `<icon path="" adaptive="foreground|background|monochrome" />`, or a
 		background color with `<config:android adaptive-icon-background="#RRGGBB" />`. Its foreground is
-		the application's icon, drawn in the middle 72 dp of 108 dp, unless a foreground layer is given,
-		and its background is white unless a color or a background layer is. The application's own
+		the application's icon, drawn in the middle 66 dp of 108 dp, the circle every mask keeps, unless a
+		foreground layer is given, and its background is white unless a color or a background layer is. A
+		square icon that fills its image still loses its corners to a round mask, so such an icon is better
+		given as layers. The application's own
 		icons stay for Android before 8, where the adaptive icon's directory doesn't apply.
 	**/
 	private function createAdaptiveIcon(icons:Array<Icon>, resDirectory:String):Void
@@ -782,7 +784,8 @@ class AndroidPlatform extends PlatformTarget
 			}
 			else
 			{
-				IconHelper.createInsetIcon(icons, sizes[i], sizes[i], 72 / 108, directory + "icon_foreground.png");
+				// The middle 66 dp, the circle every mask keeps
+				IconHelper.createInsetIcon(icons, sizes[i], sizes[i], 66 / 108, directory + "icon_foreground.png");
 			}
 
 			if (layers.exists("background"))
