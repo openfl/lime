@@ -41,6 +41,7 @@ Changelog
 - Added `Font.setVariation()` to set the axes of variable fonts.
 - Added `Font.stemDarkening` and `Font.stemDarkeningParameters` to make text more readable.
 - Added a subpixel offset to `Font.renderGlyphWithLoadFlags()`.
+- Added `Cairo.getClipExtents()`, `getFillExtents()` and `getStrokeExtents()`, which give the extents as a `Rectangle`. `clipExtents()`, `fillExtents()` and `strokeExtents()` couldn't give their results and are deprecated.
 - Added project.xml support for Android manifest tags and Gradle plugin entries.
 - Added AIR options for Android App Bundles, Android Studio output, and shared runtime deployment.
 - Added VAO support on macOS.
