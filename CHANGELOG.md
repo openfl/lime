@@ -88,6 +88,7 @@ Changelog
 - Added the `-arm64` flag to build HashLink/C applications for Apple Silicon on macOS, with binaries from `lime rebuild hl -arm64`. HashLink's JIT does not run on Apple Silicon yet.
 - Added running Windows builds through Wine with `lime test` on other platforms.
 - Added the `lime_skip_invisible_windows` define to stop rendering windows that are hidden.
+- Added `&&`, `!` and parentheses to project.xml `if` and `unless` conditions, read as in Haxe's `#if`, and a warning for a condition that can't be read, which is false.
 - Changed native streamed audio to refill from a thread of its own, so a stall on the main thread no longer drains a stream's buffers and drops its sound. Define `lime_audio_no_stream_thread` to refill from the main thread as before.
 - Changed native audio loading to decode through SDL_sound first, then Lime's own WAV and Ogg Vorbis decoders.
 - Changed asset copying and embedding to behave consistently across targets.
@@ -235,6 +236,7 @@ Changelog
 - Fixed `AudioBuffer.dispose()` keeping the decoded samples and their OpenAL buffer on native targets.
 - Fixed a streamed `AudioSource` seeked before it plays replaying its first buffers, a seek starting it early, a `currentTime` set before `play()` being lost, and `currentTime` jumping to 0 at the end of a sound.
 - Fixed asset libraries not preloading again on `load()` after `unload()`, `isLocal()` and `Assets.list()` giving ids that don't work, a corrupt manifest or bundle ending the application rather than failing `loadLibrary()`, `AssetManifest.parse()` losing the version and absolute paths, `AssetBundle.fromFile()` with a file it can't read, and `PackedAssetLibrary` `unload()`, `loadText()` with zip packs, and loaders run before the pack loads.
+- Fixed `<`, `<=`, `>` and `>=` in project.xml `${...}` comparisons comparing versions and numbers as text, so 9.2.0 came after 10.0.0.
 - Fixed project.xml `<haxelib path>` not being relative to its file, nested `<assets>` directories and `<binary>` and `<text>` types, `<window>` x, y and display, `if` and `unless` inside `<config>`, included files being read more than once, and an included file's defines not replacing earlier ones.
 - Fixed asset include and exclude patterns matching part of a file name, `if="js"` being false in HTML5 builds, WebAssembly embedding assets not marked to embed, project windows sharing their settings, and gzip packs.
 - Fixed titles and meta values with `&`, `<` or quotes breaking generated files, Android Gradle plugin versions of 10 and later, merged config lists losing values, and SVG icons sized only by a viewBox.
