@@ -22,6 +22,7 @@ class ToolsTestMain
 		runner.addCase(new AndroidOutputTest());
 		runner.addCase(new IOSOutputTest());
 		runner.addCase(new WindowsOutputTest());
+		runner.addCase(new NativeFilesTest());
 		runner.addCase(new AppleOutputTest());
 		runner.addCase(new OpenURLTest());
 
