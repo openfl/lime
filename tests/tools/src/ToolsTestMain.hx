@@ -26,6 +26,7 @@ class ToolsTestMain
 		runner.addCase(new WindowsOutputTest());
 		runner.addCase(new HashlinkHelperTest());
 		runner.addCase(new NativeFilesTest());
+		runner.addCase(new TemplateAssetOutputTest());
 		runner.addCase(new AppleOutputTest());
 		runner.addCase(new OpenURLTest());
 		runner.addCase(new NativeSourcesTest());

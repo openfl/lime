@@ -57,9 +57,10 @@ class PlatformFixture
 
 	/**
 		Parses a project file, then runs the update step of the fixture's target on it.
-		`configure` can change the parsed project first, as the command line does.
+		`configure` can change the parsed project first, as the command line does, and
+		`prepare` is given the platform before its update runs.
 	**/
-	public function update(xml:String, configure:HXProject->Void = null):Void
+	public function update(xml:String, configure:HXProject->Void = null, prepare:PlatformTarget->Void = null):Void
 	{
 		var parsed:HXProject = fixture.parse(xml);
 		parsed.templatePaths.unshift(templates());
@@ -107,6 +108,7 @@ class PlatformFixture
 		try
 		{
 			platform = create(parsed);
+			if (prepare != null) prepare(platform);
 			platform.execute([]);
 		}
 		catch (e:Dynamic)
