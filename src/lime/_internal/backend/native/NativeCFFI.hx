@@ -530,7 +530,7 @@ class NativeCFFI
 
 	@:cffi private static function lime_window_context_unlock(handle:Dynamic):Void;
 
-	@:cffi private static function lime_window_create(application:Dynamic, width:Int, height:Int, flags:Int, title:String, x:Int, y:Int, display:Int):Dynamic;
+	@:cffi private static function lime_window_create_at(application:Dynamic, width:Int, height:Int, flags:Int, title:String, x:Int, y:Int, display:Int):Dynamic;
 	@:cffi private static function lime_window_get_creation_error():Dynamic;
 
 	@:cffi private static function lime_window_focus(handle:Dynamic):Void;
@@ -1403,8 +1403,8 @@ class NativeCFFI
 		"lime_window_context_make_current", "ov", false));
 	private static var lime_window_context_unlock = new cpp.Callable<cpp.Object->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_window_context_unlock", "ov",
 		false));
-	private static var lime_window_create = new cpp.Callable<cpp.Object->Int->Int->Int->String->Int->Int->Int->cpp.Object>(cpp.Prime._loadPrime("lime",
-		"lime_window_create", "oiiisiiio", false));
+	private static var lime_window_create_at = new cpp.Callable<cpp.Object->Int->Int->Int->String->Int->Int->Int->cpp.Object>(cpp.Prime._loadPrime("lime",
+		"lime_window_create_at", "oiiisiiio", false));
 	private static var lime_window_get_creation_error = new cpp.Callable<Void->cpp.Object>(cpp.Prime._loadPrime("lime", "lime_window_get_creation_error", "o", false));
 	private static var lime_window_focus = new cpp.Callable<cpp.Object->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_window_focus", "ov", false));
 	private static var lime_window_order_relative = new cpp.Callable<cpp.Object->cpp.Object->Bool->Bool>(cpp.Prime._loadPrime("lime",
@@ -1981,7 +1981,7 @@ class NativeCFFI
 	private static var lime_window_context_lock = CFFI.load("lime", "lime_window_context_lock", 1);
 	private static var lime_window_context_make_current = CFFI.load("lime", "lime_window_context_make_current", 1);
 	private static var lime_window_context_unlock = CFFI.load("lime", "lime_window_context_unlock", 1);
-	private static var lime_window_create = CFFI.load("lime", "lime_window_create", -1);
+	private static var lime_window_create_at = CFFI.load("lime", "lime_window_create_at", -1);
 	private static var lime_window_get_creation_error = CFFI.load("lime", "lime_window_get_creation_error", 0);
 	private static var lime_window_focus = CFFI.load("lime", "lime_window_focus", 1);
 	private static var lime_window_order_relative = CFFI.load("lime", "lime_window_order_relative", 3);
@@ -3165,7 +3165,7 @@ class NativeCFFI
 
 	@:hlNative("lime", "hl_window_context_unlock") private static function lime_window_context_unlock(handle:CFFIPointer):Void {}
 
-	@:hlNative("lime", "hl_window_create") private static function lime_window_create(application:CFFIPointer, width:Int, height:Int, flags:Int,
+	@:hlNative("lime", "hl_window_create_at") private static function lime_window_create_at(application:CFFIPointer, width:Int, height:Int, flags:Int,
 			title:String, x:Int, y:Int, display:Int):CFFIPointer
 	{
 		return null;
