@@ -167,7 +167,23 @@ class TestMain extends Application
 		});
 		#end
 
+		// A run narrowed with UTEST_PATTERN (CI's tests input) can match no test on a target that
+		// has none of them, as WebSocketTest on AIR, and utest fails a run with no tests
+		if (runner.length == 0 && runner.globalPattern != null)
+		{
+			runner.globalPattern = null;
+			runner.addCase(new NoTestMatchesThePattern());
+		}
+
 		Report.create(runner);
 		runner.run();
+	}
+}
+
+private class NoTestMatchesThePattern extends utest.Test
+{
+	public function testNoTestMatchesThePattern():Void
+	{
+		utest.Assert.pass("UTEST_PATTERN matches no test on this target; if it should, check its spelling");
 	}
 }
