@@ -99,6 +99,31 @@ class ImageDecodeOutputTest extends Test
 		assertDecodes("assets/image-palette.png");
 	}
 
+	public function testDecodedFilesConvertedToPremultipliedBGRAKeepTheirPixels():Void
+	{
+		// As OpenFL converts every image it loads on native targets, the JPEGs included
+		var results = [];
+
+		for (fixture in FIXTURES)
+		{
+			var image = Image.fromBytes(LimeBytes.fromFile(fixture.path));
+			image.format = BGRA32;
+			image.premultiplied = true;
+			results.push(describe(image));
+		}
+
+		Assert.equals([
+			"45x37 32bpp BGRA32 opaque 6660 bytes, crc 80120E56",
+			"45x37 32bpp BGRA32 opaque 6660 bytes, crc 5DB57ABE",
+			"45x37 32bpp BGRA32 opaque 6660 bytes, crc 0E1FC158",
+			"45x37 32bpp BGRA32 opaque 6660 bytes, crc 80120E56",
+			"45x37 32bpp BGRA32 opaque 6660 bytes, crc 4F5859F0",
+			"45x37 32bpp BGRA32 opaque 6660 bytes, crc A48942EA",
+			"40x30 32bpp BGRA32 premultiplied transparent 4800 bytes, crc 5ACC028B",
+			"40x30 32bpp BGRA32 premultiplied transparent 4800 bytes, crc 5D26F6F6"
+		].join(" | "), results.join(" | "));
+	}
+
 	public function testRepeatedDecodesWhileTheCollectorRunsKeepThePixels():Void
 	{
 		for (round in 0...4)
