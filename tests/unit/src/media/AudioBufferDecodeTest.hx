@@ -37,7 +37,9 @@ class AudioBufferDecodeTest extends Test
 	public function testWAVsOfEveryLengthDecodeToExactlyTheirSamples():Void
 	{
 		// Lengths of a whole millisecond, a frame either side of one, and of less than a millisecond. SDL_sound
-		// is asked for 16-bit samples, so 8-bit ones come out as 16-bit, each the unsigned byte less 128, shifted up.
+		// is asked for 16-bit samples, so 8-bit ones come out as 16-bit, through SDL's float conversion: the
+		// unsigned byte less 128, times 256, with SDL's x86 converters, and times 32767 / 128, cut toward zero,
+		// with its NEON ones on ARM. Either is the same sound; each must be exactly one of them.
 		var failures = [];
 
 		for (format in [[22050, 1, 16], [44100, 2, 16], [48000, 2, 16], [44100, 1, 8], [11025, 2, 8], [8000, 1, 16]])
@@ -58,7 +60,8 @@ class AudioBufferDecodeTest extends Test
 				}
 
 				var data = buffer.data.toBytes().sub(buffer.data.byteOffset, buffer.data.byteLength);
-				if (format[2] == 8) pcm = widen(pcm);
+				var neon = format[2] == 8 ? widen(pcm, true) : null;
+				if (format[2] == 8) pcm = widen(pcm, false);
 
 				if (buffer.sampleRate != rate || buffer.channels != format[1] || buffer.bitsPerSample != 16)
 				{
@@ -68,7 +71,7 @@ class AudioBufferDecodeTest extends Test
 				{
 					failures.push(name + " decoded to " + data.length + " bytes of " + pcm.length);
 				}
-				else if (data.compare(pcm) != 0)
+				else if (data.compare(pcm) != 0 && (neon == null || data.compare(neon) != 0))
 				{
 					failures.push(name + " decoded to other samples");
 				}
@@ -166,13 +169,17 @@ class AudioBufferDecodeTest extends Test
 		return data.length + " bytes, crc " + StringTools.hex(Crc32.make(data), 8);
 	}
 
-	private static function widen(pcm:Bytes):Bytes
+	/** 8-bit samples as SDL gives them as 16-bit, by its x86 converters or by its NEON ones **/
+	private static function widen(pcm:Bytes, neon:Bool):Bytes
 	{
 		var wide = Bytes.alloc(pcm.length * 2);
 		for (i in 0...pcm.length)
 		{
-			wide.set(i * 2, 0);
-			wide.set(i * 2 + 1, (pcm.get(i) - 128) & 0xFF);
+			var centered = pcm.get(i) - 128;
+			// Exact in a 32-bit float, and Std.int cuts toward zero as NEON's conversion does
+			var sample = neon ? Std.int(centered / 128 * 32767) : centered * 256;
+			wide.set(i * 2, sample & 0xFF);
+			wide.set(i * 2 + 1, (sample >> 8) & 0xFF);
 		}
 		return wide;
 	}
