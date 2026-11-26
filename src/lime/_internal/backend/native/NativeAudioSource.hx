@@ -1775,16 +1775,7 @@ class NativeAudioSource
 
 	public function getPosition():Vector4
 	{
-		if (handle != null)
-		{
-			#if !webassembly
-			var value = AL.getSource3f(handle, AL.POSITION);
-			position.x = value[0];
-			position.y = value[1];
-			position.z = value[2];
-			#end
-		}
-
+		// Only setPosition places the source, so its position is the one kept here
 		return position;
 	}
 
@@ -1797,7 +1788,6 @@ class NativeAudioSource
 
 		if (handle != null)
 		{
-			AL.distanceModel(AL.NONE);
 			AL.source3f(handle, AL.POSITION, position.x, position.y, position.z);
 		}
 
