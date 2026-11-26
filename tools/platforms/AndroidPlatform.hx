@@ -119,6 +119,12 @@ class AndroidPlatform extends PlatformTarget
 				Log.error("You need to run \"lime setup android\" before you can use the Android target");
 			}
 
+			if (ArrayTools.containsValue(project.architectures, Architecture.ARMV5)
+				|| ArrayTools.containsValue(project.architectures, Architecture.ARMV6))
+			{
+				Log.warn("The armv5 and armv6 architectures (armeabi) are deprecated on Android, and Lime 9 removes them. The Android NDK dropped armeabi in r17, so build armv7 or arm64 instead.");
+			}
+
 			AndroidHelper.initialize(project);
 
 			if (deviceID == null && project.targetFlags.exists("device"))

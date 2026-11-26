@@ -21,6 +21,7 @@ class ToolsTestMain
 		runner.addCase(new HTML5OutputTest());
 		runner.addCase(new AndroidOutputTest());
 		runner.addCase(new AndroidIconTest());
+		runner.addCase(new LimeNineWarningTest());
 		runner.addCase(new IOSOutputTest());
 		runner.addCase(new WindowsOutputTest());
 		runner.addCase(new HashlinkHelperTest());
