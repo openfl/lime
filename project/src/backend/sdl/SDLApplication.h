@@ -77,9 +77,9 @@ namespace lime {
 			bool IsSchedulerUnthrottled () const;
 			void PaceFrameAfterRender (bool swapped, double renderMs);
 			void RefreshVSyncState ();
+			static int MinimizeOnFocusLossWatch (void* userdata, SDL_Event* event);
 #if defined(HX_WINDOWS) && !defined(HX_WINRT)
 			void PumpOneFrameFromWatch (SDL_Event* watchEvent = 0);
-			static int MinimizeOnFocusLossWatch (void* userdata, SDL_Event* event);
 			static int ModalEventWatch (void* userdata, SDL_Event* event);
 			void CheckModalException (bool blocking = false);
 #endif
