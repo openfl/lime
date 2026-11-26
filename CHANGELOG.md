@@ -238,6 +238,7 @@ Changelog
 - Fixed project.xml `<haxelib path>` not being relative to its file, nested `<assets>` directories and `<binary>` and `<text>` types, `<window>` x, y and display, `if` and `unless` inside `<config>`, included files being read more than once, and an included file's defines not replacing earlier ones.
 - Fixed asset include and exclude patterns matching part of a file name, `if="js"` being false in HTML5 builds, WebAssembly embedding assets not marked to embed, project windows sharing their settings, and gzip packs.
 - Fixed titles and meta values with `&`, `<` or quotes breaking generated files, Android Gradle plugin versions of 10 and later, merged config lists losing values, and SVG icons sized only by a viewBox.
+- Fixed a haxelib with a path of its own, such as Lime in a local haxelib repository or one given with `--haxelib-NAME=`, leaving out its `extraParams.hxml`, which broke embedded sounds.
 - Fixed defining `AIR_SDK` with `-D` or `<define>` crashing the tools unless the environment variable was set too.
 - Fixed `-static` desktop builds failing to link.
 - Fixed an exception thrown in a `Future.then()` callback not failing the chain, `Future.ofEvents()` forwarding only the first progress update, and a second `Promise.complete()` or `error()` replacing the first.
