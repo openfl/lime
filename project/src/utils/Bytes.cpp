@@ -132,6 +132,32 @@ namespace lime {
 			unsigned char* oldB = b;
 			bool freeOldB = false;
 
+			if (size > 0 && b) {
+
+				mutex.Lock ();
+				bool usingHaxeValue = (usingValue.find (this) != usingValue.end ());
+				mutex.Unlock ();
+
+				if (!usingHaxeValue) {
+
+					// Memory of its own is resized where it is when it can be, so
+					// trimming it, or growing it in place, copies nothing
+					data = (unsigned char*)realloc (b, sizeof (char) * size);
+
+					if (!data) {
+
+						return false;
+
+					}
+
+					b = data;
+					length = size;
+					return true;
+
+				}
+
+			}
+
 			if (size > 0) {
 
 				data = (unsigned char*)malloc (sizeof (char) * size);

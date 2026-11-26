@@ -300,7 +300,9 @@ namespace lime {
 
 		if (streamInfo.duration > 0) {
 
-			Uint64 estimatedSize = (((Uint64)streamInfo.duration * (Uint64)audioBuffer->sampleRate * (Uint64)audioBuffer->channels
+			// The duration is in whole milliseconds, rounded down, so a millisecond
+			// more keeps the last chunk from doubling the buffer
+			Uint64 estimatedSize = (((Uint64)(streamInfo.duration + 1) * (Uint64)audioBuffer->sampleRate * (Uint64)audioBuffer->channels
 				* (Uint64)(audioBuffer->bitsPerSample / 8)) + 999) / 1000;
 
 			if (estimatedSize > 0 && estimatedSize <= INT_MAX) {
