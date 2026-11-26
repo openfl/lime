@@ -147,7 +147,6 @@ class ImageWorkerTest extends Test
 		});
 	}
 
-	@Ignored("Waiting on #2232")
 	public function testLoadFromFileDecodesOffTheMainThread(async:Async):Void
 	{
 		async.setTimeout(30000);
@@ -161,34 +160,54 @@ class ImageWorkerTest extends Test
 		Image.fromBytes(bytes);
 		var decode = Timer.stamp() - start;
 
-		var last = Timer.stamp();
-		var longest = 0.0;
-		var update = function(_:Int)
-		{
-			var now = Timer.stamp();
-			if (now - last > longest) longest = now - last;
-			last = now;
-		};
+		// A collection on the main thread can also hold a frame up, as long as a decode on a busy runner, so
+		// the load is tried a few times: a decode that runs in the frames does in every one of them
+		var attempts = 3;
+		var best = Math.POSITIVE_INFINITY;
 
-		Application.current.onUpdate.add(update);
-
-		Image.loadFromFile(path).onComplete(function(image)
+		function attempt():Void
 		{
-			var now = Timer.stamp();
-			if (now - last > longest) longest = now - last;
-			Application.current.onUpdate.remove(update);
+			var last = Timer.stamp();
+			var longest = 0.0;
+			var update = function(_:Int)
+			{
+				var now = Timer.stamp();
+				if (now - last > longest) longest = now - last;
+				last = now;
+			};
 
-			Assert.notNull(image);
-			// A frame that took as long as the decode did is a frame the decode ran in
-			Assert.isTrue(longest < decode / 2,
-				"the longest gap between frames while the image loaded was " + ms(longest) + ", and a decode takes " + ms(decode));
-			async.done();
-		}).onError(function(error)
-		{
-			Application.current.onUpdate.remove(update);
-			Assert.fail(path + " did not load: " + error);
-			async.done();
-		});
+			Application.current.onUpdate.add(update);
+
+			Image.loadFromFile(path).onComplete(function(image)
+			{
+				var now = Timer.stamp();
+				if (now - last > longest) longest = now - last;
+				Application.current.onUpdate.remove(update);
+
+				Assert.notNull(image);
+				if (longest < best) best = longest;
+				attempts--;
+
+				if (best < decode / 2 || attempts == 0)
+				{
+					// A frame that took as long as the decode did is a frame the decode ran in
+					Assert.isTrue(best < decode / 2,
+						"the longest gap between frames while the image loaded was " + ms(best) + " at best, and a decode takes " + ms(decode));
+					async.done();
+				}
+				else
+				{
+					attempt();
+				}
+			}).onError(function(error)
+			{
+				Application.current.onUpdate.remove(update);
+				Assert.fail(path + " did not load: " + error);
+				async.done();
+			});
+		}
+
+		attempt();
 	}
 
 	// Helpers
