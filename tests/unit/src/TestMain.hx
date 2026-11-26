@@ -21,13 +21,17 @@ class TestMain extends Application
 		runner.addCase(new graphics.CairoTest());
 		runner.addCase(new graphics.CairoTextTest());
 		runner.addCase(new graphics.CairoTransformTest());
+		runner.addCase(new graphics.ImageAllocationTest());
 		runner.addCase(new graphics.ImageCodecTest());
 		runner.addCase(new graphics.ImageCopyTest());
+		runner.addCase(new graphics.ImageDataUtilTest());
 		runner.addCase(new graphics.ImageDecodeOutputTest());
+		runner.addCase(new graphics.ImageEncodeOutputTest());
 		runner.addCase(new graphics.ImageFillTest());
 		runner.addCase(new graphics.ImageOperationOutputTest());
 		runner.addCase(new graphics.ImagePixelTest());
 		runner.addCase(new graphics.ImageRegionTest());
+		runner.addCase(new graphics.ImageWorkerTest());
 		runner.addCase(new graphics.OpenGLTest());
 		runner.addCase(new math.ARGBTest());
 		runner.addCase(new math.BGRATest());
@@ -55,6 +59,7 @@ class TestMain extends Application
 		runner.addCase(new media.VideoFrameTest());
 		runner.addCase(new media.VideoSourceEventTest());
 		runner.addCase(new media.VideoSourceTest());
+		runner.addCase(new media.VorbisFileTest());
 		runner.addCase(new net.CURLEasyTest());
 		runner.addCase(new net.CURLMultiTest());
 		runner.addCase(new net.CURLTest());
