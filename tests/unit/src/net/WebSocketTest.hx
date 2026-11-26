@@ -285,7 +285,62 @@ class WebSocketTest extends Test
 		Assert.equals(1006, closed);
 		Assert.isFalse(client.connected);
 		Assert.equals(1, errors.length);
-		Assert.equals(WebSocketError.CONNECT_FAILED, errors[0]);
+		Assert.equals(WebSocketError.CERTIFICATE_REJECTED, errors[0]);
+	}
+
+	public function testASecureConnectToAServerWithoutTlsFails():Void
+	{
+		// A plain listener that answers HTTP: no certificate was presented, so none was rejected. The
+		// message says what TLS failed on, where HashLink's returned error codes once made it Eof.
+		var listener = new sys.net.Socket();
+		listener.bind(new sys.net.Host("127.0.0.1"), 0);
+		listener.listen(1);
+		listener.setBlocking(false);
+		var port = listener.host().port;
+
+		var accepted:sys.net.Socket = null;
+		var failure = failedConnect("wss://127.0.0.1:" + port + "/", function()
+		{
+			if (accepted == null)
+			{
+				try
+				{
+					accepted = listener.accept();
+					accepted.output.writeString("HTTP/1.1 400 Bad Request\r\nContent-Length: 0\r\n\r\n");
+				}
+				catch (_:Dynamic) {}
+			}
+		});
+
+		Assert.equals("error " + (WebSocketError.CONNECT_FAILED : Int) + "|close 1006", failure.heard.join("|"), failure.messages.join("; "));
+		var message = failure.messages.length > 0 ? failure.messages[0] : "";
+		Assert.isTrue(message.toUpperCase().indexOf("SSL") > -1, "the message names no TLS failure: " + message);
+		Assert.isFalse(StringTools.endsWith(StringTools.trim(message), "Eof"), "the message ends in Eof: " + message);
+
+		if (accepted != null) accepted.close();
+		listener.close();
+	}
+
+	public function testASecureConnectHungUpOnFails():Void
+	{
+		// A listener that takes the connection and closes it before any TLS is spoken
+		var listener = new sys.net.Socket();
+		listener.bind(new sys.net.Host("127.0.0.1"), 0);
+		listener.listen(1);
+		listener.setBlocking(false);
+		var port = listener.host().port;
+
+		var failure = failedConnect("wss://127.0.0.1:" + port + "/", function()
+		{
+			try
+			{
+				listener.accept().close();
+			}
+			catch (_:Dynamic) {}
+		});
+
+		Assert.equals("error " + (WebSocketError.CONNECT_FAILED : Int) + "|close 1006", failure.heard.join("|"), failure.messages.join("; "));
+		listener.close();
 	}
 
 	public function testTimingIsInMilliseconds():Void
@@ -432,6 +487,40 @@ class WebSocketTest extends Test
 		Assert.isTrue(server.listening);
 		Assert.isTrue(server.localPort > 0);
 		return server;
+	}
+
+	/**
+		Connects a client to `url` and waits for its close, calling `each` meanwhile, then a moment
+		longer for anything that would follow. Gives back the events it heard in order, and the
+		errors' messages.
+	**/
+	private function failedConnect(url:String, each:Void->Void):{heard:Array<String>, messages:Array<String>}
+	{
+		var client = track(new WebSocket());
+		var heard:Array<String> = [];
+		var messages:Array<String> = [];
+		var closed = false;
+		client.onConnect.add(function() heard.push("connect"));
+		client.onError.add(function(error, message)
+		{
+			heard.push("error " + (error : Int));
+			messages.push(message);
+		});
+		client.onClose.add(function(code, _)
+		{
+			heard.push("close " + code);
+			closed = true;
+		});
+		client.connect(url, null, 5000);
+
+		Assert.isTrue(pump(function()
+		{
+			each();
+			return closed;
+		}, 10), "the failed connect to " + url + " was not reported");
+		pump(function() return false, 0.2);
+		Assert.isFalse(client.connected, "connected after a failed connect to " + url);
+		return {heard: heard, messages: messages};
 	}
 
 	private function track(socket:WebSocket):WebSocket

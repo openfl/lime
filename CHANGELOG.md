@@ -87,6 +87,7 @@ Changelog
 - Added `WebView`, a web page in a window on Windows, Linux, macOS, iOS, Android, AIR and in browsers, through the new StageWebView dependency. The `no-webview` define leaves the webview engine out of native and Android applications.
 - Added a `FocusDirection` to `WebView.focus()`, to enter the page at its first or last element, as tabbing does. `focus()` no longer enters it at the last element on Windows.
 - Added `WebSocket` and `WebSocketServer` for `ws://` and `wss://` clients and servers, through the new wsproto dependency, which CrossByte's WebSocket also runs on. Native targets need Haxe 4 for them.
+- Added `WebSocketError.CERTIFICATE_REJECTED`, dispatched on native targets when a `wss://` server's certificate does not verify.
 - Added `AL.getSourcedvSOFT()` for OpenAL Soft's source latency extension.
 - Added `ALC.getStringList()` to list every audio output and input device.
 - Added `ALC.isExtensionPresent()`.
