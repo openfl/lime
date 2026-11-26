@@ -1210,12 +1210,16 @@ namespace lime {
 
 		if (context && !sdlRenderer) {
 
+			SDLApplication::EnterSwapBlocking ();
 			SDL_GL_SwapWindow (sdlWindow);
+			SDLApplication::ExitSwapBlocking ();
 			SDLApplication::NoteContextFlip ();
 
 		} else if (sdlRenderer) {
 
+			SDLApplication::EnterSwapBlocking ();
 			SDL_RenderPresent (sdlRenderer);
+			SDLApplication::ExitSwapBlocking ();
 			SDLApplication::NoteContextFlip ();
 
 		}
@@ -2013,6 +2017,39 @@ namespace lime {
 		} else {
 
 			SDL_SetWindowFullscreen (sdlWindow, 0);
+
+			#if defined (HX_WINDOWS) && !defined (HX_WINRT)
+			// Windows restores the window at its windowed size even where that no
+			// longer fits the display, and treats a window whose client area covers
+			// the whole display as fullscreen. Other systems keep windows on screen.
+			// A maximized window fits already, with its borders past the display's edge.
+			int displayIndex = SDL_GetWindowDisplayIndex (sdlWindow);
+			SDL_Rect usable;
+
+			if (!(SDL_GetWindowFlags (sdlWindow) & SDL_WINDOW_MAXIMIZED) && displayIndex >= 0 && SDL_GetDisplayUsableBounds (displayIndex, &usable) == 0) {
+
+				int top = 0, left = 0, bottom = 0, right = 0;
+				SDL_GetWindowBordersSize (sdlWindow, &top, &left, &bottom, &right);
+
+				int maxWidth = usable.w - left - right;
+				int maxHeight = usable.h - top - bottom;
+				int width, height;
+				SDL_GetWindowSize (sdlWindow, &width, &height);
+
+				if (maxWidth > 0 && maxHeight > 0 && (width > maxWidth || height > maxHeight)) {
+
+					double scale = (double)maxWidth / width;
+					if ((double)maxHeight / height < scale) scale = (double)maxHeight / height;
+					width = (int)(width * scale);
+					height = (int)(height * scale);
+
+					SDL_SetWindowSize (sdlWindow, width, height);
+					SDL_SetWindowPosition (sdlWindow, usable.x + left + (maxWidth - width) / 2, usable.y + top + (maxHeight - height) / 2);
+
+				}
+
+			}
+			#endif
 
 		}
 

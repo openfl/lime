@@ -378,6 +378,10 @@ namespace lime {
 			std::vector<AudioChunk*> freeChunks;
 			std::vector<Frame*> freeFrames;
 			std::deque<Frame*> frames;
+			// Frames ReadFrame has taken off the queue and is copying out unlocked,
+			// which Close waits for before it deletes the frames
+			int framesReading;
+			std::condition_variable framesReadingCondition;
 			std::chrono::steady_clock::time_point lastQueued;
 			std::mutex mutex;
 			bool open;

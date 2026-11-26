@@ -2031,17 +2031,20 @@ namespace lime {
 
 	value lime_gl_get_active_attrib (int program, int index) {
 
-		value result = alloc_empty_object ();
+		// GL_ACTIVE_ATTRIBUTE_MAX_LENGTH names the query for the longest name, with its terminator
+		GLint maxLength = 0;
+		glGetProgramiv (program, GL_ACTIVE_ATTRIBUTE_MAX_LENGTH, &maxLength);
 
-		std::string buffer (GL_ACTIVE_ATTRIBUTE_MAX_LENGTH, 0);
+		std::string buffer (maxLength > 0 ? maxLength : 1, 0);
 		GLsizei outLen = 0;
-		GLsizei size = 0;
+		GLint size = 0;
 		GLenum type = 0;
 
-		glGetActiveAttrib (program, index, GL_ACTIVE_ATTRIBUTE_MAX_LENGTH, &outLen, &size, &type, &buffer[0]);
+		glGetActiveAttrib (program, index, (GLsizei)buffer.size (), &outLen, &size, &type, &buffer[0]);
 
 		buffer.resize (outLen);
 
+		value result = alloc_empty_object ();
 		alloc_field (result, val_id ("size"), alloc_int (size));
 		alloc_field (result, val_id ("type"), alloc_int (type));
 		alloc_field (result, val_id ("name"), alloc_string (buffer.c_str ()));
@@ -2053,16 +2056,18 @@ namespace lime {
 
 	HL_PRIM vdynamic* HL_NAME(hl_gl_get_active_attrib) (int program, int index) {
 
-		char buffer[GL_ACTIVE_ATTRIBUTE_MAX_LENGTH];
+		GLint maxLength = 0;
+		glGetProgramiv (program, GL_ACTIVE_ATTRIBUTE_MAX_LENGTH, &maxLength);
+		if (maxLength < 1) maxLength = 1;
+
+		// The collector owns the name, as it does other strings given to Haxe
+		char* name = (char*)hl_alloc_bytes (maxLength);
 		GLsizei outLen = 0;
-		GLsizei size = 0;
+		GLint size = 0;
 		GLenum type = 0;
 
-		glGetActiveAttrib (program, index, GL_ACTIVE_ATTRIBUTE_MAX_LENGTH, &outLen, &size, &type, &buffer[0]);
-
-		char* _buffer = (char*)malloc (outLen + 1);
-		memcpy (_buffer, &buffer, outLen);
-		_buffer[outLen] = '\0';
+		glGetActiveAttrib (program, index, maxLength, &outLen, &size, &type, name);
+		name[outLen] = 0;
 
 		const int id_size = hl_hash_utf8 ("size");
 		const int id_type = hl_hash_utf8 ("type");
@@ -2071,7 +2076,7 @@ namespace lime {
 		vdynamic *result = (vdynamic*)hl_alloc_dynobj();
 		hl_dyn_seti (result, id_size, &hlt_i32, size);
 		hl_dyn_seti (result, id_type, &hlt_i32, type);
-		hl_dyn_setp (result, id_name, &hlt_bytes, _buffer);
+		hl_dyn_setp (result, id_name, &hlt_bytes, name);
 
 		return result;
 
@@ -2080,12 +2085,16 @@ namespace lime {
 
 	value lime_gl_get_active_uniform (int program, int index) {
 
-		std::string buffer (GL_ACTIVE_UNIFORM_MAX_LENGTH, 0);
-		GLsizei outLen = 0;
-		GLsizei size = 0;
-		GLenum  type = 0;
+		// GL_ACTIVE_UNIFORM_MAX_LENGTH names the query for the longest name, with its terminator
+		GLint maxLength = 0;
+		glGetProgramiv (program, GL_ACTIVE_UNIFORM_MAX_LENGTH, &maxLength);
 
-		glGetActiveUniform (program, index, GL_ACTIVE_UNIFORM_MAX_LENGTH, &outLen, &size, &type, &buffer[0]);
+		std::string buffer (maxLength > 0 ? maxLength : 1, 0);
+		GLsizei outLen = 0;
+		GLint size = 0;
+		GLenum type = 0;
+
+		glGetActiveUniform (program, index, (GLsizei)buffer.size (), &outLen, &size, &type, &buffer[0]);
 
 		buffer.resize (outLen);
 
@@ -2101,16 +2110,18 @@ namespace lime {
 
 	HL_PRIM vdynamic* HL_NAME(hl_gl_get_active_uniform) (int program, int index) {
 
-		char* buffer[GL_ACTIVE_UNIFORM_MAX_LENGTH];
+		GLint maxLength = 0;
+		glGetProgramiv (program, GL_ACTIVE_UNIFORM_MAX_LENGTH, &maxLength);
+		if (maxLength < 1) maxLength = 1;
+
+		// The collector owns the name, as it does other strings given to Haxe
+		char* name = (char*)hl_alloc_bytes (maxLength);
 		GLsizei outLen = 0;
-		GLsizei size = 0;
+		GLint size = 0;
 		GLenum type = 0;
 
-		glGetActiveUniform (program, index, GL_ACTIVE_UNIFORM_MAX_LENGTH, &outLen, &size, &type, (GLchar*)&buffer);
-
-		char* _buffer = (char*)malloc (outLen + 1);
-		memcpy (_buffer, &buffer, outLen);
-		_buffer[outLen] = '\0';
+		glGetActiveUniform (program, index, maxLength, &outLen, &size, &type, name);
+		name[outLen] = 0;
 
 		const int id_size = hl_hash_utf8 ("size");
 		const int id_type = hl_hash_utf8 ("type");
@@ -2119,7 +2130,7 @@ namespace lime {
 		vdynamic *result = (vdynamic*)hl_alloc_dynobj();
 		hl_dyn_seti (result, id_size, &hlt_i32, size);
 		hl_dyn_seti (result, id_type, &hlt_i32, type);
-		hl_dyn_setp (result, id_name, &hlt_bytes, _buffer);
+		hl_dyn_setp (result, id_name, &hlt_bytes, name);
 
 		return result;
 

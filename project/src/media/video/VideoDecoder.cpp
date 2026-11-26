@@ -307,6 +307,7 @@ namespace lime {
 
 	VideoDecoder::VideoDecoder (VideoBackend* backend) : backend (backend) {
 
+		framesReading = 0;
 		runningThreads = 0;
 
 		audioEnded = true;
@@ -481,7 +482,10 @@ namespace lime {
 
 		backend->Close ();
 
-		std::lock_guard<std::mutex> lock (mutex);
+		std::unique_lock<std::mutex> lock (mutex);
+
+		// A frame ReadFrame is still copying out comes back to the free frames
+		framesReadingCondition.wait (lock, [this] { return framesReading == 0; });
 
 		for (size_t i = 0; i < freeChunks.size (); i++) delete freeChunks[i];
 		for (size_t i = 0; i < freeFrames.size (); i++) delete freeFrames[i];
@@ -650,62 +654,78 @@ namespace lime {
 	}
 
 
-	int VideoDecoder::ReadFrame (unsigned char* data, int length, double time) {
+	int VideoDecoder::ReadFrame (unsigned char* data, int bufferLength, double time) {
 
 		if (format == VIDEO_FRAME_FORMAT_TEXTURE) return ReadTexture (time);
 
-		std::lock_guard<std::mutex> lock (mutex);
+		Frame* frame = 0;
+		int length = 0;
 
-		if (!open || !info.hasVideo) return VIDEO_READ_END;
+		{
+			std::lock_guard<std::mutex> lock (mutex);
 
-		bool dropped = false;
+			if (!open || !info.hasVideo) return VIDEO_READ_END;
 
-		if (time >= 0) {
+			bool dropped = false;
 
-			presentationTime = time;
+			if (time >= 0) {
 
-			// Drop frames that a later queued frame replaces by time
-			while (dropLateFrames && frames.size () > 1 && frames[1]->time <= time) {
+				presentationTime = time;
 
-				ReleaseFrame (frames.front ());
-				frames.pop_front ();
-				droppedFrames++;
-				dropped = true;
+				// Drop frames that a later queued frame replaces by time
+				while (dropLateFrames && frames.size () > 1 && frames[1]->time <= time) {
+
+					ReleaseFrame (frames.front ());
+					frames.pop_front ();
+					droppedFrames++;
+					dropped = true;
+
+				}
 
 			}
 
+			if (dropped) videoCondition.notify_one ();
+
+			if (frames.empty ()) {
+
+				if (videoEnded) return videoError ? VIDEO_READ_ERROR : VIDEO_READ_END;
+				return VIDEO_READ_NOT_READY;
+
+			}
+
+			frame = frames.front ();
+
+			if (time >= 0 && frame->time > time) return VIDEO_READ_NOT_READY;
+
+			frameColorMatrix = frame->colorMatrix;
+			frameDuration = frame->duration;
+			frameFullRange = frame->fullRange;
+			frameHeight = frame->height;
+			frameLength = frame->length;
+			frameTime = frame->time;
+			frameWidth = frame->width;
+
+			if (!data || bufferLength < frame->length) return VIDEO_READ_BUFFER_TOO_SMALL;
+
+			// Taken off the queue and copied out unlocked, so that the video and
+			// audio threads, and ReadAudio, needn't wait for the copy
+			frames.pop_front ();
+			framesReading++;
+			length = frame->length;
+			videoCondition.notify_one ();
 		}
 
-		if (dropped) videoCondition.notify_one ();
+		memcpy (data, frame->data.data (), length);
 
-		if (frames.empty ()) {
-
-			if (videoEnded) return videoError ? VIDEO_READ_ERROR : VIDEO_READ_END;
-			return VIDEO_READ_NOT_READY;
-
+		{
+			std::lock_guard<std::mutex> lock (mutex);
+			ReleaseFrame (frame);
+			framesReading--;
 		}
 
-		Frame* frame = frames.front ();
+		framesReadingCondition.notify_all ();
 
-		if (time >= 0 && frame->time > time) return VIDEO_READ_NOT_READY;
-
-		frameColorMatrix = frame->colorMatrix;
-		frameDuration = frame->duration;
-		frameFullRange = frame->fullRange;
-		frameHeight = frame->height;
-		frameLength = frame->length;
-		frameTime = frame->time;
-		frameWidth = frame->width;
-
-		if (!data || length < frame->length) return VIDEO_READ_BUFFER_TOO_SMALL;
-
-		memcpy (data, frame->data.data (), frame->length);
-
-		frames.pop_front ();
-		ReleaseFrame (frame);
-		videoCondition.notify_one ();
-
-		return frameLength;
+		return length;
 
 	}
 

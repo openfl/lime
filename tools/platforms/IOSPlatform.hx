@@ -533,6 +533,9 @@ class IOSPlatform extends PlatformTarget
 			|| (project.architectures.indexOf(Architecture.ARM64) > -1 && !project.targetFlags.exists("simulator")));
 		var i386 = (project.architectures.indexOf(Architecture.X86) > -1 && project.targetFlags.exists("simulator"));
 		var x86_64 = (command == "rebuild" || project.targetFlags.exists("simulator"));
+		// The arm64 simulator is a platform of its own, apart from arm64 devices
+		var arm64Simulator = (command == "rebuild" && IOSHelper.buildsArm64Simulator(project.config.getString("cpp.buildLibrary", "hxcpp")))
+			|| (project.targetFlags.exists("simulator") && IOSHelper.useArm64Simulator(project));
 
 		var arc = (project.targetFlags.exists("arc"));
 
@@ -544,6 +547,7 @@ class IOSPlatform extends PlatformTarget
 		if (arm64) commands.push(["-Dios", "-DHXCPP_CPP11", "-DHXCPP_ARM64"]);
 		if (i386) commands.push(["-Dios", "-Dsimulator", "-DHXCPP_M32", "-DHXCPP_CPP11"]);
 		if (x86_64) commands.push(["-Dios", "-Dsimulator", "-DHXCPP_M64", "-DHXCPP_CPP11"]);
+		if (arm64Simulator) commands.push(["-Dios", "-Dsimulator", "-DHXCPP_ARM64", "-DHXCPP_CPP11"]);
 
 		if (arc)
 		{
@@ -830,9 +834,9 @@ class IOSPlatform extends PlatformTarget
 
 		System.mkdir(projectDirectory + "/lib");
 
-		for (archID in 0...6)
+		for (archID in 0...7)
 		{
-			var arch = ["armv6", "armv7", "armv7s", "arm64", "i386", "x86_64"][archID];
+			var arch = ["armv6", "armv7", "armv7s", "arm64", "i386", "x86_64", "arm64-simulator"][archID];
 
 			if (arch == "armv6" && !context.ARMV6) continue;
 
@@ -844,13 +848,17 @@ class IOSPlatform extends PlatformTarget
 
 			if (arch == "i386" && !context.I386) continue;
 
+			// Only where the simulator build is for arm64, as there is no other library to fall back to
+			if (arch == "arm64-simulator" && !(project.targetFlags.exists("simulator") && IOSHelper.useArm64Simulator(project))) continue;
+
 			var libExt = [
 				".iphoneos.a",
 				".iphoneos-v7.a",
 				".iphoneos-v7s.a",
 				".iphoneos-64.a",
 				".iphonesim.a",
-				".iphonesim-64.a"
+				".iphonesim-64.a",
+				".iphonesim-arm64.a"
 			][archID];
 
 			System.mkdir(projectDirectory + "/lib/" + arch);

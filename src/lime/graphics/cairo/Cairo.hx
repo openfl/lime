@@ -361,13 +361,23 @@ class Cairo
 	public function showGlyphs(glyphs:Array<CairoGlyph>):Void
 	{
 		#if (lime_cffi && lime_cairo && !macro)
-		#if hl
-		var _glyphs = new hl.NativeArray<CairoGlyph>(glyphs.length);
-		for (i in 0...glyphs.length)
-			_glyphs[i] = glyphs[i];
-		var glyphs = _glyphs;
-		#end
-		NativeCFFI.lime_cairo_show_glyphs(handle, glyphs);
+		// Packed as three doubles a glyph, the index, x and y, so that native code
+		// reads them in a plain loop instead of looking up each glyph's fields
+		var length = glyphs.length;
+		if (length == 0) return;
+
+		var data = haxe.io.Bytes.alloc(length * 24);
+		var glyph:CairoGlyph;
+
+		for (i in 0...length)
+		{
+			glyph = glyphs[i];
+			data.setDouble(i * 24, glyph.index);
+			data.setDouble(i * 24 + 8, glyph.x);
+			data.setDouble(i * 24 + 16, glyph.y);
+		}
+
+		NativeCFFI.lime_cairo_show_glyph_data(handle, data, length);
 		#end
 	}
 
@@ -425,7 +435,11 @@ class Cairo
 	public function transform(matrix:Matrix3):Void
 	{
 		#if (lime_cffi && lime_cairo && !macro)
+		#if hl
 		NativeCFFI.lime_cairo_transform(handle, matrix.toCairoMatrix3());
+		#else
+		NativeCFFI.lime_cairo_transform(handle, matrix.a, matrix.b, matrix.c, matrix.d, matrix.tx, matrix.ty);
+		#end
 		#end
 	}
 
@@ -461,8 +475,10 @@ class Cairo
 		#if hl
 		return NativeCFFI.lime_cairo_get_current_point(handle, new Vector2());
 		#else
-		var vec:Dynamic = NativeCFFI.lime_cairo_get_current_point(handle);
-		return new Vector2(vec.x, vec.y);
+		// Written into bytes of its own, rather than an object of boxed Floats
+		var values = haxe.io.Bytes.alloc(16);
+		NativeCFFI.lime_cairo_get_current_point(handle, values);
+		return new Vector2(values.getDouble(0), values.getDouble(8));
 		#end
 		#end
 
@@ -645,8 +661,10 @@ class Cairo
 		#if hl
 		return NativeCFFI.lime_cairo_get_matrix(handle, new CairoMatrix3());
 		#else
-		var m:Dynamic = NativeCFFI.lime_cairo_get_matrix(handle);
-		return new Matrix3(m.a, m.b, m.c, m.d, m.tx, m.ty);
+		var values = haxe.io.Bytes.alloc(48);
+		NativeCFFI.lime_cairo_get_matrix(handle, values);
+		return new Matrix3(values.getDouble(0), values.getDouble(8), values.getDouble(16), values.getDouble(24), values.getDouble(32),
+			values.getDouble(40));
 		#end
 		#end
 

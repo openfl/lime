@@ -375,6 +375,42 @@ class AndroidOutputTest extends Test
 			properties(output.read("bin/gradle/wrapper/gradle-wrapper.properties")).get("distributionUrl"));
 	}
 
+	// Plugin 9 removed applicationVariants, so the outputs are named through the archives, and
+	// Gradle 9 left out Groovy's SwingBuilder, so it comes from the Groovy that Gradle runs
+	public function testGradle9AndPlugin9NameTheOutputsAndKeepThePasswordDialog():Void
+	{
+		for (versions in [["9.1.0", "9.0.0"], ["10.0.0", "10.1.0"]])
+		{
+			output.update('<project>
+				<app main="Main" file="MyApplication" />
+				<config:android gradle-version="${versions[0]}" />
+				<config:android gradle-plugin="${versions[1]}" />
+			</project>');
+
+			var build = output.read("bin/build.gradle");
+			var app = output.read("bin/app/build.gradle");
+			var label = "Gradle " + versions[0] + ", plugin " + versions[1];
+
+			Assert.isTrue(build.indexOf('classpath "org.apache.groovy:groovy-swing:$${GroovySystem.version}"') > -1, label + " has no groovy-swing");
+			Assert.isTrue(app.indexOf('archivesName.set("MyApplication")') > -1, label + " doesn't name the archives");
+			Assert.equals(-1, app.indexOf("android.applicationVariants"), label + " still uses applicationVariants");
+		}
+	}
+
+	public function testOlderGradleAndPluginsNameTheApkThroughItsVariant():Void
+	{
+		output.update('<project>
+			<app main="Main" file="MyApplication" />
+		</project>');
+
+		var build = output.read("bin/build.gradle");
+		var app = output.read("bin/app/build.gradle");
+
+		Assert.equals(-1, build.indexOf("groovy-swing"));
+		Assert.equals(-1, app.indexOf("archivesName"));
+		Assert.isTrue(app.indexOf('outputFileName =  "MyApplication-" + variant.buildType.name + ".apk"') > -1);
+	}
+
 	// Google Play requires API 36 for new apps and updates. Android lists plugin 8.9.1 as the
 	// first for API 36, and plugin 8.9 needs Gradle 8.11.1
 	public function testTheDefaultsTargetTheLevelGooglePlayRequires():Void
