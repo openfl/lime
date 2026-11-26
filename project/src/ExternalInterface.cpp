@@ -5638,7 +5638,7 @@ namespace lime {
 	}
 
 
-	value lime_window_create (value application, int width, int height, int flags, HxString title, int x, int y, int display) {
+	value lime_window_create_at (value application, int width, int height, int flags, HxString title, int x, int y, int display) {
 
 		Window* window = CreateWindow ((Application*)val_data (application), width, height, flags, hxs_utf8 (title, nullptr), x, y, display);
 		return CFFIPointer (window, gc_window);
@@ -5661,10 +5661,26 @@ namespace lime {
 	}
 
 
-	HL_PRIM HL_CFFIPointer* HL_NAME(hl_window_create) (HL_CFFIPointer* application, int width, int height, int flags, hl_vstring* title, int x, int y, int display) {
+	HL_PRIM HL_CFFIPointer* HL_NAME(hl_window_create_at) (HL_CFFIPointer* application, int width, int height, int flags, hl_vstring* title, int x, int y, int display) {
 
 		Window* window = CreateWindow ((Application*)application->ptr, width, height, flags, (const char*)hl_to_utf8 ((const uchar*)title->bytes), x, y, display);
 		return HLCFFIPointer (window, (hl_finalizer)hl_gc_window);
+
+	}
+
+
+	// At SDL's own position on the first display, as before a position and display could be given,
+	// for libraries built against an older Lime
+	value lime_window_create (value application, int width, int height, int flags, HxString title) {
+
+		return lime_window_create_at (application, width, height, flags, title, 0, 0, 0);
+
+	}
+
+
+	HL_PRIM HL_CFFIPointer* HL_NAME(hl_window_create) (HL_CFFIPointer* application, int width, int height, int flags, hl_vstring* title) {
+
+		return HL_NAME(hl_window_create_at) (application, width, height, flags, title, 0, 0, 0);
 
 	}
 
@@ -14964,7 +14980,8 @@ namespace lime {
 	DEFINE_PRIME1 (lime_window_context_lock);
 	DEFINE_PRIME1v (lime_window_context_make_current);
 	DEFINE_PRIME1v (lime_window_context_unlock);
-	DEFINE_PRIME8 (lime_window_create);
+	DEFINE_PRIME5 (lime_window_create);
+	DEFINE_PRIME8 (lime_window_create_at);
 	DEFINE_PRIME0 (lime_window_get_creation_error);
 	DEFINE_PRIME2v (lime_window_event_manager_register);
 	DEFINE_PRIME1v (lime_window_focus);
@@ -15354,7 +15371,8 @@ namespace lime {
 	DEFINE_HL_PRIM (_DYN, hl_window_context_lock, _TCFFIPOINTER);
 	DEFINE_HL_PRIM (_VOID, hl_window_context_make_current, _TCFFIPOINTER);
 	DEFINE_HL_PRIM (_VOID, hl_window_context_unlock, _TCFFIPOINTER);
-	DEFINE_HL_PRIM (_TCFFIPOINTER, hl_window_create, _TCFFIPOINTER _I32 _I32 _I32 _STRING _I32 _I32 _I32);
+	DEFINE_HL_PRIM (_TCFFIPOINTER, hl_window_create, _TCFFIPOINTER _I32 _I32 _I32 _STRING);
+	DEFINE_HL_PRIM (_TCFFIPOINTER, hl_window_create_at, _TCFFIPOINTER _I32 _I32 _I32 _STRING _I32 _I32 _I32);
 	DEFINE_HL_PRIM (_VOID, hl_window_event_manager_register, _FUN (_VOID, _NO_ARG) _TWINDOW_EVENT);
 	DEFINE_HL_PRIM (_VOID, hl_window_focus, _TCFFIPOINTER);
 	DEFINE_HL_PRIM (_BOOL, hl_window_order_relative, _TCFFIPOINTER _TCFFIPOINTER _BOOL);

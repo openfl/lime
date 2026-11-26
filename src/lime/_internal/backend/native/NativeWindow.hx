@@ -183,7 +183,7 @@ class NativeWindow
 		var mainWindow = getMainOpenGLWindow(parent.application, parent);
 		if (mainWindow != null) mainWindow.__backend.contextMakeCurrent();
 
-		handle = NativeCFFI.lime_window_create(parent.application.__backend.handle, width, height, flags, title, x != null ? x : 0, y != null ? y : 0,
+		handle = NativeCFFI.lime_window_create_at(parent.application.__backend.handle, width, height, flags, title, x != null ? x : 0, y != null ? y : 0,
 			display != null ? display : 0);
 
 		if (handle == null)
