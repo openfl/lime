@@ -585,6 +585,68 @@ class AssetsTest extends Test
 	}
 	#end
 
+	// An asset that is there and local but loads as null, as a sound that can't be decoded does, is
+	// reported as one that failed to load, and nothing is kept for it (#1704)
+	public function testAnAssetThatFailsToLoadIsReportedAndNotCached():Void
+	{
+		Assets.registerLibrary(NAME, new UnloadableLibrary());
+
+		for (enabled in [true, false])
+		{
+			Assets.cache.enabled = enabled;
+
+			for (useCache in [true, false])
+			{
+				for (asset in assetsOf(NAME))
+				{
+					var label = asset.id + " with the cache " + (enabled ? "on" : "off") + (useCache ? "" : ", not using it");
+					Assets.cache.clear();
+
+					assertReports(asset.type + ' asset "' + asset.id + '" exists, but failed to load', function() return asset.get(useCache));
+
+					Log.throwErrors = false;
+					var value = asset.get(useCache);
+					Log.throwErrors = true;
+
+					Assert.isNull(value, label);
+					Assert.isFalse(Assets.cache.exists(asset.id, asset.type), label + ": the cache has it");
+					Assert.isFalse(Assets.cache.exists(asset.id), label + ": the cache has it, of some type");
+				}
+			}
+		}
+	}
+
+	public function testAnAssetThatLoadsIsCached():Void
+	{
+		var library = new LoadingLibrary();
+		Assets.registerLibrary(NAME, library);
+		Assets.cache.clear();
+
+		for (asset in assetsOf(NAME))
+		{
+			var loaded = asset.get(true);
+			Assert.notNull(loaded, asset.id);
+			Assert.isTrue(Assets.cache.exists(asset.id, asset.type), asset.id + " was not cached");
+			Assert.equals(loaded, asset.get(true), asset.id + " was not given from the cache");
+		}
+
+		Assert.equals(3, library.loads, "the library was asked again for assets the cache had");
+	}
+
+	/** A sound, an image and a font of `library`, each with the getter that gives it **/
+	private static function assetsOf(library:String):Array<{id:String, type:AssetType, get:Bool->Dynamic}>
+	{
+		var sound = library + ":sound.ogg";
+		var image = library + ":image.png";
+		var font = library + ":font.ttf";
+
+		return [
+			{id: sound, type: SOUND, get: function(useCache:Bool):Dynamic return Assets.getAudioBuffer(sound, useCache)},
+			{id: image, type: IMAGE, get: function(useCache:Bool):Dynamic return Assets.getImage(image, useCache)},
+			{id: font, type: FONT, get: function(useCache:Bool):Dynamic return Assets.getFont(font, useCache)}
+		];
+	}
+
 	private static function assertReports(name:String, get:Void->Dynamic, ?pos:haxe.PosInfos):Void
 	{
 		Log.throwErrors = true;
@@ -649,3 +711,78 @@ class AssetsTest extends Test
 	}
 	#end
 }
+
+#if sys
+// A library whose assets are there and local, but load as null
+private class UnloadableLibrary extends AssetLibrary
+{
+	public function new()
+	{
+		super();
+	}
+
+	override public function exists(id:String, type:String):Bool
+	{
+		return true;
+	}
+
+	override public function isLocal(id:String, type:String):Bool
+	{
+		return true;
+	}
+
+	override public function getAudioBuffer(id:String):lime.media.AudioBuffer
+	{
+		return null;
+	}
+
+	override public function getFont(id:String):lime.text.Font
+	{
+		return null;
+	}
+
+	override public function getImage(id:String):lime.graphics.Image
+	{
+		return null;
+	}
+}
+
+// A library whose assets load, a new one each time it is asked
+private class LoadingLibrary extends AssetLibrary
+{
+	public var loads:Int = 0;
+
+	public function new()
+	{
+		super();
+	}
+
+	override public function exists(id:String, type:String):Bool
+	{
+		return true;
+	}
+
+	override public function isLocal(id:String, type:String):Bool
+	{
+		return true;
+	}
+
+	override public function getAudioBuffer(id:String):lime.media.AudioBuffer
+	{
+		loads++;
+		return new lime.media.AudioBuffer();
+	}
+
+	override public function getFont(id:String):lime.text.Font
+	{
+		loads++;
+		return new lime.text.Font();
+	}
+
+	override public function getImage(id:String):lime.graphics.Image
+	{
+		loads++;
+		return new lime.graphics.Image(null, 0, 0, 1, 1);
+	}
+}
+#end

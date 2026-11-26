@@ -69,7 +69,8 @@
 		<file name="${NATIVE_TOOLKIT_PATH}/cairo/src/cairo-line.c" />
 		<file name="${NATIVE_TOOLKIT_PATH}/cairo/src/cairo-lzw.c" />
 		<file name="${NATIVE_TOOLKIT_PATH}/cairo/src/cairo-mask-compositor.c" />
-		<file name="${NATIVE_TOOLKIT_PATH}/cairo/src/cairo-matrix.c" />
+		<!-- Lime's copy, with _cairo_matrix_has_unity_scale fixed as in cairo merge request 647 -->
+		<file name="${NATIVE_TOOLKIT_PATH}/custom/cairo/src/cairo-matrix.c" />
 		<file name="${NATIVE_TOOLKIT_PATH}/cairo/src/cairo-mempool.c" />
 		<file name="${NATIVE_TOOLKIT_PATH}/cairo/src/cairo-mesh-pattern-rasterizer.c" />
 		<file name="${NATIVE_TOOLKIT_PATH}/cairo/src/cairo-misc.c" />

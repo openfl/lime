@@ -116,7 +116,21 @@ class CPPHelper
 
 			Sys.putEnv("HXCPP_EXIT_ON_ERROR", "");
 
+			// haxelib looks for a local repository from the folder it runs in, which can be outside the project
+			var cacheValue = Sys.getEnv("HAXELIB_PATH");
+			var repositoryPath = Haxelib.getRepositoryPath();
+
+			if (repositoryPath != "")
+			{
+				Sys.putEnv("HAXELIB_PATH", repositoryPath);
+			}
+
 			var code = Haxelib.runCommand(path, args);
+
+			if (cacheValue != null)
+			{
+				Sys.putEnv("HAXELIB_PATH", cacheValue);
+			}
 
 			if (code != 0)
 			{

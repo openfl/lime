@@ -172,6 +172,39 @@ class WindowDisplayTest extends Test
 		Assert.equals(describe(mode), describe(window.displayMode), "the mode the window would use in fullscreen");
 	}
 
+	// SDL can give a window's mode no refresh rate, as on Linux, where its display's current mode
+	// has one, which the window's mode then gives (#1951)
+	public function testAWindowGivenItsDisplaysModeHasItsRefreshRate():Void
+	{
+		if (!hasDisplays()) return;
+
+		var mode = currentModeWithARefreshRate(System.getDisplay(0));
+		if (mode == null) return;
+
+		var window = open({width: 64, height: 64, display: 0, displayMode: mode});
+		if (window == null) return;
+
+		Assert.equals(describe(mode), describe(window.displayMode), "the display mode of a window given its display's own");
+	}
+
+	// A window's mode is the display mode nearest its size, which can run at another rate than the
+	// display does now, but not at none where the display's mode has one (#1951)
+	public function testAWindowsDisplayModeHasARefreshRateWhereItsDisplayHasOne():Void
+	{
+		if (!hasDisplays()) return;
+
+		var window = open({width: 200, height: 150});
+		if (window == null) return;
+
+		var display = window.display;
+		var mode = currentModeWithARefreshRate(display);
+		if (mode == null) return;
+
+		var windowMode = window.displayMode;
+		Assert.isTrue(windowMode.refreshRate > 0, "the window's display mode is " + describe(windowMode) + ", where its display's is " + describe(mode));
+		Assert.isTrue(windowMode.width >= 200 && windowMode.height >= 150, "the window's display mode is " + describe(windowMode) + ", smaller than the window");
+	}
+
 	public function testMinimizeOnFocusLossIsOnUntilTurnedOff():Void
 	{
 		var window = open({width: 64, height: 64});
@@ -307,6 +340,31 @@ class WindowDisplayTest extends Test
 	private static function assertNear(expected:Float, actual:Float, label:String, ?pos:haxe.PosInfos):Void
 	{
 		Assert.isTrue(Math.abs(expected - actual) <= 1, label + ": expected " + expected + " but was " + actual, pos);
+	}
+
+	/**
+		The current mode of `display`, or null when it has none here or SDL gives it no refresh rate,
+		as may be so under Xvfb, passing the test, saying why.
+	**/
+	private static function currentModeWithARefreshRate(display:Display):DisplayMode
+	{
+		var mode = display != null ? display.currentMode : null;
+
+		if (mode == null)
+		{
+			Assert.pass("the window's display gives no current mode here");
+			return null;
+		}
+
+		if (mode.refreshRate <= 0)
+		{
+			// utest takes a warning as a failure, so the test passes, saying why
+			trace("SDL gives no refresh rate for the display's mode here, " + describe(mode) + ", so a window's was not compared with it");
+			Assert.pass();
+			return null;
+		}
+
+		return mode;
 	}
 
 	private static function otherMode(display:Display):DisplayMode
