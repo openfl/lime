@@ -147,7 +147,6 @@ class ImageWorkerTest extends Test
 		});
 	}
 
-	@Ignored("Waiting on #2232")
 	public function testLoadFromFileDecodesOffTheMainThread(async:Async):Void
 	{
 		async.setTimeout(30000);
