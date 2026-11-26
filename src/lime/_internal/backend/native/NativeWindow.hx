@@ -41,6 +41,7 @@ import lime.utils.UInt8Array;
 @:fileXml('tags="haxe,release"')
 @:noDebug
 #end
+@:access(lime._internal.backend.native.NativeApplication)
 @:access(lime._internal.backend.native.NativeCFFI)
 @:access(lime.ui.WindowHandle)
 @:access(lime._internal.backend.native.NativeOpenGLRenderContext)
@@ -516,6 +517,9 @@ class NativeWindow
 			var atCursor = (x == null || y == null);
 			NativeMenu.setPopup(NativeMenu.SOURCE_WINDOW, parent.id, menu, items);
 			var id = NativeCFFI.lime_window_popup_menu(handle, data, atCursor ? 0 : Std.int(x), atCursor ? 0 : Std.int(y), atCursor);
+
+			// What onOpen threw while the menu was shown is thrown from popup(), as onSelect's is
+			NativeApplication.throwDeferredException();
 
 			var item = NativeMenu.getItem(items, id);
 			if (item != null) item.__select();
