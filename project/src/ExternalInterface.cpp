@@ -4117,7 +4117,7 @@ namespace lime {
 	}
 
 
-	void lime_image_data_util_get_pixels (value image, value rect, int format, value bytes, int endian) {
+	void lime_image_data_util_get_pixels_endian (value image, value rect, int format, value bytes, int endian) {
 
 		Image _image = Image (image);
 		Rectangle _rect = Rectangle (rect);
@@ -4128,9 +4128,25 @@ namespace lime {
 	}
 
 
-	HL_PRIM void HL_NAME(hl_image_data_util_get_pixels) (Image* image, Rectangle* rect, PixelFormat format, Bytes* bytes, Endian endian) {
+	HL_PRIM void HL_NAME(hl_image_data_util_get_pixels_endian) (Image* image, Rectangle* rect, PixelFormat format, Bytes* bytes, Endian endian) {
 
 		ImageDataUtil::GetPixels (image, rect, format, bytes, endian);
+
+	}
+
+
+	// In the order the format names its bytes, as before the order could be chosen, for libraries
+	// built against an older Lime
+	void lime_image_data_util_get_pixels (value image, value rect, int format, value bytes) {
+
+		lime_image_data_util_get_pixels_endian (image, rect, format, bytes, LIME_BIG_ENDIAN);
+
+	}
+
+
+	HL_PRIM void HL_NAME(hl_image_data_util_get_pixels) (Image* image, Rectangle* rect, PixelFormat format, Bytes* bytes) {
+
+		HL_NAME(hl_image_data_util_get_pixels_endian) (image, rect, format, bytes, LIME_BIG_ENDIAN);
 
 	}
 
@@ -14921,7 +14937,8 @@ namespace lime {
 	DEFINE_PRIME7v (lime_image_data_util_copy_pixels);
 	DEFINE_PRIME4v (lime_image_data_util_fill_rect);
 	DEFINE_PRIME5v (lime_image_data_util_flood_fill);
-	DEFINE_PRIME5v (lime_image_data_util_get_pixels);
+	DEFINE_PRIME4v (lime_image_data_util_get_pixels);
+	DEFINE_PRIME5v (lime_image_data_util_get_pixels_endian);
 	DEFINE_PRIME8v (lime_image_data_util_merge);
 	DEFINE_PRIME1v (lime_image_data_util_multiply_alpha);
 	DEFINE_PRIME4v (lime_image_data_util_resize);
@@ -15315,7 +15332,8 @@ namespace lime {
 	DEFINE_HL_PRIM (_VOID, hl_image_data_util_copy_pixels, _TIMAGE _TIMAGE _TRECTANGLE _TVECTOR2 _TIMAGE _TVECTOR2 _BOOL);
 	DEFINE_HL_PRIM (_VOID, hl_image_data_util_fill_rect, _TIMAGE _TRECTANGLE _I32 _I32);
 	DEFINE_HL_PRIM (_VOID, hl_image_data_util_flood_fill, _TIMAGE _I32 _I32 _I32 _I32);
-	DEFINE_HL_PRIM (_VOID, hl_image_data_util_get_pixels, _TIMAGE _TRECTANGLE _I32 _TBYTES _I32);
+	DEFINE_HL_PRIM (_VOID, hl_image_data_util_get_pixels, _TIMAGE _TRECTANGLE _I32 _TBYTES);
+	DEFINE_HL_PRIM (_VOID, hl_image_data_util_get_pixels_endian, _TIMAGE _TRECTANGLE _I32 _TBYTES _I32);
 	DEFINE_HL_PRIM (_VOID, hl_image_data_util_merge, _TIMAGE _TIMAGE _TRECTANGLE _TVECTOR2 _I32 _I32 _I32 _I32);
 	DEFINE_HL_PRIM (_VOID, hl_image_data_util_multiply_alpha, _TIMAGE);
 	DEFINE_HL_PRIM (_VOID, hl_image_data_util_resize, _TIMAGE _TIMAGEBUFFER _I32 _I32);
