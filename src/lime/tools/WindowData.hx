@@ -33,6 +33,7 @@ abstract WindowData({
 	@:optional var minimized:Bool;
 	@:optional var maximized:Bool;
 	@:optional var hidden:Bool;
+	@:optional var preserveDrawingBuffer:Bool;
 }) from Dynamic
 {
 	@:noCompletion
@@ -68,6 +69,7 @@ abstract WindowData({
 			colorDepth: 0,
 			minimized: false,
 			maximized: false,
-			hidden: false
+			hidden: false,
+			preserveDrawingBuffer: false
 		};
 }

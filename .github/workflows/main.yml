@@ -59,20 +59,18 @@ jobs:
           libraries: |
             native-desktop 1.2.1
             native-ipc 1.0.0
-            wsproto 1.0.0
+            wsproto 1.1.2
             crossbyte 1.0.1
             haxelib 4.2.0
             StageWebView 1.1.1
             format 3.8.0
             hxp 1.3.1
             utest 1.13.2
+            libhxcpp 6.0.0
 
-      - name: Install Haxe dependencies from git
+      - name: Set up libhxcpp
         shell: bash
-        run: |
-          haxelib git libhxcpp https://github.com/openfl/libhxcpp --quiet
-          haxelib run libhxcpp setup
-          haxe --cwd "$(haxelib libpath libhxcpp)/tools/hxcpp" compile.hxml
+        run: haxelib run libhxcpp setup
 
       - name: Run tools tests
         working-directory: tests/tools
@@ -280,20 +278,18 @@ jobs:
           libraries: |
             native-desktop 1.2.1
             native-ipc 1.0.0
-            wsproto 1.0.0
+            wsproto 1.1.2
             crossbyte 1.0.1
             haxelib 4.2.0
             StageWebView 1.1.1
             format 3.8.0
             hxp 1.3.1
             utest 1.13.2
+            libhxcpp 6.0.0
 
-      - name: Install Haxe dependencies from git
+      - name: Set up libhxcpp
         shell: bash
-        run: |
-          haxelib git libhxcpp https://github.com/openfl/libhxcpp --quiet
-          haxelib run libhxcpp setup
-          haxe --cwd "$(haxelib libpath libhxcpp)/tools/hxcpp" compile.hxml
+        run: haxelib run libhxcpp setup
 
       - name: Rebuild Lime tools
         run: |
@@ -428,20 +424,18 @@ jobs:
           libraries: |
             native-desktop 1.2.1
             native-ipc 1.0.0
-            wsproto 1.0.0
+            wsproto 1.1.2
             crossbyte 1.0.1
             haxelib 4.2.0
             StageWebView 1.1.1
             format 3.8.0
             hxp 1.3.1
             utest 1.13.2
+            libhxcpp 6.0.0
 
-      - name: Install Haxe dependencies from git
+      - name: Set up libhxcpp
         shell: bash
-        run: |
-          haxelib git libhxcpp https://github.com/openfl/libhxcpp --quiet
-          haxelib run libhxcpp setup
-          haxe --cwd "$(haxelib libpath libhxcpp)/tools/hxcpp" compile.hxml
+        run: haxelib run libhxcpp setup
 
       # CrossByte, which serves lime test html5, needs Haxe 4.3 to build the tools
       - uses: ./.github/actions/rebuild-lime-tools
@@ -496,18 +490,16 @@ jobs:
             native-desktop 1.2.1
             native-ipc 1.0.0
             StageWebView 1.1.1
-            wsproto 1.0.0
+            wsproto 1.1.2
             crossbyte 1.0.1
             format 3.8.0
             hxp 1.3.1
             utest 1.13.2
+            libhxcpp 6.0.0
 
-      - name: Install Haxe dependencies from git
+      - name: Set up libhxcpp
         shell: bash
-        run: |
-          haxelib git libhxcpp https://github.com/openfl/libhxcpp --quiet
-          haxelib run libhxcpp setup
-          haxe --cwd "$(haxelib libpath libhxcpp)/tools/hxcpp" compile.hxml
+        run: haxelib run libhxcpp setup
 
       - name: Rebuild Lime tools
         run: |
@@ -655,18 +647,16 @@ jobs:
             native-desktop 1.2.1
             native-ipc 1.0.0
             StageWebView 1.1.1
-            wsproto 1.0.0
+            wsproto 1.1.2
             crossbyte 1.0.1
             format 3.8.0
             hxp 1.3.1
             utest 1.13.2
+            libhxcpp 6.0.0
 
-      - name: Install Haxe dependencies from git
+      - name: Set up libhxcpp
         shell: bash
-        run: |
-          haxelib git libhxcpp https://github.com/openfl/libhxcpp --quiet
-          haxelib run libhxcpp setup
-          haxe --cwd "$(haxelib libpath libhxcpp)/tools/hxcpp" compile.hxml
+        run: haxelib run libhxcpp setup
 
       # CrossByte, which serves lime test html5, needs Haxe 4.3 to build the tools
       - uses: ./.github/actions/rebuild-lime-tools
@@ -786,19 +776,17 @@ jobs:
             native-desktop 1.2.1
             native-ipc 1.0.0
             StageWebView 1.1.1
-            wsproto 1.0.0
+            wsproto 1.1.2
             crossbyte 1.0.1
             lime-mesa 1.0.0
             format 3.8.0
             hxp 1.3.1
             utest 1.13.2
+            libhxcpp 6.0.0
 
-      - name: Install Haxe dependencies from git
+      - name: Set up libhxcpp
         shell: bash
-        run: |
-          haxelib git libhxcpp https://github.com/openfl/libhxcpp --quiet
-          haxelib run libhxcpp setup
-          haxe --cwd "$(haxelib libpath libhxcpp)/tools/hxcpp" compile.hxml
+        run: haxelib run libhxcpp setup
 
       # CrossByte, which serves lime test html5, needs Haxe 4.3 to build the tools
       - uses: ./.github/actions/rebuild-lime-tools
@@ -995,16 +983,14 @@ jobs:
             native-desktop 1.2.1
             native-ipc 1.0.0
             StageWebView 1.1.1
-            wsproto 1.0.0
+            wsproto 1.1.2
             format 3.8.0
             hxp 1.3.1
+            libhxcpp 6.0.0
 
-      - name: Install Haxe dependencies from git
+      - name: Set up libhxcpp
         shell: bash
-        run: |
-          haxelib git libhxcpp https://github.com/openfl/libhxcpp --quiet
-          haxelib run libhxcpp setup
-          haxe --cwd "$(haxelib libpath libhxcpp)/tools/hxcpp" compile.hxml
+        run: haxelib run libhxcpp setup
 
       - name: Prepare Lime
         run: |
@@ -1089,16 +1075,14 @@ jobs:
             native-desktop 1.2.1
             native-ipc 1.0.0
             StageWebView 1.1.1
-            wsproto 1.0.0
+            wsproto 1.1.2
             format 3.8.0
             hxp 1.3.1
+            libhxcpp 6.0.0
 
-      - name: Install Haxe dependencies from git
+      - name: Set up libhxcpp
         shell: bash
-        run: |
-          haxelib git libhxcpp https://github.com/openfl/libhxcpp --quiet
-          haxelib run libhxcpp setup
-          haxe --cwd "$(haxelib libpath libhxcpp)/tools/hxcpp" compile.hxml
+        run: haxelib run libhxcpp setup
 
       - name: Prepare Lime
         run: |
@@ -1204,16 +1188,14 @@ jobs:
             native-desktop 1.2.1
             native-ipc 1.0.0
             StageWebView 1.1.1
-            wsproto 1.0.0
+            wsproto 1.1.2
             format 3.8.0
             hxp 1.3.1
+            libhxcpp 6.0.0
 
-      - name: Install Haxe dependencies from git
+      - name: Set up libhxcpp
         shell: bash
-        run: |
-          haxelib git libhxcpp https://github.com/openfl/libhxcpp --quiet
-          haxelib run libhxcpp setup
-          haxe --cwd "$(haxelib libpath libhxcpp)/tools/hxcpp" compile.hxml
+        run: haxelib run libhxcpp setup
 
       - name: Prepare Lime
         run: |
@@ -1285,19 +1267,17 @@ jobs:
             native-desktop 1.2.1
             native-ipc 1.0.0
             StageWebView 1.1.1
-            wsproto 1.0.0
+            wsproto 1.1.2
             crossbyte 1.0.1
             format 3.8.0
             hxp 1.3.1
             svg 1.2.0
             openfl 9.5.2
+            libhxcpp 6.0.0
 
-      - name: Install Haxe dependencies from git
+      - name: Set up libhxcpp
         shell: bash
-        run: |
-          haxelib git libhxcpp https://github.com/openfl/libhxcpp --quiet
-          haxelib run libhxcpp setup
-          haxe --cwd "$(haxelib libpath libhxcpp)/tools/hxcpp" compile.hxml
+        run: haxelib run libhxcpp setup
 
       # CrossByte, which serves lime test html5, needs Haxe 4.3 to build the tools
       - uses: ./.github/actions/rebuild-lime-tools
@@ -1426,7 +1406,7 @@ jobs:
             native-desktop 1.2.1
             native-ipc 1.0.0
             StageWebView 1.1.1
-            wsproto 1.0.0
+            wsproto 1.1.2
             dox 1.6.0
 
       - name: Use this checkout as lime
@@ -1468,7 +1448,7 @@ jobs:
             native-desktop 1.2.1
             native-ipc 1.0.0
             StageWebView 1.1.1
-            wsproto 1.0.0
+            wsproto 1.1.2
             format 3.8.0
             hxp 1.3.1
 
@@ -1535,14 +1515,14 @@ jobs:
             native-desktop 1.2.1
             native-ipc 1.0.0
             StageWebView 1.1.1
-            wsproto 1.0.0
+            wsproto 1.1.2
             format 3.8.0
             hxp 1.3.1
+            libhxcpp 6.0.0
 
       - name: Install Haxe dependencies from git
         shell: bash
         run: |
-          haxelib git libhxcpp https://github.com/openfl/libhxcpp --quiet
           haxelib run libhxcpp setup
           haxelib git lime-samples https://github.com/openfl/lime-samples --quiet
 
@@ -1606,7 +1586,7 @@ jobs:
             native-desktop 1.2.1
             native-ipc 1.0.0
             StageWebView 1.1.1
-            wsproto 1.0.0
+            wsproto 1.1.2
 
       - name: Install Haxe dependencies from git
         shell: bash
@@ -1677,7 +1657,7 @@ jobs:
             native-desktop 1.2.1
             native-ipc 1.0.0
             StageWebView 1.1.1
-            wsproto 1.0.0
+            wsproto 1.1.2
 
       - name: Install Haxe dependencies from git
         shell: bash
@@ -1739,7 +1719,7 @@ jobs:
             native-desktop 1.2.1
             native-ipc 1.0.0
             StageWebView 1.1.1
-            wsproto 1.0.0
+            wsproto 1.1.2
             genes 0.4.14
 
       - name: Install Haxe dependencies from git
@@ -1836,7 +1816,7 @@ jobs:
             native-desktop 1.2.1
             native-ipc 1.0.0
             StageWebView 1.1.1
-            wsproto 1.0.0
+            wsproto 1.1.2
 
       - name: Install Haxe dependencies from git
         shell: bash

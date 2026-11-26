@@ -145,27 +145,30 @@ namespace lime {
 					for (int x = 0; x < destView.width; x++) {
 
 						sourcePixel.ReadUInt8 (sourceData, sourcePosition, sourceFormat, sourcePremultiplied, LIME_BIG_ENDIAN);
-						destPixel.ReadUInt8 (destData, destPosition, destFormat, destPremultiplied, LIME_BIG_ENDIAN);
 
-						sourceAlpha = sourcePixel.a / 255.0;
-						destAlpha = destPixel.a / 255.0;
-						oneMinusSourceAlpha = 1 - sourceAlpha;
-						blendAlpha = sourceAlpha + (destAlpha * oneMinusSourceAlpha);
+						// An opaque pixel blends to itself, and a transparent one leaves
+						// the destination as it is, so only the others are blended
+						if (sourcePixel.a == 0xFF) {
 
-						if (blendAlpha == 0) {
+							sourcePixel.WriteUInt8 (destData, destPosition, destFormat, destPremultiplied);
 
-							destPixel.Set (0, 0, 0, 0);
+						} else if (sourcePixel.a != 0) {
 
-						} else {
+							destPixel.ReadUInt8 (destData, destPosition, destFormat, destPremultiplied, LIME_BIG_ENDIAN);
+
+							sourceAlpha = sourcePixel.a / 255.0;
+							destAlpha = destPixel.a / 255.0;
+							oneMinusSourceAlpha = 1 - sourceAlpha;
+							blendAlpha = sourceAlpha + (destAlpha * oneMinusSourceAlpha);
 
 							destPixel.r = __clamp[int (0.5 + (sourcePixel.r * sourceAlpha + destPixel.r * destAlpha * oneMinusSourceAlpha) / blendAlpha)];
 							destPixel.g = __clamp[int (0.5 + (sourcePixel.g * sourceAlpha + destPixel.g * destAlpha * oneMinusSourceAlpha) / blendAlpha)];
 							destPixel.b = __clamp[int (0.5 + (sourcePixel.b * sourceAlpha + destPixel.b * destAlpha * oneMinusSourceAlpha) / blendAlpha)];
 							destPixel.a = __clamp[int (0.5 + blendAlpha * 255.0)];
 
-						}
+							destPixel.WriteUInt8 (destData, destPosition, destFormat, destPremultiplied);
 
-						destPixel.WriteUInt8 (destData, destPosition, destFormat, destPremultiplied);
+						}
 
 						sourcePosition += 4;
 						destPosition += 4;
@@ -410,7 +413,7 @@ namespace lime {
 	}
 
 
-	void ImageDataUtil::GetPixels (Image* image, Rectangle* rect, PixelFormat format, Bytes* pixels) {
+	void ImageDataUtil::GetPixels (Image* image, Rectangle* rect, PixelFormat format, Bytes* pixels, Endian endian) {
 
 		int length = int (rect->width * rect->height);
 		pixels->Resize (length * 4);
@@ -433,6 +436,19 @@ namespace lime {
 
 				pixel.ReadUInt8 (data, position, sourceFormat, premultiplied, LIME_BIG_ENDIAN);
 				pixel.WriteUInt8 (destData, destPosition, format, false);
+
+				// Little endian is each pixel's bytes in reverse, as SetPixels reads them
+				if (endian == LIME_LITTLE_ENDIAN) {
+
+					uint8_t* bytes = destData + destPosition;
+					uint8_t swap = bytes[0];
+					bytes[0] = bytes[3];
+					bytes[3] = swap;
+					swap = bytes[1];
+					bytes[1] = bytes[2];
+					bytes[2] = swap;
+
+				}
 
 				position += 4;
 				destPosition += 4;

@@ -317,6 +317,81 @@ class MenuOpenCloseTest extends Test
 	}
 
 	/**
+		What onOpen throws while a real context menu opens can't leave native code, which drops it, so
+		it is thrown again from popup() once the menu closes, before the chosen item's onSelect (#2459).
+	**/
+	@:timeout(30000)
+	public function testWhatOnOpenThrowsComesOutOfPopup(async:Async):Void
+	{
+		if (window == null)
+		{
+			window = Application.current.createWindow({width: 64, height: 64, hidden: true, title: "MenuOpenCloseTest"});
+		}
+
+		if (window == null || !Menu.isSupported)
+		{
+			trace("No window with menus can be created here, so a real menu was not shown");
+			Assert.pass();
+			async.done();
+			return;
+		}
+
+		var menu = new Menu();
+		menu.add(new MenuItem("First"));
+
+		var opened = false;
+		var selected = false;
+		menu.onOpen.add(function()
+		{
+			opened = true;
+			throw "thrown in onOpen";
+		});
+		menu.onSelect.add(function(item) selected = true);
+
+		Timer.delay(function()
+		{
+			var script = chooseFirstItem(window);
+			var thrown:Dynamic = null;
+
+			try
+			{
+				menu.popup(window, 10, 10);
+			}
+			catch (e:Dynamic)
+			{
+				thrown = e;
+			}
+
+			var closedByScript = script.exitCode() == 0;
+			script.close();
+
+			// Nothing is left to come out of the application's own next update
+			@:privateAccess lime._internal.backend.native.NativeApplication.deferredException = null;
+			@:privateAccess lime._internal.backend.native.NativeApplication.deferredExceptionPending = false;
+
+			Timer.delay(function()
+			{
+				Assert.isTrue(closedByScript, "the menu was not found to choose from, and was canceled");
+
+				if (!opened)
+				{
+					// utest takes a warning as a failure, so the test passes, saying why
+					trace("onOpen was not dispatched, as native-desktop " + haxe.macro.Compiler.getDefine("native-desktop")
+						+ " here has no menu open events, so what it throws was not tested");
+					Assert.pass();
+				}
+				else
+				{
+					Assert.equals("thrown in onOpen", Std.string(thrown), "what popup() threw");
+					Assert.isFalse(selected, "onSelect was dispatched before what onOpen threw came out of popup()");
+				}
+
+				async.done();
+			}, 500);
+		}, 10);
+	}
+
+	/**
 		Starts a script that finds the menu the window shows, and chooses its
 		first item with the Down and Enter keys. When no menu shows, it cancels
 		the menu mode so that the test goes on, and fails.

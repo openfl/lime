@@ -16,6 +16,6 @@
 		"native-desktop": "1.2.1",
 		"native-ipc": "1.0.0",
 		"StageWebView": "1.1.1",
-		"wsproto": "1.0.0"
+		"wsproto": "1.1.2"
 	}
 }

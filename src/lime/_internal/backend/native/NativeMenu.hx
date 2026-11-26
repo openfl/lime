@@ -12,6 +12,7 @@ import lime.ui.MenuItem;
 @:fileXml('tags="haxe,release"')
 @:noDebug
 #end
+@:access(lime._internal.backend.native.NativeApplication)
 @:access(lime._internal.backend.native.NativeCFFI)
 @:access(lime.ui.Menu)
 @:access(lime.ui.MenuItem)
@@ -156,8 +157,22 @@ class NativeMenu
 		return item != null ? item.submenu : null;
 	}
 
-	// Called by the native menus while a menu waits to be shown
+	// Called by the native menus while a menu waits to be shown, where native code drops what is thrown
 	private static function handleOpen():Void
+	{
+		#if (!macro && lime_cffi)
+		try
+		{
+			dispatchOpen();
+		}
+		catch (exception:Dynamic)
+		{
+			NativeApplication.deferException(exception);
+		}
+		#end
+	}
+
+	private static function dispatchOpen():Void
 	{
 		#if (!macro && lime_cffi)
 		var target:Int = NativeCFFI.lime_menu_get_open_event(0);

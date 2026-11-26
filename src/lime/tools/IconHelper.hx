@@ -13,6 +13,7 @@ import lime.tools.ImageHelper;
 #if (lime && lime_cffi && !macro)
 import lime.graphics.Image;
 import lime.math.Rectangle;
+import lime.math.Vector2;
 #end
 import lime.tools.Icon;
 import sys.io.File;
@@ -75,6 +76,40 @@ class IconHelper
 					File.saveBytes(targetPath, bytes);
 					return true;
 				}
+			}
+		}
+		#end
+
+		return false;
+	}
+
+	/**
+		Creates a PNG icon of `width` by `height` with the icon drawn in the middle, at `scale` of the
+		size, and the rest transparent, as an Android adaptive icon's foreground wants a full icon.
+	**/
+	public static function createInsetIcon(icons:Array<Icon>, width:Int, height:Int, scale:Float, targetPath:String):Bool
+	{
+		#if (lime && lime_cffi && !macro)
+		if (canUseCache(targetPath, icons))
+		{
+			return true;
+		}
+
+		var innerWidth = Math.round(width * scale);
+		var innerHeight = Math.round(height * scale);
+		var artwork = getIconImage(icons, innerWidth, innerHeight);
+
+		if (artwork != null)
+		{
+			var image = new Image(null, 0, 0, width, height, 0x00000000);
+			image.copyPixels(artwork, artwork.rect, new Vector2(Math.round((width - innerWidth) / 2), Math.round((height - innerHeight) / 2)));
+			var bytes = image.encode(PNG);
+
+			if (bytes != null)
+			{
+				System.mkdir(Path.directory(targetPath));
+				File.saveBytes(targetPath, bytes);
+				return true;
 			}
 		}
 		#end
@@ -275,12 +310,29 @@ class IconHelper
 		return out.getBytes();
 	}
 
+	/**
+		Whether `icons` has an icon for the application, as opposed to only an Android adaptive
+		icon's layers.
+	**/
+	public static function hasIcons(icons:Array<Icon>):Bool
+	{
+		for (icon in icons)
+		{
+			if (icon.adaptive == null) return true;
+		}
+
+		return false;
+	}
+
 	public static function findMatch(icons:Array<Icon>, width:Int, height:Int):Icon
 	{
 		var match:Icon = null;
 
 		for (icon in icons)
 		{
+			// An adaptive icon's layer isn't the icon itself
+			if (icon.adaptive != null) continue;
+
 			if (icon.width == width && icon.height == height && (match == null || match.priority <= icon.priority))
 			{
 				match = icon;
@@ -297,6 +349,8 @@ class IconHelper
 
 		for (icon in icons)
 		{
+			if (icon.adaptive != null) continue;
+
 			var iconDifference = icon.width - width + icon.height - height;
 
 			// If size is unspecified, accept it as an almost-perfect match

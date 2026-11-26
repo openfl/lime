@@ -52,7 +52,7 @@ It includes webview, under an "MIT" license, and headers from the WebView2 SDK, 
 
 _StageWebView is only included in Windows, macOS and iOS builds, in Android applications as Java, and beside Linux applications as a library that they open when a `WebView` is created._
 
-This product bundles wsproto 1.0.0, which is available under an
+This product bundles wsproto 1.1.2, which is available under an
 "Apache 2.0" license. For details, see [DimensionscapeOrg/wsproto](https://github.com/DimensionscapeOrg/wsproto).
 
 _wsproto is only included in native applications that use `WebSocket` or `WebSocketServer`._
@@ -99,8 +99,8 @@ This product bundles libvorbis 1.3.3, which is available under a
 This product bundles libwebm 1.0.0.28, which is available under a
 "BSD" license. For details, see [project/lib/webm/](project/lib).
 
-This product bundles zlib 1.2.8, which is available under a
-"zlib" (BSD-style) license. For details, see [project/lib/zlib/](project/lib).
+This product bundles zlib-ng 2.3.3, which is available under a
+"zlib" (BSD-style) license. For details, see [project/lib/zlib-ng/](project/lib).
 
 -------
 

@@ -13,21 +13,28 @@ import haxe.crypto.Crc32;
 @:access(lime._internal.backend.native.NativeCFFI)
 class GZip
 {
-	public static function compress(bytes:Bytes):Bytes
+	/**
+		Compresses `bytes`. `level` is 0 to 9, from storing the data to the best compression,
+		or -1 for this target's default. Flash ignores it.
+	**/
+	public static function compress(bytes:Bytes, level:Int = -1):Bytes
 	{
+		if (level < -1) level = 0;
+		if (level > 9) level = 9;
+
 		#if (lime_cffi && !macro)
 		#if !cs
-		return NativeCFFI.lime_gzip_compress(bytes, Bytes.alloc(0));
+		return NativeCFFI.lime_gzip_compress_level(bytes, Bytes.alloc(0), level);
 		#else
-		var data:Dynamic = NativeCFFI.lime_gzip_compress(bytes, null);
+		var data:Dynamic = NativeCFFI.lime_gzip_compress_level(bytes, null, level);
 		if (data == null) return null;
 		return @:privateAccess new Bytes(data.length, data.b);
 		#end
 		#elseif js
 		#if commonjs
-		var data = untyped #if haxe4 js.Syntax.code #else __js__ #end ("require (\"pako\").gzip")(bytes.getData());
+		var data = untyped #if haxe4 js.Syntax.code #else __js__ #end ("require (\"pako\").gzip")(bytes.getData(), level < 0 ? null : {level: level});
 		#else
-		var data = untyped #if haxe4 js.Syntax.code #else __js__ #end ("pako.gzip")(bytes.getData());
+		var data = untyped #if haxe4 js.Syntax.code #else __js__ #end ("pako.gzip")(bytes.getData(), level < 0 ? null : {level: level});
 		#end
 		return Bytes.ofData(data);
 		#elseif flash
