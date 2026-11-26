@@ -285,6 +285,7 @@ namespace lime
 		SDL_AddEventWatch(ModalEventWatch, this);
 		modalWatchInstalled = true;
 #endif
+		SDL_AddEventWatch(MinimizeOnFocusLossWatch, NULL);
 
 #ifdef HX_MACOS
 		CFURLRef resourcesURL = CFBundleCopyResourcesDirectoryURL(CFBundleGetMainBundle());
@@ -772,6 +773,22 @@ namespace lime
 #endif
 	}
 
+	// SDL reads its minimize on focus loss hint when a window loses focus. Only the window that has
+	// focus can lose it, so the hint follows each window's Window.minimizeOnFocusLoss as it gains focus.
+	// A watch is called as SDL raises the event, before the window can lose focus again.
+	int SDLApplication::MinimizeOnFocusLossWatch(void *userdata, SDL_Event *event)
+	{
+
+		if (event && event->type == SDL_WINDOWEVENT && event->window.event == SDL_WINDOWEVENT_FOCUS_GAINED)
+		{
+			SDL_Window *window = SDL_GetWindowFromID(event->window.windowID);
+			if (window) SDL_SetHint(SDL_HINT_VIDEO_MINIMIZE_ON_FOCUS_LOSS, SDL_GetWindowData(window, "Lime.KeepOnFocusLoss") == NULL ? "auto" : "0");
+		}
+
+		return 0;
+
+	}
+
 #if defined(HX_WINDOWS) && !defined(HX_WINRT)
 	void SDLApplication::EnterNativeModalLoop()
 	{
@@ -788,6 +805,7 @@ namespace lime
 			SDL_AtomicSet(&s_nativeModalLoopDepth, 0);
 		}
 	}
+
 
 	int SDLApplication::ModalEventWatch(void *userdata, SDL_Event *event)
 	{

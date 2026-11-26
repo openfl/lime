@@ -8,6 +8,21 @@ class TestMain extends Application
 	{
 		super();
 
+		#if cpp
+		if (Sys.systemName() == "Windows")
+		{
+			// hxcpp attaches a windowed program to the console of the process that started it, and
+			// trace then writes to that console instead of the output it was given, which Sys.stdout
+			// still writes to. CI reads that output, so it never showed the report.
+			haxe.Log.trace = function(v:Dynamic, ?infos:haxe.PosInfos)
+			{
+				var stdout = Sys.stdout();
+				stdout.writeString(haxe.Log.formatOutput(v, infos) + "\n");
+				stdout.flush();
+			};
+		}
+		#end
+
 		var runner = new Runner();
 		runner.addCase(new app.ApplicationTest());
 		runner.addCase(new app.EventTest());
@@ -46,10 +61,13 @@ class TestMain extends Application
 		runner.addCase(new math.Vector2Test());
 		runner.addCase(new math.Vector4Test());
 		runner.addCase(new media.AudioBufferTest());
+		runner.addCase(new media.AudioBufferLoadTest());
+		runner.addCase(new media.AudioBufferDecodeTest());
 		runner.addCase(new media.AudioBufferReadSamplesTest());
 		runner.addCase(new media.AudioInputTest());
 		runner.addCase(new media.AudioInputOptionsTest());
 		runner.addCase(new media.AudioSourceTest());
+		runner.addCase(new media.AudioStreamQueueTest());
 		runner.addCase(new media.CameraInputTest());
 		runner.addCase(new media.OpenALSourceTest());
 		runner.addCase(new media.OpenALStateTest());
@@ -91,6 +109,7 @@ class TestMain extends Application
 		runner.addCase(new system.StorageVolumeTest());
 		runner.addCase(new system.TimerTest());
 		runner.addCase(new ui.DragDropTest());
+		runner.addCase(new ui.FileDialogTest());
 		runner.addCase(new ui.GamepadTest());
 		runner.addCase(new ui.HighDPITest());
 		runner.addCase(new ui.InputEventTest());
@@ -98,8 +117,10 @@ class TestMain extends Application
 		runner.addCase(new ui.KeyModifierTest());
 		runner.addCase(new ui.MenuTest());
 		runner.addCase(new ui.MenuOpenCloseTest());
+		runner.addCase(new ui.MouseLockTest());
 		runner.addCase(new ui.TrayIconTest());
 		runner.addCase(new ui.WebViewTest());
+		runner.addCase(new ui.WindowDisplayTest());
 		runner.addCase(new ui.WindowEventTest());
 		runner.addCase(new ui.WindowFullscreenTest());
 		runner.addCase(new ui.WindowOrderTest());
@@ -146,7 +167,23 @@ class TestMain extends Application
 		});
 		#end
 
+		// A run narrowed with UTEST_PATTERN (CI's tests input) can match no test on a target that
+		// has none of them, as WebSocketTest on AIR, and utest fails a run with no tests
+		if (runner.length == 0 && runner.globalPattern != null)
+		{
+			runner.globalPattern = null;
+			runner.addCase(new NoTestMatchesThePattern());
+		}
+
 		Report.create(runner);
 		runner.run();
+	}
+}
+
+private class NoTestMatchesThePattern extends utest.Test
+{
+	public function testNoTestMatchesThePattern():Void
+	{
+		utest.Assert.pass("UTEST_PATTERN matches no test on this target; if it should, check its spelling");
 	}
 }

@@ -386,7 +386,153 @@ class FontTest extends Test
 		Assert.isTrue(unhinted.num_glyphs > 0);
 	}
 	#end
+
+	#if (js && html5)
+	// On HTML5, loadFromName() loads a web font through the CSS Font Loading API wherever the browser
+	// has it, Safari included, rather than measuring text in it every 50 ms for up to 3 seconds (#1125).
+	// The test page declares the font in assets/mono.ttf as 'Lime Samples Mono Regular'.
+
+	@:timeout(5000)
+	public function testSafariLoadsWebFontsThroughTheFontLoadingAPI(async:utest.Async):Void
+	{
+		var page = new WebFontPage(SAFARI);
+
+		Font.loadFromName(WEB_FONT).onComplete(function(font)
+		{
+			page.restore();
+
+			Assert.equals(WEB_FONT, font.name);
+			Assert.equals(1, page.loads.length, "calls to document.fonts.load(): " + page.loads.join(", "));
+			Assert.isTrue(page.loads.length > 0 && page.loads[0].indexOf(WEB_FONT) > -1, "loaded " + page.loads.join(", "));
+			// Loaded, so text can be drawn in it now
+			var faces = [];
+			(untyped js.Browser.document).fonts.forEach(function(face:Dynamic)
+			{
+				if (StringTools.replace(face.family, "\"", "") == WEB_FONT) faces.push(face.status);
+			});
+			Assert.isTrue(faces.length > 0 && faces.indexOf("loaded") > -1, "the font's faces are " + faces.join(", ") + ", not loaded");
+			async.done();
+		}).onError(function(error)
+		{
+			page.restore();
+			Assert.fail("loading failed: " + error);
+			async.done();
+		});
+	}
+
+	@:timeout(5000)
+	public function testAnIOSWebViewLoadsWebFontsThroughTheFontLoadingAPI(async:utest.Async):Void
+	{
+		var page = new WebFontPage(IOS_WEB_VIEW);
+
+		Font.loadFromName(WEB_FONT).onComplete(function(font)
+		{
+			page.restore();
+
+			Assert.equals(1, page.loads.length, "calls to document.fonts.load(): " + page.loads.join(", "));
+			async.done();
+		}).onError(function(error)
+		{
+			page.restore();
+			Assert.fail("loading failed: " + error);
+			async.done();
+		});
+	}
+
+	@:timeout(5000)
+	public function testAMissingWebFontDoesNotKeepSafariWaiting(async:utest.Async):Void
+	{
+		// The font loading API says at once that no font of that name is declared, where measuring
+		// text in it would wait out its three seconds
+		var page = new WebFontPage(SAFARI);
+		var started = haxe.Timer.stamp();
+
+		Font.loadFromName("Lime Test No Such Font").onComplete(function(font)
+		{
+			var elapsed = haxe.Timer.stamp() - started;
+			page.restore();
+
+			Assert.equals("Lime Test No Such Font", font.name);
+			Assert.isTrue(elapsed < 1, "took " + Math.round(elapsed * 1000) + " ms");
+			async.done();
+		}).onError(function(error)
+		{
+			page.restore();
+			Assert.fail("loading failed: " + error);
+			async.done();
+		});
+	}
+
+	@:timeout(10000)
+	public function testWithoutTheFontLoadingAPIWebFontsStillLoad(async:utest.Async):Void
+	{
+		// A browser without document.fonts measures text in the font instead
+		var page = new WebFontPage(null, false);
+
+		Font.loadFromName(WEB_FONT).onComplete(function(font)
+		{
+			page.restore();
+
+			Assert.equals(WEB_FONT, font.name);
+			async.done();
+		}).onError(function(error)
+		{
+			page.restore();
+			Assert.fail("loading failed: " + error);
+			async.done();
+		});
+	}
+
+	private static inline var WEB_FONT = "Lime Samples Mono Regular";
+	private static inline var SAFARI = "Mozilla/5.0 (Macintosh; Intel Mac OS X 14_5) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.5 Safari/605.1.15";
+	private static inline var IOS_WEB_VIEW = "Mozilla/5.0 (iPhone; CPU iPhone OS 12_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148";
+	#end
 }
+
+#if (js && html5)
+/**
+	The page as another browser shows it: `navigator.userAgent` reads `userAgent` when one is
+	given, and `document.fonts` is gone when `fontLoadingAPI` is false. Otherwise each call to
+	`document.fonts.load()` is noted in `loads` and goes on to the browser's own. `restore()`
+	puts the page back as it was.
+**/
+private class WebFontPage
+{
+	public var loads(default, null):Array<String> = [];
+
+	public function new(userAgent:String, fontLoadingAPI:Bool = true)
+	{
+		if (userAgent != null)
+		{
+			js.lib.Object.defineProperty(js.Browser.navigator, "userAgent", {configurable: true, get: function() return userAgent});
+		}
+
+		var document:Dynamic = js.Browser.document;
+
+		if (!fontLoadingAPI)
+		{
+			js.lib.Object.defineProperty(document, "fonts", {configurable: true, value: null});
+		}
+		else
+		{
+			var fonts:Dynamic = document.fonts;
+			var load:Dynamic = fonts.load;
+			fonts.load = function(font:String, ?text:String):Dynamic
+			{
+				loads.push(font);
+				return load.call(fonts, font, text);
+			};
+		}
+	}
+
+	public function restore():Void
+	{
+		js.Syntax.delete(js.Browser.navigator, "userAgent");
+		js.Syntax.delete(js.Browser.document, "fonts");
+		js.Syntax.delete((untyped js.Browser.document).fonts, "load");
+	}
+}
+#end
 
 #if (lime_cffi && !macro)
 private class OverridingFont extends Font

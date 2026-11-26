@@ -26,7 +26,6 @@ class ImageAllocationTest extends Test
 	}
 
 	#if hl
-	@Ignored("Waiting on #2131")
 	public function testSetPixelAllocatesNoMoreThanSetPixel32():Void
 	{
 		// setPixel only has to read the alpha it keeps, where setPixel32 reads nothing. Today it reads all four
@@ -60,7 +59,6 @@ class ImageAllocationTest extends Test
 		}
 	}
 
-	@Ignored("Waiting on #2134")
 	public function testCopyPixelsWithinOneImageAllocatesForTheRectItCopies():Void
 	{
 		var image = new Image(null, 0, 0, 512, 512, 0x336699FF);

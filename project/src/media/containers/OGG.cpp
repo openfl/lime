@@ -1,5 +1,6 @@
 #include <media/codecs/vorbis/VorbisFile.h>
 #include <media/containers/OGG.h>
+#include <system/System.h>
 #include <limits.h>
 #include <string.h>
 
@@ -7,7 +8,24 @@
 namespace lime {
 
 
+	static bool DecodeOGG (Resource *resource, AudioBuffer *audioBuffer);
+
+
 	bool OGG::Decode (Resource *resource, AudioBuffer *audioBuffer) {
+
+		// libvorbis only reads the encoded sound and writes the buffer's own
+		// memory, so the collector needn't wait for this thread: a decode on a
+		// worker thread otherwise holds up every collection until it finishes
+		System::GCEnterBlocking ();
+		bool decoded = DecodeOGG (resource, audioBuffer);
+		System::GCExitBlocking ();
+
+		return decoded;
+
+	}
+
+
+	static bool DecodeOGG (Resource *resource, AudioBuffer *audioBuffer) {
 
 		OggVorbis_File* oggFile;
 		Bytes *data = NULL;

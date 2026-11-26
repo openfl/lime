@@ -137,7 +137,10 @@ class HashlinkHelper
 			}
 		}
 
-		if (platform == WINDOWS && !project.targetFlags.exists("hlc") && !project.environment.exists("SHOW_CONSOLE"))
+		// A launcher without a console prints nowhere, even run from a terminal, as HashLink can't attach
+		// to the terminal's console the way hxcpp's no_console builds do. Debug builds keep theirs, so
+		// trace output and uncaught errors reach the terminal they run from.
+		if (platform == WINDOWS && !project.targetFlags.exists("hlc") && !project.debug && !project.environment.exists("SHOW_CONSOLE"))
 		{
 			setWindowsGUISubsystem(executablePath);
 		}

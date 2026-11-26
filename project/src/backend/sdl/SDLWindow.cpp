@@ -604,7 +604,13 @@ namespace lime {
 	#endif
 #endif
 
-	SDLWindow::SDLWindow (Application* application, int width, int height, int flags, const char* title) {
+	SDLWindow::SDLWindow (Application* application, int width, int height, int flags, const char* title, int x, int y, int display) {
+
+		// Centered on the display asked for, as SDL makes a window it isn't given a position for, and
+		// a fullscreen one fills that display. A position given is on the whole desktop.
+		if (display < 0 || display >= SDL_GetNumVideoDisplays ()) display = 0;
+		int windowX = (flags & WINDOW_FLAG_POSITION_X) ? x : SDL_WINDOWPOS_UNDEFINED_DISPLAY (display);
+		int windowY = (flags & WINDOW_FLAG_POSITION_Y) ? y : SDL_WINDOWPOS_UNDEFINED_DISPLAY (display);
 
 		activeSwapInterval = 0;
 		requestedVSyncMode = (flags & WINDOW_FLAG_VSYNC) ? 1 : 0;
@@ -818,7 +824,7 @@ namespace lime {
 		}
 		#endif
 
-		sdlWindow = SDL_CreateWindow (title, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, width, height, sdlWindowFlags);
+		sdlWindow = SDL_CreateWindow (title, windowX, windowY, width, height, sdlWindowFlags);
 
 		// The window has its visual now, and later windows choose their own
 		#if defined (HX_LINUX) && !defined (RASPBERRYPI)
@@ -843,7 +849,7 @@ namespace lime {
 			SDL_DestroyWindow (sdlWindow);
 			SDL_GL_SetAttribute (SDL_GL_CONTEXT_MAJOR_VERSION, 2);
 
-			sdlWindow = SDL_CreateWindow (title, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, width, height, sdlWindowFlags);
+			sdlWindow = SDL_CreateWindow (title, windowX, windowY, width, height, sdlWindowFlags);
 
 		}
 		#endif
@@ -863,7 +869,7 @@ namespace lime {
 			SDL_GL_SetAttribute (SDL_GL_MULTISAMPLEBUFFERS, 0);
 			SDL_GL_SetAttribute (SDL_GL_MULTISAMPLESAMPLES, 0);
 
-			sdlWindow = SDL_CreateWindow (title, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, width, height, sdlWindowFlags);
+			sdlWindow = SDL_CreateWindow (title, windowX, windowY, width, height, sdlWindowFlags);
 
 		}
 
@@ -877,7 +883,7 @@ namespace lime {
 
 			if (LoadSoftwareOpenGL ()) {
 
-				sdlWindow = SDL_CreateWindow (title, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, width, height, sdlWindowFlags);
+				sdlWindow = SDL_CreateWindow (title, windowX, windowY, width, height, sdlWindowFlags);
 
 			}
 
@@ -939,7 +945,7 @@ namespace lime {
 				// and SDL unloads the system's with its only window
 				SDL_DestroyWindow (sdlWindow);
 				bool loaded = LoadSoftwareOpenGL ();
-				sdlWindow = SDL_CreateWindow (title, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, width, height, sdlWindowFlags);
+				sdlWindow = SDL_CreateWindow (title, windowX, windowY, width, height, sdlWindowFlags);
 
 				if (!sdlWindow) {
 
@@ -1603,6 +1609,13 @@ namespace lime {
 	}
 
 
+	bool SDLWindow::GetMinimizeOnFocusLoss () {
+
+		return SDL_GetWindowData (sdlWindow, "Lime.KeepOnFocusLoss") == NULL;
+
+	}
+
+
 	bool SDLWindow::GetMouseLock () {
 
 		return SDL_GetRelativeMouseMode ();
@@ -2236,6 +2249,21 @@ namespace lime {
 	}
 
 
+	void SDLWindow::SetMinimizeOnFocusLoss (bool value) {
+
+		SDL_SetWindowData (sdlWindow, "Lime.KeepOnFocusLoss", value ? NULL : (void*)1);
+
+		// SDLApplication sets SDL's hint for the window that gains focus, which is the only one that
+		// can lose it, so a window that has focus now sets it itself
+		if (SDL_GetKeyboardFocus () == sdlWindow) {
+
+			SDL_SetHint (SDL_HINT_VIDEO_MINIMIZE_ON_FOCUS_LOSS, value ? "auto" : "0");
+
+		}
+
+	}
+
+
 	void SDLWindow::SetMouseLock (bool mouseLock) {
 
 		if (mouseLock) {
@@ -2453,9 +2481,9 @@ namespace lime {
 	}
 
 
-	Window* CreateWindow (Application* application, int width, int height, int flags, const char* title) {
+	Window* CreateWindow (Application* application, int width, int height, int flags, const char* title, int x, int y, int display) {
 
-		SDLWindow* window = new SDLWindow (application, width, height, flags, title);
+		SDLWindow* window = new SDLWindow (application, width, height, flags, title, x, y, display);
 
 		if (!window->sdlWindow) {
 

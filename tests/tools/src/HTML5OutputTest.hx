@@ -451,6 +451,28 @@ class HTML5OutputTest extends Test
 		Assert.equals("true", windows[0].get("vsync"));
 	}
 
+	// <window preserve-drawing-buffer="true" /> reaches the main window's render context, and without
+	// it the context doesn't keep its image, as a WebGL context's default is (#1275)
+	public function testPreserveDrawingBufferReachesTheRenderContext():Void
+	{
+		for (attribute in ['preserve-drawing-buffer="true"', '', 'preserve-drawing-buffer="false"'])
+		{
+			output.update('<project>
+				<app main="Main" file="MyApplication" />
+				<window $attribute />
+			</project>');
+
+			var main = output.read("haxe/ApplicationMain.hx");
+			var start = main.indexOf("attributes.context =");
+			var end = start > -1 ? main.indexOf("};", start) : -1;
+			var context = (start > -1 && end > -1) ? main.substring(start, end) : "";
+			var entry = ~/#if html5 preserveDrawingBuffer: (\w+), #end/;
+
+			Assert.isTrue(entry.match(context), "no preserveDrawingBuffer in the render context for <window " + attribute + " />");
+			if (entry.match(context)) Assert.equals(attribute == 'preserve-drawing-buffer="true"' ? "true" : "false", entry.matched(1), attribute);
+		}
+	}
+
 	// A window with no title of its own is named after the application
 	public function testTheWindowTitleDefaultsToTheMetaTitle():Void
 	{

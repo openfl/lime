@@ -101,7 +101,6 @@ class ImageCopyTest extends Test
 		});
 	}
 
-	@Ignored("Waiting on #2219")
 	public function testCopyPixelsMergingClearSourcePixelsLeavesTheDestinationAlone():Void
 	{
 		// A clear source pixel adds nothing, so the destination keeps its bytes, colors under clear alpha included
