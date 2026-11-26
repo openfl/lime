@@ -289,6 +289,7 @@ Changelog
 - Fixed iOS and tvOS applications built with libhxcpp not linking Security.framework, which libhxcpp's TLS (`sys.ssl`, HTTPS through `haxe.Http`, `WebSocket` over `wss://`) uses there to check certificates. Lime links it only when the hxcpp in use asks for it, so builds with hxcpp 4.3 are unchanged.
 - Fixed `FileSystem.fullPath()` on HashLink for Windows giving only the first half of each name in its case on disk.
 - Fixed decoding sounds from bytes on macOS and iOS crashing when SDL_sound's Core Audio decoder tries them, as it does for M4A, AAC and CAF data and for bytes that aren't a sound.
+- Fixed iOS builds failing to sign with a distribution provisioning profile, as the entitlements always set `get-task-allow` to true. The provisioning profile now sets it, as in projects Xcode makes, so development builds can still be debugged.
 - Fixed Cairo clipping thick strokes under a matrix that stretches one axis and shrinks the other by about the same factor.
 - Fixed `System.desktopDirectory` and `System.documentsDirectory` on Linux always giving `~/Desktop` and `~/Documents`, rather than the folders the desktop's user-dirs.dirs file names, such as `~/Bureau` in French.
 - Fixed `window.displayMode.refreshRate` reading 0 where SDL has no refresh rate for the window's mode, as on Linux: it now gives the display's current rate.
