@@ -364,19 +364,22 @@ class ImageDataUtil
 							for (x in 0...destView.width)
 							{
 								sourcePixel.readUInt8(sourceData, sourcePosition, sourceFormat, sourcePremultiplied);
-								destPixel.readUInt8(destData, destPosition, destFormat, destPremultiplied);
 
-								sourceAlpha = sourcePixel.a / 255.0;
-								destAlpha = destPixel.a / 255.0;
-								oneMinusSourceAlpha = 1 - sourceAlpha;
-								blendAlpha = sourceAlpha + (destAlpha * oneMinusSourceAlpha);
-
-								if (blendAlpha == 0)
+								// An opaque pixel blends to itself, and a transparent one leaves
+								// the destination as it is, so only the others are blended
+								if (sourcePixel.a == 0xFF)
 								{
-									destPixel = 0;
+									sourcePixel.writeUInt8(destData, destPosition, destFormat, destPremultiplied);
 								}
-								else
+								else if (sourcePixel.a != 0)
 								{
+									destPixel.readUInt8(destData, destPosition, destFormat, destPremultiplied);
+
+									sourceAlpha = sourcePixel.a / 255.0;
+									destAlpha = destPixel.a / 255.0;
+									oneMinusSourceAlpha = 1 - sourceAlpha;
+									blendAlpha = sourceAlpha + (destAlpha * oneMinusSourceAlpha);
+
 									destPixel.r = RGBA.__clamp[
 										Math.round((sourcePixel.r * sourceAlpha + destPixel.r * destAlpha * oneMinusSourceAlpha) / blendAlpha)
 									];
@@ -387,9 +390,9 @@ class ImageDataUtil
 										Math.round((sourcePixel.b * sourceAlpha + destPixel.b * destAlpha * oneMinusSourceAlpha) / blendAlpha)
 									];
 									destPixel.a = RGBA.__clamp[Math.round(blendAlpha * 255.0)];
-								}
 
-								destPixel.writeUInt8(destData, destPosition, destFormat, destPremultiplied);
+									destPixel.writeUInt8(destData, destPosition, destFormat, destPremultiplied);
+								}
 
 								sourcePosition += 4;
 								destPosition += 4;
