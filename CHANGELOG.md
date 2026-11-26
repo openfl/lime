@@ -221,7 +221,7 @@ Changelog
 - Fixed `GZip.compress()` and `decompress()` on Flash, and empty streams and concatenated GZIP members on Flash and AIR.
 - Fixed `Bytes` made in native code having a trailing zero on Neko, and `Bytes.fromFile()` giving null for an empty file.
 - Fixed `UTF8String` counting bytes rather than code points on Neko with Haxe 4.
-- Fixed `HTTPRequest.timeout` being ignored on native targets, so a server that never answered was waited on for good.
+- Fixed `HTTPRequest.timeout` being ignored on native targets, so a server that never answered, or stopped partway, was waited on for good. It is how long a request may go without receiving or sending data, as OpenFL's `URLRequest.idleTimeout`, which sets it, so a download or upload still under way carries on past it.
 - Fixed `HTTPRequest.cancel()` not stopping the transfer, and a redirect that turns a request into a GET keeping its content.
 - Fixed `HTTPRequest` error statuses losing the response body, text responses keeping a BOM, and `responseHeaders` coming from an earlier response of a redirect and splitting values at every colon.
 - Fixed the last progress report of a native `HTTPRequest` missing the end of the body, and a new request waiting up to a second while others waited on their servers.
