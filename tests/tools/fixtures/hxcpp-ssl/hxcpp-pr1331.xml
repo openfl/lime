@@ -1,0 +1,35 @@
+<xml>
+
+<pragma once="true" />
+
+<include name="${HXCPP}/project/thirdparty/mbedtls-files.xml" />
+
+<files id="hxcpp_ssl" >
+	<depend files="hxcpp-depends"/>
+	<depend name="${this_dir}/Build.xml" dateOnly="true" />
+	<cache value="true" asLibrary="true" />
+
+	<include name="${HXCPP}/project/thirdparty/mbedtls-flags.xml" />
+
+	<file name="${this_dir}/SSL.cpp"/>
+</files>
+
+<target id="haxe">
+	<!-- the order is important, mbedtls needs to come after hxcpp_ssl -->
+	<files id="hxcpp_ssl" />
+	<files id="mbedtls" />
+
+	<lib name="advapi32.lib" if="windows" unless="static_link" />
+	<lib name="crypt32.lib" if="windows" unless="static_link" />
+	<lib name="ws2_32.lib" if="windows" unless="static_link" />
+
+	<section if="apple" unless="static_link">
+		<flag value="-framework" />
+		<flag value="Security" />
+
+		<flag value="-framework" unless="macos" />
+		<flag value="CoreFoundation" unless="macos" />
+	</section>
+</target>
+
+</xml>
