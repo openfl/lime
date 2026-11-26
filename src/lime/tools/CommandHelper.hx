@@ -33,9 +33,14 @@ class CommandHelper
 	}
 
 	/**
-		Opens `url` in the default browser. hxp's `System.openURL()` hands it to
-		`start` on Windows as it is, which opens a console window titled with the
-		URL instead, as Haxe quotes it for the slashes in it.
+		Opens `url` in the default browser without waiting for the browser.
+
+		hxp 1.3.1's `System.openURL()` gets two hosts wrong. On Windows it hands
+		the URL to `start` as it is, which opens a console window titled with the
+		URL instead, as Haxe quotes it for the slashes in it, so `start` is given
+		an empty title first. On Linux it passes a literal "&" to xdg-open, which
+		exits with an error and stops the tools, so xdg-open is run through the
+		shell instead, in the background, with its output discarded.
 	**/
 	public static function openURL(url:String):Void
 	{
@@ -44,9 +49,14 @@ class CommandHelper
 			Log.info("", " - \x1b[1mOpening:\x1b[0m " + url);
 			Sys.command("start", ["", url]);
 		}
-		else
+		else if (System.hostPlatform == MAC)
 		{
 			System.openURL(url);
+		}
+		else
+		{
+			var quotedURL = "'" + StringTools.replace(url, "'", "'\\''") + "'";
+			System.runCommand("", "xdg-open " + quotedURL + " > /dev/null 2>&1 &", null, true, true);
 		}
 	}
 
