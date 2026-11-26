@@ -234,6 +234,7 @@ Changelog
 - Fixed races between threads using CURL multi handles, and finalizing CURL handles deadlocking the collector.
 - Fixed `AL.getString()` with an unknown name ending the process on HashLink, refused vector queries giving uninitialized values, the three-value getters filling the wrong elements, and creating buffers and sources clearing an error the application hadn't read.
 - Fixed Ogg Vorbis decoding writing past its buffer.
+- Fixed `VorbisFile.readFloat()` doing nothing on native targets. It now decodes into the given bytes as interleaved 32-bit floats.
 - Fixed `AudioBuffer.dispose()` keeping the decoded samples and their OpenAL buffer on native targets.
 - Fixed a streamed `AudioSource` seeked before it plays replaying its first buffers, a seek starting it early, a `currentTime` set before `play()` being lost, and `currentTime` jumping to 0 at the end of a sound.
 - Fixed asset libraries not preloading again on `load()` after `unload()`, `isLocal()` and `Assets.list()` giving ids that don't work, a corrupt manifest or bundle ending the application rather than failing `loadLibrary()`, `AssetManifest.parse()` losing the version and absolute paths, `AssetBundle.fromFile()` with a file it can't read, and `PackedAssetLibrary` `unload()`, `loadText()` with zip packs, and loaders run before the pack loads.
