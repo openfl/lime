@@ -76,7 +76,6 @@ class ImageWorkerTest extends Test
 		Assert.isFalse(result.waited, "Encoding a JPEG on a worker: " + result);
 	}
 
-	@Ignored("Waiting on #2125")
 	public function testTheCollectorRunsWhileAWorkerDecodesAPNG():Void
 	{
 		var bytes = pngBytes();
@@ -90,7 +89,6 @@ class ImageWorkerTest extends Test
 		Assert.equals(checksum(noiseImage()), checksum(decoded));
 	}
 
-	@Ignored("Waiting on #2125")
 	public function testTheCollectorRunsWhileAWorkerDecodesAJPEG():Void
 	{
 		var bytes = jpegBytes();
