@@ -112,9 +112,12 @@ class TemplateAssetOutputTest extends Test
 			<assets path="config" type="template" />
 		</project>');
 
+		Assert.notNull(output.platform.targetDirectory);
+
 		for (i in 0...3)
 		{
-			Assert.equals("title=Template Assets output=Export/windows", output.read("bin/config/template" + i + ".txt"), "template" + i);
+			// The Windows platform's own output directory, which depends on the host it is built from
+			Assert.equals("title=Template Assets output=" + output.platform.targetDirectory, output.read("bin/config/template" + i + ".txt"), "template" + i);
 		}
 	}
 
