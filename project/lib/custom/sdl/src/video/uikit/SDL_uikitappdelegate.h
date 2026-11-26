@@ -30,20 +30,6 @@
 
 @end
 
-/* The application's delegate on iOS 13 and later, which also delegates its window scenes, so the
- * application runs in the UIScene life cycle */
-API_AVAILABLE(ios(13.0), tvos(13.0))
-@interface SDLUIKitSceneDelegate : NSObject<UIApplicationDelegate, UIWindowSceneDelegate>
-
-+ (NSString *)getSceneDelegateClassName;
-
-- (void)hideLaunchScreen;
-
-/* As SDLUIKitDelegate's, for third-party APIs that look for it */
-@property (nonatomic) UIWindow *window;
-
-@end
-
 @interface SDLUIKitDelegate : NSObject<UIApplicationDelegate>
 
 + (id)sharedAppDelegate;
@@ -56,6 +42,16 @@ API_AVAILABLE(ios(13.0), tvos(13.0))
  * several major third-party ad APIs (e.g. Google admob) incorrectly assume this
  * property always exists, and will crash if it doesn't. */
 @property (nonatomic) UIWindow *window;
+
+@end
+
+/* The application's delegate on iOS 13 and later, which also delegates its window scenes, so the
+ * application runs in the UIScene life cycle. It extends SDLUIKitDelegate, so what a category adds
+ * to SDLUIKitDelegate, such as an extension's UIApplicationDelegate methods, still applies */
+API_AVAILABLE(ios(13.0), tvos(13.0))
+@interface SDLUIKitSceneDelegate : SDLUIKitDelegate<UIWindowSceneDelegate>
+
++ (NSString *)getSceneDelegateClassName;
 
 @end
 

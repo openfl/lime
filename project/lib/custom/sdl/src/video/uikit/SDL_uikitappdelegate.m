@@ -387,7 +387,8 @@ static BOOL SDL_UIKitIsExternalDisplayScene(UIScene *scene)
 }
 
 @implementation SDLUIKitSceneDelegate {
-    UIWindow *launchWindow;
+    UIWindow *sceneLaunchWindow;
+    NSMutableArray<NSURL *> *launchURLs;
 }
 
 + (NSString *)getSceneDelegateClassName
@@ -453,11 +454,11 @@ static BOOL SDL_UIKitIsExternalDisplayScene(UIScene *scene)
     }
 
     if (vc.view) {
-        launchWindow = [[UIWindow alloc] initWithWindowScene:windowScene];
-        launchWindow.frame = windowScene.coordinateSpace.bounds;
-        launchWindow.windowLevel = UIWindowLevelNormal + 1.0;
-        launchWindow.hidden = NO;
-        launchWindow.rootViewController = vc;
+        sceneLaunchWindow = [[UIWindow alloc] initWithWindowScene:windowScene];
+        sceneLaunchWindow.frame = windowScene.coordinateSpace.bounds;
+        sceneLaunchWindow.windowLevel = UIWindowLevelNormal + 1.0;
+        sceneLaunchWindow.hidden = NO;
+        sceneLaunchWindow.rootViewController = vc;
     }
 #endif
 
@@ -467,13 +468,16 @@ static BOOL SDL_UIKitIsExternalDisplayScene(UIScene *scene)
     /* register a callback for the idletimer hint */
     SDL_AddHintCallback(SDL_HINT_IDLE_TIMER_DISABLED, SDL_IdleTimerDisabledChanged, NULL);
 
+    /* The URLs the application was opened with wait until it has started, as SDL's event queue
+     * doesn't exist yet (libsdl-org/SDL 290f0c831fe4) */
+    launchURLs = [[NSMutableArray alloc] init];
     for (NSUserActivity *activity in connectionOptions.userActivities) {
         if (activity.webpageURL) {
-            [self sendDropFileForURL:activity.webpageURL];
+            [launchURLs addObject:activity.webpageURL];
         }
     }
     for (UIOpenURLContext *urlContext in connectionOptions.URLContexts) {
-        [self sendDropFileForURL:urlContext.URL];
+        [launchURLs addObject:urlContext.URL];
     }
 
     SDL_SetMainReady();
@@ -551,13 +555,13 @@ static BOOL SDL_UIKitIsExternalDisplayScene(UIScene *scene)
 
 - (void)hideLaunchScreen
 {
-    UIWindow *window = launchWindow;
+    UIWindow *window = sceneLaunchWindow;
 
     if (!window || window.hidden) {
         return;
     }
 
-    launchWindow = nil;
+    sceneLaunchWindow = nil;
 
     /* Do a nice animated fade-out (roughly matches the real launch behavior.) */
     [UIView animateWithDuration:0.2 animations:^{
@@ -574,35 +578,27 @@ static BOOL SDL_UIKitIsExternalDisplayScene(UIScene *scene)
      * have a chance to load resources while the launch screen is still up. */
     [self performSelector:@selector(hideLaunchScreen) withObject:nil afterDelay:0.0];
 
+    /* And send the URLs the application was opened with, once SDL is running */
+    [self performSelector:@selector(processLaunchURLs) withObject:nil afterDelay:0.0];
+
     /* run the user's application, passing argc and argv */
     SDL_iPhoneSetEventPump(SDL_TRUE);
     exit_status = forward_main(forward_argc, forward_argv);
     SDL_iPhoneSetEventPump(SDL_FALSE);
 
-    if (launchWindow) {
-        launchWindow.hidden = YES;
-        launchWindow = nil;
+    if (sceneLaunchWindow) {
+        sceneLaunchWindow.hidden = YES;
+        sceneLaunchWindow = nil;
     }
 }
 
-- (UIWindow *)window
+- (void)processLaunchURLs
 {
-    SDL_VideoDevice *_this = SDL_GetVideoDevice();
-    if (_this) {
-        SDL_Window *window = NULL;
-        for (window = _this->windows; window != NULL; window = window->next) {
-            SDL_WindowData *data = (__bridge SDL_WindowData *) window->driverdata;
-            if (data != nil) {
-                return data.uiwindow;
-            }
-        }
+    NSArray<NSURL *> *urls = launchURLs;
+    launchURLs = nil;
+    for (NSURL *url in urls) {
+        [self sendDropFileForURL:url];
     }
-    return nil;
-}
-
-- (void)setWindow:(UIWindow *)window
-{
-    /* Do nothing. */
 }
 
 - (void)sendDropFileForURL:(NSURL *)url
@@ -682,6 +678,13 @@ static BOOL SDL_UIKitIsExternalDisplayScene(UIScene *scene)
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
     NSBundle *bundle = [NSBundle mainBundle];
+
+    if (@available(iOS 13.0, tvOS 13.0, *)) {
+        if ([self isKindOfClass:[SDLUIKitSceneDelegate class]]) {
+            /* The application starts when its window scene connects, in SDLUIKitSceneDelegate */
+            return YES;
+        }
+    }
 
 #ifdef SDL_IPHONE_LAUNCHSCREEN
     /* The normal launch screen is displayed until didFinishLaunching returns,
