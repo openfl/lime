@@ -28,6 +28,8 @@ class ToolsTestMain
 		runner.addCase(new NativeFilesTest());
 		runner.addCase(new AppleOutputTest());
 		runner.addCase(new OpenURLTest());
+		runner.addCase(new NativeSourcesTest());
+		runner.addCase(new BuildEnvironmentTest());
 
 		// Each test is named as it starts, so a run that stops (the tools exit on errors) shows where
 		runner.onTestStart.add(function(handler)

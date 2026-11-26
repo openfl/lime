@@ -19,6 +19,7 @@ import lime.tools.HXProject;
 import lime.tools.Icon;
 import lime.tools.IconHelper;
 import lime.tools.JavaHelper;
+import lime.tools.NativeSourcesHelper;
 import lime.tools.NekoHelper;
 import lime.tools.NodeJSHelper;
 import lime.tools.Orientation;
@@ -582,6 +583,7 @@ class MacPlatform extends PlatformTarget
 				if (ndll.path == null || ndll.path == "")
 				{
 					context.ndlls[i].path = NDLL.getLibraryPath(ndll, "Mac" + dirSuffix, "lib", ".a", project.debug);
+					NativeSourcesHelper.checkLibrary(context.ndlls[i].path);
 				}
 			}
 		}

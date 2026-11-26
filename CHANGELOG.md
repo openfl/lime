@@ -101,6 +101,10 @@ Changelog
 - Added `&&`, `!` and parentheses to project.xml `if` and `unless` conditions, read as in Haxe's `#if`, and a warning for a condition that can't be read, which is false.
 - Added deprecation warnings to the command-line tools for what Lime 9 removes: the YUI Compressor (`-yui`), the armv5 and armv6 Android architectures, and Haxe 3.
 - Added `<window preserve-drawing-buffer="true" />` and the `preserveDrawingBuffer` option of `lime.embed()`, so an HTML5 application's main window can keep its drawing buffer for `readPixels()` and `toDataURL()`.
+- Added a warning to native builds and `lime rebuild` when the `hxcpp` haxelib is not libhxcpp while Lime is a git checkout or libhxcpp is installed, with the command that switches it, `haxelib run libhxcpp setup`.
+- Added a record of the sources `lime rebuild` built each native library from in a git checkout (`lime.ndll.sources` beside `lime.ndll`: the git tree of `project` and any submodules not at their pinned commits), and a warning in native builds that use a library built from older native sources, naming the `lime rebuild` command that builds it again. Haxelib releases and libraries without a record are not checked.
+- Added a warning to `lime rebuild` when submodules are not at the commits the checkout pins, naming `git submodule update --init --recursive`.
+- Added `lime diagnose`, which prints the Haxe, Lime, OpenFL and libhxcpp versions, with git commits for git checkouts, the folder `haxelib path hxcpp` gives, the C++ compiler hxcpp picks, the host and what Lime's native libraries were built from, to paste into a bug report.
 - Changed native streamed audio to refill from a thread of its own, so a stall on the main thread no longer drains a stream's buffers and drops its sound. Define `lime_audio_no_stream_thread` to refill from the main thread as before.
 - Changed native audio loading to decode through SDL_sound first, then Lime's own WAV and Ogg Vorbis decoders.
 - Changed asset copying and embedding to behave consistently across targets.
