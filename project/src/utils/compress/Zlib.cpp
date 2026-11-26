@@ -1,4 +1,7 @@
 #include <utils/compress/Zlib.h>
+#include <system/System.h>
+#include <limits.h>
+#include <string.h>
 #include <zlib.h>
 
 
@@ -16,7 +19,34 @@ extern "C" int zlib_register_prims()
 namespace lime {
 
 
+	static void Deflate (ZlibType type, Bytes* data, Bytes* result);
+	static bool Inflate (ZlibType type, Bytes* data, Bytes* result);
+
+
+	// zlib only reads the input and writes the result's own memory, so the
+	// collector needn't wait for this thread: compressing on a worker thread
+	// otherwise holds up every collection until it finishes
 	void Zlib::Compress (ZlibType type, Bytes* data, Bytes* result) {
+
+		System::GCEnterBlocking ();
+		Deflate (type, data, result);
+		System::GCExitBlocking ();
+
+	}
+
+
+	bool Zlib::Decompress (ZlibType type, Bytes* data, Bytes* result) {
+
+		System::GCEnterBlocking ();
+		bool decompressed = Inflate (type, data, result);
+		System::GCExitBlocking ();
+
+		return decompressed;
+
+	}
+
+
+	static void Deflate (ZlibType type, Bytes* data, Bytes* result) {
 
 		int windowBits = 15;
 
@@ -74,7 +104,7 @@ namespace lime {
 	}
 
 
-	bool Zlib::Decompress (ZlibType type, Bytes* data, Bytes* result) {
+	static bool Inflate (ZlibType type, Bytes* data, Bytes* result) {
 
 		// An empty input is no stream at all
 		if (!data->b || data->length <= 0) return false;
@@ -102,19 +132,14 @@ namespace lime {
 
 		}
 
-		const int chunkSize = 1 << 16;
-		Bytef* buffer = (Bytef*)malloc (chunkSize);
-
-		if (!buffer) {
-
-			inflateEnd (&stream);
-			return false;
-
-		}
-
 		stream.avail_in = data->length;
 		stream.next_in = data->b;
 
+		// zlib inflates straight into the result, which grows by doubling and is
+		// trimmed at the end: growing it to fit each chunk in turn copied
+		// everything inflated so far for every chunk
+		const int chunkSize = 1 << 16;
+		int capacity = 0;
 		int readTotal = 0;
 		int members = 0;
 		bool finished = false;
@@ -122,25 +147,33 @@ namespace lime {
 
 		while (!finished && !failed) {
 
-			stream.avail_out = chunkSize;
-			stream.next_out = buffer;
+			if (capacity - readTotal < chunkSize) {
 
-			int ret = inflate (&stream, Z_NO_FLUSH);
-			int readSize = chunkSize - stream.avail_out;
-
-			if (readSize > 0) {
-
-				if (!result->TryResize (readTotal + readSize)) {
+				if (capacity == INT_MAX) {
 
 					failed = true;
 					break;
 
 				}
 
-				memcpy (result->b + readTotal, buffer, readSize);
-				readTotal += readSize;
+				int grown = capacity < chunkSize ? chunkSize : (capacity > INT_MAX / 2 ? INT_MAX : capacity * 2);
+
+				if (!result->TryResize (grown)) {
+
+					failed = true;
+					break;
+
+				}
+
+				capacity = grown;
 
 			}
+
+			stream.avail_out = capacity - readTotal;
+			stream.next_out = result->b + readTotal;
+
+			int ret = inflate (&stream, Z_NO_FLUSH);
+			readTotal = capacity - stream.avail_out;
 
 			switch (ret) {
 
@@ -193,7 +226,12 @@ namespace lime {
 		}
 
 		inflateEnd (&stream);
-		free (buffer);
+
+		if (result->length != readTotal) {
+
+			result->TryResize (readTotal);
+
+		}
 
 		return !failed;
 
