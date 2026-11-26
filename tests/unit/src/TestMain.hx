@@ -8,6 +8,21 @@ class TestMain extends Application
 	{
 		super();
 
+		#if cpp
+		if (Sys.systemName() == "Windows")
+		{
+			// hxcpp attaches a windowed program to the console of the process that started it, and
+			// trace then writes to that console instead of the output it was given, which Sys.stdout
+			// still writes to. CI reads that output, so it never showed the report.
+			haxe.Log.trace = function(v:Dynamic, ?infos:haxe.PosInfos)
+			{
+				var stdout = Sys.stdout();
+				stdout.writeString(haxe.Log.formatOutput(v, infos) + "\n");
+				stdout.flush();
+			};
+		}
+		#end
+
 		var runner = new Runner();
 		runner.addCase(new app.ApplicationTest());
 		runner.addCase(new app.EventTest());
