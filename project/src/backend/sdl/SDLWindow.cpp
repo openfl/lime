@@ -1609,6 +1609,14 @@ namespace lime {
 	}
 
 
+	// SDL keeps the flag while a fullscreen window is minimized, and puts it back in fullscreen on restore
+	bool SDLWindow::GetFullscreen () {
+
+		return sdlWindow && (SDL_GetWindowFlags (sdlWindow) & SDL_WINDOW_FULLSCREEN) != 0;
+
+	}
+
+
 	bool SDLWindow::GetMinimizeOnFocusLoss () {
 
 		return SDL_GetWindowData (sdlWindow, "Lime.KeepOnFocusLoss") == NULL;

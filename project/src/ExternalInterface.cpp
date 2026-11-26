@@ -14010,6 +14010,22 @@ namespace lime {
 	}
 
 
+	bool lime_window_get_fullscreen (value window) {
+
+		Window* targetWindow = (Window*)val_data (window);
+		return targetWindow->GetFullscreen ();
+
+	}
+
+
+	HL_PRIM bool HL_NAME(hl_window_get_fullscreen) (HL_CFFIPointer* window) {
+
+		Window* targetWindow = (Window*)window->ptr;
+		return targetWindow->GetFullscreen ();
+
+	}
+
+
 	bool lime_window_get_minimize_on_focus_loss (value window) {
 
 		Window* targetWindow = (Window*)val_data (window);
@@ -15053,6 +15069,7 @@ namespace lime {
 	DEFINE_PRIME1 (lime_window_get_display);
 	DEFINE_PRIME1 (lime_window_get_display_mode);
 	DEFINE_PRIME1 (lime_window_get_height);
+	DEFINE_PRIME1 (lime_window_get_fullscreen);
 	DEFINE_PRIME1 (lime_window_get_id);
 	DEFINE_PRIME1 (lime_window_get_minimize_on_focus_loss);
 	DEFINE_PRIME1 (lime_window_get_mouse_lock);
@@ -15449,6 +15466,7 @@ namespace lime {
 	DEFINE_HL_PRIM (_I32, hl_window_get_display, _TCFFIPOINTER);
 	DEFINE_HL_PRIM (_VOID, hl_window_get_display_mode, _TCFFIPOINTER _TDISPLAYMODE);
 	DEFINE_HL_PRIM (_I32, hl_window_get_height, _TCFFIPOINTER);
+	DEFINE_HL_PRIM (_BOOL, hl_window_get_fullscreen, _TCFFIPOINTER);
 	DEFINE_HL_PRIM (_I32, hl_window_get_id, _TCFFIPOINTER);
 	DEFINE_HL_PRIM (_BOOL, hl_window_get_minimize_on_focus_loss, _TCFFIPOINTER);
 	DEFINE_HL_PRIM (_BOOL, hl_window_get_mouse_lock, _TCFFIPOINTER);
