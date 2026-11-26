@@ -61,16 +61,27 @@ class VideoTextureOpenGLTest extends Test
 	public function testTextureFramesShowWhatColorFramesDo():Void
 	{
 		// The GPU converts texture frames, so they are compared with the frames Lime converts, near enough,
-		// rather than byte for byte, and the test video's red and blue blocks are checked where they are
+		// rather than byte for byte. The texture frames are read back and their decoder closed before the
+		// color frames are read, so only one decoder is open at a time.
+		#if windows
+		var software = Sys.getEnv("LIME_SOFTWARE_GL");
+		if (software != null && software != "" && software != "0")
+		{
+			// Without a GPU, Media Foundation's textures, which these are about, aren't made
+			trace("OpenGL is in software here, so the pixels of texture frames were not tested");
+			Assert.pass();
+			return;
+		}
+		#end
+
 		var main = getMainWindow();
 		if (main == null) return;
 
 		makeCurrent(main);
 		var gl = main.context.gl;
 		var decoder = VideoDecoder.isSupported ? VideoDecoder.fromFile(PATH, VideoFrameFormat.TEXTURE) : null;
-		var color = VideoDecoder.isSupported ? VideoDecoder.fromFile(PATH, VideoFrameFormat.RGBA) : null;
 
-		if (decoder == null || color == null)
+		if (decoder == null)
 		{
 			trace("Cannot decode H.264 here, so texture frames were not tested");
 			Assert.pass();
@@ -78,49 +89,59 @@ class VideoTextureOpenGLTest extends Test
 		}
 
 		decoder.dropLateFrames = false;
-		color.dropLateFrames = false;
-
 		var frame = new VideoFrame();
-		var reference = new VideoFrame();
-		var compared = 0;
+		var textures:Array<{time:Float, pixels:lime.utils.UInt8Array}> = [];
+		var readable = true;
 
 		for (i in 0...6)
 		{
-			if (!nextFrame(decoder, frame) || !nextFrame(color, reference)) break;
-
-			if (frame.texture == null)
-			{
-				trace("The decoder gives no texture frames here, so their pixels were not tested");
-				Assert.pass();
-				break;
-			}
-
-			Assert.equals(reference.time, frame.time, "the texture and color frames are not the same frame");
+			if (!nextFrame(decoder, frame) || frame.texture == null) break;
 
 			var pixels = new lime.utils.UInt8Array(frame.width * frame.height * 4);
 			var framebuffer = gl.createFramebuffer();
 			gl.bindFramebuffer(gl.FRAMEBUFFER, framebuffer);
 			gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, frame.texture, 0);
-			var status = gl.checkFramebufferStatus(gl.FRAMEBUFFER);
-			if (status == gl.FRAMEBUFFER_COMPLETE) gl.readPixels(0, 0, frame.width, frame.height, gl.RGBA, gl.UNSIGNED_BYTE, pixels);
+			readable = gl.checkFramebufferStatus(gl.FRAMEBUFFER) == gl.FRAMEBUFFER_COMPLETE;
+			if (readable) gl.readPixels(0, 0, frame.width, frame.height, gl.RGBA, gl.UNSIGNED_BYTE, pixels);
 			gl.bindFramebuffer(gl.FRAMEBUFFER, null);
 			gl.deleteFramebuffer(framebuffer);
 
-			Assert.equals(gl.FRAMEBUFFER_COMPLETE, status, "the texture can't be read through a framebuffer");
-			if (status != gl.FRAMEBUFFER_COMPLETE) break;
-
-			// Row 0 of a texture read back is whichever row the texture holds first
-			var flipped = difference(pixels, reference, true) < difference(pixels, reference, false);
-			var mean = difference(pixels, reference, flipped);
-			Assert.isTrue(mean < 3, "frame " + i + " differs from the color frame by " + mean + " a channel on average" + (flipped ? ", upside down" : ""));
-			compared++;
+			if (!readable) break;
+			textures.push({time: frame.time, pixels: pixels});
 		}
 
 		makeCurrent(main);
 		decoder.close();
-		color.close();
 
-		if (compared == 0) Assert.pass();
+		if (textures.length == 0)
+		{
+			trace("The decoder gives no texture frames here" + (readable ? "" : " that a framebuffer can read") + ", so their pixels were not tested");
+			Assert.pass();
+			return;
+		}
+
+		var color = VideoDecoder.fromFile(PATH, VideoFrameFormat.RGBA);
+		if (color == null)
+		{
+			Assert.fail("the video decoded as texture frames but not as RGBA");
+			return;
+		}
+
+		color.dropLateFrames = false;
+		var reference = new VideoFrame();
+
+		for (i in 0...textures.length)
+		{
+			if (!nextFrame(color, reference)) break;
+			Assert.equals(textures[i].time, reference.time, "the texture and color frames are not the same frame");
+
+			// Row 0 of a texture read back is whichever row the texture holds first
+			var flipped = difference(textures[i].pixels, reference, true) < difference(textures[i].pixels, reference, false);
+			var mean = difference(textures[i].pixels, reference, flipped);
+			Assert.isTrue(mean < 3, "frame " + i + " differs from the color frame by " + mean + " a channel on average" + (flipped ? ", upside down" : ""));
+		}
+
+		color.close();
 	}
 
 	/** The mean difference a channel between the texture's pixels and the color frame's, over every fourth pixel **/
