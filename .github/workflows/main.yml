@@ -66,13 +66,11 @@ jobs:
             format 3.8.0
             hxp 1.3.1
             utest 1.13.2
+            libhxcpp 6.0.0
 
-      - name: Install Haxe dependencies from git
+      - name: Set up libhxcpp
         shell: bash
-        run: |
-          haxelib git libhxcpp https://github.com/openfl/libhxcpp --quiet
-          haxelib run libhxcpp setup
-          haxe --cwd "$(haxelib libpath libhxcpp)/tools/hxcpp" compile.hxml
+        run: haxelib run libhxcpp setup
 
       - name: Run tools tests
         working-directory: tests/tools
@@ -287,13 +285,11 @@ jobs:
             format 3.8.0
             hxp 1.3.1
             utest 1.13.2
+            libhxcpp 6.0.0
 
-      - name: Install Haxe dependencies from git
+      - name: Set up libhxcpp
         shell: bash
-        run: |
-          haxelib git libhxcpp https://github.com/openfl/libhxcpp --quiet
-          haxelib run libhxcpp setup
-          haxe --cwd "$(haxelib libpath libhxcpp)/tools/hxcpp" compile.hxml
+        run: haxelib run libhxcpp setup
 
       - name: Rebuild Lime tools
         run: |
@@ -435,13 +431,11 @@ jobs:
             format 3.8.0
             hxp 1.3.1
             utest 1.13.2
+            libhxcpp 6.0.0
 
-      - name: Install Haxe dependencies from git
+      - name: Set up libhxcpp
         shell: bash
-        run: |
-          haxelib git libhxcpp https://github.com/openfl/libhxcpp --quiet
-          haxelib run libhxcpp setup
-          haxe --cwd "$(haxelib libpath libhxcpp)/tools/hxcpp" compile.hxml
+        run: haxelib run libhxcpp setup
 
       # CrossByte, which serves lime test html5, needs Haxe 4.3 to build the tools
       - uses: ./.github/actions/rebuild-lime-tools
@@ -501,13 +495,11 @@ jobs:
             format 3.8.0
             hxp 1.3.1
             utest 1.13.2
+            libhxcpp 6.0.0
 
-      - name: Install Haxe dependencies from git
+      - name: Set up libhxcpp
         shell: bash
-        run: |
-          haxelib git libhxcpp https://github.com/openfl/libhxcpp --quiet
-          haxelib run libhxcpp setup
-          haxe --cwd "$(haxelib libpath libhxcpp)/tools/hxcpp" compile.hxml
+        run: haxelib run libhxcpp setup
 
       - name: Rebuild Lime tools
         run: |
@@ -660,13 +652,11 @@ jobs:
             format 3.8.0
             hxp 1.3.1
             utest 1.13.2
+            libhxcpp 6.0.0
 
-      - name: Install Haxe dependencies from git
+      - name: Set up libhxcpp
         shell: bash
-        run: |
-          haxelib git libhxcpp https://github.com/openfl/libhxcpp --quiet
-          haxelib run libhxcpp setup
-          haxe --cwd "$(haxelib libpath libhxcpp)/tools/hxcpp" compile.hxml
+        run: haxelib run libhxcpp setup
 
       # CrossByte, which serves lime test html5, needs Haxe 4.3 to build the tools
       - uses: ./.github/actions/rebuild-lime-tools
@@ -792,13 +782,11 @@ jobs:
             format 3.8.0
             hxp 1.3.1
             utest 1.13.2
+            libhxcpp 6.0.0
 
-      - name: Install Haxe dependencies from git
+      - name: Set up libhxcpp
         shell: bash
-        run: |
-          haxelib git libhxcpp https://github.com/openfl/libhxcpp --quiet
-          haxelib run libhxcpp setup
-          haxe --cwd "$(haxelib libpath libhxcpp)/tools/hxcpp" compile.hxml
+        run: haxelib run libhxcpp setup
 
       # CrossByte, which serves lime test html5, needs Haxe 4.3 to build the tools
       - uses: ./.github/actions/rebuild-lime-tools
@@ -998,13 +986,11 @@ jobs:
             wsproto 1.0.0
             format 3.8.0
             hxp 1.3.1
+            libhxcpp 6.0.0
 
-      - name: Install Haxe dependencies from git
+      - name: Set up libhxcpp
         shell: bash
-        run: |
-          haxelib git libhxcpp https://github.com/openfl/libhxcpp --quiet
-          haxelib run libhxcpp setup
-          haxe --cwd "$(haxelib libpath libhxcpp)/tools/hxcpp" compile.hxml
+        run: haxelib run libhxcpp setup
 
       - name: Prepare Lime
         run: |
@@ -1092,13 +1078,11 @@ jobs:
             wsproto 1.0.0
             format 3.8.0
             hxp 1.3.1
+            libhxcpp 6.0.0
 
-      - name: Install Haxe dependencies from git
+      - name: Set up libhxcpp
         shell: bash
-        run: |
-          haxelib git libhxcpp https://github.com/openfl/libhxcpp --quiet
-          haxelib run libhxcpp setup
-          haxe --cwd "$(haxelib libpath libhxcpp)/tools/hxcpp" compile.hxml
+        run: haxelib run libhxcpp setup
 
       - name: Prepare Lime
         run: |
@@ -1207,13 +1191,11 @@ jobs:
             wsproto 1.0.0
             format 3.8.0
             hxp 1.3.1
+            libhxcpp 6.0.0
 
-      - name: Install Haxe dependencies from git
+      - name: Set up libhxcpp
         shell: bash
-        run: |
-          haxelib git libhxcpp https://github.com/openfl/libhxcpp --quiet
-          haxelib run libhxcpp setup
-          haxe --cwd "$(haxelib libpath libhxcpp)/tools/hxcpp" compile.hxml
+        run: haxelib run libhxcpp setup
 
       - name: Prepare Lime
         run: |
@@ -1291,13 +1273,11 @@ jobs:
             hxp 1.3.1
             svg 1.2.0
             openfl 9.5.2
+            libhxcpp 6.0.0
 
-      - name: Install Haxe dependencies from git
+      - name: Set up libhxcpp
         shell: bash
-        run: |
-          haxelib git libhxcpp https://github.com/openfl/libhxcpp --quiet
-          haxelib run libhxcpp setup
-          haxe --cwd "$(haxelib libpath libhxcpp)/tools/hxcpp" compile.hxml
+        run: haxelib run libhxcpp setup
 
       # CrossByte, which serves lime test html5, needs Haxe 4.3 to build the tools
       - uses: ./.github/actions/rebuild-lime-tools
@@ -1538,11 +1518,11 @@ jobs:
             wsproto 1.0.0
             format 3.8.0
             hxp 1.3.1
+            libhxcpp 6.0.0
 
       - name: Install Haxe dependencies from git
         shell: bash
         run: |
-          haxelib git libhxcpp https://github.com/openfl/libhxcpp --quiet
           haxelib run libhxcpp setup
           haxelib git lime-samples https://github.com/openfl/lime-samples --quiet
 
