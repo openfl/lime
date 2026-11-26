@@ -94,6 +94,7 @@ class TestMain extends Application
 		runner.addCase(new system.StorageVolumeTest());
 		runner.addCase(new system.TimerTest());
 		runner.addCase(new ui.DragDropTest());
+		runner.addCase(new ui.FileDialogTest());
 		runner.addCase(new ui.GamepadTest());
 		runner.addCase(new ui.HighDPITest());
 		runner.addCase(new ui.InputEventTest());
