@@ -34,9 +34,9 @@ class LZMA
 
 		#if (lime_cffi && !macro)
 		#if !cs
-		return NativeCFFI.lime_lzma_compress(bytes, Bytes.alloc(0), level);
+		return NativeCFFI.lime_lzma_compress_level(bytes, Bytes.alloc(0), level);
 		#else
-		var data:Dynamic = NativeCFFI.lime_lzma_compress(bytes, null, level);
+		var data:Dynamic = NativeCFFI.lime_lzma_compress_level(bytes, null, level);
 		if (data == null) return null;
 		return @:privateAccess new Bytes(data.length, data.b);
 		#end

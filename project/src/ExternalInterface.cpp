@@ -2351,7 +2351,7 @@ namespace lime {
 	}
 
 
-	value lime_deflate_compress (value buffer, value bytes, int level) {
+	value lime_deflate_compress_level (value buffer, value bytes, int level) {
 
 		#ifdef LIME_ZLIB
 		Bytes data (buffer);
@@ -2367,7 +2367,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM Bytes* HL_NAME(hl_deflate_compress) (Bytes* buffer, Bytes* bytes, int level) {
+	HL_PRIM Bytes* HL_NAME(hl_deflate_compress_level) (Bytes* buffer, Bytes* bytes, int level) {
 
 		#ifdef LIME_ZLIB
 		Zlib::Compress (DEFLATE, buffer, bytes, level);
@@ -2375,6 +2375,21 @@ namespace lime {
 		#else
 		return 0;
 		#endif
+
+	}
+
+
+	// Without a level, as before levels could be chosen, for libraries built against an older Lime
+	value lime_deflate_compress (value buffer, value bytes) {
+
+		return lime_deflate_compress_level (buffer, bytes, -1);
+
+	}
+
+
+	HL_PRIM Bytes* HL_NAME(hl_deflate_compress) (Bytes* buffer, Bytes* bytes) {
+
+		return HL_NAME(hl_deflate_compress_level) (buffer, bytes, -1);
 
 	}
 
@@ -3699,7 +3714,7 @@ namespace lime {
 	}
 
 
-	value lime_gzip_compress (value buffer, value bytes, int level) {
+	value lime_gzip_compress_level (value buffer, value bytes, int level) {
 
 		#ifdef LIME_ZLIB
 		Bytes data (buffer);
@@ -3715,7 +3730,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM Bytes* HL_NAME(hl_gzip_compress) (Bytes* buffer, Bytes* bytes, int level) {
+	HL_PRIM Bytes* HL_NAME(hl_gzip_compress_level) (Bytes* buffer, Bytes* bytes, int level) {
 
 		#ifdef LIME_ZLIB
 		Zlib::Compress (GZIP, buffer, bytes, level);
@@ -3723,6 +3738,21 @@ namespace lime {
 		#else
 		return 0;
 		#endif
+
+	}
+
+
+	// Without a level, as before levels could be chosen, for libraries built against an older Lime
+	value lime_gzip_compress (value buffer, value bytes) {
+
+		return lime_gzip_compress_level (buffer, bytes, -1);
+
+	}
+
+
+	HL_PRIM Bytes* HL_NAME(hl_gzip_compress) (Bytes* buffer, Bytes* bytes) {
+
+		return HL_NAME(hl_gzip_compress_level) (buffer, bytes, -1);
 
 	}
 
@@ -4518,7 +4548,7 @@ namespace lime {
 	}
 
 
-	value lime_lzma_compress (value buffer, value bytes, int level) {
+	value lime_lzma_compress_level (value buffer, value bytes, int level) {
 
 		#ifdef LIME_LZMA
 		Bytes data (buffer);
@@ -4534,7 +4564,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM Bytes* HL_NAME(hl_lzma_compress) (Bytes* buffer, Bytes* bytes, int level) {
+	HL_PRIM Bytes* HL_NAME(hl_lzma_compress_level) (Bytes* buffer, Bytes* bytes, int level) {
 
 		#ifdef LIME_LZMA
 		LZMA::Compress (buffer, bytes, level);
@@ -4542,6 +4572,21 @@ namespace lime {
 		#else
 		return 0;
 		#endif
+
+	}
+
+
+	// Without a level, as before levels could be chosen, for libraries built against an older Lime
+	value lime_lzma_compress (value buffer, value bytes) {
+
+		return lime_lzma_compress_level (buffer, bytes, -1);
+
+	}
+
+
+	HL_PRIM Bytes* HL_NAME(hl_lzma_compress) (Bytes* buffer, Bytes* bytes) {
+
+		return HL_NAME(hl_lzma_compress_level) (buffer, bytes, -1);
 
 	}
 
@@ -14698,7 +14743,7 @@ namespace lime {
 	}
 
 
-	value lime_zlib_compress (value buffer, value bytes, int level) {
+	value lime_zlib_compress_level (value buffer, value bytes, int level) {
 
 		#ifdef LIME_ZLIB
 		Bytes data (buffer);
@@ -14714,7 +14759,7 @@ namespace lime {
 	}
 
 
-	HL_PRIM Bytes* HL_NAME(hl_zlib_compress) (Bytes* buffer, Bytes* bytes, int level) {
+	HL_PRIM Bytes* HL_NAME(hl_zlib_compress_level) (Bytes* buffer, Bytes* bytes, int level) {
 
 		#ifdef LIME_ZLIB
 		Zlib::Compress (ZLIB, buffer, bytes, level);
@@ -14722,6 +14767,21 @@ namespace lime {
 		#else
 		return 0;
 		#endif
+
+	}
+
+
+	// Without a level, as before levels could be chosen, for libraries built against an older Lime
+	value lime_zlib_compress (value buffer, value bytes) {
+
+		return lime_zlib_compress_level (buffer, bytes, -1);
+
+	}
+
+
+	HL_PRIM Bytes* HL_NAME(hl_zlib_compress) (Bytes* buffer, Bytes* bytes) {
+
+		return HL_NAME(hl_zlib_compress_level) (buffer, bytes, -1);
 
 	}
 
@@ -14787,7 +14847,8 @@ namespace lime {
 	DEFINE_PRIME1 (lime_clipboard_set_items);
 	DEFINE_PRIME1v (lime_clipboard_set_text);
 	DEFINE_PRIME2 (lime_data_pointer_offset);
-	DEFINE_PRIME3 (lime_deflate_compress);
+	DEFINE_PRIME2 (lime_deflate_compress);
+	DEFINE_PRIME3 (lime_deflate_compress_level);
 	DEFINE_PRIME2 (lime_deflate_decompress);
 	DEFINE_PRIME1v (lime_dock_icon_bounce);
 	DEFINE_PRIME0 (lime_dock_icon_is_supported);
@@ -14851,7 +14912,8 @@ namespace lime {
 	DEFINE_PRIME4 (lime_gamepad_rumble_triggers);
 	DEFINE_PRIME4 (lime_gamepad_set_led);
 	DEFINE_PRIME3 (lime_gamepad_set_sensor_enabled);
-	DEFINE_PRIME3 (lime_gzip_compress);
+	DEFINE_PRIME2 (lime_gzip_compress);
+	DEFINE_PRIME3 (lime_gzip_compress_level);
 	DEFINE_PRIME2 (lime_gzip_decompress);
 	DEFINE_PRIME2v (lime_haptic_vibrate);
 	DEFINE_PRIME3v (lime_image_data_util_color_transform);
@@ -14885,7 +14947,8 @@ namespace lime {
 	DEFINE_PRIME2v (lime_key_event_manager_register);
 	DEFINE_PRIME0 (lime_locale_get_preferred_locales);
 	DEFINE_PRIME0 (lime_locale_get_system_locale);
-	DEFINE_PRIME3 (lime_lzma_compress);
+	DEFINE_PRIME2 (lime_lzma_compress);
+	DEFINE_PRIME3 (lime_lzma_compress_level);
 	DEFINE_PRIME2 (lime_lzma_decompress);
 	DEFINE_PRIME2v (lime_menu_event_manager_register);
 	DEFINE_PRIME1 (lime_menu_get_application_menu);
@@ -15106,7 +15169,8 @@ namespace lime {
 	DEFINE_PRIME3v (lime_window_warp_mouse);
 	DEFINE_PRIME1 (lime_window_get_opacity);
 	DEFINE_PRIME2v (lime_window_set_opacity);
-	DEFINE_PRIME3 (lime_zlib_compress);
+	DEFINE_PRIME2 (lime_zlib_compress);
+	DEFINE_PRIME3 (lime_zlib_compress_level);
 	DEFINE_PRIME2 (lime_zlib_decompress);
 
 
@@ -15177,7 +15241,8 @@ namespace lime {
 	DEFINE_HL_PRIM (_BOOL, hl_clipboard_has_format, _I32);
 	DEFINE_HL_PRIM (_BOOL, hl_clipboard_set_items, _TBYTES);
 	DEFINE_HL_PRIM (_F64, hl_data_pointer_offset, _F64 _I32);
-	DEFINE_HL_PRIM (_TBYTES, hl_deflate_compress, _TBYTES _TBYTES _I32);
+	DEFINE_HL_PRIM (_TBYTES, hl_deflate_compress, _TBYTES _TBYTES);
+	DEFINE_HL_PRIM (_TBYTES, hl_deflate_compress_level, _TBYTES _TBYTES _I32);
 	DEFINE_HL_PRIM (_TBYTES, hl_deflate_decompress, _TBYTES _TBYTES);
 	DEFINE_HL_PRIM (_VOID, hl_dock_icon_bounce, _BOOL);
 	DEFINE_HL_PRIM (_BOOL, hl_dock_icon_is_supported, _NO_ARG);
@@ -15241,7 +15306,8 @@ namespace lime {
 	DEFINE_HL_PRIM (_BOOL, hl_gamepad_rumble_triggers, _I32 _F64 _F64 _I32);
 	DEFINE_HL_PRIM (_BOOL, hl_gamepad_set_led, _I32 _I32 _I32 _I32);
 	DEFINE_HL_PRIM (_BOOL, hl_gamepad_set_sensor_enabled, _I32 _I32 _BOOL);
-	DEFINE_HL_PRIM (_TBYTES, hl_gzip_compress, _TBYTES _TBYTES _I32);
+	DEFINE_HL_PRIM (_TBYTES, hl_gzip_compress, _TBYTES _TBYTES);
+	DEFINE_HL_PRIM (_TBYTES, hl_gzip_compress_level, _TBYTES _TBYTES _I32);
 	DEFINE_HL_PRIM (_TBYTES, hl_gzip_decompress, _TBYTES _TBYTES);
 	DEFINE_HL_PRIM (_VOID, hl_haptic_vibrate, _I32 _I32);
 	DEFINE_HL_PRIM (_VOID, hl_image_data_util_color_transform, _TIMAGE _TRECTANGLE _TARRAYBUFFERVIEW);
@@ -15275,7 +15341,8 @@ namespace lime {
 	DEFINE_HL_PRIM (_VOID, hl_key_event_manager_register, _FUN (_VOID, _NO_ARG) _TKEY_EVENT);
 	DEFINE_HL_PRIM (_BYTES, hl_locale_get_preferred_locales, _NO_ARG);
 	DEFINE_HL_PRIM (_BYTES, hl_locale_get_system_locale, _NO_ARG);
-	DEFINE_HL_PRIM (_TBYTES, hl_lzma_compress, _TBYTES _TBYTES _I32);
+	DEFINE_HL_PRIM (_TBYTES, hl_lzma_compress, _TBYTES _TBYTES);
+	DEFINE_HL_PRIM (_TBYTES, hl_lzma_compress_level, _TBYTES _TBYTES _I32);
 	DEFINE_HL_PRIM (_TBYTES, hl_lzma_decompress, _TBYTES _TBYTES);
 	DEFINE_HL_PRIM (_VOID, hl_menu_event_manager_register, _FUN (_VOID, _NO_ARG) _TMENU_EVENT);
 	DEFINE_HL_PRIM (_TBYTES, hl_menu_get_application_menu, _TBYTES);
@@ -15496,7 +15563,8 @@ namespace lime {
 	DEFINE_HL_PRIM (_VOID, hl_window_warp_mouse, _TCFFIPOINTER _I32 _I32);
 	DEFINE_HL_PRIM (_F64, hl_window_get_opacity, _TCFFIPOINTER);
 	DEFINE_HL_PRIM (_VOID, hl_window_set_opacity, _TCFFIPOINTER _F64);
-	DEFINE_HL_PRIM (_TBYTES, hl_zlib_compress, _TBYTES _TBYTES _I32);
+	DEFINE_HL_PRIM (_TBYTES, hl_zlib_compress, _TBYTES _TBYTES);
+	DEFINE_HL_PRIM (_TBYTES, hl_zlib_compress_level, _TBYTES _TBYTES _I32);
 	DEFINE_HL_PRIM (_TBYTES, hl_zlib_decompress, _TBYTES _TBYTES);
 
 
