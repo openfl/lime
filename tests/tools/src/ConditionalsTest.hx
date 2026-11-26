@@ -348,6 +348,110 @@ class ConditionalsTest extends Test
 		Assert.isFalse(fixture.parse(xml).defines.exists("buildOrTest"));
 	}
 
+	// Conditions read as Haxe's #if reads them: && is "and", ! is "not", and parentheses group
+	public function testConditionsTakeAndNotAndParentheses():Void
+	{
+		var project = fixture.parse('<project>
+			<set name="red" />
+			<set name="red-and-red" if="red &amp;&amp; red" />
+			<set name="red-and-green" if="red &amp;&amp; green" />
+			<set name="not-green" if="!green" />
+			<set name="not-red" if="!red" />
+			<set name="red-or-green" if="(red || green)" />
+			<set name="not-both" if="!(red green)" />
+			<set name="grouped" if="(green || red) &amp;&amp; !green" />
+			<set name="single-bar" if="green | red" />
+			<set name="no-spaces" if="!green&amp;&amp;(red||green)" />
+		</project>');
+
+		Assert.isTrue(project.defines.exists("red-and-red"));
+		Assert.isFalse(project.defines.exists("red-and-green"));
+		Assert.isTrue(project.defines.exists("not-green"));
+		Assert.isFalse(project.defines.exists("not-red"));
+		Assert.isTrue(project.defines.exists("red-or-green"));
+		Assert.isTrue(project.defines.exists("not-both"));
+		Assert.isTrue(project.defines.exists("grouped"));
+		Assert.isTrue(project.defines.exists("single-bar"));
+		Assert.isTrue(project.defines.exists("no-spaces"));
+	}
+
+	// "And" comes before "or", as in Haxe: "red || green blue" is "red || (green blue)"
+	public function testAndComesBeforeOr():Void
+	{
+		var project = fixture.parse('<project>
+			<set name="red" />
+			<set name="spaces" if="red || green blue" />
+			<set name="ands" if="green &amp;&amp; blue || red" />
+			<set name="grouped" if="(red || green) blue" />
+		</project>');
+
+		Assert.isTrue(project.defines.exists("spaces"));
+		Assert.isTrue(project.defines.exists("ands"));
+		Assert.isFalse(project.defines.exists("grouped"));
+	}
+
+	public function testUnlessTakesTheSameConditions():Void
+	{
+		var project = fixture.parse('<project>
+			<set name="red" />
+			<set name="unless-not-green" unless="!green" />
+			<set name="unless-red-and-green" unless="red &amp;&amp; green" />
+			<set name="unless-grouped" unless="!(green || blue)" />
+		</project>');
+
+		Assert.isFalse(project.defines.exists("unless-not-green"));
+		Assert.isTrue(project.defines.exists("unless-red-and-green"));
+		Assert.isFalse(project.defines.exists("unless-grouped"));
+	}
+
+	// A condition that can't be read is false, rather than read as names that aren't set
+	public function testAConditionThatCannotBeReadIsFalse():Void
+	{
+		var project = fixture.parse('<project>
+			<set name="red" />
+			<set name="unbalanced" if="(red" />
+			<set name="closed-early" if="red)" />
+			<set name="single-ampersand" if="red &amp; red" />
+			<set name="dangling-not" if="red !" />
+			<set name="empty" if="" />
+		</project>');
+
+		Assert.isFalse(project.defines.exists("unbalanced"));
+		Assert.isFalse(project.defines.exists("closed-early"));
+		Assert.isFalse(project.defines.exists("single-ampersand"));
+		Assert.isFalse(project.defines.exists("dangling-not"));
+		Assert.isTrue(project.defines.exists("empty"));
+	}
+
+	// <, <=, > and >= compare versions part by part, and numbers as numbers
+	public function testComparisonsTakeVersionsAndNumbers():Void
+	{
+		var project = fixture.parse('<project>
+			<set name="version" value="9.2.0" />
+			<set name="haxe" value="4.005" />
+			<set name="name" value="beta" />
+			<set name="v-below-10" if="$${$${version} &lt; 10.0.0}" />
+			<set name="v-below-9.10" if="$${$${version} &lt; 9.10.0}" />
+			<set name="v-at-least-9.2" if="$${$${version} >= 9.2}" />
+			<set name="v-above-9.1.9" if="$${$${version} > 9.1.9}" />
+			<set name="ten-below-four" if="$${10.0.0 &lt; 4}" />
+			<set name="haxe-below-4.1" if="$${$${haxe} &lt; 4.1}" />
+			<set name="haxe-at-most-4.005" if="$${$${haxe} &lt;= 4.005}" />
+			<set name="twenty-above-three" if="$${20 > 3}" />
+			<set name="text-after-alpha" if="$${$${name} > alpha}" />
+		</project>');
+
+		Assert.isTrue(project.defines.exists("v-below-10"));
+		Assert.isTrue(project.defines.exists("v-below-9.10"));
+		Assert.isTrue(project.defines.exists("v-at-least-9.2"));
+		Assert.isTrue(project.defines.exists("v-above-9.1.9"));
+		Assert.isFalse(project.defines.exists("ten-below-four"));
+		Assert.isTrue(project.defines.exists("haxe-below-4.1"));
+		Assert.isTrue(project.defines.exists("haxe-at-most-4.005"));
+		Assert.isTrue(project.defines.exists("twenty-above-three"));
+		Assert.isTrue(project.defines.exists("text-after-alpha"));
+	}
+
 	// "${project.command}, ${project.target}, ${project.host}"
 	public function testBuildInfoNamesTheCommandTargetAndHost():Void
 	{

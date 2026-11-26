@@ -249,6 +249,13 @@ class VorbisFile
 	}
 
 	// public function readFilter (buffer:Bytes, length:Int = 4096, endianness:Endian = LITTLE_ENDIAN, wordSize:Int = 2, signed:Bool = true, bitstream:Int = 0, filter, filter_param
+	/**
+		Decodes up to `samples` sample frames into `pcmChannels`, from its start, as
+		32-bit floats from -1 to 1 in the platform's byte order, with the channels of
+		each frame interleaved, as `read()` gives 16-bit samples. No more frames are
+		read than fit in `pcmChannels`. Returns the number of frames read, 0 at the end
+		of the stream, or a negative error code, as `ov_read_float` does.
+	**/
 	public function readFloat(pcmChannels:Bytes, samples:Int):Int
 	{
 		#if (lime_cffi && lime_vorbis && !macro)

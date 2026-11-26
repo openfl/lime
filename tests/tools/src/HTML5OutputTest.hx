@@ -487,6 +487,75 @@ class HTML5OutputTest extends Test
 		Assert.equals("240", windows[1].get("height"));
 	}
 
+	// Each asset's URL gets a version from its content, so a build that changes other
+	// assets, or only code, leaves its URL as it was
+	public function testEachAssetHasAVersionFromItsContent():Void
+	{
+		fixture.write("assets/a.txt", "same");
+		fixture.write("assets/b.txt", "same");
+		fixture.write("assets/c.txt", "other");
+
+		output.update('<project>
+			<app main="Main" file="MyApplication" />
+			<assets path="assets" />
+		</project>');
+
+		var manifest = PlatformFixture.embeddedManifest(output.read("haxe/ManifestResources.hx"));
+		Assert.notNull(manifest);
+		if (manifest == null) return;
+
+		var a:String = entry(manifest.assets, "assets/a.txt").version;
+		var b:String = entry(manifest.assets, "assets/b.txt").version;
+		var c:String = entry(manifest.assets, "assets/c.txt").version;
+
+		Assert.equals(haxe.crypto.Md5.encode("same").substr(0, 10), a);
+		Assert.equals(a, b);
+		Assert.notEquals(a, c);
+
+		// A change to one asset changes its version alone
+		fixture.write("assets/c.txt", "changed");
+		output.update('<project>
+			<app main="Main" file="MyApplication" />
+			<assets path="assets" />
+		</project>');
+
+		manifest = PlatformFixture.embeddedManifest(output.read("haxe/ManifestResources.hx"));
+		Assert.equals(a, entry(manifest.assets, "assets/a.txt").version);
+		Assert.equals(haxe.crypto.Md5.encode("changed").substr(0, 10), entry(manifest.assets, "assets/c.txt").version);
+	}
+
+	// A sound in several formats has a version for each of its files
+	public function testEachFileOfASoundHasAVersion():Void
+	{
+		fixture.write("assets/beep.ogg", "ogg bytes");
+		fixture.write("assets/beep.mp3", "mp3 bytes");
+
+		output.update('<project>
+			<app main="Main" file="MyApplication" />
+			<assets path="assets" />
+		</project>');
+
+		var manifest = PlatformFixture.embeddedManifest(output.read("haxe/ManifestResources.hx"));
+		Assert.notNull(manifest);
+		if (manifest == null) return;
+
+		var sound = null;
+		for (asset in manifest.assets) if (asset.pathGroup != null) sound = asset;
+		Assert.notNull(sound, "no sound with a path group");
+		if (sound == null) return;
+
+		var paths:Array<String> = sound.pathGroup;
+		var versions:Array<String> = sound.versionGroup;
+		Assert.notNull(versions);
+		Assert.equals(paths.length, versions.length);
+
+		for (i in 0...paths.length)
+		{
+			var content = StringTools.endsWith(paths[i], ".ogg") ? "ogg bytes" : "mp3 bytes";
+			Assert.equals(haxe.crypto.Md5.encode(content).substr(0, 10), versions[i], paths[i]);
+		}
+	}
+
 	private function entry(assets:Array<Dynamic>, id:String):Dynamic
 	{
 		for (asset in assets)

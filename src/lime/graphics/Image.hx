@@ -1173,7 +1173,16 @@ class Image
 				copyPixels(this, rect, new Vector2(x, y));
 
 			case FLASH:
-				buffer.__srcBitmapData.scroll(x + offsetX, y + offsetX);
+				// BitmapData.scroll moves the whole bitmap, so an image that is part of a
+				// larger one keeps to its own rectangle as the DATA path does
+				if (offsetX == 0 && offsetY == 0 && width == buffer.__srcBitmapData.width && height == buffer.__srcBitmapData.height)
+				{
+					buffer.__srcBitmapData.scroll(x, y);
+				}
+				else
+				{
+					copyPixels(this, rect, new Vector2(x, y));
+				}
 
 			default:
 		}

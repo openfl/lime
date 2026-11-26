@@ -87,7 +87,9 @@ Changelog
 - Added the `-noupdate` flag to `lime build` and `lime test` to skip the update step.
 - Added the `-arm64` flag to build HashLink/C applications for Apple Silicon on macOS, with binaries from `lime rebuild hl -arm64`. HashLink's JIT does not run on Apple Silicon yet.
 - Added running Windows builds through Wine with `lime test` on other platforms.
+- Added arm64 iOS simulator builds, which the simulator runs on Apple silicon Macs without Rosetta. They are made there, or with `-arm64`, when the hxcpp that builds the libraries can make them, as libhxcpp can, and `-x86_64` still makes an x86_64 one. `lime rebuild ios` adds the arm64 simulator libraries.
 - Added the `lime_skip_invisible_windows` define to stop rendering windows that are hidden.
+- Added `&&`, `!` and parentheses to project.xml `if` and `unless` conditions, read as in Haxe's `#if`, and a warning for a condition that can't be read, which is false.
 - Changed native streamed audio to refill from a thread of its own, so a stall on the main thread no longer drains a stream's buffers and drops its sound. Define `lime_audio_no_stream_thread` to refill from the main thread as before.
 - Changed native audio loading to decode through SDL_sound first, then Lime's own WAV and Ogg Vorbis decoders.
 - Changed asset copying and embedding to behave consistently across targets.
@@ -98,8 +100,10 @@ Changelog
 - Changed Windows to show input methods' own composition and candidate windows.
 - Changed `FrameProfile.UNCAPPED` to uncap the frame loop.
 - Changed native desktop applications to update and render at no more than 30 frames a second while every window is minimised or hidden. Set `FrameOptions.backgroundFrameRate` to another rate, or to `0` to keep the full rate.
+- Changed HTML5 asset URLs to carry a version made from each asset's content, so a build that only changes code or other assets leaves an asset's URL, and the browser's cached copy, as they were. `lime-assets-version` still gives every asset the same version, and `lime-disable-assets-version` none.
 - Changed libraries made from asset bundles to decode images, sounds and fonts when they are first asked for, or at `load()` when marked to preload, and to stream music from the bundle. Reading a bundle lets go of each compressed file once it is inflated.
 - Changed the default Android target SDK to 36, which Google Play requires, with Android Gradle plugin 8.9.1 and Gradle 8.11.1. On Android 16, the back gesture and back key still reach the application as `APP_CONTROL_BACK`, and an Android application is a game by default (`android:appCategory="game"`), so it keeps its orientation on large screens.
+- Added support for Android Gradle plugin 9 and Gradle 9, which removed `applicationVariants` and Groovy's SwingBuilder.
 - Changed native HTTP requests to look up names on a thread of their own on every platform.
 - Changed native HTTPS requests to check the server's certificate, against the system's trusted certificates (Mozilla's on iOS and tvOS). Set `HTTPRequest.verifyCertificates` to `false`, or define `lime-insecure-https`, for servers with self-signed certificates.
 - Changed static builds to use Lime's own mbedTLS rather than the one bundled with hxcpp.
@@ -135,6 +139,7 @@ Changelog
 - Updated FreeType to 2.14.3, libpng to 1.6.59, zlib to 1.3.2, HarfBuzz to 14.6.0, libjpeg-turbo to 2.1.5.1 and libwebm to 1.0.0.32, for security fixes in reading fonts, images, compressed data and WebM files. FreeType's auto-hinter and hinting changed between versions, so some hinted glyphs and auto-hinted outlines can differ by a few pixels.
 - Updated HashLink to 1.16.
 - Fixed an asset embedding regression.
+- Fixed `lime test` on Linux stopping with an xdg-open error instead of opening the browser, after starting the test server or for projects with an `app.url`. xdg-open now runs in the background.
 - Fixed HashLink on macOS boxing a `false` returned by a native function as `true`, as in a `Future` result: Lime's HashLink runtime clears the upper bits of a `Bool` before boxing it, as HashLink's newer JIT does.
 - Fixed Windows cpp icon resource handling when no icon is generated.
 - Fixed GL cleanup and desktop GL object collection.
@@ -201,9 +206,11 @@ Changelog
 - Fixed `Image.merge()`, `copyChannel()` and `threshold()` with a destination point or rectangle past an edge shifting pixels and changing their arguments, and `copyPixels()` reading the alpha image from the wrong point.
 - Fixed `Image.floodFill()` not filling a lone pixel, reading a start point outside the image, and filling past an image that is part of a larger buffer.
 - Fixed `Image.threshold()` comparing the masked pixel with the whole threshold, and comparing colours byte by byte rather than as ARGB numbers.
+- Fixed `ImageDataUtil.gaussianBlur()` ignoring its strength, so OpenFL's glows and drop shadows drawn in software came out as the same faint halo whatever their strength.
 - Fixed writing a premultiplied colour changing the caller's colour, and native code premultiplying with different rounding.
 - Fixed `ARGB.readUInt8()` reading some formats' bytes into the wrong channels.
 - Fixed `ImageBuffer.clone()` on Flash sharing the original's pixel data.
+- Fixed `Image.scroll()` on Flash and AIR adding the image's offset in its bitmap to the amounts, and scrolling the whole bitmap for an image that is part of a larger one.
 - Fixed `Font.renderGlyph()` and `renderGlyphs()` rendering a font's embedded bitmaps as LCD.
 - Fixed `Font.fromFile()` returning null on Windows for paths with characters outside the system's code page, such as a user name in it.
 - Fixed fonts without a full name having no family name, and font names freed the wrong way.
@@ -216,12 +223,14 @@ Changelog
 - Fixed typed arrays on native targets throwing when made from another type, copying past the view, writing `set()` at the wrong offset, and taking `subarray()` indices outside the view, and `UInt8ClampedArray` not clamping negative values to 0 on every CPU. Element access outside a view is ignored in debug builds.
 - Fixed the `WebGL2RenderContext` overloads that take `srcOffset`, `srcLength` or `length` counting bytes rather than elements on native targets.
 - Fixed `GL.getUniform()` on native targets reading another uniform, or with the wrong type, where the driver's locations differ from the indices.
+- Fixed `GL.getActiveAttrib()` and `GL.getActiveUniform()` on native targets sizing the name's buffer from a GL constant rather than the longest name the program has, and leaking the name on HashLink.
 - Fixed a crash when OpenGL objects are made or deleted while another thread collects.
 - Fixed `Bytes.decompress()` on native targets accepting truncated ZLIB, GZIP and DEFLATE data and reading only the first member of a GZIP file, and LZMA ending the process for empty or short data and failing on streams of unknown size.
+- Fixed the HTML5 LZMA library failing with "Cannot set properties of undefined (setting 'LZMA_WORKER')" when the application's script runs as a JavaScript module.
 - Fixed `GZip.compress()` and `decompress()` on Flash, and empty streams and concatenated GZIP members on Flash and AIR.
 - Fixed `Bytes` made in native code having a trailing zero on Neko, and `Bytes.fromFile()` giving null for an empty file.
 - Fixed `UTF8String` counting bytes rather than code points on Neko with Haxe 4.
-- Fixed `HTTPRequest.timeout` being ignored on native targets, so a server that never answered was waited on for good.
+- Fixed `HTTPRequest.timeout` being ignored on native targets, so a server that never answered, or stopped partway, was waited on for good. It is how long a request may go without receiving or sending data, as OpenFL's `URLRequest.idleTimeout`, which sets it, so a download or upload still under way carries on past it.
 - Fixed `HTTPRequest.cancel()` not stopping the transfer, and a redirect that turns a request into a GET keeping its content.
 - Fixed `HTTPRequest` error statuses losing the response body, text responses keeping a BOM, and `responseHeaders` coming from an earlier response of a redirect and splitting values at every colon.
 - Fixed the last progress report of a native `HTTPRequest` missing the end of the body, and a new request waiting up to a second while others waited on their servers.
@@ -231,12 +240,15 @@ Changelog
 - Fixed races between threads using CURL multi handles, and finalizing CURL handles deadlocking the collector.
 - Fixed `AL.getString()` with an unknown name ending the process on HashLink, refused vector queries giving uninitialized values, the three-value getters filling the wrong elements, and creating buffers and sources clearing an error the application hadn't read.
 - Fixed Ogg Vorbis decoding writing past its buffer.
+- Fixed `VorbisFile.readFloat()` doing nothing on native targets. It now decodes into the given bytes as interleaved 32-bit floats.
 - Fixed `AudioBuffer.dispose()` keeping the decoded samples and their OpenAL buffer on native targets.
 - Fixed a streamed `AudioSource` seeked before it plays replaying its first buffers, a seek starting it early, a `currentTime` set before `play()` being lost, and `currentTime` jumping to 0 at the end of a sound.
 - Fixed asset libraries not preloading again on `load()` after `unload()`, `isLocal()` and `Assets.list()` giving ids that don't work, a corrupt manifest or bundle ending the application rather than failing `loadLibrary()`, `AssetManifest.parse()` losing the version and absolute paths, `AssetBundle.fromFile()` with a file it can't read, and `PackedAssetLibrary` `unload()`, `loadText()` with zip packs, and loaders run before the pack loads.
+- Fixed `<`, `<=`, `>` and `>=` in project.xml `${...}` comparisons comparing versions and numbers as text, so 9.2.0 came after 10.0.0.
 - Fixed project.xml `<haxelib path>` not being relative to its file, nested `<assets>` directories and `<binary>` and `<text>` types, `<window>` x, y and display, `if` and `unless` inside `<config>`, included files being read more than once, and an included file's defines not replacing earlier ones.
 - Fixed asset include and exclude patterns matching part of a file name, `if="js"` being false in HTML5 builds, WebAssembly embedding assets not marked to embed, project windows sharing their settings, and gzip packs.
 - Fixed titles and meta values with `&`, `<` or quotes breaking generated files, Android Gradle plugin versions of 10 and later, merged config lists losing values, and SVG icons sized only by a viewBox.
+- Fixed a haxelib with a path of its own, such as Lime in a local haxelib repository or one given with `--haxelib-NAME=`, leaving out its `extraParams.hxml`, which broke embedded sounds.
 - Fixed defining `AIR_SDK` with `-D` or `<define>` crashing the tools unless the environment variable was set too.
 - Fixed `-static` desktop builds failing to link.
 - Fixed an exception thrown in a `Future.then()` callback not failing the chain, `Future.ofEvents()` forwarding only the first progress update, and a second `Promise.complete()` or `error()` replacing the first.
