@@ -5161,6 +5161,8 @@ class NativeCFFI
 
 	@:cffi private static function lime_cairo_clip_extents(handle:CFFIPointer, x1:Float, y1:Float, x2:Float, y2:Float):Void;
 
+	@:cffi private static function lime_cairo_get_clip_extents(handle:CFFIPointer):Dynamic;
+
 	@:cffi private static function lime_cairo_close_path(handle:CFFIPointer):Void;
 
 	@:cffi private static function lime_cairo_copy_page(handle:CFFIPointer):Void;
@@ -5172,6 +5174,8 @@ class NativeCFFI
 	@:cffi private static function lime_cairo_fill(handle:CFFIPointer):Void;
 
 	@:cffi private static function lime_cairo_fill_extents(handle:CFFIPointer, x1:Float, y1:Float, x2:Float, y2:Float):Void;
+
+	@:cffi private static function lime_cairo_get_fill_extents(handle:CFFIPointer):Dynamic;
 
 	@:cffi private static function lime_cairo_fill_preserve(handle:CFFIPointer):Void;
 
@@ -5308,6 +5312,8 @@ class NativeCFFI
 
 	@:cffi private static function lime_cairo_stroke_extents(handle:CFFIPointer, x1:Float, y1:Float, x2:Float, y2:Float):Void;
 
+	@:cffi private static function lime_cairo_get_stroke_extents(handle:CFFIPointer):Dynamic;
+
 	@:cffi private static function lime_cairo_stroke_preserve(handle:CFFIPointer):Void;
 
 	@:cffi private static function lime_cairo_text_path(handle:CFFIPointer, text:String):Void;
@@ -5395,6 +5401,8 @@ class NativeCFFI
 	private static var lime_cairo_clip_preserve = new cpp.Callable<cpp.Object->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_cairo_clip_preserve", "ov", false));
 	private static var lime_cairo_clip_extents = new cpp.Callable<cpp.Object->Float->Float->Float->Float->cpp.Void>(cpp.Prime._loadPrime("lime",
 		"lime_cairo_clip_extents", "oddddv", false));
+	private static var lime_cairo_get_clip_extents = new cpp.Callable<cpp.Object->cpp.Object>(cpp.Prime._loadPrime("lime",
+		"lime_cairo_get_clip_extents", "oo", false));
 	private static var lime_cairo_close_path = new cpp.Callable<cpp.Object->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_cairo_close_path", "ov", false));
 	private static var lime_cairo_copy_page = new cpp.Callable<cpp.Object->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_cairo_copy_page", "ov", false));
 	private static var lime_cairo_create = new cpp.Callable<cpp.Object->cpp.Object>(cpp.Prime._loadPrime("lime", "lime_cairo_create", "oo", false));
@@ -5403,6 +5411,8 @@ class NativeCFFI
 	private static var lime_cairo_fill = new cpp.Callable<cpp.Object->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_cairo_fill", "ov", false));
 	private static var lime_cairo_fill_extents = new cpp.Callable<cpp.Object->Float->Float->Float->Float->cpp.Void>(cpp.Prime._loadPrime("lime",
 		"lime_cairo_fill_extents", "oddddv", false));
+	private static var lime_cairo_get_fill_extents = new cpp.Callable<cpp.Object->cpp.Object>(cpp.Prime._loadPrime("lime",
+		"lime_cairo_get_fill_extents", "oo", false));
 	private static var lime_cairo_fill_preserve = new cpp.Callable<cpp.Object->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_cairo_fill_preserve", "ov", false));
 	private static var lime_cairo_get_antialias = new cpp.Callable<cpp.Object->Int>(cpp.Prime._loadPrime("lime", "lime_cairo_get_antialias", "oi", false));
 	private static var lime_cairo_get_current_point = new cpp.Callable<cpp.Object->cpp.Object->cpp.Void>(cpp.Prime._loadPrime("lime",
@@ -5510,6 +5520,8 @@ class NativeCFFI
 	private static var lime_cairo_stroke = new cpp.Callable<cpp.Object->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_cairo_stroke", "ov", false));
 	private static var lime_cairo_stroke_extents = new cpp.Callable<cpp.Object->Float->Float->Float->Float->cpp.Void>(cpp.Prime._loadPrime("lime",
 		"lime_cairo_stroke_extents", "oddddv", false));
+	private static var lime_cairo_get_stroke_extents = new cpp.Callable<cpp.Object->cpp.Object>(cpp.Prime._loadPrime("lime",
+		"lime_cairo_get_stroke_extents", "oo", false));
 	private static var lime_cairo_stroke_preserve = new cpp.Callable<cpp.Object->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_cairo_stroke_preserve", "ov",
 		false));
 	private static var lime_cairo_text_path = new cpp.Callable<cpp.Object->String->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_cairo_text_path", "osv",
@@ -5593,12 +5605,14 @@ class NativeCFFI
 	private static var lime_cairo_clip = CFFI.load("lime", "lime_cairo_clip", 1);
 	private static var lime_cairo_clip_preserve = CFFI.load("lime", "lime_cairo_clip_preserve", 1);
 	private static var lime_cairo_clip_extents = CFFI.load("lime", "lime_cairo_clip_extents", 5);
+	private static var lime_cairo_get_clip_extents = CFFI.load("lime", "lime_cairo_get_clip_extents", 1);
 	private static var lime_cairo_close_path = CFFI.load("lime", "lime_cairo_close_path", 1);
 	private static var lime_cairo_copy_page = CFFI.load("lime", "lime_cairo_copy_page", 1);
 	private static var lime_cairo_create = CFFI.load("lime", "lime_cairo_create", 1);
 	private static var lime_cairo_curve_to = CFFI.load("lime", "lime_cairo_curve_to", -1);
 	private static var lime_cairo_fill = CFFI.load("lime", "lime_cairo_fill", 1);
 	private static var lime_cairo_fill_extents = CFFI.load("lime", "lime_cairo_fill_extents", 5);
+	private static var lime_cairo_get_fill_extents = CFFI.load("lime", "lime_cairo_get_fill_extents", 1);
 	private static var lime_cairo_fill_preserve = CFFI.load("lime", "lime_cairo_fill_preserve", 1);
 	private static var lime_cairo_get_antialias = CFFI.load("lime", "lime_cairo_get_antialias", 1);
 	private static var lime_cairo_get_current_point = CFFI.load("lime", "lime_cairo_get_current_point", 2);
@@ -5666,6 +5680,7 @@ class NativeCFFI
 	private static var lime_cairo_status = CFFI.load("lime", "lime_cairo_status", 1);
 	private static var lime_cairo_stroke = CFFI.load("lime", "lime_cairo_stroke", 1);
 	private static var lime_cairo_stroke_extents = CFFI.load("lime", "lime_cairo_stroke_extents", 5);
+	private static var lime_cairo_get_stroke_extents = CFFI.load("lime", "lime_cairo_get_stroke_extents", 1);
 	private static var lime_cairo_stroke_preserve = CFFI.load("lime", "lime_cairo_stroke_preserve", 1);
 	private static var lime_cairo_text_path = CFFI.load("lime", "lime_cairo_text_path", 2);
 	private static var lime_cairo_transform = CFFI.load("lime", "lime_cairo_transform", -1);
@@ -5721,6 +5736,11 @@ class NativeCFFI
 	@:hlNative("lime", "hl_cairo_clip_extents") private static function lime_cairo_clip_extents(handle:CFFIPointer, x1:Float, y1:Float, x2:Float,
 		y2:Float):Void {}
 
+	@:hlNative("lime", "hl_cairo_get_clip_extents") private static function lime_cairo_get_clip_extents(handle:CFFIPointer, out:Rectangle):Rectangle
+	{
+		return null;
+	}
+
 	@:hlNative("lime", "hl_cairo_close_path") private static function lime_cairo_close_path(handle:CFFIPointer):Void {}
 
 	@:hlNative("lime", "hl_cairo_copy_page") private static function lime_cairo_copy_page(handle:CFFIPointer):Void {}
@@ -5737,6 +5757,11 @@ class NativeCFFI
 
 	@:hlNative("lime", "hl_cairo_fill_extents") private static function lime_cairo_fill_extents(handle:CFFIPointer, x1:Float, y1:Float, x2:Float,
 		y2:Float):Void {}
+
+	@:hlNative("lime", "hl_cairo_get_fill_extents") private static function lime_cairo_get_fill_extents(handle:CFFIPointer, out:Rectangle):Rectangle
+	{
+		return null;
+	}
 
 	@:hlNative("lime", "hl_cairo_fill_preserve") private static function lime_cairo_fill_preserve(handle:CFFIPointer):Void {}
 
@@ -5946,6 +5971,11 @@ class NativeCFFI
 
 	@:hlNative("lime", "hl_cairo_stroke_extents") private static function lime_cairo_stroke_extents(handle:CFFIPointer, x1:Float, y1:Float, x2:Float,
 		y2:Float):Void {}
+
+	@:hlNative("lime", "hl_cairo_get_stroke_extents") private static function lime_cairo_get_stroke_extents(handle:CFFIPointer, out:Rectangle):Rectangle
+	{
+		return null;
+	}
 
 	@:hlNative("lime", "hl_cairo_stroke_preserve") private static function lime_cairo_stroke_preserve(handle:CFFIPointer):Void {}
 
