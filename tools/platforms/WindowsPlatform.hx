@@ -1097,7 +1097,7 @@ class WindowsPlatform extends PlatformTarget
 
 		}*/
 
-		copyProjectAssets(applicationDirectory);
+		copyProjectAssets(applicationDirectory, null, context);
 	}
 
 	private function updateUWP():Void

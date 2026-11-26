@@ -646,7 +646,7 @@ class LinuxPlatform extends PlatformTarget
 
 		context.HAS_ICON = IconHelper.createIcon(icons, 256, 256, Path.combine(applicationDirectory, "icon.png"));
 
-		copyProjectAssets(applicationDirectory);
+		copyProjectAssets(applicationDirectory, null, context);
 	}
 
 	@ignore public override function install():Void {}
