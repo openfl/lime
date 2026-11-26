@@ -277,15 +277,20 @@ class WebSocketTest extends Test
 		var server = echoServer(true);
 		var client = track(new WebSocket());
 		var errors:Array<WebSocketError> = [];
+		var messages:Array<String> = [];
 		var closed = -1;
-		client.onError.add(function(error, _) errors.push(error));
+		client.onError.add(function(error, message)
+		{
+			errors.push(error);
+			messages.push(message);
+		});
 		client.onClose.add(function(code, _) closed = code);
 		client.connect("wss://127.0.0.1:" + server.localPort + "/");
 		Assert.isTrue(pump(function() return closed != -1, 10), "the untrusted certificate was not reported");
 		Assert.equals(1006, closed);
 		Assert.isFalse(client.connected);
-		Assert.equals(1, errors.length);
-		Assert.equals(WebSocketError.CERTIFICATE_REJECTED, errors[0]);
+		Assert.equals(1, errors.length, messages.join("; "));
+		Assert.equals(WebSocketError.CERTIFICATE_REJECTED, errors[0], messages.join("; "));
 	}
 
 	public function testASecureConnectToAServerWithoutTlsFails():Void
