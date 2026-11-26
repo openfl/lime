@@ -259,6 +259,7 @@ Changelog
 - Fixed `ThreadPool.cancelJob()` cancelling another job, and jobs taken before `cancel()` going uncounted.
 - Fixed dropped files reaching every window's `onDropFile`, cloned mouse events naming window 0, `Window.onFullscreen` listeners reading `fullscreen` as `false`, and each window resize being dispatched twice on macOS, Linux and mobile.
 - Fixed setting the desktop's own display mode making every later fullscreen exclusive.
+- Fixed leaving fullscreen on Windows giving back a window larger than the display, which Windows then took for a fullscreen window and kept the taskbar behind. It is now made to fit, with the same shape.
 - Fixed `vsync="adaptive"` and `vsync="auto"` in project.xml asking for plain vertical sync.
 - Fixed HashLink leaking the text of each text input event and dropped file path, and `sys.io.Process` failing for every command on HashLink on Windows.
 - Fixed the tools opening a console window titled with the address on Windows, rather than the browser, for a project's `<app url>` and `lime setup`'s download pages, and `<command open>` doing the same for a path.
