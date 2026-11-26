@@ -206,6 +206,7 @@ Changelog
 - Fixed writing a premultiplied colour changing the caller's colour, and native code premultiplying with different rounding.
 - Fixed `ARGB.readUInt8()` reading some formats' bytes into the wrong channels.
 - Fixed `ImageBuffer.clone()` on Flash sharing the original's pixel data.
+- Fixed `Image.scroll()` on Flash and AIR adding the image's offset in its bitmap to the amounts, and scrolling the whole bitmap for an image that is part of a larger one.
 - Fixed `Font.renderGlyph()` and `renderGlyphs()` rendering a font's embedded bitmaps as LCD.
 - Fixed `Font.fromFile()` returning null on Windows for paths with characters outside the system's code page, such as a user name in it.
 - Fixed fonts without a full name having no family name, and font names freed the wrong way.
