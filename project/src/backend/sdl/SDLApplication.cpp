@@ -570,8 +570,10 @@ namespace lime
 
 		if (sooner)
 		{
+			// As with a frame that is asked for, the loop is woken only where frames come at
+			// an idle rate. Elsewhere the timers run with the next update, which is soon.
 			SDL_AtomicSet(&s_timedChanged, 1);
-			if (SDL_ThreadID() != mainThreadID)
+			if (SDL_AtomicGet(&s_idleRate) != 0 && SDL_ThreadID() != mainThreadID)
 				Wake();
 		}
 	}

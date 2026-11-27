@@ -292,7 +292,9 @@ class NativeApplication
 	// The main thread's events are run with the timers. One that another thread adds would
 	// wait for the next of those, which an idle frame rate may have put a long way off, so
 	// a thread waits on the event loop for as long as the application runs, and asks for the
-	// timers to run when something is added.
+	// timers to run when something is added. The loop's lock is released once for each event
+	// added, and events.progress() takes what releases there are itself before it collects
+	// the events, so one this thread doesn't get to see is one the main thread is collecting.
 	@:noCompletion private function __watchMainThreadEvents():Void
 	{
 		#if (haxe_ver >= 4.2)
