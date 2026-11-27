@@ -182,6 +182,7 @@ Changelog
 - Fixed `Future.ready()` and `Future.result()` never seeing threaded work complete.
 - Fixed single-threaded `ThreadPool` work running past its share of a frame while waiting.
 - Fixed `Font.renderGlyphs()` reading glyphs in an outdated layout, and on HashLink.
+- Fixed `Font.decompose()` on HashLink giving kerning pairs with no values: their array was made for 32-bit integers, which the collector doesn't scan and the pairs overran.
 - Fixed `getVertexAttribOffset()` and `getBufferPointerv()` writing through a null pointer, and `mapBufferRange()`, `unmapBuffer()`, and `getBufferPointerv()` doing nothing on desktop OpenGL.
 - Fixed compositions longer than 31 bytes being cut short in input methods.
 - Fixed `AudioBuffer.fromBytes()`, `AudioBuffer.fromBytesStream()`, and WAV files without a `.wav` extension decoding as MP3, such as sounds that fade out to near silence.
