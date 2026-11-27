@@ -32,6 +32,9 @@ class CPPHelperTest extends Test
 	private var repositoryPath:String;
 	private var workingDirectory:String;
 
+	// The global repository, which haxelib reads as it would no HAXELIB_PATH, for neko before 2.4
+	private static var globalRepositoryPath:String = null;
+
 	public function new()
 	{
 		super();
@@ -48,6 +51,13 @@ class CPPHelperTest extends Test
 		repositoryPath = @:privateAccess Haxelib.repositoryPath;
 		workingDirectory = Haxelib.workingDirectory;
 
+		// From the fixture's folder, in the system's temporary directory, haxelib gives the global repository
+		if (environment.get("HAXELIB_PATH") == null && globalRepositoryPath == null)
+		{
+			Haxelib.workingDirectory = fixture.directory;
+			globalRepositoryPath = Haxelib.getRepositoryPath(true);
+		}
+
 		ready = writeStandIns();
 	}
 
@@ -55,7 +65,7 @@ class CPPHelperTest extends Test
 	{
 		for (name in environment.keys())
 		{
-			Sys.putEnv(name, environment.get(name));
+			Environment.restore(name, environment.get(name), name == "HAXELIB_PATH" ? globalRepositoryPath : "");
 		}
 
 		@:privateAccess Haxelib.repositoryPath = repositoryPath;

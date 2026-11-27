@@ -62,6 +62,8 @@ class AssetCacheTest extends Test
 	**/
 	public function teardownClass(async:Async):Void
 	{
+		// The next tick can come later than utest's default of 250 ms on a busy runner
+		async.setTimeout(10000);
 		haxe.Timer.delay(function() async.done(), 0);
 	}
 	#end
