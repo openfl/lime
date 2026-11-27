@@ -87,7 +87,7 @@ namespace lime {
 			double NextTimerTime () const;
 			bool IsSchedulerUnthrottled () const;
 			void MakeFrameDue (double now);
-			void PaceFrameAfterRender (bool swapped, double swapMs);
+			void PaceFrameAfterRender (bool swapped, double renderMs);
 			void Reschedule ();
 			void TakeFrameRequest ();
 			void RefreshVSyncState ();
@@ -115,9 +115,7 @@ namespace lime {
 			void UpdateSleepGuard (Uint32 requestedMs, Uint32 elapsedMs);
 			bool SleepsOutTheRemainder () const;
 #if defined(HX_WINDOWS) && !defined(HX_WINRT)
-			int SleepUntilWork (double ms, bool watchInput);
-#else
-			void SleepThroughInput (double ms);
+			int SleepUntilWork (double ms, bool watchInput, bool byClock);
 #endif
 			int WaitEvent (SDL_Event* event);
 
@@ -280,8 +278,7 @@ namespace lime {
 			SDL_Event modalFrameEvent;
 			bool modalFramePending;
 			std::exception_ptr modalNativeException;
-			// The size last dispatched for each window, in points and in pixels
-			std::map<Uint32, std::pair<std::pair<int, int>, std::pair<int, int>>> dispatchedWindowSizes;
+			std::map<Uint32, std::pair<int, int>> dispatchedWindowSizes;
 #endif
 
 	};

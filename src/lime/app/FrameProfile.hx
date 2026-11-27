@@ -4,9 +4,10 @@ package lime.app;
 	Built-in frame pacing profiles for Lime applications.
 
 	A profile chooses how the native main loop waits between frames: whether
-	it may busy-wait, and how often input may wake it. The `timePrecision` and
-	`busyWait` fields of `FrameOptions` override its timer and its busy-waiting,
-	and its `uncapMode` overrides how the `UNCAPPED` profile uncaps the loop.
+	it may busy-wait and, on Windows, how often input may wake it. The
+	`timePrecision` and `busyWait` fields of `FrameOptions` override its timer
+	and its busy-waiting, and its `uncapMode` overrides how the `UNCAPPED`
+	profile uncaps the loop.
 
 	In every profile, the events that reached the application before a frame
 	are handled before it.
@@ -21,8 +22,9 @@ package lime.app;
 #if (haxe_ver >= 4.0) enum #else @:enum #end abstract FrameProfile(String) to String
 {
 	/**
-		The default profile. The application sleeps until each frame is due, and
-		input that comes while it does wakes it at most once every 2 milliseconds.
+		The default profile. The application sleeps until each frame is due. On
+		Windows, input that comes while it does wakes it at most once every 2
+		milliseconds.
 	**/
 	var BALANCED = "balanced";
 
@@ -34,8 +36,7 @@ package lime.app;
 
 	/**
 		A profile that favors lower CPU usage over the tightest pacing. It never
-		busy-waits, it sleeps the whole time to a frame in one, which a system may
-		let run late, and input wakes it at most once every 8 milliseconds.
+		busy-waits, and on Windows input wakes it at most once every 8 milliseconds.
 	**/
 	var LOW_ENERGY = "lowEnergy";
 

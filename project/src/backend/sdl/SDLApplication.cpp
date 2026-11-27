@@ -65,11 +65,6 @@ namespace lime
 	// Swaps made by every window, counted on the main thread
 	static unsigned int s_contextFlips = 0;
 
-	// The swaps that were timed, and how long they took, in performance counter ticks
-	static unsigned int s_timedSwaps = 0;
-	static Uint64 s_swapTicks = 0;
-	static Uint64 s_swapStart = 0;
-
 	// Set by RequestFrame on any thread, and taken by the loop
 	static SDL_atomic_t s_frameRequested;
 
@@ -184,14 +179,14 @@ namespace lime
 
 	// The least time between two wakes for input, by profile, in milliseconds. Input that comes
 	// sooner after the last waits out the rest, and is still handled before the next frame.
+	// On Windows, where it is measured. Elsewhere input wakes the loop as it comes.
+#if defined(HX_WINDOWS) && !defined(HX_WINRT)
 	static const double INPUT_INTERVAL_BALANCED = 2.0;
 	static const double INPUT_INTERVAL_LOW_ENERGY = 8.0;
-
-	// Frames that swapped and started under this part of a refresh after the one before, this
-	// many times running, show that swaps don't wait for the display. A display that paces
-	// frames can't bring them closer than a refresh for longer than its queue of frames is deep.
-	static const double UNPACED_SWAP_INTERVAL = 0.85;
-	static const int UNPACED_SWAP_COUNT = 5;
+#else
+	static const double INPUT_INTERVAL_BALANCED = 0.0;
+	static const double INPUT_INTERVAL_LOW_ENERGY = 0.0;
+#endif
 
 #if defined(HX_WINDOWS) && !defined(HX_WINRT)
 	// Why SleepUntilWork returned
@@ -207,10 +202,15 @@ namespace lime
 	// about 15.6 ms. A longer one can come back tens of milliseconds late: measured on Windows
 	// Server 2022, at 5 frames a second and at 60, where two waits of 12 and 4 ms never ran
 	// late and one of 16 did. So a profile that keeps its frames on time waits in steps no
-	// longer than this, without pumping between them. The low energy profile, and any
-	// application whose windows are all hidden, sleeps the whole wait in one.
+	// longer than this, without pumping between them.
 	static const double WAIT_STEP = 12.0;
 	static const double WAIT_STEP_PART = 0.75;
+
+	// A profile that doesn't busy-wait, the low energy one, wakes once for a frame instead: it
+	// waits by the system's clock, in whole milliseconds rounded up, as SDL's own wait does,
+	// which kept time over a wait this long where the timer didn't. An application whose
+	// windows are all hidden, whose frames nobody sees, sleeps the whole wait in one.
+	static const double WAIT_BY_CLOCK_MOST = 16.0;
 
 	// SDL reads game controllers and sensors as it pumps, and its own wait wakes to pump for
 	// them: every millisecond while one is connected, every few seconds to find new ones
@@ -860,21 +860,9 @@ namespace lime
 		if (renderFrame)
 		{
 			unsigned int flips = s_contextFlips;
-			unsigned int timedSwaps = s_timedSwaps;
-			Uint64 swapTicks = s_swapTicks;
-			double renderStart = GetCurrentTimeMs();
+			double renderStart = swapPaced ? GetCurrentTimeMs() : 0.0;
 			RenderEvent::Dispatch(&renderEvent);
-
-			if (swapPaced)
-			{
-				// How long the swaps took, apart from the drawing before them. Vulkan presents
-				// outside ContextFlip, so its swaps aren't timed and the whole render stands for them.
-				double swapMs = GetCurrentTimeMs() - renderStart;
-				if (s_timedSwaps != timedSwaps && performanceFrequency != 0)
-					swapMs = ((double)(s_swapTicks - swapTicks) * 1000.0) / (double)performanceFrequency;
-
-				PaceFrameAfterRender(s_contextFlips != flips, swapMs);
-			}
+			if (swapPaced) PaceFrameAfterRender(s_contextFlips != flips, GetCurrentTimeMs() - renderStart);
 		}
 	}
 
@@ -894,21 +882,16 @@ namespace lime
 
 		System::GCEnterBlocking();
 		s_swapWasBlocking = SDL_AtomicSet(&s_waitEventBlocking, 1);
-		s_swapStart = SDL_GetPerformanceCounter();
 	}
 
 	void SDLApplication::ExitSwapBlocking()
 	{
 
-		// Before leaving the blocking section, which waits for a collection under way
-		s_swapTicks += SDL_GetPerformanceCounter() - s_swapStart;
-		s_timedSwaps++;
-
 		SDL_AtomicSet(&s_waitEventBlocking, s_swapWasBlocking);
 		System::GCExitBlocking();
 	}
 
-	void SDLApplication::PaceFrameAfterRender(bool swapped, double swapMs)
+	void SDLApplication::PaceFrameAfterRender(bool swapped, double renderMs)
 	{
 
 		double refreshPeriod = 1000.0 / displayRefreshRate;
@@ -928,9 +911,8 @@ namespace lime
 		if (swapFallback)
 		{
 			// Frames are timed while the swaps don't wait. One that blocks for a good part of a
-			// refresh shows the display pacing them again. The time is the swap's own: an
-			// application that takes that long to draw would otherwise leave here every frame.
-			if (swapMs >= refreshPeriod * 0.25)
+			// refresh shows the display pacing them again.
+			if (renderMs >= refreshPeriod * 0.25)
 			{
 				swapFallback = false;
 				shortSwaps = 0;
@@ -944,13 +926,13 @@ namespace lime
 
 		// A swap can return at once, as when a driver forces vsync off, in a remote session or
 		// a virtual machine, which would leave update and render running back to back. Frames
-		// that swapped coming under a refresh apart several times running show that.
+		// that swapped coming well under a refresh apart several times running show that.
 		double interval = currentUpdate - lastSwapFrame;
 		lastSwapFrame = currentUpdate;
 
-		if (interval < refreshPeriod * UNPACED_SWAP_INTERVAL)
+		if (interval < refreshPeriod * 0.5)
 		{
-			if (++shortSwaps >= UNPACED_SWAP_COUNT)
+			if (++shortSwaps >= 3)
 			{
 				swapFallback = true;
 				schedulerUnthrottled = false;
@@ -1057,11 +1039,12 @@ namespace lime
 	}
 
 #if defined(HX_WINDOWS) && !defined(HX_WINRT)
-	int SDLApplication::SleepUntilWork(double ms, bool watchInput)
+	int SDLApplication::SleepUntilWork(double ms, bool watchInput, bool byClock)
 	{
 
-		// The one wait of a turn on Windows: until the time is up, another thread wakes the
-		// loop, or, when it is watched for, input waits in the message queue
+		// The wait of a turn on Windows: until the time is up, another thread wakes the loop,
+		// or, when it is watched for, input waits in the message queue. The time is kept by
+		// the high-resolution timer, or by the system's clock in whole milliseconds.
 		HANDLE handles[2];
 		DWORD count = 0;
 		DWORD wakeIndex = MAXIMUM_WAIT_OBJECTS;
@@ -1074,7 +1057,7 @@ namespace lime
 			handles[count++] = s_wakeEvent;
 		}
 
-		if (frameTimer)
+		if (frameTimer && !byClock)
 		{
 			// Relative, in 100 ns units
 			LARGE_INTEGER due;
@@ -1118,26 +1101,6 @@ namespace lime
 			SDL_Delay(1);
 
 		return SLEEP_TIME_UP;
-	}
-#else
-	void SDLApplication::SleepThroughInput(double ms)
-	{
-
-		if (ms <= 0.0)
-			return;
-
-		System::GCEnterBlocking();
-		SDL_AtomicSet(&s_waitEventBlocking, 1);
-#if defined(HX_WINDOWS)
-		SDL_Delay((Uint32)(ms + 0.999));
-#else
-		struct timespec time;
-		time.tv_sec = (time_t)(ms / 1000.0);
-		time.tv_nsec = (long)((ms - (double)time.tv_sec * 1000.0) * 1000000.0);
-		nanosleep(&time, NULL);
-#endif
-		SDL_AtomicSet(&s_waitEventBlocking, 0);
-		System::GCExitBlocking();
 	}
 #endif
 
@@ -2281,17 +2244,8 @@ namespace lime
 			if (window)
 				SDL_GetWindowSize(window, &event->window.data1, &event->window.data2);
 		}
-		std::pair<int, int> points(event->window.data1, event->window.data2);
-		std::pair<int, int> pixels(0, 0);
-#if SDL_VERSION_ATLEAST(2, 26, 0)
-		// A window that moves to a display of another scale keeps its size in points, and SDL
-		// says so with a size event of the same size. Its size in pixels is what changed.
-		SDL_Window *sized = SDL_GetWindowFromID(event->window.windowID);
-		if (sized)
-			SDL_GetWindowSizeInPixels(sized, &pixels.first, &pixels.second);
-#endif
-		std::pair<std::pair<int, int>, std::pair<int, int>> size(points, pixels);
-		std::map<Uint32, std::pair<std::pair<int, int>, std::pair<int, int>>>::iterator previous = dispatchedWindowSizes.find(event->window.windowID);
+		std::pair<int, int> size(event->window.data1, event->window.data2);
+		std::map<Uint32, std::pair<int, int>>::iterator previous = dispatchedWindowSizes.find(event->window.windowID);
 		if (previous != dispatchedWindowSizes.end() && previous->second == size)
 			return false;
 		dispatchedWindowSizes[event->window.windowID] = size;
@@ -2758,13 +2712,28 @@ namespace lime
 			}
 
 			double ms = until - now;
+			bool byClock = false;
 
-			if (!poll && allowBusyWait && ms > WAIT_STEP)
+			if (!poll && !(windowsHidden && requestedBackgroundFrameRate > 0.0))
 			{
-				// A step towards it, which leaves a last wait that is short
-				ms = (ms * WAIT_STEP_PART < WAIT_STEP) ? ms * WAIT_STEP_PART : WAIT_STEP;
-				until = now + ms;
-				forFrame = false;
+				if (!allowBusyWait)
+				{
+					byClock = true;
+
+					if (ms > WAIT_BY_CLOCK_MOST)
+					{
+						ms = WAIT_BY_CLOCK_MOST;
+						until = now + ms;
+						forFrame = false;
+					}
+				}
+				else if (ms > WAIT_STEP)
+				{
+					// A step towards it, which leaves a last wait that is short
+					ms = (ms * WAIT_STEP_PART < WAIT_STEP) ? ms * WAIT_STEP_PART : WAIT_STEP;
+					until = now + ms;
+					forFrame = false;
+				}
 			}
 
 			if (allowBusyWait && busyWaitOnly && nextUpdate <= earliestUpdate)
@@ -2783,13 +2752,13 @@ namespace lime
 				spin = frameTimer ? SPIN_MARGIN : (double)GetSleepGuardMs() + 1.0;
 				ms -= spin;
 			}
-			else if (!frameTimer)
+			else if (!frameTimer || byClock)
 			{
 				// Whole milliseconds, rounded up rather than spun
 				ms = std::ceil(ms);
 			}
 
-			int ended = (ms > 0.0) ? SleepUntilWork(ms, watchInput) : SLEEP_TIME_UP;
+			int ended = (ms > 0.0) ? SleepUntilWork(ms, watchInput, byClock) : SLEEP_TIME_UP;
 
 			// Input, or an event another thread pushed: Update collects what there is
 			if (ended == SLEEP_INPUT || (ended == SLEEP_WOKEN && SDL_AtomicGet(&s_foreignPush) != 0))
@@ -2839,15 +2808,6 @@ namespace lime
 			if (IsIdleDue(now))
 			{
 				DispatchIdle(remaining);
-				continue;
-			}
-
-			// Input that comes within the profile's interval of the last is left until the
-			// interval is up. Events the application queued itself don't wait.
-			if (now < inputHoldUntil && QueuedEvents() == 0)
-			{
-				double hold = inputHoldUntil - now;
-				SleepThroughInput(hold < remaining ? hold : remaining);
 				continue;
 			}
 

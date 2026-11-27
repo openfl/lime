@@ -150,7 +150,7 @@ Changelog
 - Changed setting `Window.frameRate` to the rate it already has to do nothing, and setting a new rate to keep the next frame's time rather than draw a frame at once.
 - Changed live resizing on Windows to draw each size the window takes, rather than stretch the last frame.
 - Changed native frame timing to use the performance counter in every profile, so a frame starts when it is due rather than on the next whole millisecond. `TimePrecision.MILLISECOND` keeps whole milliseconds.
-- Changed native applications that are waiting for a frame to be woken by input at most once every 2 milliseconds, or every 8 with `FrameProfile.LOW_ENERGY`, so a mouse that reports thousands of times a second no longer wakes them for every report. Every event is still handled before the next frame, and `FrameProfile.PRECISION` is woken as input comes.
+- Changed Windows applications that are waiting for a frame to be woken by input at most once every 2 milliseconds, or every 8 with `FrameProfile.LOW_ENERGY`, so a mouse that reports thousands of times a second no longer wakes them for every report. Every event is still handled before the next frame, and `FrameProfile.PRECISION` is woken as input comes.
 - Changed the frame after one that started a whole frame period late to come a whole period after it, as on HTML5, rather than part of a period after it.
 - Updated pixman and platform config for LLVM assembly fixes, ARM NEON, Android NDKs, and Apple platforms.
 - Updated MojoAL and gamepad mappings.
