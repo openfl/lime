@@ -42,6 +42,9 @@ class FlashApplication
 
 	public function configureFrameTiming(profile:FrameProfile, frameRate:Float, options:FrameOptions):Void {}
 
+	// Frames follow the stage frame rate
+	public function requestFrame():Void {}
+
 	public function getDeviceOrientation():Orientation
 	{
 		return UNKNOWN;

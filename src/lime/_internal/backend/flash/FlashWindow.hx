@@ -335,6 +335,7 @@ class FlashWindow
 		var deltaTime = currentTime - cacheTime;
 		cacheTime = currentTime;
 
+		parent.application.frameDeltaTime = deltaTime;
 		parent.application.onUpdate.dispatch(deltaTime);
 		parent.onRender.dispatch(parent.context);
 	}

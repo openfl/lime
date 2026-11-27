@@ -101,6 +101,8 @@ class NativeApplication
 	@:noCompletion private static var __updateWebViews:Void->Void = null;
 	// Called in the time left before a frame is due
 	@:noCompletion private var __idleCallback:Void->Void;
+	// Set by an idle callback that has more to do, to be called again before the frame
+	@:noCompletion private var __idleAgain:Bool = false;
 	private var mouseEventInfo = new MouseEventInfo();
 	private var renderEventInfo = new RenderEventInfo(RENDER);
 	private var sensorEventInfo = new SensorEventInfo();
@@ -267,6 +269,27 @@ class NativeApplication
 			__convertBusyWaitMode(options.busyWait), __convertUncapMode(options.uncapMode));
 		var backgroundFrameRate:Null<Float> = Reflect.hasField(options, "backgroundFrameRate") ? options.backgroundFrameRate : null;
 		NativeCFFI.lime_application_set_background_frame_rate(handle, backgroundFrameRate != null ? backgroundFrameRate : 30);
+		var idleFrameRate:Null<Float> = Reflect.hasField(options, "idleFrameRate") ? options.idleFrameRate : null;
+		NativeCFFI.lime_application_set_idle_frame_rate(handle, idleFrameRate != null ? idleFrameRate : 0);
+		#end
+	}
+
+	public function requestFrame():Void
+	{
+		#if (!macro && lime_cffi)
+		// From any thread: it sets a flag, and wakes the loop if it waits
+		if (handle != null) NativeCFFI.lime_application_request_frame(handle);
+		#end
+	}
+
+	// Asks for the timers to be run in the milliseconds given. They run from the application's
+	// updates, and with an idle frame rate the next update may be a long way off, so the loop
+	// runs them on their own when this time comes first. It keeps the earliest time asked for
+	// until they run, and they ask again then for the one after.
+	@:noCompletion private function __requestTimer(milliseconds:Float):Void
+	{
+		#if (!macro && lime_cffi)
+		if (handle != null) NativeCFFI.lime_application_request_timer(handle, milliseconds);
 		#end
 	}
 
@@ -355,9 +378,24 @@ class NativeApplication
 				if (__updateWebSockets != null) __updateWebSockets();
 				if (__updateWebViews != null) __updateWebViews();
 
+				#if (!macro && lime_cffi)
+				parent.frameDeltaTime = NativeCFFI.lime_application_get_frame_delta_time(handle);
+				#end
 				parent.onUpdate.dispatch(applicationEventInfo.deltaTime);
+			case TIMER:
+				// Timers that are due between two updates, where frames come at an idle rate
+				throwDeferredException();
+				updateTimer();
 			case IDLE:
 				if (__idleCallback != null) __idleCallback();
+
+				// The loop reads the answer from deltaTime: below zero asks for another idle event
+				// before the frame, and anything else lets it sleep until the frame is due
+				if (__idleAgain)
+				{
+					__idleAgain = false;
+					applicationEventInfo.deltaTime = -1;
+				}
 			default:
 		}
 	}
@@ -388,8 +426,13 @@ class NativeApplication
 	#if (cpp && libhxcpp && HXCPP_GC_INCREMENTAL && !no_idle_gc)
 	private function __stepCollector():Void
 	{
-		// With no cycle to advance, a step would start one
-		if (hxcpp.gc.Incremental.isActive()) hxcpp.gc.Incremental.step();
+		// With no cycle to advance, a step would start one. One that is under way is advanced
+		// for as long as there is time before the frame.
+		if (hxcpp.gc.Incremental.isActive())
+		{
+			hxcpp.gc.Incremental.step();
+			__idleAgain = hxcpp.gc.Incremental.isActive();
+		}
 	}
 	#end
 
@@ -1128,6 +1171,17 @@ class NativeApplication
 					return val.mRunning;
 				});
 			}
+
+			// The loop runs the timers again when the next one is due, if that comes before
+			// an update does, as it may with an idle frame rate
+			var next = Math.POSITIVE_INFINITY;
+
+			for (timer in Timer.sRunningTimers)
+			{
+				if (timer.mRunning && timer.mFireAt < next) next = timer.mFireAt;
+			}
+
+			if (next != Math.POSITIVE_INFINITY) __requestTimer(next - System.__getTimer());
 		}
 		#if (haxe_ver >= 4.2)
 		#if target.threaded
@@ -1166,6 +1220,7 @@ class NativeApplication
 	var UPDATE = 0;
 	var EXIT = 1;
 	var IDLE = 2;
+	var TIMER = 3;
 }
 
 @:keep /*private*/ class ClipboardEventInfo

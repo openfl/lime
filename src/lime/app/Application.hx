@@ -87,6 +87,17 @@ class Application extends Module
 	public var frameOptions(get, set):FrameOptions;
 
 	/**
+		The time between this update and the one before it, in milliseconds.
+
+		`onUpdate` gives the same time rounded to whole milliseconds, carrying what
+		it rounds off to the next update. This is the time as the frame loop
+		measured it: at 60 frames a second it stays near 16.67, where `onUpdate`
+		gives 17, 17 and 16 in turn, so movement that is scaled by it is even from
+		one frame to the next. On Flash and AIR it is in whole milliseconds.
+	**/
+	public var frameDeltaTime(default, null):Float = 0;
+
+	/**
 		The current frame pacing profile for this application.
 		On native targets, this controls the shared application
 		main loop strategy. See `FrameProfile` for how it combines with
@@ -95,7 +106,13 @@ class Application extends Module
 	public var frameProfile(get, set):FrameProfile;
 
 	/**
-		Update events are dispatched each frame (usually just before rendering)
+		Update events are dispatched each frame (usually just before rendering),
+		with the milliseconds since the last one. `frameDeltaTime` has that time
+		with its fractions.
+
+		On native targets, every event that reached the application before a frame
+		is dispatched before that frame's update, however long frames or listeners
+		take, so an update always follows the input that came before it.
 	**/
 	public var onUpdate = new Event<Int->Void>();
 
@@ -192,7 +209,8 @@ class Application extends Module
 				timePrecision: TimePrecision.AUTO,
 				busyWait: BusyWaitMode.AUTO,
 				uncapMode: UncapMode.OFF,
-				backgroundFrameRate: 30
+				backgroundFrameRate: 30,
+				idleFrameRate: 0
 			};
 		__frameProfile = FrameProfile.BALANCED;
 		__windowByID = new Map();
@@ -541,6 +559,31 @@ class Application extends Module
 	}
 
 	/**
+		Asks for a frame: an update, and a render of each window.
+
+		It is for applications that set `FrameOptions.idleFrameRate` to draw only
+		when something changes. The frame comes once the events being handled have
+		been, and no sooner than the frame rate allows after the last one, so asking
+		on every mouse move still draws no more than `Window.frameRate` frames a
+		second. Asking several times before the frame comes gives one frame. An
+		application that animates asks again from each update, and gets its frames
+		at the frame rate.
+
+		It can be called from any thread, which wakes an application that is
+		waiting, as when work on another thread ends with something to show.
+
+		Without an idle frame rate, frames already come as often as the frame rate
+		allows, and this changes nothing. While every window is minimised or
+		hidden, frames keep to `FrameOptions.backgroundFrameRate`. On HTML5 the
+		frame comes with the browser's next animation frame. Flash and AIR frames
+		follow the stage frame rate, where this does nothing.
+	**/
+	public function requestFrame():Void
+	{
+		if (__backend != null) __backend.requestFrame();
+	}
+
+	/**
 		Called when a render event is fired on the primary window
 		@param	context	The render context ready to be rendered
 	**/
@@ -847,7 +890,8 @@ class Application extends Module
 				timePrecision: TimePrecision.AUTO,
 				busyWait: BusyWaitMode.AUTO,
 				uncapMode: UncapMode.OFF,
-				backgroundFrameRate: 30
+				backgroundFrameRate: 30,
+				idleFrameRate: 0
 			};
 		}
 
@@ -855,7 +899,8 @@ class Application extends Module
 			timePrecision: value.timePrecision,
 			busyWait: value.busyWait,
 			uncapMode: value.uncapMode,
-			backgroundFrameRate: Reflect.hasField(value, "backgroundFrameRate") ? value.backgroundFrameRate : 30
+			backgroundFrameRate: Reflect.hasField(value, "backgroundFrameRate") ? value.backgroundFrameRate : 30,
+			idleFrameRate: Reflect.hasField(value, "idleFrameRate") ? value.idleFrameRate : 0
 		};
 	}
 
@@ -872,6 +917,7 @@ class Application extends Module
 		if (Reflect.hasField(value, "busyWait")) base.busyWait = value.busyWait;
 		if (Reflect.hasField(value, "uncapMode")) base.uncapMode = value.uncapMode;
 		if (Reflect.hasField(value, "backgroundFrameRate")) base.backgroundFrameRate = value.backgroundFrameRate;
+		if (Reflect.hasField(value, "idleFrameRate")) base.idleFrameRate = value.idleFrameRate;
 
 		return base;
 	}

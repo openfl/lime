@@ -33,6 +33,10 @@ class HTML5Application
 	private var currentUpdate:Float;
 	private var deltaTime:Float;
 	private var framePeriod:Float;
+	// A frame was asked for, which brings the next one forward from the idle rate
+	private var frameRequested:Bool = false;
+	// The time between frames while none is asked for, or 0 where frames always come
+	private var idlePeriod:Float = 0;
 
 	// How early a frame may run, so animation frames at the rate asked for are never skipped
 	private static inline var FRAME_SLACK:Float = 2;
@@ -327,6 +331,15 @@ class HTML5Application
 		{
 			framePeriod = 1000;
 		}
+
+		var idleFrameRate:Null<Float> = Reflect.hasField(options, "idleFrameRate") ? options.idleFrameRate : null;
+		idlePeriod = (idleFrameRate != null && idleFrameRate > 0) ? 1000.0 / idleFrameRate : 0;
+	}
+
+	public function requestFrame():Void
+	{
+		// Taken on the browser's next animation frame
+		frameRequested = true;
 	}
 
 	public function exec():Int
@@ -470,13 +483,24 @@ class HTML5Application
 		// even intervals where performance.now() in the callback doesn't
 		currentUpdate = (timestamp != null && timestamp > 0) ? timestamp : Browser.window.performance.now();
 
-		if (framePeriod < 0 || currentUpdate >= nextUpdate - FRAME_SLACK)
+		var due = framePeriod < 0 || currentUpdate >= nextUpdate - FRAME_SLACK;
+
+		// While no frame is asked for, frames come at the idle rate where that is the slower
+		if (due && idlePeriod > 0 && idlePeriod > framePeriod && !frameRequested)
+		{
+			due = currentUpdate >= lastUpdate + idlePeriod - FRAME_SLACK;
+		}
+
+		if (due)
 		{
 			#if stats
 			stats.begin();
 			#end
 
+			// This frame is the one that was asked for. One asked for while it runs comes after it.
+			frameRequested = false;
 			deltaTime = currentUpdate - lastUpdate;
+			parent.frameDeltaTime = deltaTime;
 
 			for (window in parent.__windows)
 			{

@@ -1926,6 +1926,9 @@ class HTML5Window
 						}
 
 						parent.onResize.dispatch(Std.int(elementWidth), Std.int(elementHeight));
+
+						// Drawn at its new size without waiting out an idle frame
+						if (parent.application != null) parent.application.requestFrame();
 					}
 				}
 				else

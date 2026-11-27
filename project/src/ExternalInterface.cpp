@@ -1642,6 +1642,70 @@ namespace lime {
 	}
 
 
+	double lime_application_get_frame_delta_time (value application) {
+
+		Application* app = (Application*)val_data (application);
+		return app->GetFrameDeltaTime ();
+
+	}
+
+
+	HL_PRIM double HL_NAME(hl_application_get_frame_delta_time) (HL_CFFIPointer* application) {
+
+		Application* app = (Application*)application->ptr;
+		return app->GetFrameDeltaTime ();
+
+	}
+
+
+	void lime_application_request_frame (value application) {
+
+		Application* app = (Application*)val_data (application);
+		app->RequestFrame ();
+
+	}
+
+
+	HL_PRIM void HL_NAME(hl_application_request_frame) (HL_CFFIPointer* application) {
+
+		Application* app = (Application*)application->ptr;
+		app->RequestFrame ();
+
+	}
+
+
+	void lime_application_set_idle_frame_rate (value application, double frameRate) {
+
+		Application* app = (Application*)val_data (application);
+		app->SetIdleFrameRate (frameRate);
+
+	}
+
+
+	HL_PRIM void HL_NAME(hl_application_set_idle_frame_rate) (HL_CFFIPointer* application, double frameRate) {
+
+		Application* app = (Application*)application->ptr;
+		app->SetIdleFrameRate (frameRate);
+
+	}
+
+
+	void lime_application_request_timer (value application, double milliseconds) {
+
+		Application* app = (Application*)val_data (application);
+		app->RequestTimer (milliseconds);
+
+	}
+
+
+	HL_PRIM void HL_NAME(hl_application_request_timer) (HL_CFFIPointer* application, double milliseconds) {
+
+		Application* app = (Application*)application->ptr;
+		app->RequestTimer (milliseconds);
+
+	}
+
+
 	void lime_application_set_idle_events (value application, bool enabled) {
 
 		Application* app = (Application*)val_data (application);
@@ -14868,7 +14932,11 @@ namespace lime {
 	DEFINE_PRIME1 (lime_application_exec);
 	DEFINE_PRIME1v (lime_application_init);
 	DEFINE_PRIME1 (lime_application_quit);
+	DEFINE_PRIME1 (lime_application_get_frame_delta_time);
+	DEFINE_PRIME1v (lime_application_request_frame);
+	DEFINE_PRIME2v (lime_application_request_timer);
 	DEFINE_PRIME2v (lime_application_set_idle_events);
+	DEFINE_PRIME2v (lime_application_set_idle_frame_rate);
 	DEFINE_PRIME6v (lime_application_set_main_loop);
 	DEFINE_PRIME2v (lime_application_set_background_frame_rate);
 	DEFINE_PRIME2v (lime_application_set_frame_rate);
@@ -15266,7 +15334,11 @@ namespace lime {
 	DEFINE_HL_PRIM (_I32, hl_application_exec, _TCFFIPOINTER);
 	DEFINE_HL_PRIM (_VOID, hl_application_init, _TCFFIPOINTER);
 	DEFINE_HL_PRIM (_I32, hl_application_quit, _TCFFIPOINTER);
+	DEFINE_HL_PRIM (_F64, hl_application_get_frame_delta_time, _TCFFIPOINTER);
+	DEFINE_HL_PRIM (_VOID, hl_application_request_frame, _TCFFIPOINTER);
+	DEFINE_HL_PRIM (_VOID, hl_application_request_timer, _TCFFIPOINTER _F64);
 	DEFINE_HL_PRIM (_VOID, hl_application_set_idle_events, _TCFFIPOINTER _BOOL);
+	DEFINE_HL_PRIM (_VOID, hl_application_set_idle_frame_rate, _TCFFIPOINTER _F64);
 	DEFINE_HL_PRIM (_VOID, hl_application_set_main_loop, _TCFFIPOINTER _I32 _F64 _I32 _I32 _I32);
 	DEFINE_HL_PRIM (_VOID, hl_application_set_background_frame_rate, _TCFFIPOINTER _F64);
 	DEFINE_HL_PRIM (_VOID, hl_application_set_frame_rate, _TCFFIPOINTER _F64);
