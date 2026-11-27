@@ -170,6 +170,40 @@ class TestMain extends Application
 		});
 		#end
 
+		#if (lime_cffi && !macro)
+		// The window tests leave their windows open, hidden, for the other tests of their class, and
+		// dozens of them make every frame after take longer: on the macOS runner, 34 made a frame take
+		// 51 ms by ImageWorkerTest. Once a class is done, the hidden windows it left are closed, other
+		// than the application's own, as closing the last window of the application ends it
+		var lastClass:String = null;
+		var leftOpen:Array<lime.ui.Window> = [];
+		runner.onTestComplete.add(function(handler)
+		{
+			leftOpen = Application.current.windows.copy();
+		});
+		runner.onTestStart.add(function(handler)
+		{
+			var testClass = Type.getClassName(Type.getClass(handler.fixture.target));
+
+			if (lastClass != null && testClass != lastClass)
+			{
+				var application = Application.current;
+
+				for (window in leftOpen)
+				{
+					if (window.hidden && window != application.window && application.windows.length > 1 && application.windows.indexOf(window) > -1)
+					{
+						window.close();
+					}
+				}
+
+				leftOpen = [];
+			}
+
+			lastClass = testClass;
+		});
+		#end
+
 		// A run narrowed with UTEST_PATTERN (CI's tests input) can match no test on a target that
 		// has none of them, as WebSocketTest on AIR, and utest fails a run with no tests
 		if (runner.length == 0 && runner.globalPattern != null)
