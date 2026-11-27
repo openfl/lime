@@ -95,6 +95,12 @@ class NativeApplication
 	@:noCompletion private static var __updateWebSockets:Void->Void = null;
 
 	/**
+		Whether any WebSocket or server is open. They are polled, so with an idle
+		frame rate the loop comes back for them a frame period on while one is.
+	**/
+	@:noCompletion private static var __webSocketsActive:Void->Bool = null;
+
+	/**
 		Delivers what every WebView reported, once a frame. Set by NativeWebView
 		once there is one, so an application without any compiles none of it.
 	**/
@@ -103,6 +109,13 @@ class NativeApplication
 	@:noCompletion private var __idleCallback:Void->Void;
 	// Set by an idle callback that has more to do, to be called again before the frame
 	@:noCompletion private var __idleAgain:Bool = false;
+	// Whether frames come at an idle rate while none is asked for
+	@:noCompletion private var __idleFrameRate:Bool = false;
+	#if (haxe_ver >= 4.2)
+	#if target.threaded
+	@:noCompletion private static var __eventWatcher:sys.thread.Thread = null;
+	#end
+	#end
 	private var mouseEventInfo = new MouseEventInfo();
 	private var renderEventInfo = new RenderEventInfo(RENDER);
 	private var sensorEventInfo = new SensorEventInfo();
@@ -271,6 +284,31 @@ class NativeApplication
 		NativeCFFI.lime_application_set_background_frame_rate(handle, backgroundFrameRate != null ? backgroundFrameRate : 30);
 		var idleFrameRate:Null<Float> = Reflect.hasField(options, "idleFrameRate") ? options.idleFrameRate : null;
 		NativeCFFI.lime_application_set_idle_frame_rate(handle, idleFrameRate != null ? idleFrameRate : 0);
+		__idleFrameRate = (idleFrameRate != null && idleFrameRate > 0);
+		if (__idleFrameRate) __watchMainThreadEvents();
+		#end
+	}
+
+	// The main thread's events are run with the timers. One that another thread adds would
+	// wait for the next of those, which an idle frame rate may have put a long way off, so
+	// a thread waits on the event loop for as long as the application runs, and asks for the
+	// timers to run when something is added.
+	@:noCompletion private function __watchMainThreadEvents():Void
+	{
+		#if (haxe_ver >= 4.2)
+		#if target.threaded
+		if (__eventWatcher != null) return;
+
+		var events = sys.thread.Thread.current().events;
+
+		__eventWatcher = sys.thread.Thread.create(function()
+		{
+			while (true)
+			{
+				if (events.wait() && __idleFrameRate) __requestTimer(0);
+			}
+		});
+		#end
 		#end
 	}
 
@@ -383,9 +421,12 @@ class NativeApplication
 				#end
 				parent.onUpdate.dispatch(applicationEventInfo.deltaTime);
 			case TIMER:
-				// Timers that are due between two updates, where frames come at an idle rate
+				// What is due between two updates, where frames come at an idle rate: timers,
+				// the main thread's events, and what is polled for
 				throwDeferredException();
 				updateTimer();
+				if (__updateWebSockets != null) __updateWebSockets();
+				if (__updateWebViews != null) __updateWebViews();
 			case IDLE:
 				if (__idleCallback != null) __idleCallback();
 
@@ -1143,6 +1184,10 @@ class NativeApplication
 	private function updateTimer():Void
 	{
 		#if (lime_cffi && !macro)
+		// The milliseconds until this should next run. The loop is asked to come back then,
+		// if that is before an update, as it may be with an idle frame rate.
+		var next = Math.POSITIVE_INFINITY;
+
 		if (Timer.sRunningTimers.length > 0)
 		{
 			var currentTime = System.__getTimer();
@@ -1172,20 +1217,30 @@ class NativeApplication
 				});
 			}
 
-			// The loop runs the timers again when the next one is due, if that comes before
-			// an update does, as it may with an idle frame rate
-			var next = Math.POSITIVE_INFINITY;
+			currentTime = System.__getTimer();
 
 			for (timer in Timer.sRunningTimers)
 			{
-				if (timer.mRunning && timer.mFireAt < next) next = timer.mFireAt;
+				if (timer.mRunning && timer.mFireAt - currentTime < next) next = timer.mFireAt - currentTime;
 			}
-
-			if (next != Math.POSITIVE_INFINITY) __requestTimer(next - System.__getTimer());
 		}
 		#if (haxe_ver >= 4.2)
 		#if target.threaded
-		sys.thread.Thread.current().events.progress();
+		switch (sys.thread.Thread.current().events.progress())
+		{
+			case Now:
+				next = 0;
+			case At(time):
+				var wait = (time - Sys.time()) * 1000;
+				if (wait < next) next = wait;
+			case AnyTime(time):
+				if (time != null)
+				{
+					var wait = (time - Sys.time()) * 1000;
+					if (wait < next) next = wait;
+				}
+			case Never:
+		}
 		#else
 		// Duplicate code required because Haxe 3 can't handle
 		// #if (haxe_ver >= 4.2 && target.threaded)
@@ -1194,6 +1249,9 @@ class NativeApplication
 		#else
 		@:privateAccess haxe.EntryPoint.processEvents();
 		#end
+
+		if (__webSocketsActive != null && __webSocketsActive()) next = 0;
+		if (next != Math.POSITIVE_INFINITY) __requestTimer(next > 0 ? next : 0);
 		#end
 	}
 }

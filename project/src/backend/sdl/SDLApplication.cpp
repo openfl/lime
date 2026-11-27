@@ -68,6 +68,10 @@ namespace lime
 	// Set by RequestFrame on any thread, and taken by the loop
 	static SDL_atomic_t s_frameRequested;
 
+	// Whether there is an idle frame rate. Without one a frame that is asked for changes
+	// nothing, and the loop isn't woken for it.
+	static SDL_atomic_t s_idleRate;
+
 	// The earliest time RequestTimer has asked to be woken at since timers last ran, on the
 	// loop's clock, or below zero for none
 	static SDL_SpinLock s_timedLock = 0;
@@ -177,8 +181,10 @@ namespace lime
 	static const double IDLE_MIN_REMAINING = 2.0;
 	static const double IDLE_INTERVAL = 1.0;
 
-	// The least time between two wakes for input, by profile, in milliseconds. Input that comes
-	// sooner after the last waits out the rest, and is still handled before the next frame.
+	// The least time between two wakes for a stream of input, by profile, in milliseconds. Mouse
+	// moves, raw input, touches and posted messages that come sooner after the last wait out
+	// the rest, and are still handled before the next frame. A key, a mouse button and a
+	// message whose sender waits for the answer wake the loop at once.
 	// On Windows, where it is measured. Elsewhere input wakes the loop as it comes.
 #if defined(HX_WINDOWS) && !defined(HX_WINRT)
 	static const double INPUT_INTERVAL_BALANCED = 2.0;
@@ -194,9 +200,22 @@ namespace lime
 	static const int SLEEP_WOKEN = 1;
 	static const int SLEEP_INPUT = 2;
 
+	// What ends a wait: any input, or, within the interval after the last, what a person does
+	// once (a key, a mouse button, a hot key) and a message another thread sent and waits on
+	static const DWORD WAKE_ON_INPUT = QS_ALLINPUT;
+	static const DWORD WAKE_ON_HELD = QS_KEY | QS_MOUSEBUTTON | QS_HOTKEY | QS_SENDMESSAGE;
+
+	// An event another thread pushes is queued just after the loop is woken for it. A loop
+	// that got there first and found nothing looks once more after this long.
+	static const double LOOK_AGAIN = 1.0;
+
 	// The high-resolution timer ends a wait within about half a millisecond, so a loop that
 	// busy-waits spins for the last one
 	static const double SPIN_MARGIN = 1.0;
+
+	// Input ends the spin as it ends the wait. Asking the system whether there is any costs a
+	// call that can block, so it is asked this often and not every time round.
+	static const double SPIN_LOOK = 0.05;
 
 	// A wait on the timer is exact while it is shorter than a tick of Windows' default clock,
 	// about 15.6 ms. A longer one can come back tens of milliseconds late: measured on Windows
@@ -208,8 +227,8 @@ namespace lime
 
 	// A profile that doesn't busy-wait, the low energy one, wakes once for a frame instead: it
 	// waits by the system's clock, in whole milliseconds rounded up, as SDL's own wait does,
-	// which kept time over a wait this long where the timer didn't. An application whose
-	// windows are all hidden, whose frames nobody sees, sleeps the whole wait in one.
+	// which kept time over a wait this long where the timer didn't. An idle frame is one
+	// nobody asked for, so the loop sleeps towards it in one.
 	static const double WAIT_BY_CLOCK_MOST = 16.0;
 
 	// SDL reads game controllers and sensors as it pumps, and its own wait wakes to pump for
@@ -263,12 +282,14 @@ namespace lime
 		idlePeriod = 0.0;
 		inputHoldUntil = 0.0;
 		inputInterval = INPUT_INTERVAL_BALANCED;
+		lookAgain = false;
 		mainLoopApplied = false;
 		mainThreadID = SDL_ThreadID();
 		requestedIdleFrameRate = 0.0;
 		timedUpdate = -1.0;
 		timersRanAt = 0.0;
 		SDL_AtomicSet(&s_frameRequested, 0);
+		SDL_AtomicSet(&s_idleRate, 0);
 		SDL_AtomicSet(&s_timedChanged, 0);
 #if defined(HX_WINDOWS) && !defined(HX_WINRT)
 		// Windows 10 1803 and later; without it a wait ends on the system's timer tick, and the
@@ -507,9 +528,26 @@ namespace lime
 	{
 
 		// From any thread. The loop takes the request before it waits and before it decides
-		// whether a frame is due, so only a loop that may be waiting needs waking.
-		if (SDL_AtomicSet(&s_frameRequested, 1) == 0 && SDL_ThreadID() != mainThreadID)
+		// whether a frame is due, so only a loop that may be waiting needs waking, and only
+		// where frames come at an idle rate: elsewhere the next frame is as soon as one can be.
+		if (SDL_AtomicSet(&s_frameRequested, 1) == 0 && SDL_AtomicGet(&s_idleRate) != 0 && SDL_ThreadID() != mainThreadID)
 			Wake();
+	}
+
+	void Application::RequestFrameOfCurrent()
+	{
+
+		SDLApplication *application = SDLApplication::GetCurrent();
+		if (application)
+			application->RequestFrame();
+	}
+
+	void Application::RequestDeliveryOfCurrent()
+	{
+
+		SDLApplication *application = SDLApplication::GetCurrent();
+		if (application)
+			application->RequestTimer(0.0);
 	}
 
 	void SDLApplication::RequestTimer(double milliseconds)
@@ -567,6 +605,7 @@ namespace lime
 
 		requestedIdleFrameRate = rate;
 		idlePeriod = (rate > 0.0) ? 1000.0 / rate : 0.0;
+		SDL_AtomicSet(&s_idleRate, idlePeriod > 0.0 ? 1 : 0);
 		Reschedule();
 	}
 
@@ -1039,11 +1078,11 @@ namespace lime
 	}
 
 #if defined(HX_WINDOWS) && !defined(HX_WINRT)
-	int SDLApplication::SleepUntilWork(double ms, bool watchInput, bool byClock)
+	int SDLApplication::SleepUntilWork(double ms, unsigned int wakeMask, bool byClock)
 	{
 
 		// The wait of a turn on Windows: until the time is up, another thread wakes the loop,
-		// or, when it is watched for, input waits in the message queue. The time is kept by
+		// or input of a kind the mask names waits in the message queue. The time is kept by
 		// the high-resolution timer, or by the system's clock in whole milliseconds.
 		HANDLE handles[2];
 		DWORD count = 0;
@@ -1086,7 +1125,7 @@ namespace lime
 
 		System::GCEnterBlocking();
 		SDL_AtomicSet(&s_waitEventBlocking, 1);
-		DWORD result = MsgWaitForMultipleObjectsEx(count, handles, timeout, watchInput ? QS_ALLINPUT : 0, watchInput ? MWMO_INPUTAVAILABLE : 0);
+		DWORD result = MsgWaitForMultipleObjectsEx(count, handles, timeout, wakeMask, MWMO_INPUTAVAILABLE);
 		SDL_AtomicSet(&s_waitEventBlocking, 0);
 		System::GCExitBlocking();
 
@@ -1123,6 +1162,9 @@ namespace lime
 
 	SDLApplication::~SDLApplication()
 	{
+		if (currentApplication == this)
+			currentApplication = 0;
+
 #if defined(HX_WINDOWS) && !defined(HX_WINRT)
 		if (frameTimer)
 		{
@@ -2568,6 +2610,11 @@ namespace lime
 				SwitchToThread();
 				queued = QueuedEvents();
 			}
+
+			// A thread running on another processor isn't waited for by that, so the next
+			// wait is a short one, and the queue is read again when it ends
+			if (queued == 0)
+				lookAgain = true;
 		}
 #endif
 
@@ -2688,13 +2735,25 @@ namespace lime
 				forFrame = false;
 			}
 
-			// Input that comes within the profile's interval of the last isn't watched for
-			// until the interval is up
+			// Within the profile's interval of the last input, only a key, a mouse button or a
+			// message that is waited on ends the wait. The rest is collected when it is up.
 			bool watchInput = (now >= inputHoldUntil);
+			DWORD wakeMask = watchInput ? WAKE_ON_INPUT : WAKE_ON_HELD;
 			if (!watchInput && inputHoldUntil < until)
 			{
 				until = inputHoldUntil;
 				forFrame = false;
+			}
+
+			if (lookAgain)
+			{
+				lookAgain = false;
+
+				if (now + LOOK_AGAIN < until)
+				{
+					until = now + LOOK_AGAIN;
+					forFrame = false;
+				}
 			}
 
 			// Back in time for the next idle event of a listener with more to do
@@ -2714,7 +2773,14 @@ namespace lime
 			double ms = until - now;
 			bool byClock = false;
 
-			if (!poll && !(windowsHidden && requestedBackgroundFrameRate > 0.0))
+			// A frame at a rate that was asked for is kept on time, the background rate of
+			// hidden windows as much as the frame rate. An idle frame is one nobody asked for,
+			// so the loop sleeps in one towards it, and towards a timer that comes before it:
+			// waiting for a timer in two parts, the last of them short, kept it no nearer its
+			// time than this did, and woke the loop twice.
+			bool resting = (nextUpdate > earliestUpdate);
+
+			if (!poll && !resting)
 			{
 				if (!allowBusyWait)
 				{
@@ -2758,7 +2824,7 @@ namespace lime
 				ms = std::ceil(ms);
 			}
 
-			int ended = (ms > 0.0) ? SleepUntilWork(ms, watchInput, byClock) : SLEEP_TIME_UP;
+			int ended = (ms > 0.0) ? SleepUntilWork(ms, wakeMask, byClock) : SLEEP_TIME_UP;
 
 			// Input, or an event another thread pushed: Update collects what there is
 			if (ended == SLEEP_INPUT || (ended == SLEEP_WOKEN && SDL_AtomicGet(&s_foreignPush) != 0))
@@ -2770,10 +2836,30 @@ namespace lime
 
 			if (spin > 0.0)
 			{
+				bool input = false;
+				double look = 0.0;
+				double spun;
+
 				System::GCEnterBlocking();
-				while (GetCurrentTimeMs() < until)
+				while ((spun = GetCurrentTimeMs()) < until)
+				{
+					if (spun >= look)
+					{
+						if (HIWORD(GetQueueStatus(wakeMask)) != 0)
+						{
+							input = true;
+							break;
+						}
+
+						look = spun + SPIN_LOOK;
+					}
+
 					YieldProcessor();
+				}
 				System::GCExitBlocking();
+
+				if (input)
+					return WAIT_NONE;
 			}
 
 			if (poll)

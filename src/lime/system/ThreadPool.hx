@@ -471,6 +471,11 @@ class ThreadPool extends WorkOutput
 			Application.current.onUpdate.add(__update);
 		}
 
+		// The pool's own work is done in updates: a job on the main thread is run there, and
+		// one for a thread may be handed to it there. With an idle frame rate the next may be
+		// a long way off.
+		if (Application.current != null) Application.current.requestFrame();
+
 		return job.id;
 	}
 
@@ -831,6 +836,9 @@ class ThreadPool extends WorkOutput
 		#if (lime_threads && (lime_threads_deque || html5))
 		__exitIdleThreads();
 		#end
+
+		// A job on the main thread is run a part at a time, an update after another
+		if (__singleThreadedJobs.length > 0 && Application.current != null) Application.current.requestFrame();
 
 		// Keep updating while idle threads wait out `idleTimeout`
 		if (activeJobs #if lime_threads + __queuedExitEvents #if lime_threads_deque + __queuedWorkEvents #end #end

@@ -59,6 +59,7 @@ namespace lime {
 			static void EnterSwapBlocking ();
 			static void ExitSwapBlocking ();
 			static void CallFromEventPump (void (*callback) (void*), void* data);
+			static SDLApplication* GetCurrent () { return currentApplication; }
 #if defined(HX_WINDOWS) && !defined(HX_WINRT)
 			static void EnterNativeModalLoop ();
 			static void ExitNativeModalLoop ();
@@ -115,7 +116,7 @@ namespace lime {
 			void UpdateSleepGuard (Uint32 requestedMs, Uint32 elapsedMs);
 			bool SleepsOutTheRemainder () const;
 #if defined(HX_WINDOWS) && !defined(HX_WINRT)
-			int SleepUntilWork (double ms, bool watchInput, bool byClock);
+			int SleepUntilWork (double ms, unsigned int wakeMask, bool byClock);
 #endif
 			int WaitEvent (SDL_Event* event);
 
@@ -214,6 +215,8 @@ namespace lime {
 			double inputHoldUntil;
 			// The least time between two wakes for input, in milliseconds
 			double inputInterval;
+			// An event another thread was pushing wasn't in the queue yet, so the next wait is short
+			bool lookAgain;
 			JoystickEvent joystickEvent;
 			KeyEvent keyEvent;
 			double lastUpdate;

@@ -127,6 +127,7 @@ class BackgroundWorker
 
 		#if (cpp || neko || (haxe4 && hl))
 		__messageQueue.add(COMPLETE(message));
+		__requestDelivery();
 		#else
 		if (!canceled)
 		{
@@ -144,6 +145,7 @@ class BackgroundWorker
 	{
 		#if (cpp || neko || (haxe4 && hl))
 		__messageQueue.add(ERROR(message));
+		__requestDelivery();
 		#else
 		if (!canceled)
 		{
@@ -161,12 +163,20 @@ class BackgroundWorker
 	{
 		#if (cpp || neko || (haxe4 && hl))
 		__messageQueue.add(PROGRESS(message));
+		__requestDelivery();
 		#else
 		if (!canceled)
 		{
 			onProgress.dispatch(message);
 		}
 		#end
+	}
+
+	// What the worker sends is heard in the application's next update. An idle frame rate may
+	// have put that a long way off, so a frame is asked for. From the worker's thread.
+	@:noCompletion private static inline function __requestDelivery():Void
+	{
+		if (Application.current != null) Application.current.requestFrame();
 	}
 
 	@:noCompletion private function __doWork():Void

@@ -1,6 +1,7 @@
 // include order is important
 #include <efsw/efsw.hpp>
 #include <system/FileWatcher.h>
+#include <app/Application.h>
 
 
 namespace lime {
@@ -87,6 +88,10 @@ namespace lime {
 		mutex->Lock ();
 		queue.push_back (event);
 		mutex->Unlock ();
+
+		// Heard of in the application's next update, which an idle frame rate may have put a
+		// long way off. This is one of the watcher's threads.
+		Application::RequestFrameOfCurrent ();
 
 	}
 

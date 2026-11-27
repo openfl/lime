@@ -36,11 +36,16 @@ typedef FrameOptions =
 		from each update for as long as it does. A window that is shown,
 		restored, resized or uncovered asks for one itself.
 
-		A `haxe.Timer` still fires on time, between frames, and asks for a frame
-		if what it changed should be drawn. Other things that run once a frame,
-		as `lime.app.Future` does, run at the idle rate until a frame is asked
-		for. A rate at or above the frame rate changes nothing. Native targets
-		and HTML5.
+		What happens between frames is still heard of on time. A `haxe.Timer`
+		fires when it is due, an HTTP request, a `WebSocket`, a `WebView` and the
+		main thread's event loop deliver as they would with frames coming, and
+		none of them brings a frame: a listener that changes what is drawn asks
+		for one. What reports in an update brings its own frame: the work of a
+		`lime.system.ThreadPool`, and so of a `lime.app.Future`, a file or an
+		asset that was loaded, a `BackgroundWorker` and a `FileWatcher`.
+
+		A rate at or above the frame rate changes nothing. Native targets and
+		HTML5.
 	**/
 	@:optional var idleFrameRate:Float;
 }
