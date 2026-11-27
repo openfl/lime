@@ -5,9 +5,17 @@ import haxe.Timer;
 import lime.app.Application;
 import lime.app.FrameOptions;
 import lime.app.FrameProfile;
+import lime.app.Future;
 import lime.app.UncapMode;
 import lime.app.VSyncMode;
 import lime.graphics.RenderContextType;
+import lime.net.WebSocket;
+import lime.net.WebSocketServer;
+import lime.system.BackgroundWorker;
+import lime.system.FileWatcher;
+import lime.system.ThreadPool;
+import lime.system.WorkOutput;
+import lime.ui.WebView;
 import lime.ui.Window;
 import sys.thread.Thread;
 #if windows
@@ -232,6 +240,67 @@ class FrameLoopTest extends Test
 			Assert.isTrue(wakes >= seconds * 200 || wakes >= posted * 0.6, heard + " mouse moves posted over " + round(seconds)
 				+ " seconds woke the precision profile " + wakes + " times");
 		});
+	}
+
+	/**
+		What is held for the interval is a stream of input. A message that another process sent
+		and is waiting on the answer to, as a screen reader or the shell does, is answered at
+		once, also while mouse moves are coming faster than the interval.
+	**/
+	@:timeout(40000)
+	public function testAMessageSentDuringAStreamOfInputIsAnsweredAtOnce(async:Async):Void
+	{
+		var application = Application.current;
+		var window = openHiddenWindow();
+
+		if (window == null)
+		{
+			async.done();
+			return;
+		}
+
+		// The profile whose interval is the longest, 8 ms
+		pace(FrameProfile.LOW_ENERGY, 10);
+
+		var waits:Array<Float> = null;
+		var finished = false;
+
+		Thread.create(function()
+		{
+			waits = sendDuringMoves(window, 400, 2, 10);
+		});
+
+		var onUpdate:Int->Void = null;
+		onUpdate = function(_:Int)
+		{
+			if (finished || waits == null) return;
+
+			finished = true;
+			application.onUpdate.remove(onUpdate);
+			restorePace();
+
+			Timer.delay(function()
+			{
+				if (waits.length == 0)
+				{
+					Assert.fail("the messages could not be sent");
+				}
+				else
+				{
+					waits.sort(Reflect.compare);
+					var median = waits[waits.length >> 1];
+
+					// Held for the interval with the moves, one waits 4 ms on average
+					Assert.isTrue(median < 2, "a message sent while mouse moves came 2 ms apart waited " + round3(median)
+						+ " ms for its answer, the median of " + waits.length);
+				}
+
+				async.done();
+			}, 1);
+		};
+
+		application.onUpdate.add(onUpdate);
+		cleanups.push(function() application.onUpdate.remove(onUpdate));
 	}
 	#end
 
@@ -919,6 +988,344 @@ class FrameLoopTest extends Test
 		});
 	}
 
+	// What is delivered between frames
+
+	/**
+		With an idle frame rate, what ends off the main thread or between frames is heard of when
+		it ends, and not in the next idle frame, by an application that asks for no frame itself.
+		A job of a thread pool reports in an update, so one comes for it.
+	**/
+	@:timeout(15000)
+	public function testAThreadPoolsJobIsHeardOfWhenItEndsWithAnIdleFrameRate(async:Async):Void
+	{
+		var pool = new ThreadPool(0, 1, MULTI_THREADED);
+
+		delivery(async, "a job of a thread pool", function(heard:Void->Void)
+		{
+			pool.onComplete.add(function(_) heard());
+			pool.run(sleepThenComplete);
+		});
+	}
+
+	private static function sleepThenComplete(state:Dynamic, output:WorkOutput):Void
+	{
+		Sys.sleep(0.3);
+		workEnded = Timer.stamp();
+		output.sendComplete();
+	}
+
+	/** A future's work is done by a thread pool **/
+	@:timeout(15000)
+	public function testAFuturesWorkIsHeardOfWhenItEndsWithAnIdleFrameRate(async:Async):Void
+	{
+		delivery(async, "the work of a future", function(heard:Void->Void)
+		{
+			new Future<Int>(function()
+			{
+				Sys.sleep(0.3);
+				workEnded = Timer.stamp();
+				return 1;
+			}, true).onComplete(function(_) heard());
+		});
+	}
+
+	/** A file is loaded by a thread pool, as an asset is **/
+	@:timeout(15000)
+	public function testAFileThatWasLoadedIsHeardOfWhenItIsReadWithAnIdleFrameRate(async:Async):Void
+	{
+		var path = haxe.io.Path.join([Sys.getCwd(), "FrameLoopTestLoad.txt"]);
+		sys.io.File.saveContent(path, "loaded");
+
+		delivery(async, "a file that was loaded", function(heard:Void->Void)
+		{
+			// When the read ends can't be seen from here, so the time it was asked for stands for
+			// it. A file that was just written may be held up as it is opened, by a virus
+			// scanner for one, so what is asked is that it doesn't take until the idle frame.
+			workEnded = Timer.stamp();
+			lime.utils.Bytes.loadFromFile(path).onComplete(function(_) heard());
+		}, function()
+		{
+			try sys.FileSystem.deleteFile(path) catch (error:Dynamic) {}
+		}, null, 850);
+	}
+
+	/** A background worker's messages are heard in an update as well **/
+	@:timeout(15000)
+	public function testABackgroundWorkersMessageIsHeardWhenItIsSentWithAnIdleFrameRate(async:Async):Void
+	{
+		var worker = new BackgroundWorker();
+
+		delivery(async, "the completion a background worker sent", function(heard:Void->Void)
+		{
+			worker.doWork.add(function(_)
+			{
+				Sys.sleep(0.3);
+				workEnded = Timer.stamp();
+				worker.sendComplete();
+			});
+
+			worker.onComplete.add(function(_) heard());
+			worker.run();
+		});
+	}
+
+	#if (haxe_ver >= 4.2)
+	/**
+		The main thread's events are run with the timers, between frames as well. A timer of the
+		test runner's own keeps the timers running here, so this passes without the loop being
+		woken for the event. It is here so that waking it doesn't get in the event's way, and the
+		frame loop bench has the time an event waits where no timer runs.
+	**/
+	@:timeout(15000)
+	public function testAnEventAnotherThreadGivesTheMainThreadRunsWhenItIsGivenWithAnIdleFrameRate(async:Async):Void
+	{
+		var main = Thread.current();
+
+		delivery(async, "an event another thread gave the main thread", function(heard:Void->Void)
+		{
+			Thread.create(function()
+			{
+				Sys.sleep(0.3);
+				workEnded = Timer.stamp();
+				main.events.run(heard);
+			});
+		});
+	}
+	#end
+
+	/** WebSockets are polled, between frames as well while any is open **/
+	@:timeout(20000)
+	public function testAWebSocketsMessageIsHeardWhenItComesWithAnIdleFrameRate(async:Async):Void
+	{
+		if (!WebSocketServer.isSupported)
+		{
+			Assert.pass();
+			async.done();
+			return;
+		}
+
+		var server = new WebSocketServer();
+		var client = new WebSocket();
+		var accepted:WebSocket = null;
+		var connected = false;
+
+		server.onConnect.add(function(socket) accepted = socket);
+		Assert.isTrue(server.listen(0, "127.0.0.1"), "the server did not listen");
+		client.onConnect.add(function() connected = true);
+		client.connect("ws://127.0.0.1:" + server.localPort + "/");
+
+		delivery(async, "a message that came to a WebSocket", function(heard:Void->Void)
+		{
+			accepted.onText.add(function(_) heard());
+
+			// A timer runs on its own with an idle frame rate
+			Timer.delay(function()
+			{
+				workEnded = Timer.stamp();
+				client.sendText("now");
+			}, 300);
+		}, function()
+		{
+			client.close();
+			server.close();
+		}, function() return connected && accepted != null);
+	}
+
+	/** What a web view reports is read between frames as well **/
+	@:timeout(30000)
+	public function testAWebViewsMessageIsHeardWhenItIsPostedWithAnIdleFrameRate(async:Async):Void
+	{
+		if (!WebView.isSupported)
+		{
+			trace("No web engine here, so what a web view reports was not tested");
+			Assert.pass();
+			async.done();
+			return;
+		}
+
+		var view = new WebView();
+		var loaded = false;
+		view.onLoad.add(function() loaded = true);
+		view.loadHTML("<!doctype html><html><body></body></html>");
+
+		delivery(async, "a message a web view posted", function(heard:Void->Void)
+		{
+			view.onMessage.add(function(_) heard());
+
+			Timer.delay(function()
+			{
+				workEnded = Timer.stamp();
+				view.evaluateJavaScript("window.chrome.webview.postMessage('now');");
+			}, 300);
+		}, function() view.close(), function() return loaded);
+	}
+
+	// Not on HashLink: FileWatcher.addDirectory() ends in an access violation there, on develop
+	// as on this branch, with or without an idle frame rate. That is a fault of its own, which
+	// this test found and doesn't fix. Not on macOS, whose file events come a while after the change.
+	#if ((windows || linux) && !hl)
+	/** A file watcher's changes are heard in an update, so one comes for them **/
+	@:timeout(15000)
+	public function testAChangeAFileWatcherSawIsHeardOfWhenItHappensWithAnIdleFrameRate(async:Async):Void
+	{
+		var directory = haxe.io.Path.join([Sys.getCwd(), "FrameLoopTestWatched"]);
+		var file = haxe.io.Path.join([directory, "added.txt"]);
+		if (!sys.FileSystem.exists(directory)) sys.FileSystem.createDirectory(directory);
+		if (sys.FileSystem.exists(file)) sys.FileSystem.deleteFile(file);
+
+		var watcher = new FileWatcher();
+
+		if (!watcher.addDirectory(directory, false))
+		{
+			trace("The directory could not be watched, so what a file watcher reports was not tested");
+			Assert.pass();
+			async.done();
+			return;
+		}
+
+		delivery(async, "a file added to a watched directory", function(heard:Void->Void)
+		{
+			watcher.onAdd.add(function(_) heard());
+			watcher.onModify.add(function(_) heard());
+
+			Timer.delay(function()
+			{
+				workEnded = Timer.stamp();
+				sys.io.File.saveContent(file, "now");
+			}, 300);
+		}, function()
+		{
+			watcher.removeDirectory(directory);
+
+			try
+			{
+				sys.FileSystem.deleteFile(file);
+				sys.FileSystem.deleteDirectory(directory);
+			}
+			catch (error:Dynamic) {}
+		});
+	}
+	#end
+
+	// When the work of a delivery test ended, by Timer.stamp(), from whichever thread it ran on
+	private static var workEnded = 0.0;
+
+	/**
+		Sets an idle frame rate of 1 and, as an idle frame ends, calls `start`, which begins work
+		that ends some 300 ms later, sets `workEnded` as it does, and has its listener call the
+		function it is given. With nothing to bring it forward, the listener would hear in the
+		next idle frame, 700 ms after the work ended. `ready` is waited for first, at the frame
+		rate, and `within` is the milliseconds the listener is given.
+	**/
+	private function delivery(async:Async, what:String, start:(Void->Void)->Void, ?finish:Void->Void, ?ready:Void->Bool, within:Float = 150):Void
+	{
+		var application = Application.current;
+		var updates = 0;
+		var updatesAtStart = -1;
+		var updatesWhenHeard = 0;
+		var heardAt = -1.0;
+		var startedAt = 0.0;
+		var begun = Timer.stamp();
+		var idle = false;
+		var finished = false;
+		var listener:Int->Void = null;
+		workEnded = 0.0;
+
+		var end = function(failure:String)
+		{
+			if (finished) return;
+			finished = true;
+			application.onUpdate.remove(listener);
+			restorePace();
+			if (finish != null) finish();
+
+			Timer.delay(function()
+			{
+				if (failure != null)
+				{
+					Assert.fail(failure);
+				}
+				else
+				{
+					var waited = (heardAt - workEnded) * 1000;
+					var frames = updatesWhenHeard - updatesAtStart;
+
+					Assert.isTrue(waited < within, what + ", which ended " + round((workEnded - startedAt) * 1000)
+						+ " ms into a wait of a second for an idle frame, was heard of " + round(waited) + " ms after it ended");
+
+					// While the work went on, nothing was delivered and no frame was needed
+					Assert.isTrue(frames <= 3, "there were " + frames + " updates between " + what + " being begun and being heard of");
+				}
+
+				async.done();
+			}, 1);
+		};
+
+		listener = function(_:Int)
+		{
+			var now = Timer.stamp();
+
+			if (!idle)
+			{
+				// At the frame rate still
+				if (ready == null || ready())
+				{
+					idle = true;
+					pace(FrameProfile.BALANCED, 60, idleAt(1));
+				}
+				else if (now - begun > 8)
+				{
+					end(what + " could not be set up");
+				}
+
+				return;
+			}
+
+			updates++;
+
+			if (heardAt >= 0)
+			{
+				end(null);
+			}
+			else if (updatesAtStart >= 0 && now - startedAt > 4)
+			{
+				end(what + " was not heard of at all");
+			}
+			else if (updatesAtStart < 0 && updates == 2)
+			{
+				// The first update may be one that was due before the idle frame rate was set
+				updatesAtStart = updates;
+				startedAt = now;
+
+				start(function()
+				{
+					if (heardAt >= 0) return;
+					heardAt = Timer.stamp();
+					updatesWhenHeard = updates;
+				});
+
+				// The test ends in an update, which this thread asks for once the listener has
+				// heard. A timer that looked for that would run the main thread's events and
+				// poll the sockets as it did, which is what is being tested.
+				Thread.create(function()
+				{
+					while (!finished)
+					{
+						Sys.sleep(0.02);
+						if (heardAt >= 0 || Timer.stamp() - startedAt > 4) application.requestFrame();
+					}
+				});
+			}
+		};
+
+		application.onUpdate.add(listener);
+		cleanups.push(function()
+		{
+			finished = true;
+			application.onUpdate.remove(listener);
+		});
+	}
+
 	// Vertical sync
 
 	/**
@@ -1181,6 +1588,58 @@ class FrameLoopTest extends Test
 
 		script += "if (-not $ok) { exit 1 }\n";
 
+		var process = powerShell(script);
+		var exitCode = process.exitCode();
+		process.close();
+		return exitCode == 0;
+	}
+
+	/**
+		Posts mouse moves to the window through PowerShell, the milliseconds given apart, and after
+		every so many sends it a message and waits for the answer. Returns how long each of those
+		waited, in milliseconds.
+	**/
+	private static function sendDuringMoves(window:Window, moves:Int, apart:Float, every:Int):Array<Float>
+	{
+		var hwnd = Int64.toStr(window.nativeHandle.window);
+		var script = "$ErrorActionPreference = 'Stop'\n"
+			+ "Add-Type -Namespace LimeTest -Name User32 -MemberDefinition '[DllImport(\"user32.dll\")] public static extern bool PostMessage(IntPtr hWnd, uint msg, IntPtr wParam, IntPtr lParam);"
+			+ " [DllImport(\"user32.dll\")] public static extern IntPtr SendMessageTimeoutW(IntPtr hWnd, uint msg, IntPtr wParam, IntPtr lParam, uint flags, uint timeout, out IntPtr result);'\n"
+			+ "$h = [IntPtr][Int64]" + hwnd + "\n"
+			+ "$r = [IntPtr]::Zero\n"
+			+ "$w = [Diagnostics.Stopwatch]::StartNew()\n"
+			+ "for ($i = 0; $i -lt " + moves + "; $i++) {\n"
+			+ "  while ($w.Elapsed.TotalMilliseconds -lt $i * " + apart + ") { }\n"
+			+ "  [void][LimeTest.User32]::PostMessage($h, 0x0200, [IntPtr]0, [IntPtr](($i % 60) + 1 + (9 -shl 16)))\n"
+			+ "  if ($i % " + every + " -eq " + (every - 1) + ") {\n"
+			+ "    $t = $w.Elapsed.TotalMilliseconds\n"
+			// WM_NULL, which a window answers and does nothing about
+			+ "    [void][LimeTest.User32]::SendMessageTimeoutW($h, 0, [IntPtr]0, [IntPtr]0, 0, 2000, [ref]$r)\n"
+			+ "    [Console]::Out.WriteLine(($w.Elapsed.TotalMilliseconds - $t).ToString([Globalization.CultureInfo]::InvariantCulture))\n"
+			+ "  }\n"
+			+ "}\n";
+
+		var process = powerShell(script);
+		var output = process.stdout.readAll().toString();
+		var exitCode = process.exitCode();
+		process.close();
+
+		var waits:Array<Float> = [];
+
+		if (exitCode == 0)
+		{
+			for (line in output.split("\n"))
+			{
+				var wait = Std.parseFloat(StringTools.trim(line));
+				if (!Math.isNaN(wait)) waits.push(wait);
+			}
+		}
+
+		return waits;
+	}
+
+	private static function powerShell(script:String):sys.io.Process
+	{
 		// An encoded command is UTF-16, and needs no quoting
 		var utf16 = Bytes.alloc(script.length * 2);
 		for (i in 0...script.length)
@@ -1191,12 +1650,9 @@ class FrameLoopTest extends Test
 		// HashLink starts a process by its path, without looking through PATH
 		var root = Sys.getEnv("SystemRoot");
 		var path = root != null ? root + "\\System32\\WindowsPowerShell\\v1.0\\powershell.exe" : null;
-		var powerShell = path != null && sys.FileSystem.exists(path) ? path : "powershell";
+		var executable = path != null && sys.FileSystem.exists(path) ? path : "powershell";
 
-		var process = new sys.io.Process(powerShell, ["-NoProfile", "-NonInteractive", "-EncodedCommand", Base64.encode(utf16)]);
-		var exitCode = process.exitCode();
-		process.close();
-		return exitCode == 0;
+		return new sys.io.Process(executable, ["-NoProfile", "-NonInteractive", "-EncodedCommand", Base64.encode(utf16)]);
 	}
 	#end
 

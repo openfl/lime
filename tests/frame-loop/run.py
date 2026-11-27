@@ -34,6 +34,12 @@ def build(name, repository, defines, target, work):
     command = ["haxelib", "run", "lime", "build", target, "-release", "-nocolor"] + ["-D" + define for define in defines]
     result = subprocess.run(command, cwd=folder, env=environment, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
 
+    if result.returncode != 0 and os.path.isdir(os.path.join(folder, "bin", target)):
+        # What an earlier build left can stop the link on C++, so it is made again from nothing
+        sys.stderr.write("building %s for %s again from nothing\n" % (name, target))
+        shutil.rmtree(os.path.join(folder, "bin", target))
+        result = subprocess.run(command, cwd=folder, env=environment, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True)
+
     if result.returncode != 0:
         sys.stderr.write(result.stdout[-3000:])
         raise SystemExit("building %s for %s failed" % (name, target))
