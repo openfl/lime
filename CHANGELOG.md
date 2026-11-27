@@ -155,6 +155,7 @@ Changelog
 - Updated the bundled CA certificates to Mozilla's 2026-10-20 list, which drops three eMudhra roots.
 - Updated FreeType to 2.14.3, libpng to 1.6.59, zlib to 1.3.2, HarfBuzz to 14.6.0, libjpeg-turbo to 2.1.5.1 and libwebm to 1.0.0.32, for security fixes in reading fonts, images, compressed data and WebM files. FreeType's auto-hinter and hinting changed between versions, so some hinted glyphs and auto-hinted outlines can differ by a few pixels.
 - Changed native builds for x86 to include libpng's SSE2 row filters, as ARM builds include its NEON ones, which undo the Sub, Average and Paeth filters of RGB and RGBA PNGs faster while decoding.
+- Changed `lime test ios -simulator` to run on an iOS simulator that is already running, as one opened in the Simulator app, when no device is named on the command line. An iPad is still used when one is asked for.
 - Updated HashLink to 1.16.
 - Updated the macOS `webify`, which converts fonts for HTML5, to 0.1.10.0, and `ios-deploy` to 1.12.2, each with an arm64 build alongside x86_64, so neither needs Rosetta on Apple silicon Macs, and removed the unused `fruitstrap`.
 - Fixed an asset embedding regression.
@@ -300,6 +301,7 @@ Changelog
 - Fixed `System.desktopDirectory` and `System.documentsDirectory` on Linux always giving `~/Desktop` and `~/Documents`, rather than the folders the desktop's user-dirs.dirs file names, such as `~/Bureau` in French.
 - Fixed `window.displayMode.refreshRate` reading 0 where SDL has no refresh rate for the window's mode, as on Linux: it now gives the display's current rate.
 - Fixed `Window.fullscreen` reading `false` while a window is still fullscreen: after it is minimized and restored, as with Alt+Tab, when macOS enters fullscreen with a maximize, and when a maximized window goes fullscreen. It now reads SDL's own state at those events.
+- Fixed iOS simulators whose names hold parentheses, such as "iPad Air 11-inch (M2)", getting the wrong ID and name, so `lime test ios -simulator` could not start them.
 
 8.3.2 (05/13/2026)
 ------------------

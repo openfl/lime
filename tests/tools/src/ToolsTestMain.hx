@@ -31,6 +31,7 @@ class ToolsTestMain
 		runner.addCase(new LimeNineWarningTest());
 		runner.addCase(new AndroidIconTest());
 		runner.addCase(new IOSOutputTest());
+		runner.addCase(new XCodeHelperTest());
 		runner.addCase(new WindowsOutputTest());
 		runner.addCase(new TemplateAssetOutputTest());
 		runner.addCase(new HashlinkHelperTest());
