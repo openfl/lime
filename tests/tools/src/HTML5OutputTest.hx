@@ -451,6 +451,28 @@ class HTML5OutputTest extends Test
 		Assert.equals("true", windows[0].get("vsync"));
 	}
 
+	// <window preserve-drawing-buffer="true" /> reaches the main window's render context, and without
+	// it the context doesn't keep its image, as a WebGL context's default is (#1275)
+	public function testPreserveDrawingBufferReachesTheRenderContext():Void
+	{
+		for (attribute in ['preserve-drawing-buffer="true"', '', 'preserve-drawing-buffer="false"'])
+		{
+			output.update('<project>
+				<app main="Main" file="MyApplication" />
+				<window $attribute />
+			</project>');
+
+			var main = output.read("haxe/ApplicationMain.hx");
+			var start = main.indexOf("attributes.context =");
+			var end = start > -1 ? main.indexOf("};", start) : -1;
+			var context = (start > -1 && end > -1) ? main.substring(start, end) : "";
+			var entry = ~/#if html5 preserveDrawingBuffer: (\w+), #end/;
+
+			Assert.isTrue(entry.match(context), "no preserveDrawingBuffer in the render context for <window " + attribute + " />");
+			if (entry.match(context)) Assert.equals(attribute == 'preserve-drawing-buffer="true"' ? "true" : "false", entry.matched(1), attribute);
+		}
+	}
+
 	// A window with no title of its own is named after the application
 	public function testTheWindowTitleDefaultsToTheMetaTitle():Void
 	{
@@ -485,6 +507,75 @@ class HTML5OutputTest extends Test
 		Assert.equals('"Second"', windows[1].get("title"));
 		Assert.equals("320", windows[1].get("width"));
 		Assert.equals("240", windows[1].get("height"));
+	}
+
+	// Each asset's URL gets a version from its content, so a build that changes other
+	// assets, or only code, leaves its URL as it was
+	public function testEachAssetHasAVersionFromItsContent():Void
+	{
+		fixture.write("assets/a.txt", "same");
+		fixture.write("assets/b.txt", "same");
+		fixture.write("assets/c.txt", "other");
+
+		output.update('<project>
+			<app main="Main" file="MyApplication" />
+			<assets path="assets" />
+		</project>');
+
+		var manifest = PlatformFixture.embeddedManifest(output.read("haxe/ManifestResources.hx"));
+		Assert.notNull(manifest);
+		if (manifest == null) return;
+
+		var a:String = entry(manifest.assets, "assets/a.txt").version;
+		var b:String = entry(manifest.assets, "assets/b.txt").version;
+		var c:String = entry(manifest.assets, "assets/c.txt").version;
+
+		Assert.equals(haxe.crypto.Md5.encode("same").substr(0, 10), a);
+		Assert.equals(a, b);
+		Assert.notEquals(a, c);
+
+		// A change to one asset changes its version alone
+		fixture.write("assets/c.txt", "changed");
+		output.update('<project>
+			<app main="Main" file="MyApplication" />
+			<assets path="assets" />
+		</project>');
+
+		manifest = PlatformFixture.embeddedManifest(output.read("haxe/ManifestResources.hx"));
+		Assert.equals(a, entry(manifest.assets, "assets/a.txt").version);
+		Assert.equals(haxe.crypto.Md5.encode("changed").substr(0, 10), entry(manifest.assets, "assets/c.txt").version);
+	}
+
+	// A sound in several formats has a version for each of its files
+	public function testEachFileOfASoundHasAVersion():Void
+	{
+		fixture.write("assets/beep.ogg", "ogg bytes");
+		fixture.write("assets/beep.mp3", "mp3 bytes");
+
+		output.update('<project>
+			<app main="Main" file="MyApplication" />
+			<assets path="assets" />
+		</project>');
+
+		var manifest = PlatformFixture.embeddedManifest(output.read("haxe/ManifestResources.hx"));
+		Assert.notNull(manifest);
+		if (manifest == null) return;
+
+		var sound = null;
+		for (asset in manifest.assets) if (asset.pathGroup != null) sound = asset;
+		Assert.notNull(sound, "no sound with a path group");
+		if (sound == null) return;
+
+		var paths:Array<String> = sound.pathGroup;
+		var versions:Array<String> = sound.versionGroup;
+		Assert.notNull(versions);
+		Assert.equals(paths.length, versions.length);
+
+		for (i in 0...paths.length)
+		{
+			var content = StringTools.endsWith(paths[i], ".ogg") ? "ogg bytes" : "mp3 bytes";
+			Assert.equals(haxe.crypto.Md5.encode(content).substr(0, 10), versions[i], paths[i]);
+		}
 	}
 
 	private function entry(assets:Array<Dynamic>, id:String):Dynamic
@@ -548,5 +639,71 @@ class HTML5OutputTest extends Test
 	{
 		var pattern = ~/<title>(.*)<\/title>/;
 		return pattern.match(html) ? pattern.matched(1) : null;
+	}
+
+	// The application as the compiler would write it, with a comment and long names a minifier drops
+	private static inline var APPLICATION = "(function () {\n\t/* an application comment */\n\tfunction applicationMarker(aRatherLongArgumentName) {\n\t\tvar aRatherLongLocalName = aRatherLongArgumentName + 41;\n\t\treturn aRatherLongLocalName;\n\t}\n\twindow.applicationResult = applicationMarker(1);\n})();\n";
+
+	// A library with a comment and a sum a minifier would change
+	private static inline var LIBRARY = "/* a library comment */\nvar libraryAnswer = 41+1;\n";
+
+	// -minify minifies the application before the libraries it embeds are added to it, so they go
+	// in as they are written, where minifying the whole file changed them (#1317)
+	public function testMinifyLeavesTheEmbeddedLibrariesAsTheyAreWritten():Void
+	{
+		if (!closureRuns()) return;
+
+		var minified = buildWithALibrary(true);
+		Assert.isTrue(minified.indexOf(LIBRARY) > -1, "the library was changed: " + minified);
+		Assert.equals(-1, minified.indexOf("an application comment"), "the application kept its comment");
+		Assert.equals(-1, minified.indexOf("aRatherLongLocalName"), "the application kept its long names");
+
+		var plain = buildWithALibrary(false);
+		Assert.isTrue(plain.indexOf(LIBRARY) > -1, "the library was changed without -minify: " + plain);
+		Assert.isTrue(plain.indexOf(APPLICATION) > -1, "the application was changed without -minify: " + plain);
+	}
+
+	/**
+		Builds a project that embeds lib/library.js, with -minify or without, and gives the
+		JavaScript written. The compiler isn't run: the build's HXML is left doing nothing, and the
+		application is written where the compiler writes it.
+	**/
+	private function buildWithALibrary(minify:Bool):String
+	{
+		var xml = '<project>
+			<app main="Main" file="Minified" path="Export" />
+			<dependency path="lib/library.js" embed="true" />
+		</project>';
+
+		fixture.write("lib/library.js", LIBRARY);
+		if (minify) fixture.targetFlags.set("minify", "") else fixture.targetFlags.remove("minify");
+
+		output.update(xml);
+		sys.io.File.saveContent(output.path("haxe/release.hxml"), "--version\n");
+		sys.io.File.saveContent(output.path("bin/Minified.js"), APPLICATION);
+		output.build(xml);
+
+		fixture.targetFlags.remove("minify");
+		return output.read("bin/Minified.js");
+	}
+
+	// The Closure Compiler, which -minify runs, needs Java, which a test machine may not have, and
+	// a minify that fails ends the tools
+	private static function closureRuns():Bool
+	{
+		try
+		{
+			var process = new sys.io.Process("java", ["-jar", hxp.Path.combine(PlatformFixture.templates(), "bin/compiler.jar"), "--version"]);
+			process.stdout.readAll();
+			process.stderr.readAll();
+			var code = process.exitCode();
+			process.close();
+			if (code == 0) return true;
+		}
+		catch (e:Dynamic) {}
+
+		trace("The Closure Compiler can't run here, without Java, so -minify was not tested");
+		Assert.pass();
+		return false;
 	}
 }

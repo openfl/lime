@@ -19,6 +19,7 @@ import lime.tools.HXProject;
 import lime.tools.Icon;
 import lime.tools.IconHelper;
 import lime.tools.JavaHelper;
+import lime.tools.NativeSourcesHelper;
 import lime.tools.NekoHelper;
 import lime.tools.NodeJSHelper;
 import lime.tools.Orientation;
@@ -582,6 +583,7 @@ class MacPlatform extends PlatformTarget
 				if (ndll.path == null || ndll.path == "")
 				{
 					context.ndlls[i].path = NDLL.getLibraryPath(ndll, "Mac" + dirSuffix, "lib", ".a", project.debug);
+					NativeSourcesHelper.checkLibrary(context.ndlls[i].path);
 				}
 			}
 		}
@@ -611,14 +613,14 @@ class MacPlatform extends PlatformTarget
 
 		var icons = project.icons;
 
-		if (icons.length == 0)
+		if (!IconHelper.hasIcons(icons))
 		{
 			icons = [new Icon(System.findTemplate(project.templatePaths, "default/icon.svg"))];
 		}
 
 		context.HAS_ICON = IconHelper.createMacIcon(icons, Path.combine(contentDirectory, "icon.icns"));
 
-		copyProjectAssets(targetDirectory, contentDirectory);
+		copyProjectAssets(targetDirectory, contentDirectory, context);
 	}
 
 	@ignore public override function install():Void {}

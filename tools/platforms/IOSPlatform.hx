@@ -17,6 +17,7 @@ import lime.tools.Asset;
 import lime.tools.AssetHelper;
 import lime.tools.AssetType;
 import lime.tools.CPPHelper;
+import lime.tools.Dependency;
 import lime.tools.DeploymentHelper;
 import lime.tools.HXProject;
 import lime.tools.Icon;
@@ -25,6 +26,7 @@ import lime.tools.ImageHelper;
 import lime.tools.IOSHelper;
 import lime.tools.Keystore;
 import lime.tools.LaunchStoryboard;
+import lime.tools.NativeSourcesHelper;
 import lime.tools.Orientation;
 import lime.tools.Platform;
 import lime.tools.PlatformTarget;
@@ -414,7 +416,17 @@ class IOSPlatform extends PlatformTarget
 
 		context.frameworkSearchPaths = [];
 
-		for (dependency in project.dependencies)
+		var dependencies = project.dependencies.copy();
+
+		// libhxcpp's TLS checks certificates with the system's trust store, and leaves
+		// Security.framework to the app's link
+		if (IOSHelper.linksSecurityFramework(project.config.getString("cpp.buildLibrary", "hxcpp"))
+			&& !Lambda.exists(dependencies, function(dependency) return dependency.name == "Security.framework"))
+		{
+			dependencies.push(new Dependency("Security.framework", null));
+		}
+
+		for (dependency in dependencies)
 		{
 			var name:String = null;
 			var path:String = null;
@@ -533,6 +545,9 @@ class IOSPlatform extends PlatformTarget
 			|| (project.architectures.indexOf(Architecture.ARM64) > -1 && !project.targetFlags.exists("simulator")));
 		var i386 = (project.architectures.indexOf(Architecture.X86) > -1 && project.targetFlags.exists("simulator"));
 		var x86_64 = (command == "rebuild" || project.targetFlags.exists("simulator"));
+		// The arm64 simulator is a platform of its own, apart from arm64 devices
+		var arm64Simulator = (command == "rebuild" && IOSHelper.buildsArm64Simulator(project.config.getString("cpp.buildLibrary", "hxcpp")))
+			|| (project.targetFlags.exists("simulator") && IOSHelper.useArm64Simulator(project));
 
 		var arc = (project.targetFlags.exists("arc"));
 
@@ -544,6 +559,7 @@ class IOSPlatform extends PlatformTarget
 		if (arm64) commands.push(["-Dios", "-DHXCPP_CPP11", "-DHXCPP_ARM64"]);
 		if (i386) commands.push(["-Dios", "-Dsimulator", "-DHXCPP_M32", "-DHXCPP_CPP11"]);
 		if (x86_64) commands.push(["-Dios", "-Dsimulator", "-DHXCPP_M64", "-DHXCPP_CPP11"]);
+		if (arm64Simulator) commands.push(["-Dios", "-Dsimulator", "-DHXCPP_ARM64", "-DHXCPP_CPP11"]);
 
 		if (arc)
 		{
@@ -616,8 +632,7 @@ class IOSPlatform extends PlatformTarget
 			{name: "Icon-72@2x.png", size: 144},
 			{name: "Icon-76@2x.png", size: 152},
 			{name: "Icon-83.5@2x.png", size: 167},
-			{name: "Icon-60@3x.png", size: 180},
-			{name: "Icon-Marketing.png", size: 1024}
+			{name: "Icon-60@3x.png", size: 180}
 		];
 
 		context.HAS_ICON = true;
@@ -627,7 +642,7 @@ class IOSPlatform extends PlatformTarget
 
 		var icons = project.icons;
 
-		if (icons.length == 0)
+		if (!IconHelper.hasIcons(icons))
 		{
 			icons = [new Icon(System.findTemplate(project.templatePaths, "default/icon.svg"))];
 		}
@@ -638,6 +653,12 @@ class IOSPlatform extends PlatformTarget
 			{
 				context.HAS_ICON = false;
 			}
+		}
+
+		// App Store Connect turns down an App Store icon with an alpha channel, so it is drawn over white
+		if (!IconHelper.createOpaqueIcon(icons, 1024, 1024, Path.combine(iconPath, "Icon-Marketing.png"), 0xFFFFFF))
+		{
+			context.HAS_ICON = false;
 		}
 
 		if (project.launchStoryboard != null)
@@ -830,9 +851,9 @@ class IOSPlatform extends PlatformTarget
 
 		System.mkdir(projectDirectory + "/lib");
 
-		for (archID in 0...6)
+		for (archID in 0...7)
 		{
-			var arch = ["armv6", "armv7", "armv7s", "arm64", "i386", "x86_64"][archID];
+			var arch = ["armv6", "armv7", "armv7s", "arm64", "i386", "x86_64", "arm64-simulator"][archID];
 
 			if (arch == "armv6" && !context.ARMV6) continue;
 
@@ -844,13 +865,17 @@ class IOSPlatform extends PlatformTarget
 
 			if (arch == "i386" && !context.I386) continue;
 
+			// Only where the simulator build is for arm64, as there is no other library to fall back to
+			if (arch == "arm64-simulator" && !(project.targetFlags.exists("simulator") && IOSHelper.useArm64Simulator(project))) continue;
+
 			var libExt = [
 				".iphoneos.a",
 				".iphoneos-v7.a",
 				".iphoneos-v7s.a",
 				".iphoneos-64.a",
 				".iphonesim.a",
-				".iphonesim-64.a"
+				".iphonesim-64.a",
+				".iphonesim-arm64.a"
 			][archID];
 
 			System.mkdir(projectDirectory + "/lib/" + arch);
@@ -871,10 +896,12 @@ class IOSPlatform extends PlatformTarget
 					debugLib = NDLL.getLibraryPath(ndll, "iPhone", "lib", ".iphoneos.a", true);
 				}
 
+				NativeSourcesHelper.checkLibrary(releaseLib);
 				System.copyIfNewer(releaseLib, releaseDest);
 
 				if (FileSystem.exists(debugLib) && debugLib != releaseLib)
 				{
+					NativeSourcesHelper.checkLibrary(debugLib);
 					System.copyIfNewer(debugLib, debugDest);
 				}
 				else if (FileSystem.exists(debugDest))
@@ -901,7 +928,7 @@ class IOSPlatform extends PlatformTarget
 			}
 		}
 
-		copyProjectAssets(projectDirectory, "assets");
+		copyProjectAssets(projectDirectory, "assets", context);
 
 		if (project.targetFlags.exists("xcode") && System.hostPlatform == MAC && command == "update")
 		{

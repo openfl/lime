@@ -69,6 +69,9 @@ class AudioManager
 						var ctx = alc.createContext(device);
 						alc.makeContextCurrent(ctx);
 						alc.processContext(ctx);
+						// Sources are placed for panning, not distance, and the model
+						// belongs to the context, so it is set once here
+						alc.distanceModel(alc.NONE);
 						__contextGeneration++;
 					}
 				}
@@ -249,6 +252,7 @@ class AudioManager
 
 		alc.makeContextCurrent(currentContext);
 		alc.processContext(currentContext);
+		alc.distanceModel(alc.NONE);
 		__contextGeneration++;
 		return true;
 		#else

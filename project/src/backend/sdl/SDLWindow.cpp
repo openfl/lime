@@ -604,7 +604,13 @@ namespace lime {
 	#endif
 #endif
 
-	SDLWindow::SDLWindow (Application* application, int width, int height, int flags, const char* title) {
+	SDLWindow::SDLWindow (Application* application, int width, int height, int flags, const char* title, int x, int y, int display) {
+
+		// Centered on the display asked for, as SDL makes a window it isn't given a position for, and
+		// a fullscreen one fills that display. A position given is on the whole desktop.
+		if (display < 0 || display >= SDL_GetNumVideoDisplays ()) display = 0;
+		int windowX = (flags & WINDOW_FLAG_POSITION_X) ? x : SDL_WINDOWPOS_UNDEFINED_DISPLAY (display);
+		int windowY = (flags & WINDOW_FLAG_POSITION_Y) ? y : SDL_WINDOWPOS_UNDEFINED_DISPLAY (display);
 
 		activeSwapInterval = 0;
 		requestedVSyncMode = (flags & WINDOW_FLAG_VSYNC) ? 1 : 0;
@@ -818,7 +824,7 @@ namespace lime {
 		}
 		#endif
 
-		sdlWindow = SDL_CreateWindow (title, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, width, height, sdlWindowFlags);
+		sdlWindow = SDL_CreateWindow (title, windowX, windowY, width, height, sdlWindowFlags);
 
 		// The window has its visual now, and later windows choose their own
 		#if defined (HX_LINUX) && !defined (RASPBERRYPI)
@@ -843,7 +849,7 @@ namespace lime {
 			SDL_DestroyWindow (sdlWindow);
 			SDL_GL_SetAttribute (SDL_GL_CONTEXT_MAJOR_VERSION, 2);
 
-			sdlWindow = SDL_CreateWindow (title, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, width, height, sdlWindowFlags);
+			sdlWindow = SDL_CreateWindow (title, windowX, windowY, width, height, sdlWindowFlags);
 
 		}
 		#endif
@@ -863,7 +869,7 @@ namespace lime {
 			SDL_GL_SetAttribute (SDL_GL_MULTISAMPLEBUFFERS, 0);
 			SDL_GL_SetAttribute (SDL_GL_MULTISAMPLESAMPLES, 0);
 
-			sdlWindow = SDL_CreateWindow (title, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, width, height, sdlWindowFlags);
+			sdlWindow = SDL_CreateWindow (title, windowX, windowY, width, height, sdlWindowFlags);
 
 		}
 
@@ -877,7 +883,7 @@ namespace lime {
 
 			if (LoadSoftwareOpenGL ()) {
 
-				sdlWindow = SDL_CreateWindow (title, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, width, height, sdlWindowFlags);
+				sdlWindow = SDL_CreateWindow (title, windowX, windowY, width, height, sdlWindowFlags);
 
 			}
 
@@ -939,7 +945,7 @@ namespace lime {
 				// and SDL unloads the system's with its only window
 				SDL_DestroyWindow (sdlWindow);
 				bool loaded = LoadSoftwareOpenGL ();
-				sdlWindow = SDL_CreateWindow (title, SDL_WINDOWPOS_UNDEFINED, SDL_WINDOWPOS_UNDEFINED, width, height, sdlWindowFlags);
+				sdlWindow = SDL_CreateWindow (title, windowX, windowY, width, height, sdlWindowFlags);
 
 				if (!sdlWindow) {
 
@@ -1210,12 +1216,16 @@ namespace lime {
 
 		if (context && !sdlRenderer) {
 
+			SDLApplication::EnterSwapBlocking ();
 			SDL_GL_SwapWindow (sdlWindow);
+			SDLApplication::ExitSwapBlocking ();
 			SDLApplication::NoteContextFlip ();
 
 		} else if (sdlRenderer) {
 
+			SDLApplication::EnterSwapBlocking ();
 			SDL_RenderPresent (sdlRenderer);
+			SDLApplication::ExitSwapBlocking ();
 			SDLApplication::NoteContextFlip ();
 
 		}
@@ -1551,7 +1561,24 @@ namespace lime {
 	void SDLWindow::GetDisplayMode (DisplayMode* displayMode) {
 
 		SDL_DisplayMode mode;
-		SDL_GetWindowDisplayMode (sdlWindow, &mode);
+		SDL_zero (mode);
+		int displayIndex = SDL_GetWindowDisplayIndex (sdlWindow);
+
+		if (SDL_GetWindowDisplayMode (sdlWindow, &mode) != 0 && displayIndex >= 0) {
+
+			SDL_GetCurrentDisplayMode (displayIndex, &mode);
+
+		}
+
+		// SDL can give the window's mode a refresh rate of 0, as on Linux (#1951): the display's
+		// current mode has it, as GetRefreshRate reads it
+		SDL_DisplayMode current;
+
+		if (mode.refresh_rate == 0 && displayIndex >= 0 && SDL_GetCurrentDisplayMode (displayIndex, &current) == 0) {
+
+			mode.refresh_rate = current.refresh_rate;
+
+		}
 
 		displayMode->width = mode.w;
 		displayMode->height = mode.h;
@@ -1595,6 +1622,21 @@ namespace lime {
 	uint32_t SDLWindow::GetID () {
 
 		return SDL_GetWindowID (sdlWindow);
+
+	}
+
+
+	// SDL keeps the flag while a fullscreen window is minimized, and puts it back in fullscreen on restore
+	bool SDLWindow::GetFullscreen () {
+
+		return sdlWindow && (SDL_GetWindowFlags (sdlWindow) & SDL_WINDOW_FULLSCREEN) != 0;
+
+	}
+
+
+	bool SDLWindow::GetMinimizeOnFocusLoss () {
+
+		return SDL_GetWindowData (sdlWindow, "Lime.KeepOnFocusLoss") == NULL;
 
 	}
 
@@ -2014,6 +2056,39 @@ namespace lime {
 
 			SDL_SetWindowFullscreen (sdlWindow, 0);
 
+			#if defined (HX_WINDOWS) && !defined (HX_WINRT)
+			// Windows restores the window at its windowed size even where that no
+			// longer fits the display, and treats a window whose client area covers
+			// the whole display as fullscreen. Other systems keep windows on screen.
+			// A maximized window fits already, with its borders past the display's edge.
+			int displayIndex = SDL_GetWindowDisplayIndex (sdlWindow);
+			SDL_Rect usable;
+
+			if (!(SDL_GetWindowFlags (sdlWindow) & SDL_WINDOW_MAXIMIZED) && displayIndex >= 0 && SDL_GetDisplayUsableBounds (displayIndex, &usable) == 0) {
+
+				int top = 0, left = 0, bottom = 0, right = 0;
+				SDL_GetWindowBordersSize (sdlWindow, &top, &left, &bottom, &right);
+
+				int maxWidth = usable.w - left - right;
+				int maxHeight = usable.h - top - bottom;
+				int width, height;
+				SDL_GetWindowSize (sdlWindow, &width, &height);
+
+				if (maxWidth > 0 && maxHeight > 0 && (width > maxWidth || height > maxHeight)) {
+
+					double scale = (double)maxWidth / width;
+					if ((double)maxHeight / height < scale) scale = (double)maxHeight / height;
+					width = (int)(width * scale);
+					height = (int)(height * scale);
+
+					SDL_SetWindowSize (sdlWindow, width, height);
+					SDL_SetWindowPosition (sdlWindow, usable.x + left + (maxWidth - width) / 2, usable.y + top + (maxHeight - height) / 2);
+
+				}
+
+			}
+			#endif
+
 		}
 
 		return fullscreen;
@@ -2193,6 +2268,21 @@ namespace lime {
 
 			SDL_Rect rect = { x, y, width, height };
 			SDL_SetWindowMouseRect (sdlWindow, &rect);
+
+		}
+
+	}
+
+
+	void SDLWindow::SetMinimizeOnFocusLoss (bool value) {
+
+		SDL_SetWindowData (sdlWindow, "Lime.KeepOnFocusLoss", value ? NULL : (void*)1);
+
+		// SDLApplication sets SDL's hint for the window that gains focus, which is the only one that
+		// can lose it, so a window that has focus now sets it itself
+		if (SDL_GetKeyboardFocus () == sdlWindow) {
+
+			SDL_SetHint (SDL_HINT_VIDEO_MINIMIZE_ON_FOCUS_LOSS, value ? "auto" : "0");
 
 		}
 
@@ -2416,9 +2506,9 @@ namespace lime {
 	}
 
 
-	Window* CreateWindow (Application* application, int width, int height, int flags, const char* title) {
+	Window* CreateWindow (Application* application, int width, int height, int flags, const char* title, int x, int y, int display) {
 
-		SDLWindow* window = new SDLWindow (application, width, height, flags, title);
+		SDLWindow* window = new SDLWindow (application, width, height, flags, title, x, y, display);
 
 		if (!window->sdlWindow) {
 

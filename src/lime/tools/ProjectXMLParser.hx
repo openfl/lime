@@ -159,92 +159,159 @@ class ProjectXMLParser extends HXProject
 		changes.set(name, value);
 	}
 
-	private function isValidElement(element:Access, section:String):Bool
+	/**
+		Reads an `if` or `unless` condition: names of values, where spaces and `&&` mean
+		"and", `|` and `||` mean "or", `!` means "not" and parentheses group, as in
+		Haxe's `#if`. "Not" comes first, then "and", then "or". A name is true when it is
+		set or defined, is in the environment or is the command, and `true` and `false`
+		are themselves. A condition that can't be read is false, with a warning.
+	**/
+	private function isConditionTrue(condition:String):Bool
 	{
-		if (element.x.get("if") != null)
+		var text = substitute(condition);
+		var tokens = [];
+		var i = 0;
+
+		while (i < text.length)
 		{
-			var value = element.x.get("if");
-			var optionalDefines = value.split("||");
-			var matchOptional = false;
+			var char = text.charAt(i);
 
-			for (optional in optionalDefines)
+			if (StringTools.isSpace(text, i))
 			{
-				optional = substitute(optional);
-				var requiredDefines = optional.split(" ");
-				var matchRequired = true;
-
-				for (required in requiredDefines)
-				{
-					required = substitute(required);
-					var check = StringTools.trim(required);
-
-					if (check == "false")
-					{
-						matchRequired = false;
-					}
-					else if (check != ""
-						&& check != "true"
-						&& !defines.exists(check)
-						&& (environment == null || !environment.exists(check))
-						&& check != command)
-					{
-						matchRequired = false;
-					}
-				}
-
-				if (matchRequired)
-				{
-					matchOptional = true;
-				}
+				i++;
 			}
-
-			if (optionalDefines.length > 0 && !matchOptional)
+			else if (char == "(" || char == ")" || char == "!")
 			{
-				return false;
+				tokens.push(char);
+				i++;
+			}
+			else if (char == "|")
+			{
+				tokens.push("||");
+				i += (text.charAt(i + 1) == "|") ? 2 : 1;
+			}
+			else if (char == "&")
+			{
+				if (text.charAt(i + 1) != "&") return unreadableCondition(condition);
+				tokens.push("&&");
+				i += 2;
+			}
+			else
+			{
+				var start = i;
+				while (i < text.length && !StringTools.isSpace(text, i) && "()!|&".indexOf(text.charAt(i)) == -1)
+				{
+					i++;
+				}
+				tokens.push(text.substring(start, i));
 			}
 		}
 
-		if (element.has.unless)
+		if (tokens.length == 0) return true;
+
+		var position = 0;
+		var failed = false;
+
+		function isOperator(token:String):Bool
 		{
-			var value = substitute(element.att.unless);
-			var optionalDefines = value.split("||");
-			var matchOptional = false;
+			return token == "(" || token == ")" || token == "!" || token == "||" || token == "&&";
+		}
 
-			for (optional in optionalDefines)
+		// Read before it is written, as a parenthesis inside reads it again
+		var readOr:Void->Bool = null;
+
+		function readUnary():Bool
+		{
+			if (position >= tokens.length)
 			{
-				optional = substitute(optional);
-				var requiredDefines = optional.split(" ");
-				var matchRequired = true;
-
-				for (required in requiredDefines)
-				{
-					required = substitute(required);
-					var check = StringTools.trim(required);
-
-					if (check == "false")
-					{
-						matchRequired = false;
-					}
-					else if (check != ""
-						&& check != "true"
-						&& !defines.exists(check)
-						&& (environment == null || !environment.exists(check))
-						&& check != command)
-					{
-						matchRequired = false;
-					}
-				}
-
-				if (matchRequired)
-				{
-					matchOptional = true;
-				}
+				failed = true;
+				return false;
 			}
 
-			if (optionalDefines.length > 0 && matchOptional)
+			var token = tokens[position++];
+
+			if (token == "!")
+			{
+				return !readUnary();
+			}
+			else if (token == "(")
+			{
+				var value = readOr();
+				if (position >= tokens.length || tokens[position] != ")") failed = true else position++;
+				return value;
+			}
+			else if (isOperator(token))
+			{
+				failed = true;
+				return false;
+			}
+			else if (token == "true")
+			{
+				return true;
+			}
+			else if (token == "false")
 			{
 				return false;
 			}
+
+			return defines.exists(token) || (environment != null && environment.exists(token)) || token == command;
+		}
+
+		function readAnd():Bool
+		{
+			var value = readUnary();
+
+			while (position < tokens.length && tokens[position] != "||" && tokens[position] != ")")
+			{
+				if (tokens[position] == "&&") position++;
+				// Every part is read, so a part that can't be is found whatever comes before it
+				var next = readUnary();
+				value = value && next;
+			}
+
+			return value;
+		}
+
+		readOr = function():Bool
+		{
+			var value = readAnd();
+
+			while (position < tokens.length && tokens[position] == "||")
+			{
+				position++;
+				var next = readAnd();
+				value = value || next;
+			}
+
+			return value;
+		};
+
+		var value = readOr();
+
+		if (failed || position < tokens.length)
+		{
+			return unreadableCondition(condition);
+		}
+
+		return value;
+	}
+
+	private function unreadableCondition(condition:String):Bool
+	{
+		Log.warn("Could not read the condition \"" + condition + "\", so it is false");
+		return false;
+	}
+
+	private function isValidElement(element:Access, section:String):Bool
+	{
+		if (element.x.get("if") != null && !isConditionTrue(element.x.get("if")))
+		{
+			return false;
+		}
+
+		if (element.has.unless && isConditionTrue(element.att.unless))
+		{
+			return false;
 		}
 
 		if (section != "")
@@ -1587,7 +1654,23 @@ class ProjectXMLParser extends HXProject
 						}
 					}
 
-					icons.push(icon);
+					var knownLayer = true;
+
+					if (element.has.adaptive)
+					{
+						var layer = substitute(element.att.adaptive);
+						switch (layer)
+						{
+							case "foreground", "background", "monochrome":
+								icon.adaptive = layer;
+							default:
+								// Not taken as the application's icon, which a mistyped layer isn't meant to be
+								Log.warn("Ignoring an icon with unknown adaptive=\"" + element.att.adaptive + "\", which can be foreground, background or monochrome");
+								knownLayer = false;
+						}
+					}
+
+					if (knownLayer) icons.push(icon);
 
 				case "source", "classpath":
 					var path = "";

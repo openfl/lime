@@ -88,6 +88,41 @@ class ImageRegionTest extends Test
 		}
 	}
 
+	// An image that is part of a larger buffer moves its own pixels alone, by the amounts given.
+	// The images are of the target's own type, a BitmapData on Flash, so each target's path runs
+	public function testScrollingAnImageInALargerBufferMovesOnlyItsOwnPixels():Void
+	{
+		for (offset in [[1, 0], [0, 1], [-1, 1], [1, -1]])
+		{
+			var parent = new Image(null, 0, 0, 5, 4, 0);
+			for (y in 0...4) for (x in 0...5) parent.setPixel32(x, y, number(x, y), ARGB32);
+
+			var image = new Image(parent.buffer, 1, 1, 3, 2, null, parent.type);
+			var label = offset[0] + "," + offset[1];
+
+			image.scroll(offset[0], offset[1]);
+
+			for (y in 0...4)
+			{
+				for (x in 0...5)
+				{
+					var expected = number(x, y);
+					var insideX = x - 1;
+					var insideY = y - 1;
+
+					if (insideX >= 0 && insideX < 3 && insideY >= 0 && insideY < 2)
+					{
+						var fromX = insideX - offset[0];
+						var fromY = insideY - offset[1];
+						if (fromX >= 0 && fromX < 3 && fromY >= 0 && fromY < 2) expected = number(fromX + 1, fromY + 1);
+					}
+
+					Assert.equals(hex(expected), hex(parent.getPixel32(x, y, ARGB32)), label + " at " + x + "," + y);
+				}
+			}
+		}
+	}
+
 	public function testScrollingFurtherThanTheImageChangesNothing():Void
 	{
 		for (offset in [[0, 0], [3, 0], [-3, 0], [0, 3], [0, -3], [10, -10]])

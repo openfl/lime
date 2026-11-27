@@ -145,27 +145,30 @@ namespace lime {
 					for (int x = 0; x < destView.width; x++) {
 
 						sourcePixel.ReadUInt8 (sourceData, sourcePosition, sourceFormat, sourcePremultiplied, LIME_BIG_ENDIAN);
-						destPixel.ReadUInt8 (destData, destPosition, destFormat, destPremultiplied, LIME_BIG_ENDIAN);
 
-						sourceAlpha = sourcePixel.a / 255.0;
-						destAlpha = destPixel.a / 255.0;
-						oneMinusSourceAlpha = 1 - sourceAlpha;
-						blendAlpha = sourceAlpha + (destAlpha * oneMinusSourceAlpha);
+						// An opaque pixel blends to itself, and a transparent one leaves
+						// the destination as it is, so only the others are blended
+						if (sourcePixel.a == 0xFF) {
 
-						if (blendAlpha == 0) {
+							sourcePixel.WriteUInt8 (destData, destPosition, destFormat, destPremultiplied);
 
-							destPixel.Set (0, 0, 0, 0);
+						} else if (sourcePixel.a != 0) {
 
-						} else {
+							destPixel.ReadUInt8 (destData, destPosition, destFormat, destPremultiplied, LIME_BIG_ENDIAN);
+
+							sourceAlpha = sourcePixel.a / 255.0;
+							destAlpha = destPixel.a / 255.0;
+							oneMinusSourceAlpha = 1 - sourceAlpha;
+							blendAlpha = sourceAlpha + (destAlpha * oneMinusSourceAlpha);
 
 							destPixel.r = __clamp[int (0.5 + (sourcePixel.r * sourceAlpha + destPixel.r * destAlpha * oneMinusSourceAlpha) / blendAlpha)];
 							destPixel.g = __clamp[int (0.5 + (sourcePixel.g * sourceAlpha + destPixel.g * destAlpha * oneMinusSourceAlpha) / blendAlpha)];
 							destPixel.b = __clamp[int (0.5 + (sourcePixel.b * sourceAlpha + destPixel.b * destAlpha * oneMinusSourceAlpha) / blendAlpha)];
 							destPixel.a = __clamp[int (0.5 + blendAlpha * 255.0)];
 
-						}
+							destPixel.WriteUInt8 (destData, destPosition, destFormat, destPremultiplied);
 
-						destPixel.WriteUInt8 (destData, destPosition, destFormat, destPremultiplied);
+						}
 
 						sourcePosition += 4;
 						destPosition += 4;
@@ -410,7 +413,7 @@ namespace lime {
 	}
 
 
-	void ImageDataUtil::GetPixels (Image* image, Rectangle* rect, PixelFormat format, Bytes* pixels) {
+	void ImageDataUtil::GetPixels (Image* image, Rectangle* rect, PixelFormat format, Bytes* pixels, Endian endian) {
 
 		int length = int (rect->width * rect->height);
 		pixels->Resize (length * 4);
@@ -433,6 +436,19 @@ namespace lime {
 
 				pixel.ReadUInt8 (data, position, sourceFormat, premultiplied, LIME_BIG_ENDIAN);
 				pixel.WriteUInt8 (destData, destPosition, format, false);
+
+				// Little endian is each pixel's bytes in reverse, as SetPixels reads them
+				if (endian == LIME_LITTLE_ENDIAN) {
+
+					uint8_t* bytes = destData + destPosition;
+					uint8_t swap = bytes[0];
+					bytes[0] = bytes[3];
+					bytes[3] = swap;
+					swap = bytes[1];
+					bytes[1] = bytes[2];
+					bytes[2] = swap;
+
+				}
 
 				position += 4;
 				destPosition += 4;
@@ -492,12 +508,36 @@ namespace lime {
 		PixelFormat format = image->buffer->format;
 		uint8_t* data = (uint8_t*)image->buffer->data->buffer->b;
 		int length = int (image->buffer->data->length / 4);
-		RGBA pixel;
+
+		// Alpha is the first byte of an ARGB32 pixel and the last of the others,
+		// and the three colour bytes follow or come before it
+		int alphaOffset = (format == ARGB32 ? 0 : 3);
+		int colorOffset = (format == ARGB32 ? 1 : 0);
 
 		for (int i = 0; i < length; i++) {
 
-			pixel.ReadUInt8 (data, i * 4, format, false, LIME_BIG_ENDIAN);
-			pixel.WriteUInt8 (data, i * 4, format, true);
+			uint8_t* pixel = data + i * 4;
+			int a = pixel[alphaOffset];
+
+			// An opaque pixel stays as it is
+			if (a == 0xFF) continue;
+
+			uint8_t* color = pixel + colorOffset;
+
+			if (a == 0) {
+
+				color[0] = 0;
+				color[1] = 0;
+				color[2] = 0;
+
+			} else {
+
+				// Rounded to the nearest, as RGBA::MultiplyAlpha does
+				color[0] = (color[0] * a + 127) / 255;
+				color[1] = (color[1] * a + 127) / 255;
+				color[2] = (color[2] * a + 127) / 255;
+
+			}
 
 		}
 
@@ -571,6 +611,28 @@ namespace lime {
 
 		int index;
 		int length = image->buffer->data->length / 4;
+		PixelFormat sourceFormat = image->buffer->format;
+
+		if (sourceFormat == format) return;
+
+		if ((sourceFormat == RGBA32 && format == BGRA32) || (sourceFormat == BGRA32 && format == RGBA32)) {
+
+			// Only red and blue change places
+			unsigned char* data = image->buffer->data->buffer->b;
+			unsigned char swap;
+
+			for (int i = 0; i < length; i++) {
+
+				index = i * 4;
+				swap = data[index];
+				data[index] = data[index + 2];
+				data[index + 2] = swap;
+
+			}
+
+			return;
+
+		}
 		int r1, g1, b1, a1, r2, g2, b2, a2;
 		int r, g, b, a;
 

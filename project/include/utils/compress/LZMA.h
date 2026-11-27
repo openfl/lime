@@ -13,7 +13,7 @@ namespace lime {
 
 		public:
 
-			static void Compress (Bytes* data, Bytes* result);
+			static void Compress (Bytes* data, Bytes* result, int level = -1);
 			static bool Decompress (Bytes* data, Bytes* result);
 
 

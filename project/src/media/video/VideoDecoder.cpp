@@ -307,6 +307,7 @@ namespace lime {
 
 	VideoDecoder::VideoDecoder (VideoBackend* backend) : backend (backend) {
 
+		framesReading = 0;
 		runningThreads = 0;
 
 		audioEnded = true;
@@ -481,7 +482,10 @@ namespace lime {
 
 		backend->Close ();
 
-		std::lock_guard<std::mutex> lock (mutex);
+		std::unique_lock<std::mutex> lock (mutex);
+
+		// A frame ReadFrame is still copying out comes back to the free frames
+		framesReadingCondition.wait (lock, [this] { return framesReading == 0; });
 
 		for (size_t i = 0; i < freeChunks.size (); i++) delete freeChunks[i];
 		for (size_t i = 0; i < freeFrames.size (); i++) delete freeFrames[i];
@@ -650,62 +654,78 @@ namespace lime {
 	}
 
 
-	int VideoDecoder::ReadFrame (unsigned char* data, int length, double time) {
+	int VideoDecoder::ReadFrame (unsigned char* data, int bufferLength, double time) {
 
 		if (format == VIDEO_FRAME_FORMAT_TEXTURE) return ReadTexture (time);
 
-		std::lock_guard<std::mutex> lock (mutex);
+		Frame* frame = 0;
+		int length = 0;
 
-		if (!open || !info.hasVideo) return VIDEO_READ_END;
+		{
+			std::lock_guard<std::mutex> lock (mutex);
 
-		bool dropped = false;
+			if (!open || !info.hasVideo) return VIDEO_READ_END;
 
-		if (time >= 0) {
+			bool dropped = false;
 
-			presentationTime = time;
+			if (time >= 0) {
 
-			// Drop frames that a later queued frame replaces by time
-			while (dropLateFrames && frames.size () > 1 && frames[1]->time <= time) {
+				presentationTime = time;
 
-				ReleaseFrame (frames.front ());
-				frames.pop_front ();
-				droppedFrames++;
-				dropped = true;
+				// Drop frames that a later queued frame replaces by time
+				while (dropLateFrames && frames.size () > 1 && frames[1]->time <= time) {
+
+					ReleaseFrame (frames.front ());
+					frames.pop_front ();
+					droppedFrames++;
+					dropped = true;
+
+				}
 
 			}
 
+			if (dropped) videoCondition.notify_one ();
+
+			if (frames.empty ()) {
+
+				if (videoEnded) return videoError ? VIDEO_READ_ERROR : VIDEO_READ_END;
+				return VIDEO_READ_NOT_READY;
+
+			}
+
+			frame = frames.front ();
+
+			if (time >= 0 && frame->time > time) return VIDEO_READ_NOT_READY;
+
+			frameColorMatrix = frame->colorMatrix;
+			frameDuration = frame->duration;
+			frameFullRange = frame->fullRange;
+			frameHeight = frame->height;
+			frameLength = frame->length;
+			frameTime = frame->time;
+			frameWidth = frame->width;
+
+			if (!data || bufferLength < frame->length) return VIDEO_READ_BUFFER_TOO_SMALL;
+
+			// Taken off the queue and copied out unlocked, so that the video and
+			// audio threads, and ReadAudio, needn't wait for the copy
+			frames.pop_front ();
+			framesReading++;
+			length = frame->length;
+			videoCondition.notify_one ();
 		}
 
-		if (dropped) videoCondition.notify_one ();
+		memcpy (data, frame->data.data (), length);
 
-		if (frames.empty ()) {
-
-			if (videoEnded) return videoError ? VIDEO_READ_ERROR : VIDEO_READ_END;
-			return VIDEO_READ_NOT_READY;
-
+		{
+			std::lock_guard<std::mutex> lock (mutex);
+			ReleaseFrame (frame);
+			framesReading--;
 		}
 
-		Frame* frame = frames.front ();
+		framesReadingCondition.notify_all ();
 
-		if (time >= 0 && frame->time > time) return VIDEO_READ_NOT_READY;
-
-		frameColorMatrix = frame->colorMatrix;
-		frameDuration = frame->duration;
-		frameFullRange = frame->fullRange;
-		frameHeight = frame->height;
-		frameLength = frame->length;
-		frameTime = frame->time;
-		frameWidth = frame->width;
-
-		if (!data || length < frame->length) return VIDEO_READ_BUFFER_TOO_SMALL;
-
-		memcpy (data, frame->data.data (), frame->length);
-
-		frames.pop_front ();
-		ReleaseFrame (frame);
-		videoCondition.notify_one ();
-
-		return frameLength;
+		return length;
 
 	}
 
@@ -1458,6 +1478,112 @@ namespace lime {
 	}
 
 
+	struct YUVConversion {
+
+		int yOffset;
+		int yFactor;
+		int rv;
+		int gu;
+		int gv;
+		int bu;
+
+	};
+
+
+	// One row of RGB from YUV, with the channel order and the chroma pixel
+	// stride fixed, so that they're constants in the loop. Each chroma pair's
+	// terms are worked out once for the two pixels that share it.
+	template <int RED, int GREEN, int BLUE, int ALPHA, int STRIDE>
+	static void ConvertYUVRow (const unsigned char* y, const unsigned char* u, const unsigned char* v, unsigned char* out, int width, const YUVConversion& c) {
+
+		int x = 0;
+
+		for (; x + 1 < width; x += 2) {
+
+			int cu = u[(x / 2) * STRIDE] - 128;
+			int cv = v[(x / 2) * STRIDE] - 128;
+			int redTerm = c.rv * cv;
+			int greenTerm = c.gu * cu + c.gv * cv;
+			int blueTerm = c.bu * cu;
+
+			int luma = (y[x] - c.yOffset) * c.yFactor + 32768;
+			out[RED] = ClampByte ((luma + redTerm) >> 16);
+			out[GREEN] = ClampByte ((luma - greenTerm) >> 16);
+			out[BLUE] = ClampByte ((luma + blueTerm) >> 16);
+			out[ALPHA] = 255;
+
+			luma = (y[x + 1] - c.yOffset) * c.yFactor + 32768;
+			out[4 + RED] = ClampByte ((luma + redTerm) >> 16);
+			out[4 + GREEN] = ClampByte ((luma - greenTerm) >> 16);
+			out[4 + BLUE] = ClampByte ((luma + blueTerm) >> 16);
+			out[4 + ALPHA] = 255;
+
+			out += 8;
+
+		}
+
+		if (x < width) {
+
+			int cu = u[(x / 2) * STRIDE] - 128;
+			int cv = v[(x / 2) * STRIDE] - 128;
+			int luma = (y[x] - c.yOffset) * c.yFactor + 32768;
+
+			out[RED] = ClampByte ((luma + c.rv * cv) >> 16);
+			out[GREEN] = ClampByte ((luma - (c.gu * cu + c.gv * cv)) >> 16);
+			out[BLUE] = ClampByte ((luma + c.bu * cu) >> 16);
+			out[ALPHA] = 255;
+
+		}
+
+	}
+
+
+	template <int RED, int GREEN, int BLUE, int ALPHA>
+	static void ConvertYUV (const VideoPlanes* planes, unsigned char* data, const YUVConversion& c) {
+
+		int width = planes->width;
+
+		for (int row = 0; row < planes->height; row++) {
+
+			const unsigned char* y = planes->y + row * planes->yStride;
+			const unsigned char* u = planes->u + (row / 2) * planes->uvStride;
+			const unsigned char* v = planes->v + (row / 2) * planes->uvStride;
+			unsigned char* out = data + row * width * 4;
+
+			if (planes->uvPixelStride == 1) {
+
+				ConvertYUVRow<RED, GREEN, BLUE, ALPHA, 1> (y, u, v, out, width, c);
+
+			} else if (planes->uvPixelStride == 2) {
+
+				ConvertYUVRow<RED, GREEN, BLUE, ALPHA, 2> (y, u, v, out, width, c);
+
+			} else {
+
+				// Any other stride, from the loop the others are specialised from
+				int stride = planes->uvPixelStride;
+
+				for (int x = 0; x < width; x++) {
+
+					int cu = u[(x / 2) * stride] - 128;
+					int cv = v[(x / 2) * stride] - 128;
+					int luma = (y[x] - c.yOffset) * c.yFactor + 32768;
+
+					out[RED] = ClampByte ((luma + c.rv * cv) >> 16);
+					out[GREEN] = ClampByte ((luma - (c.gu * cu + c.gv * cv)) >> 16);
+					out[BLUE] = ClampByte ((luma + c.bu * cu) >> 16);
+					out[ALPHA] = 255;
+					out += 4;
+
+				}
+
+			}
+
+		}
+
+	}
+
+
 	int VideoDecoder::WriteFrame (const VideoPlanes* planes, VideoFrameFormat format, unsigned char* data, int length) {
 
 		int frameLength = GetFrameLength (format, planes->width, planes->height);
@@ -1490,6 +1616,18 @@ namespace lime {
 				if (interleaved) {
 
 					memcpy (out, u, chromaWidth * 2);
+
+				} else if (pixelStride == 1) {
+
+					// Planar chroma, as software decoders give I420
+					const unsigned char* v = planes->v + row * planes->uvStride;
+
+					for (int x = 0; x < chromaWidth; x++) {
+
+						out[x * 2] = u[x];
+						out[x * 2 + 1] = v[x];
+
+					}
 
 				} else {
 
@@ -1527,49 +1665,20 @@ namespace lime {
 		double cScale = planes->fullRange ? 1.0 : 255.0 / 224.0;
 		int yOffset = planes->fullRange ? 0 : 16;
 
+		YUVConversion conversion;
+		conversion.yOffset = yOffset;
+		conversion.yFactor = (int)(yScale * 65536.0 + 0.5);
+		conversion.rv = (int)(2.0 * (1.0 - kr) * cScale * 65536.0 + 0.5);
+		conversion.gu = (int)(2.0 * kb * (1.0 - kb) / kg * cScale * 65536.0 + 0.5);
+		conversion.gv = (int)(2.0 * kr * (1.0 - kr) / kg * cScale * 65536.0 + 0.5);
+		conversion.bu = (int)(2.0 * (1.0 - kb) * cScale * 65536.0 + 0.5);
+
 		// Where each channel goes in the four bytes of a pixel
-		int red = 0, green = 1, blue = 2, alpha = 3;
+		switch (format) {
 
-		if (format == VIDEO_FRAME_FORMAT_BGRA) {
-
-			red = 2;
-			blue = 0;
-
-		} else if (format == VIDEO_FRAME_FORMAT_ARGB) {
-
-			alpha = 0;
-			red = 1;
-			green = 2;
-			blue = 3;
-
-		}
-
-		int yFactor = (int)(yScale * 65536.0 + 0.5);
-		int rv = (int)(2.0 * (1.0 - kr) * cScale * 65536.0 + 0.5);
-		int gu = (int)(2.0 * kb * (1.0 - kb) / kg * cScale * 65536.0 + 0.5);
-		int gv = (int)(2.0 * kr * (1.0 - kr) / kg * cScale * 65536.0 + 0.5);
-		int bu = (int)(2.0 * (1.0 - kb) * cScale * 65536.0 + 0.5);
-
-		for (int row = 0; row < height; row++) {
-
-			const unsigned char* y = planes->y + row * planes->yStride;
-			const unsigned char* u = planes->u + (row / 2) * planes->uvStride;
-			const unsigned char* v = planes->v + (row / 2) * planes->uvStride;
-			unsigned char* out = data + row * width * 4;
-
-			for (int x = 0; x < width; x++) {
-
-				int cu = u[(x / 2) * pixelStride] - 128;
-				int cv = v[(x / 2) * pixelStride] - 128;
-				int luma = (y[x] - yOffset) * yFactor + 32768;
-
-				out[red] = ClampByte ((luma + rv * cv) >> 16);
-				out[green] = ClampByte ((luma - gu * cu - gv * cv) >> 16);
-				out[blue] = ClampByte ((luma + bu * cu) >> 16);
-				out[alpha] = 255;
-				out += 4;
-
-			}
+			case VIDEO_FRAME_FORMAT_BGRA: ConvertYUV<2, 1, 0, 3> (planes, data, conversion); break;
+			case VIDEO_FRAME_FORMAT_ARGB: ConvertYUV<1, 2, 3, 0> (planes, data, conversion); break;
+			default: ConvertYUV<0, 1, 2, 3> (planes, data, conversion); break;
 
 		}
 

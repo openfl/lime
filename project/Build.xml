@@ -230,7 +230,7 @@
 
 			<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/custom/png/" />
 			<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/png/" />
-			<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/zlib/" />
+			<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/custom/zlib-ng/" />
 			<compilerflag value="-DLIME_PNG" />
 
 			<file name="src/graphics/format/PNG.cpp" />
@@ -347,6 +347,7 @@
 
 		<section if="LIME_ZLIB">
 
+			<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/custom/zlib-ng/" />
 			<compilerflag value="-DSTATIC_LINK" if="emscripten || ios || tvos" />
 			<compilerflag value="-DLIME_ZLIB" />
 
@@ -509,6 +510,14 @@
 		<files id="native-toolkit-webm" if="LIME_WEBM" />
 		<files id="native-toolkit-webm-parser" if="LIME_VORBIS windows" unless="winrt" />
 		<files id="native-toolkit-zlib" if="LIME_ZLIB" />
+		<files id="native-toolkit-zlib-sse2" if="LIME_ZLIB LIME_ZLIB_X86" />
+		<files id="native-toolkit-zlib-ssse3" if="LIME_ZLIB LIME_ZLIB_X86" />
+		<files id="native-toolkit-zlib-sse41" if="LIME_ZLIB LIME_ZLIB_X86" />
+		<files id="native-toolkit-zlib-sse42" if="LIME_ZLIB LIME_ZLIB_X86" />
+		<files id="native-toolkit-zlib-pclmul" if="LIME_ZLIB LIME_ZLIB_X86" />
+		<files id="native-toolkit-zlib-avx2" if="LIME_ZLIB LIME_ZLIB_X86" />
+		<files id="native-toolkit-zlib-neon" if="LIME_ZLIB" unless="LIME_ZLIB_X86 || rpi || emscripten" />
+		<files id="native-toolkit-zlib-armv8" if="LIME_ZLIB LIME_ZLIB_ARM64" />
 
 		<section unless="static_link">
 

@@ -8,6 +8,7 @@ import lime.media.AudioSource;
 import lime.media.openal.AL;
 import lime.media.openal.ALC;
 import lime.media.openal.ALSource;
+import lime.math.Vector4;
 import lime.utils.AssetLibrary;
 import lime.utils.Assets;
 #end
@@ -146,6 +147,99 @@ class AudioSourceTest extends Test
 		other.dispose();
 	}
 
+	public function testAPositionReadsBackAsItWasSet():Void
+	{
+		if (!hasOutput("positions")) return;
+
+		var source = new AudioSource(AudioBuffer.fromBytes(AudioBufferTest.createWAV(AudioBufferTest.tone(2205))));
+
+		source.position = new Vector4(1.5, -2.25, 3.125, 1);
+		var position = source.position;
+		Assert.equals(1.5, position.x);
+		Assert.equals(-2.25, position.y);
+		Assert.equals(3.125, position.z);
+
+		// OpenAL holds the same position
+		var values = AL.getSource3f(handleOf(source), AL.POSITION);
+		Assert.equals("1.5,-2.25,3.125", values.join(","));
+
+		source.position = new Vector4(-4, 0.5, 0);
+		Assert.equals("-4,0.5,0", [source.position.x, source.position.y, source.position.z].join(","));
+
+		source.dispose();
+	}
+
+	public function testAPositionedSourceIsNotAttenuatedByDistance():Void
+	{
+		if (!hasOutput("positions")) return;
+
+		var source = new AudioSource(AudioBuffer.fromBytes(AudioBufferTest.createWAV(AudioBufferTest.tone(2205))));
+		source.position = new Vector4(100, 0, -100);
+
+		// Lime places sounds by position for panning, without the fall-off that OpenAL applies by default
+		Assert.equals(AL.NONE, AL.getInteger(AL.DISTANCE_MODEL));
+
+		source.dispose();
+	}
+
+	@Ignored("Waiting on #2226")
+	public function testSettingAPositionLeavesTheDistanceModelAsTheApplicationSetIt():Void
+	{
+		if (!hasOutput("positions")) return;
+
+		var source = new AudioSource(AudioBuffer.fromBytes(AudioBufferTest.createWAV(AudioBufferTest.tone(2205))));
+		var before = AL.getInteger(AL.DISTANCE_MODEL);
+
+		// The distance model belongs to the context, and is set once, so an application's own choice stays
+		AL.distanceModel(AL.INVERSE_DISTANCE_CLAMPED);
+		source.position = new Vector4(1, 2, 3);
+		var after = AL.getInteger(AL.DISTANCE_MODEL);
+		AL.distanceModel(before);
+
+		Assert.equals(AL.INVERSE_DISTANCE_CLAMPED, after, "setting the position changed the distance model to " + after);
+		source.dispose();
+	}
+
+	#if hl
+	@Ignored("Waiting on #2226")
+	public function testReadingAPositionAllocatesNothing():Void
+	{
+		// The position is only ever set through setPosition, so it needn't be asked of OpenAL
+		if (!hasOutput("positions")) return;
+
+		var source = new AudioSource(AudioBuffer.fromBytes(AudioBufferTest.createWAV(AudioBufferTest.tone(2205))));
+		source.position = new Vector4(1, 2, 3);
+		var x = 0.0;
+
+		var total = 0.0, count = 0.0, memory = 0.0;
+		@:privateAccess hl.Gc._stats(total, count, memory);
+		var before = count;
+
+		for (i in 0...100)
+		{
+			x += source.position.x;
+		}
+
+		@:privateAccess hl.Gc._stats(total, count, memory);
+		Assert.equals(0.0, count - before, "reading the position 100 times allocated " + (count - before) + " times");
+		Assert.equals(100.0, x);
+
+		source.dispose();
+	}
+	#end
+
+	private static function hasOutput(what:String):Bool
+	{
+		if (ALC.getCurrentContext() == null)
+		{
+			trace("There is no audio output here, so " + what + " were not tested");
+			Assert.pass();
+			return false;
+		}
+
+		return true;
+	}
+
 	private static function handleOf(source:AudioSource):ALSource
 	{
 		return @:privateAccess source.__backend.handle;
@@ -175,6 +269,67 @@ class AudioSourceTest extends Test
 	private static function timerOf(source:AudioSource):Dynamic
 	{
 		return @:privateAccess source.__backend.timer;
+	}
+	#end
+
+	#if (js && html5 && lime_howlerjs)
+	@:timeout(15000)
+	public function testSourcesPlayedTogetherStartOnOneWebAudioTime(async:utest.Async):Void
+	{
+		// With Web Audio, every node of sources played together starts on one AudioContext time a moment
+		// ahead, so they begin on the same sample (#2117). Played in turn, as before, each node starts at 0,
+		// which is as soon as the audio thread gets to it.
+		lime.media.AudioBuffer.loadFromFile("assets/tone.ogg").onComplete(function(buffer)
+		{
+			var context:Dynamic = js.Syntax.code("(typeof Howler != 'undefined' && Howler.usingWebAudio) ? Howler.ctx : null");
+			if (context == null || context.state != "running")
+			{
+				// utest takes a warning as a failure, so the test passes, saying why
+				trace("No running AudioContext here, which a browser starts only from a user gesture, so playTogether was not tested");
+				Assert.pass();
+				async.done();
+				return;
+			}
+
+			var sources = [for (i in 0...3) new lime.media.AudioSource(buffer)];
+			var starts:Array<Float> = [];
+			var record = function(when:Float) starts.push(when);
+			js.Syntax.code("window.__limeTestStart = AudioBufferSourceNode.prototype.start;
+				AudioBufferSourceNode.prototype.start = function (when) { {0}(when === undefined ? 0 : when); return window.__limeTestStart.apply(this, arguments); };", record);
+
+			var now:Float = context.currentTime;
+
+			try
+			{
+				lime.media.AudioSource.playTogether(sources);
+			}
+			catch (e:Dynamic)
+			{
+				Assert.fail("playTogether threw " + e);
+			}
+
+			js.Syntax.code("AudioBufferSourceNode.prototype.start = window.__limeTestStart; delete window.__limeTestStart;");
+			for (source in sources)
+			{
+				source.stop();
+			}
+
+			var distinct = [];
+			for (when in starts)
+			{
+				if (distinct.indexOf(when) == -1) distinct.push(when);
+			}
+
+			Assert.isTrue(starts.length >= sources.length, "nodes started: " + starts.length);
+			Assert.equals(1, distinct.length, "the times the nodes started on: " + distinct.join(", "));
+			Assert.isTrue(distinct.length > 0 && distinct[0] > 0 && distinct[0] >= now,
+				"the nodes started on " + distinct.join(", ") + ", where the context's time was " + now);
+			async.done();
+		}).onError(function(error)
+		{
+			Assert.fail("assets/tone.ogg did not load: " + error);
+			async.done();
+		});
 	}
 	#end
 }
