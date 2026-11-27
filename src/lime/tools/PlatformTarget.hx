@@ -97,7 +97,8 @@ class PlatformTarget
 			rebuild();
 		}
 
-		if (command == "update" || command == "build" || command == "test")
+		if (command == "update"
+				|| ((command == "build" || command == "test") && !targetFlags.exists("noupdate")))
 		{
 			logCommand("update");
 
@@ -225,8 +226,11 @@ class PlatformTarget
 		@param assetDirectory The root directory for non-template assets. If not
 		an absolute path, interpreted relative to `outputDirectory`. If null,
 		defaults to `outputDirectory`.
+		@param context What template assets are filled in with: the platform's
+		own context, so they see the same values as its other templates. If
+		null, the project's is built once, when the first template asset needs it.
 	**/
-	private function copyProjectAssets(outputDirectory:String, assetDirectory:String = null)
+	private function copyProjectAssets(outputDirectory:String, assetDirectory:String = null, context:Dynamic = null)
 	{
 		if (assetDirectory == null)
 		{
@@ -245,7 +249,9 @@ class PlatformTarget
 			{
 				path = Path.combine(outputDirectory, asset.targetPath);
 				System.mkdir(Path.directory(path));
-				AssetHelper.copyAsset(asset, path, project.templateContext);
+				// Building the project's context opens every font asset for its name
+				if (context == null) context = project.templateContext;
+				AssetHelper.copyAsset(asset, path, context);
 			}
 			else if (asset.embed == true)
 			{

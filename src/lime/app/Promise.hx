@@ -97,7 +97,8 @@ class Promise<T>
 	}
 
 	/**
-		Resolves this `Promise` with a completion state
+		Resolves this `Promise` with a completion state. Only the first call to
+		`complete()` or `error()` settles it, and later calls are ignored.
 		@param	data	The completion value
 		@return	The current `Promise`
 	**/
@@ -109,7 +110,7 @@ class Promise<T>
 			return this;
 		}
 
-		if (!future.isError)
+		if (!future.isComplete && !future.isError)
 		{
 			future.isComplete = true;
 			future.value = data;
@@ -170,7 +171,7 @@ class Promise<T>
 	**/
 	public function completeAsync(doWork:WorkFunction<State->WorkOutput->Void>, ?state:State, ?mode:ThreadMode = MULTI_THREADED):Void
 	{
-		jobID = FutureWork.run(doWork, this, state, mode);
+		jobID = FutureWork.run(doWork, {complete: complete, error: error, progress: progress}, state, mode);
 	}
 
 	/**
@@ -189,7 +190,8 @@ class Promise<T>
 	}
 
 	/**
-		Resolves this `Promise` with an error state
+		Resolves this `Promise` with an error state. Only the first call to
+		`complete()` or `error()` settles it, and later calls are ignored.
 		@param	msg	The error value
 		@return	The current `Promise`
 	**/
@@ -201,7 +203,7 @@ class Promise<T>
 			return this;
 		}
 
-		if (!future.isComplete)
+		if (!future.isComplete && !future.isError)
 		{
 			future.isError = true;
 			future.error = msg;

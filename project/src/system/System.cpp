@@ -5,6 +5,8 @@
 #include <comutil.h>
 #pragma comment(lib, "wbemuuid.lib")
 #include <windows.h>
+#include <shellapi.h>
+#include <string>
 #endif
 
 #include <system/System.h>
@@ -20,9 +22,25 @@ namespace lime {
 	#endif
 
 
+	// Blocking calls nest, such as opening a file while a video opens, but
+	// hxcpp tracks one level, so only the outermost pair reaches it
+	static thread_local int gcBlockingDepth = 0;
+
+
+	// Both collectors wait for every thread they know of to stop, unless it
+	// has said it is blocked in native code, where it can't stop
 	void System::GCEnterBlocking () {
 
-		if (!_isHL) {
+		if (gcBlockingDepth++ == 0) {
+
+			#ifdef LIME_HASHLINK
+			if (_isHL) {
+
+				hl_blocking (true);
+				return;
+
+			}
+			#endif
 
 			gc_enter_blocking ();
 
@@ -33,7 +51,16 @@ namespace lime {
 
 	void System::GCExitBlocking () {
 
-		if (!_isHL) {
+		if (--gcBlockingDepth == 0) {
+
+			#ifdef LIME_HASHLINK
+			if (_isHL) {
+
+				hl_blocking (false);
+				return;
+
+			}
+			#endif
 
 			gc_exit_blocking ();
 
@@ -231,6 +258,34 @@ namespace lime {
 
 
 	#if defined (HX_WINDOWS) && !defined (HX_WINRT)
+	// Through the shell, which opens the file or URL with its default application, as cmd's start
+	// does, but without starting cmd, whose console window a windowed application shows for a moment
+	void System::OpenFile (const char* path) {
+
+		if (!path || !*path) return;
+
+		int length = MultiByteToWideChar (CP_UTF8, 0, path, -1, NULL, 0);
+		if (length <= 0) return;
+
+		std::wstring widePath (length, 0);
+		MultiByteToWideChar (CP_UTF8, 0, path, -1, &widePath[0], length);
+
+		// Shell extensions that open some files are COM objects, so COM is initialized as
+		// ShellExecute asks, unless this thread has it already
+		HRESULT result = CoInitializeEx (NULL, COINIT_APARTMENTTHREADED | COINIT_DISABLE_OLE1DDE);
+		ShellExecuteW (NULL, L"open", widePath.c_str (), NULL, NULL, SW_SHOWNORMAL);
+		if (SUCCEEDED (result)) CoUninitialize ();
+
+	}
+
+
+	void System::OpenURL (const char* url, const char* target) {
+
+		OpenFile (url);
+
+	}
+
+
 	bool System::SetWindowsConsoleMode (int handleType, int mode) {
 
 		HANDLE handle = GetStdHandle ((DWORD)handleType);

@@ -34,6 +34,11 @@ import haxe.io.Path;
 @:access(lime.text.Glyph)
 class Font
 {
+	// GlyphImage in project/include/text/Font.h: five 32-bit fields then the
+	// pixels, padded to 4 bytes, with 4 bytes for each pixel
+	@:noCompletion private static inline var GLYPH_IMAGE_DATA = 20;
+	@:noCompletion private static inline var GLYPH_IMAGE_SIZE = 24;
+
 	/**
 	 * The ascender value of the font.
 	 */
@@ -61,6 +66,25 @@ class Font
 
 	public var src:Dynamic;
 
+	/** Sets an OpenType variable-font axis. Unsupported axes/fonts return false.
+	 * Clone/reload a font before changing an axis when other renderers share its source.
+	 */
+	public function setVariation(tag:String, coordinate:Float):Bool {
+		if (tag == null || tag.length != 4 || !Math.isFinite(coordinate)) return false;
+		for (i in 0...4) if (tag.charCodeAt(i) < 32 || tag.charCodeAt(i) > 126) return false;
+		#if (lime_cffi && !macro)
+		if (src == null) return false;
+		var changed = NativeCFFI.lime_font_set_variation(src, tag, coordinate);
+		if (changed) {
+			isBold = NativeCFFI.lime_font_is_bold(src);
+			isItalic = NativeCFFI.lime_font_is_italic(src);
+		}
+		return changed;
+		#else
+		return false;
+		#end
+	}
+
 	/**
 	 * The underline position of the font.
 	 */
@@ -85,6 +109,90 @@ class Font
 	 * The units per EM of the font.
 	 */
 	public var unitsPerEM:Int;
+
+	/**
+	 * Whether the font style is bold.
+	 */
+	public var isBold:Bool;
+
+	/**
+	 * Whether the font style is italic.
+	 */
+	public var isItalic:Bool;
+
+	/**
+		May be used enable stem darkening when rendering this font. Stem
+		darkening is designed to increase legibility of a font. If a font's stem
+		is measured to be narrower than the specified minimum threshold, it will
+		be "darkened" by making it a bit bolder.
+
+		This property enables affects the font rendering engine on native
+		targets only. On other targets, enabling stem darkening has no effect.
+
+		@see `Font.stemDarkeningParameters`
+	**/
+	public var stemDarkening(default, set):Bool;
+
+	private function set_stemDarkening(enable:Bool):Bool
+	{
+		if (stemDarkening == enable) {
+			return stemDarkening;
+		}
+		stemDarkening = enable;
+		#if (lime_cffi && !macro)
+		// A font with no data yet takes the setting when it loads
+		if (src != null) NativeCFFI.lime_font_set_stem_darkening(src, enable);
+		#end
+		return stemDarkening;
+	}
+
+	/**
+		Configure the stem darkening parameters, which is an array of exactly
+		eight integers, consisting of four pairs of x and y values. The x value
+		is the stem width, and the y value is the darkening amount. The units of
+		each value is 1/1000th of a pixel (so 0.5 pixel would be passed as a
+		value of `500`).
+
+		All values must be positive. Each stem width (x) value must be larger
+		than the previous stem width value. Each darkening amount (y) value must
+		be smaller than the previous darkening amount value.
+
+		For complete details, see the
+		[FreeType darkening-parameters documentation](https://freetype.org/freetype2/docs/reference/ft2-properties.html#darkening-parameters).
+
+		@see `Font.stemDarkening`
+	**/
+	public var stemDarkeningParameters(default, set):Array<Int>;
+
+	private function set_stemDarkeningParameters(params:Array<Int>):Array<Int>
+	{
+		if (params == null || params.length != 8)
+		{
+			throw "Darkening parameters length must be exactly 8";
+		}
+		if (stemDarkeningParameters == params)
+		{
+			return stemDarkeningParameters;
+		}
+		stemDarkeningParameters = params;
+		__setStemDarkeningParameters();
+		return stemDarkeningParameters;
+	}
+
+	@:noCompletion private function __setStemDarkeningParameters():Void
+	{
+		#if (lime_cffi && !macro)
+		if (src == null || stemDarkeningParameters == null) return;
+		#if hl
+		var params = new hl.NativeArray<Int>(stemDarkeningParameters.length);
+		for (i in 0...stemDarkeningParameters.length)
+			params[i] = stemDarkeningParameters[i];
+		#else
+		var params = stemDarkeningParameters;
+		#end
+		NativeCFFI.lime_font_set_stem_darkening_parameters(src, params);
+		#end
+	}
 
 	@:noCompletion private var __fontID:String;
 	@:noCompletion private var __fontPath:String;
@@ -148,13 +256,27 @@ class Font
 	}
 
 	/**
-	 * Decomposes the font into outline data.
+	 * Decomposes the font into outline data, with the glyph outlines auto-hinted.
 	 *
-	 * @param forceAutoHint When `true`, force auto-hinting for outline decomposition.
-	 * When `false`, preserve the unhinted glyph outlines.
 	 * @return An instance of `NativeFontData` that contains decomposed font outline information.
 	 */
-	public function decompose(forceAutoHint:Bool = true):NativeFontData
+	public function decompose():NativeFontData
+	{
+		return __decompose(true);
+	}
+
+	/**
+	 * Decomposes the font into outline data, keeping the glyph outlines unhinted, as
+	 * the font draws them.
+	 *
+	 * @return An instance of `NativeFontData` that contains decomposed font outline information.
+	 */
+	public function decomposeUnhinted():NativeFontData
+	{
+		return __decompose(false);
+	}
+
+	@:noCompletion private function __decompose(forceAutoHint:Bool):NativeFontData
 	{
 		#if (lime_cffi && !macro)
 		if (src == null) throw "Uninitialized font handle.";
@@ -163,7 +285,7 @@ class Font
 		#if hl
 		if (data != null)
 		{
-			data.family_name = @:privateAccess String.fromUCS2(data.family_name);
+			data.family_name = data.family_name != null ? @:privateAccess String.fromUTF8(data.family_name) : null;
 			data.style_name = @:privateAccess String.fromUTF8(data.style_name);
 		}
 		#end
@@ -322,15 +444,16 @@ class Font
 	}
 
 	/**
-	 * Renders a specific glyph to an image.
+	 * Renders a specific glyph to an image, at 96 DPI. `renderGlyphWithLoadFlags()`
+	 * renders at another DPI.
 	 *
 	 * @param glyph The glyph to render.
 	 * @param fontSize The size to render the glyph at.
 	 * @return An `Image` instance representing the rendered glyph.
 	 */
-	public function renderGlyph(glyph:Glyph, fontSize:Int, dpi:Int = 96):Image
+	public function renderGlyph(glyph:Glyph, fontSize:Int):Image
 	{
-		return renderGlyphWithLoadFlags(glyph, fontSize, dpi);
+		return renderGlyphWithLoadFlags(glyph, fontSize, 96);
 	}
 
 	/**
@@ -340,9 +463,13 @@ class Font
 	 * @param fontSize The size to render the glyph at.
 	 * @param dpi The DPI used to size the glyph before rasterization.
 	 * @param loadFlags Additional FreeType load flags to apply when rasterizing.
+	 * @param subpixelX A horizontal shift of the outline before rasterizing, in pixels (0 to 1): for
+	 *   drawing a glyph at a whole pixel while showing where it falls between pixels. The image's
+	 *   origin stays at the whole pixel. Without `loadFlags`, a shifted glyph is rendered as
+	 *   `renderGlyph()` renders it.
 	 * @return An `Image` instance representing the rendered glyph.
 	 */
-	public function renderGlyphWithLoadFlags(glyph:Glyph, fontSize:Int, dpi:Int = 96, ?loadFlags:Int):Image
+	public function renderGlyphWithLoadFlags(glyph:Glyph, fontSize:Int, dpi:Int = 96, ?loadFlags:Int, subpixelX:Float = 0.0):Image
 	{
 		#if (lime_cffi && !macro)
 		__setSize(fontSize, dpi);
@@ -351,8 +478,10 @@ class Font
 		var bytes:Bytes = Bytes.alloc(0); // Allocate some reasonable initial size
 
 		// Call native function to render glyph and get byte data
-		bytes = loadFlags == null ? NativeCFFI.lime_font_render_glyph(src, glyph,
-			bytes) : NativeCFFI.lime_font_render_glyph_with_flags(src, glyph, loadFlags, bytes);
+		var subpixelX64:Int = Math.round(subpixelX * 64);
+		bytes = subpixelX64 != 0 ? NativeCFFI.lime_font_render_glyph_with_offset(src, glyph, loadFlags == null ? -1 : loadFlags, subpixelX64, bytes)
+			: loadFlags == null ? NativeCFFI.lime_font_render_glyph(src, glyph, bytes)
+			: NativeCFFI.lime_font_render_glyph_with_flags(src, glyph, loadFlags, bytes);
 
 		if (bytes != null && bytes.length > 0)
 		{
@@ -463,13 +592,10 @@ class Font
 
 			while (i < count)
 			{
-				bytesPosition += 4;
-				width = bytes.getInt32(bytesPosition);
-				bytesPosition += 4;
-				height = bytes.getInt32(bytesPosition);
-				bytesPosition += 4;
-
-				bytesPosition += (4 * 2) + width * height;
+				var recordPosition = bytesPosition;
+				width = bytes.getInt32(recordPosition + 4);
+				height = bytes.getInt32(recordPosition + 8);
+				bytesPosition = recordPosition + GLYPH_IMAGE_SIZE + width * height * 4;
 
 				if (offsetX + width > bufferWidth)
 				{
@@ -527,16 +653,13 @@ class Font
 
 			for (i in 0...count)
 			{
-				index = bytes.getInt32(bytesPosition);
-				bytesPosition += 4;
-				width = bytes.getInt32(bytesPosition);
-				bytesPosition += 4;
-				height = bytes.getInt32(bytesPosition);
-				bytesPosition += 4;
-				x = bytes.getInt32(bytesPosition);
-				bytesPosition += 4;
-				y = bytes.getInt32(bytesPosition);
-				bytesPosition += 4;
+				var recordPosition = bytesPosition;
+				index = bytes.getInt32(recordPosition);
+				width = bytes.getInt32(recordPosition + 4);
+				height = bytes.getInt32(recordPosition + 8);
+				x = bytes.getInt32(recordPosition + 12);
+				y = bytes.getInt32(recordPosition + 16);
+				var pixelPosition = recordPosition + GLYPH_IMAGE_DATA;
 
 				if (offsetX + width > bufferWidth)
 				{
@@ -545,12 +668,18 @@ class Font
 					maxRows = 0;
 				}
 
-				for (i in 0...height)
+				// Glyphs come as white with their coverage in alpha, which the atlas keeps
+				for (row in 0...height)
 				{
-					dataPosition = ((i + offsetY) * bufferWidth) + offsetX;
-					data.blit(dataPosition, bytes, bytesPosition, width);
-					bytesPosition += width;
+					dataPosition = ((row + offsetY) * bufferWidth) + offsetX;
+
+					for (column in 0...width)
+					{
+						data.set(dataPosition + column, bytes.get(pixelPosition + (row * width + column) * 4 + 3));
+					}
 				}
+
+				bytesPosition = recordPosition + GLYPH_IMAGE_SIZE + width * height * 4;
 
 				image = new Image(buffer, offsetX, offsetY, width, height);
 				image.x = x;
@@ -592,6 +721,8 @@ class Font
 			underlinePosition = other.underlinePosition;
 			underlineThickness = other.underlineThickness;
 			unitsPerEM = other.unitsPerEM;
+			isBold = other.isBold;
+			isItalic = other.isItalic;
 
 			__fontID = other.__fontID;
 			__fontPath = other.__fontPath;
@@ -649,6 +780,11 @@ class Font
 			strikethroughPosition = NativeCFFI.lime_font_get_strikethrough_position(src);
 			strikethroughThickness = NativeCFFI.lime_font_get_strikethrough_thickness(src);
 			unitsPerEM = NativeCFFI.lime_font_get_units_per_em(src);
+			isBold = NativeCFFI.lime_font_is_bold(src);
+			isItalic = NativeCFFI.lime_font_is_italic(src);
+
+			if (stemDarkening) NativeCFFI.lime_font_set_stem_darkening(src, true);
+			__setStemDarkeningParameters();
 		}
 		#end
 
@@ -662,11 +798,9 @@ class Font
 		#if (js && html5)
 		this.name = name;
 
-		var userAgent = Browser.navigator.userAgent.toLowerCase();
-		var isSafari = (userAgent.indexOf(" safari/") >= 0 && userAgent.indexOf(" chrome/") < 0);
-		var isUIWebView = ~/(iPhone|iPod|iPad).*AppleWebKit(?!.*Version)/i.match(userAgent);
-
-		if (!isSafari && !isUIWebView && untyped (Browser.document).fonts && untyped (Browser.document).fonts.load)
+		// The CSS Font Loading API, which Safari has had since version 10. Without it, the font is
+		// taken as loaded once text in it measures differently from the fallback fonts.
+		if (untyped (Browser.document).fonts && untyped (Browser.document).fonts.load)
 		{
 			untyped (Browser.document).fonts.load("1em '" + name + "'").then(function(_)
 			{

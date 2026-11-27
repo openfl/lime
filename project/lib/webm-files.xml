@@ -14,4 +14,19 @@
 
 	</files>
 
+	<!-- Reads the Vorbis audio of Matroska and WebM videos on Windows -->
+	<files id="native-toolkit-webm-parser" tags="">
+
+		<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/webm/" />
+		<cache value="1" />
+
+		<tag value="${NATIVE_TOOLKIT_OPTIM_TAG}" if="NATIVE_TOOLKIT_OPTIM_TAG" />
+
+		<depend name="${NATIVE_TOOLKIT_PATH}/webm/mkvparser/mkvparser.h" />
+		<depend name="${NATIVE_TOOLKIT_PATH}/webm/common/webmids.h" />
+
+		<file name="${NATIVE_TOOLKIT_PATH}/webm/mkvparser/mkvparser.cc" />
+
+	</files>
+
 </xml>

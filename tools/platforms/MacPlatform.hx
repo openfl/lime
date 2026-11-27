@@ -19,6 +19,7 @@ import lime.tools.HXProject;
 import lime.tools.Icon;
 import lime.tools.IconHelper;
 import lime.tools.JavaHelper;
+import lime.tools.NativeSourcesHelper;
 import lime.tools.NekoHelper;
 import lime.tools.NodeJSHelper;
 import lime.tools.Orientation;
@@ -101,7 +102,8 @@ class MacPlatform extends PlatformTarget
 
 		for (i in 1...project.windows.length)
 		{
-			defaults.windows.push(defaults.window);
+			// A copy each, as merge() copies each project window into its own default
+			defaults.windows.push(hxp.ObjectTools.copyFields(defaults.window, {}));
 		}
 
 		defaults.merge(project);
@@ -219,21 +221,21 @@ class MacPlatform extends PlatformTarget
 			// ensure that the shell script is replaced by the template executable
 			System.deleteFile(executablePath);
 
-			HashlinkHelper.copyHashlink(project, targetDirectory, executableDirectory, executablePath, true);
+
+			// hashlink doesn't fully support arm64 yet, so even on
+			// arm64 machines, we're still defaulting to x86_64.
+			var isArm64 = targetFlags.exists("arm64");
+
+			HashlinkHelper.copyHashlink(project, targetDirectory, executableDirectory, executablePath, true, isArm64);
 
 			if (project.targetFlags.exists("hlc"))
 			{
-				var compiler = project.targetFlags.exists("clang") ? "clang" : "gcc";
-				// the libraries were compiled as x86_64, so if the build is
-				// happening on ARM64 instead, we need to ensure that the
-				// same architecture is used for the executable, so we wrap our
-				// compiler command with the `arch -x86_64` command.
-				// if we ever support ARM or Universal binaries, this will
-				// need to be handled differently.
+				var compiler = targetFlags.exists("clang") ? "clang" : "gcc";
+				var arch = isArm64 ? "arm64" : "x86_64";
 				var command = [
-					"arch",
-					"-x86_64",
 					compiler,
+					"-arch",
+					arch,
 					"-O3",
 					"-o",
 					executablePath,
@@ -410,6 +412,17 @@ class MacPlatform extends PlatformTarget
 		context.CPP_DIR = targetDirectory + "/obj/";
 		context.BUILD_DIR = project.app.path + "/mac" + dirSuffix.toLowerCase();
 
+		if (project.config.exists("mac.camera-usage-description"))
+		{
+			context.MAC_CAMERA_USAGE_DESCRIPTION = StringTools.htmlEscape(project.config.getString("mac.camera-usage-description"), true);
+		}
+
+		if (project.config.exists("mac.microphone-usage-description"))
+		{
+			// Info.plist is XML, so a description with & or < would break it
+			context.MAC_MICROPHONE_USAGE_DESCRIPTION = StringTools.htmlEscape(project.config.getString("mac.microphone-usage-description"), true);
+		}
+
 		return context;
 	}
 
@@ -459,8 +472,14 @@ class MacPlatform extends PlatformTarget
 			case X64:
 				if (targetFlags.exists("hl"))
 				{
-					// TODO: Support single binary
-					commands.push(["-Dmac", "-DHXCPP_CLANG", "-DHXCPP_M64", "-Dhashlink"]);
+					if (targetFlags.exists("arm64"))
+					{
+						commands.push(["-Dmac", "-DHXCPP_CLANG", "-DHXCPP_ARM64", "-Dhashlink"]);
+					}
+					else
+					{
+						commands.push(["-Dmac", "-DHXCPP_CLANG", "-DHXCPP_M64", "-Dhashlink"]);
+					}
 				}
 				else if (targetFlags.exists("arm64"))
 				{
@@ -479,8 +498,16 @@ class MacPlatform extends PlatformTarget
 			case ARM64:
 				if (targetFlags.exists("hl"))
 				{
-					// hashlink doesn't support arm64 macs yet
-					commands.push(["-Dmac", "-DHXCPP_CLANG", "-DHXCPP_ARCH=x86_64", "-Dhashlink"]);
+					// hashlink doesn't fully support arm64 yet, so even on
+					// arm64 machines, we're still defaulting to x86_64.
+					if (targetFlags.exists("arm64"))
+					{
+						commands.push(["-Dmac", "-DHXCPP_CLANG", "-DHXCPP_ARM64", "-Dhashlink"]);
+					}
+					else
+					{
+						commands.push(["-Dmac", "-DHXCPP_CLANG", "-DHXCPP_ARCH=x86_64", "-Dhashlink"]);
+					}
 				}
 				else if (targetFlags.exists("64") || targetFlags.exists("x86_64"))
 				{
@@ -556,6 +583,7 @@ class MacPlatform extends PlatformTarget
 				if (ndll.path == null || ndll.path == "")
 				{
 					context.ndlls[i].path = NDLL.getLibraryPath(ndll, "Mac" + dirSuffix, "lib", ".a", project.debug);
+					NativeSourcesHelper.checkLibrary(context.ndlls[i].path);
 				}
 			}
 		}
@@ -585,14 +613,14 @@ class MacPlatform extends PlatformTarget
 
 		var icons = project.icons;
 
-		if (icons.length == 0)
+		if (!IconHelper.hasIcons(icons))
 		{
 			icons = [new Icon(System.findTemplate(project.templatePaths, "default/icon.svg"))];
 		}
 
 		context.HAS_ICON = IconHelper.createMacIcon(icons, Path.combine(contentDirectory, "icon.icns"));
 
-		copyProjectAssets(targetDirectory, contentDirectory);
+		copyProjectAssets(targetDirectory, contentDirectory, context);
 	}
 
 	@ignore public override function install():Void {}
@@ -607,7 +635,12 @@ class MacPlatform extends PlatformTarget
 	{
 		if (targetFlags.exists("hl"))
 		{
-			// hashlink doesn't support arm64 macs yet
+			// hashlink doesn't fully support arm64 yet, so even on
+			// arm64 machines, we're still defaulting to x86_64.
+			if (targetFlags.exists("arm64"))
+			{
+				return "Arm64";
+			}
 			return "64";
 		}
 		return targetArchitecture == X64 ? "64" : targetArchitecture == ARM64 ? "Arm64" : "";
@@ -629,7 +662,8 @@ class MacPlatform extends PlatformTarget
 	private function copyAndFixHashLinkHomebrewDependencies():Void
 	{
 		var limeDirectory = Haxelib.getPath(new Haxelib("lime"), true);
-		var bindir = "Mac64";
+		// HashLink is only built for Apple Silicon when -arm64 asks for it
+		var bindir = targetFlags.exists("arm64") ? "MacArm64" : "Mac64";
 		var bundledHLDirectory = Path.combine(limeDirectory, 'templates/bin/hl/$bindir');
 		if (!FileSystem.exists(bundledHLDirectory))
 		{
@@ -644,7 +678,8 @@ class MacPlatform extends PlatformTarget
 
 		// these are the known directories where Homebrew installs its dependencies
 		// we may need to add more in the future, but this seems to be enough for now
-		var homebrewDirs = ["/usr/local/opt/", "/usr/local/Cellar/"];
+		// (/usr/local for Intel, /opt/homebrew for Apple Silicon)
+		var homebrewDirs = ["/usr/local/opt/", "/usr/local/Cellar/", "/opt/homebrew/opt/", "/opt/homebrew/Cellar/"];
 
 		// first, collect all executables, hdlls, and dylibs that were built
 		// by BuildHashlink.xml

@@ -14,10 +14,14 @@ class VorbisFile
 	public var bitstream(default, null):Int;
 
 	@:noCompletion private var handle:Dynamic;
+	// The native file reads from these bytes for as long as it is open. HashLink checks the fields'
+	// order against _TVORBISFILE in ExternalInterface.cpp.
+	@:noCompletion private var bytes:Bytes;
 
-	@:noCompletion private function new(handle:Dynamic)
+	@:noCompletion private function new(handle:Dynamic, bytes:Bytes = null)
 	{
 		this.handle = handle;
+		this.bytes = bytes;
 	}
 
 	public function bitrate(bitstream:Int = -1):Int
@@ -43,6 +47,8 @@ class VorbisFile
 		#if (lime_cffi && lime_vorbis && !macro)
 		NativeCFFI.lime_vorbis_file_clear(handle);
 		#end
+
+		bytes = null;
 	}
 
 	public function comment(bitstream:Int = -1):VorbisComment
@@ -78,7 +84,7 @@ class VorbisFile
 
 		if (handle != null)
 		{
-			return new VorbisFile(handle);
+			return new VorbisFile(handle, bytes);
 		}
 		#end
 
@@ -243,6 +249,13 @@ class VorbisFile
 	}
 
 	// public function readFilter (buffer:Bytes, length:Int = 4096, endianness:Endian = LITTLE_ENDIAN, wordSize:Int = 2, signed:Bool = true, bitstream:Int = 0, filter, filter_param
+	/**
+		Decodes up to `samples` sample frames into `pcmChannels`, from its start, as
+		32-bit floats from -1 to 1 in the platform's byte order, with the channels of
+		each frame interleaved, as `read()` gives 16-bit samples. No more frames are
+		read than fit in `pcmChannels`. Returns the number of frames read, 0 at the end
+		of the stream, or a negative error code, as `ov_read_float` does.
+	**/
 	public function readFloat(pcmChannels:Bytes, samples:Int):Int
 	{
 		#if (lime_cffi && lime_vorbis && !macro)

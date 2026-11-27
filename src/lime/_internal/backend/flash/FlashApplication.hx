@@ -8,6 +8,7 @@ import lime.app.FrameProfile;
 import lime.app.VSyncMode;
 import lime.media.AudioManager;
 import lime.system.Orientation;
+import lime.ui.Menu;
 import lime.ui.Window;
 
 @:access(lime.app.Application)
@@ -45,6 +46,8 @@ class FlashApplication
 	{
 		return UNKNOWN;
 	}
+
+	public function setMenu(menu:Menu):Void {}
 
 	public function setVSyncMode(mode:VSyncMode):Void {}
 }

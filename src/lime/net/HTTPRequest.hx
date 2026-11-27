@@ -37,9 +37,27 @@ public var method:HTTPRequestMethod;
 public var responseData:T;
 public var responseHeaders:Array<HTTPRequestHeader>;
 public var responseStatus:Int;
+
+/**
+	How long, in milliseconds, the request may go without receiving or sending
+	data before it fails. On native targets a transfer that is still under way
+	carries on past it, as with OpenFL's `URLRequest.idleTimeout`. On HTML5 it
+	limits the whole request, as `XMLHttpRequest.timeout` does. 0 waits for good.
+**/
 public var timeout:Int;
+
 public var uri:String;
 public var userAgent:String;
+
+/**
+	Whether native targets check that an HTTPS server's certificate is valid
+	and issued for its address, against the system's trusted certificates.
+	Defaults to `true`, or to `false` with `-D lime-insecure-https`. Turn it
+	off only for servers you control, such as one with a self-signed
+	certificate; browsers and Flash always check.
+**/
+public var verifyCertificates:Bool;
+
 public var withCredentials:Bool;
 public var manageCookies:Bool;
 #if !doc_gen
@@ -59,6 +77,7 @@ public function new(uri:String = null)
 	timeout = #if lime_default_timeout Std.parseInt(Compiler.getDefine("lime-default-timeout")) #else 30000 #end;
 	withCredentials = false;
 	manageCookies = true;
+	verifyCertificates = #if lime_insecure_https false #else true #end;
 
 	#if !doc_gen
 	__backend = new HTTPRequestBackend();
@@ -184,9 +203,18 @@ public function load(uri:String = null):Future<T>
 	// public var responseData:T;
 	public var responseHeaders:Array<HTTPRequestHeader>;
 	public var responseStatus:Int;
+
+	/**
+		How long, in milliseconds, the request may go without receiving or sending
+		data before it fails. On native targets a transfer that is still under way
+		carries on past it, as with OpenFL's `URLRequest.idleTimeout`. On HTML5 it
+		limits the whole request, as `XMLHttpRequest.timeout` does. 0 waits for good.
+	**/
 	public var timeout:Int;
+
 	public var uri:String;
 	public var userAgent:String;
+	public var verifyCertificates:Bool;
 	public var withCredentials:Bool;
 	public var manageCookies:Bool;
 	public function cancel():Void;

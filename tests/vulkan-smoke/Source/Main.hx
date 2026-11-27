@@ -63,6 +63,11 @@ class Main extends Application
 	private var device:VKDevice;
 	private var fence:VKFence;
 	private var finished:Bool;
+	private var pacingBugRate:Float;
+	private var pacingFrames:Int;
+	private var pacingMeasureStart:Float = -1;
+	private var pacingRefreshRate:Float;
+	private var pacingStart:Float = -1;
 	private var framebuffers:Array<VKFramebuffer> = [];
 	private var imageAvailable:VKSemaphore;
 	private var imageViews:Array<VKImageView> = [];
@@ -151,8 +156,69 @@ class Main extends Application
 			return;
 		}
 
+		if (!checkPacing())
+		{
+			return;
+		}
+
 		finished = true;
 		Timer.delay(complete, 50);
+	}
+
+	// With vsync on and the frame rate above the refresh rate, each frame waits on the present, as it
+	// does on the swap with OpenGL, and frames come once per refresh. Presents weren't counted as swaps,
+	// so each frame was timed a whole number of milliseconds after the last, 17 ms at 60 Hz. Returns
+	// false while it measures.
+	private function checkPacing():Bool
+	{
+		var now = Timer.stamp();
+
+		if (pacingStart < 0)
+		{
+			pacingRefreshRate = window.display != null && window.display.currentMode != null ? window.display.currentMode.refreshRate : 0;
+			pacingBugRate = pacingRefreshRate > 0 ? 1000 / Math.ceil(1000 / pacingRefreshRate) : 0;
+
+			// A software device, such as CI's lavapipe, doesn't wait for a display's refresh
+			if (physicalDevice.deviceType == VK.PHYSICAL_DEVICE_TYPE_CPU)
+			{
+				trace("The Vulkan device draws in software, so frame pacing was not measured");
+				return true;
+			}
+
+			if (pacingRefreshRate <= 0 || pacingRefreshRate - pacingBugRate < 0.5)
+			{
+				trace("At a refresh rate of " + pacingRefreshRate + " Hz the frame timing can't tell, so frame pacing was not measured");
+				return true;
+			}
+
+			window.frameRate = pacingRefreshRate * 4;
+			pacingStart = now;
+			return false;
+		}
+
+		// Measured for three seconds once the loop has settled
+		if (now - pacingStart < 0.5) return false;
+
+		if (pacingMeasureStart < 0)
+		{
+			pacingMeasureStart = now;
+			return false;
+		}
+
+		pacingFrames++;
+		if (now - pacingMeasureStart < 3) return false;
+
+		var rate = pacingFrames / (now - pacingMeasureStart);
+		window.frameRate = 60;
+
+		if (rate < (pacingRefreshRate + pacingBugRate) / 2)
+		{
+			fail("With vsync on, " + Math.round(rate * 10) / 10 + " frames a second came at a refresh rate of " + pacingRefreshRate + " Hz");
+			return false;
+		}
+
+		trace("With vsync on, " + Math.round(rate * 10) / 10 + " frames a second came at a refresh rate of " + pacingRefreshRate + " Hz");
+		return true;
 	}
 
 	private function createRenderer(context:VulkanRenderContext):Void
@@ -809,11 +875,123 @@ class Main extends Application
 	{
 		disposeRenderer();
 
+		if (!checkRendererRecovers())
+		{
+			return;
+		}
+
+		if (!checkDevicesRecordTheirOwnCommands())
+		{
+			return;
+		}
+
 		if (window != null)
 		{
 			window.close();
 		}
 		System.exit(0);
+	}
+
+	// Each logical device records commands through its own Vulkan functions. Two devices alive at once
+	// each clear an image to a colour of their own and read it back, in turn, and a device made after one
+	// is disposed does as well, so functions looked up once for a device must stay with that device.
+	private function checkDevicesRecordTheirOwnCommands():Bool
+	{
+		var checkInstance = VK.createInstance(window.context.vulkan, "LimeVulkanSmokeDevices");
+		if (checkInstance == null || !checkInstance.isValid())
+		{
+			fail("Failed to create a Vulkan instance for the device check: " + VK.getLastError());
+			return false;
+		}
+
+		var checkPhysicalDevice = checkInstance.pickPhysicalDevice();
+		var family = checkPhysicalDevice != null ? checkPhysicalDevice.getQueueFamily(true, false) : null;
+		if (family == null)
+		{
+			checkInstance.dispose();
+			fail("No graphics queue family was found for the device check");
+			return false;
+		}
+
+		var first = ClearTarget.create(checkPhysicalDevice, family);
+		var second = ClearTarget.create(checkPhysicalDevice, family);
+		var result:String = null;
+
+		if (first == null || second == null)
+		{
+			result = "Failed to create two Vulkan devices at once: " + VK.getLastError();
+		}
+		else
+		{
+			result = first.check(255, 0, 0);
+			if (result == null) result = second.check(0, 255, 0);
+			if (result == null) result = first.check(0, 0, 255);
+			if (result == null) result = second.check(255, 255, 0);
+
+			first.dispose();
+			first = null;
+
+			var third = ClearTarget.create(checkPhysicalDevice, family);
+			if (third == null) result = "Failed to create a Vulkan device after disposing one: " + VK.getLastError();
+			if (result == null) result = third.check(0, 255, 255);
+			if (result == null) result = second.check(255, 0, 255);
+			if (third != null) third.dispose();
+		}
+
+		if (first != null) first.dispose();
+		if (second != null) second.dispose();
+		checkInstance.dispose();
+
+		if (result != null)
+		{
+			fail(result);
+			return false;
+		}
+
+		trace("Two Vulkan devices at once, and one made after another was disposed, each recorded its own commands");
+		return true;
+	}
+
+	// VKRenderer, made to fail one step of a render, renders again afterwards. A render that failed
+	// after resetting its fence used to leave it unsignalled, and the next render waited on it forever,
+	// which the job's timeout catches.
+	private function checkRendererRecovers():Bool
+	{
+		for (step in ["reset", "record", "submit"])
+		{
+			Sys.putEnv("LIME_VULKAN_RENDERER_FAULT", step);
+			var renderer = window.context.vulkan.createRenderer("Lime Vulkan Smoke");
+			Sys.putEnv("LIME_VULKAN_RENDERER_FAULT", "");
+
+			if (renderer == null || !renderer.isValid)
+			{
+				fail("VKRenderer was not created: " + (renderer != null ? renderer.lastError : "null"));
+				return false;
+			}
+
+			if (renderer.render(0, 0, 0))
+			{
+				renderer.dispose();
+				fail("VKRenderer rendered although its " + step + " step was made to fail");
+				return false;
+			}
+
+			for (i in 0...3)
+			{
+				if (!renderer.render(0, 0, 0))
+				{
+					var error = renderer.lastError;
+					renderer.dispose();
+					fail("VKRenderer did not render again after its " + step + " step failed: " + error);
+					return false;
+				}
+			}
+
+			renderer.dispose();
+			trace("VKRenderer rendered again after its " + step + " step failed");
+		}
+
+		return true;
 	}
 
 	private function disposeRenderer():Void
@@ -984,5 +1162,100 @@ class Main extends Application
 		result[13] = y;
 		result[14] = z;
 		return result;
+	}
+}
+
+/** A logical device of its own with a 4x4 image that it clears and reads back **/
+private class ClearTarget
+{
+	private static inline var SIZE = 4;
+
+	private var buffer:VKBuffer;
+	private var commandBuffer:VKCommandBuffer;
+	private var commandPool:VKCommandPool;
+	private var device:VKDevice;
+	private var fence:VKFence;
+	private var image:VKImage;
+
+	private function new() {}
+
+	public static function create(physicalDevice:VKPhysicalDevice, family:VKQueueFamilyInfo):ClearTarget
+	{
+		var target = new ClearTarget();
+		target.device = physicalDevice.createDevice(family);
+		if (target.device == null || !target.device.isValid()) return null;
+
+		target.commandPool = target.device.createCommandPool(family);
+		target.commandBuffer = target.commandPool != null ? target.commandPool.allocateCommandBuffer() : null;
+		target.fence = target.device.createFence(false);
+		target.image = target.device.createImage(SIZE, SIZE, VK.FORMAT_R8G8B8A8_UNORM, VK.IMAGE_USAGE_TRANSFER_DST_BIT | VK.IMAGE_USAGE_TRANSFER_SRC_BIT);
+		var memory = target.image != null ? target.image.allocateMemory(VK.MEMORY_PROPERTY_DEVICE_LOCAL_BIT) : null;
+		target.buffer = target.device.createBufferWithMemory(Int64.ofInt(SIZE * SIZE * 4), VK.BUFFER_USAGE_TRANSFER_DST_BIT,
+			VK.MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK.MEMORY_PROPERTY_HOST_COHERENT_BIT);
+
+		if (target.commandBuffer == null || target.fence == null || memory == null || target.buffer == null)
+		{
+			target.dispose();
+			return null;
+		}
+
+		return target;
+	}
+
+	/** Clears the image, copies it to the buffer and reads it back, giving what went wrong or null **/
+	public function check(red:Int, green:Int, blue:Int):String
+	{
+		if (!commandBuffer.reset()
+			|| !commandBuffer.begin(VK.COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT)
+			|| !commandBuffer.pipelineBarrierImage(image, VK.IMAGE_LAYOUT_UNDEFINED, VK.IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+				VK.PIPELINE_STAGE_TOP_OF_PIPE_BIT, VK.PIPELINE_STAGE_TRANSFER_BIT, 0, VK.ACCESS_TRANSFER_WRITE_BIT, VK.IMAGE_ASPECT_COLOR_BIT)
+			|| !commandBuffer.clearColorImage(image, VK.IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, red / 255, green / 255, blue / 255, 1)
+			|| !commandBuffer.pipelineBarrierImage(image, VK.IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK.IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
+				VK.PIPELINE_STAGE_TRANSFER_BIT, VK.PIPELINE_STAGE_TRANSFER_BIT, VK.ACCESS_TRANSFER_WRITE_BIT, VK.ACCESS_TRANSFER_READ_BIT,
+				VK.IMAGE_ASPECT_COLOR_BIT)
+			|| !commandBuffer.copyImageToBufferRegion(image, buffer, SIZE, SIZE)
+			|| !commandBuffer.end())
+		{
+			return "Failed to record the device check's commands: " + VK.getLastError();
+		}
+
+		if (!fence.reset() || !device.graphicsQueue.submit(commandBuffer, fence) || !fence.waitForever())
+		{
+			return "Failed to run the device check's commands: " + VK.getLastError();
+		}
+
+		var bytes = Bytes.alloc(SIZE * SIZE * 4);
+		if (!buffer.download(bytes))
+		{
+			return "Failed to read back the device check's image: " + VK.getLastError();
+		}
+
+		for (i in 0...SIZE * SIZE)
+		{
+			var pixel = [bytes.get(i * 4), bytes.get(i * 4 + 1), bytes.get(i * 4 + 2), bytes.get(i * 4 + 3)];
+			if (pixel.join(",") != [red, green, blue, 255].join(","))
+			{
+				return "A device cleared its image to " + [red, green, blue, 255].join(",") + ", and read back " + pixel.join(",") + " at pixel " + i;
+			}
+		}
+
+		return null;
+	}
+
+	public function dispose():Void
+	{
+		if (device != null && device.isValid()) device.waitIdle();
+		if (buffer != null) buffer.dispose(true);
+		if (image != null) image.dispose(true);
+		if (fence != null) fence.dispose();
+		if (commandBuffer != null) commandBuffer.dispose();
+		if (commandPool != null) commandPool.dispose();
+		if (device != null) device.dispose();
+		buffer = null;
+		image = null;
+		fence = null;
+		commandBuffer = null;
+		commandPool = null;
+		device = null;
 	}
 }

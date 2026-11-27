@@ -386,21 +386,19 @@ class System
 
 	/**
 		The number of milliseconds since the application was initialized.
+
+		This is a 32-bit count, so it wraps around to negative values after
+		2^31 milliseconds (24.8 days). `haxe.Timer.stamp()` keeps counting.
 	**/
 	public static function getTimer():Int
 	{
-		#if flash
-		return flash.Lib.getTimer();
-		#elseif ((js && !nodejs) || electron)
-		return Std.int(Browser.window.performance.now());
-		#elseif (lime_cffi && !macro)
-		return cast NativeCFFI.lime_system_get_timer();
-		#elseif cpp
-		return Std.int(untyped __global__.__time_stamp() * 1000);
-		#elseif sys
-		return Std.int(Sys.time() * 1000);
+		#if (flash || (js && !nodejs) || electron)
+		return Std.int(__getTimer());
 		#else
-		return 0;
+		// Wrap like Std.int does on Flash and HTML5, so the difference between two
+		// readings stays right, where a plain cast would stop at the Int limit
+		var time = __getTimer() % 4294967296.0;
+		return Std.int(time < 2147483648.0 ? time : time - 4294967296.0);
 		#end
 	}
 
@@ -416,6 +414,71 @@ class System
 	#end
 
 	/**
+		The space left for this user on the volume that holds `path`, in bytes,
+		or `-1` when it cannot be found. `path` can be a folder or a file, and
+		on Windows a file or folder that does not exist yet, whose nearest
+		existing folder is asked about. Space kept for the system, which this
+		user cannot use, is left out.
+
+		Available on native targets.
+	**/
+	public static function getFreeSpace(path:String):Float
+	{
+		#if (lime_cffi && !macro)
+		if (path != null && path != "") return NativeCFFI.lime_system_get_free_space(path);
+		#end
+
+		return -1;
+	}
+
+	/**
+		Whether `path` is a symbolic link, without following it. On Windows,
+		junctions and other reparse points count too, as they do for AIR's
+		`File.isSymbolicLink`. A path that does not exist is not a link.
+
+		Available on native targets.
+	**/
+	public static function isSymbolicLink(path:String):Bool
+	{
+		#if (lime_cffi && !macro)
+		if (path != null && path != "") return NativeCFFI.lime_system_is_symbolic_link(path);
+		#end
+
+		return false;
+	}
+
+	/**
+		Moves the file or folder at `path` to the system's trash, from where
+		the user can restore it, and returns whether it went there. It does not
+		delete what cannot go to the trash, as on a drive without one.
+
+		Windows uses the Recycle Bin, macOS the Trash, and Linux GIO's trash,
+		or else the freedesktop.org trash in the user's home, for files on the
+		same drive. Other targets return `false`.
+
+		It can take a moment for large folders; `moveToTrashAsync` does it on
+		a background thread.
+	**/
+	public static function moveToTrash(path:String):Bool
+	{
+		#if (lime_cffi && !macro)
+		if (path != null && path != "") return NativeCFFI.lime_system_move_to_trash(path);
+		#end
+
+		return false;
+	}
+
+	/**
+		Moves the file or folder at `path` to the system's trash on a
+		background thread, as `moveToTrash` does, and completes with whether it
+		went there.
+	**/
+	public static function moveToTrashAsync(path:String):lime.app.Future<Bool>
+	{
+		return new lime.app.Future<Bool>(function() return moveToTrash(path), true);
+	}
+
+	/**
 		Opens a file with the system default application.
 
 		In a web browser, opens a URL with target `_blank`.
@@ -424,7 +487,10 @@ class System
 	{
 		if (path != null)
 		{
-			#if (sys && windows)
+			#if (windows && lime_cffi && !macro)
+			// Through the shell, as cmd's start would without the console window cmd shows for a moment
+			NativeCFFI.lime_system_open_file(path);
+			#elseif (sys && windows)
 			Sys.command("start", ["", path]);
 			#elseif mac
 			Sys.command("/usr/bin/open", [path]);
@@ -547,6 +613,33 @@ class System
 		return null;
 	}
 
+	@:noCompletion private static function __getTimer():Float
+	{
+		// The timer behind getTimer(), as a Float that keeps counting past 2^31 ms
+		#if flash
+		var time:Float = flash.Lib.getTimer();
+		#elseif ((js && !nodejs) || electron)
+		var time:Float = Browser.window.performance.now();
+		#elseif (lime_cffi && !macro && !optional_cffi)
+		// The command-line tools run before lime.ndll is built, so they keep to Sys.time()
+		var time:Float = NativeCFFI.lime_system_get_timer();
+		#elseif cpp
+		var time:Float = untyped __global__.__time_stamp() * 1000;
+		#elseif sys
+		var time:Float = Sys.time() * 1000;
+		#else
+		var time:Float = 0;
+		#end
+
+		#if (simulate_uptime && !macro)
+		// -Dsimulate_uptime=<ms> starts the timer that far in, to test what
+		// happens to applications that keep running for days
+		time += Std.parseFloat(haxe.macro.Compiler.getDefine("simulate_uptime"));
+		#end
+
+		return time;
+	}
+
 	#if sys
 	private static function __parseArguments(attributes:WindowAttributes):Void
 	{
@@ -634,7 +727,7 @@ class System
 							if (vsyncMode != null)
 							{
 								attributes.context.vsyncMode = vsyncMode;
-								attributes.context.vsync = (vsyncMode != VSyncMode.Off);
+								attributes.context.vsync = (vsyncMode != VSyncMode.OFF);
 							}
 						case "width":
 							attributes.width = Std.parseInt(argValue);
@@ -664,13 +757,13 @@ class System
 		switch (value.toLowerCase())
 		{
 			case "true", "on":
-				return VSyncMode.On;
+				return VSyncMode.ON;
 			case "false", "off":
-				return VSyncMode.Off;
+				return VSyncMode.OFF;
 			case "adaptive":
-				return VSyncMode.Adaptive;
+				return VSyncMode.ADAPTIVE;
 			case "auto":
-				return VSyncMode.Auto;
+				return VSyncMode.AUTO;
 			default:
 				return null;
 		}

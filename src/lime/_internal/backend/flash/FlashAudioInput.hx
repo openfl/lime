@@ -1,10 +1,18 @@
 package lime._internal.backend.flash;
 
+import flash.events.Event;
 import flash.events.SampleDataEvent;
+import flash.events.StatusEvent;
 import flash.media.Microphone;
+#if flash10_2
+import flash.media.MicrophoneEnhancedMode;
+import flash.media.MicrophoneEnhancedOptions;
+#end
 import haxe.io.Bytes;
+import haxe.Timer;
 import lime.media.AudioInput;
 import lime.media.AudioInputDevice;
+import lime.system.PermissionStatus;
 
 private typedef AudioInputData =
 {
@@ -17,10 +25,15 @@ class FlashAudioInput
 {
 	private static inline var MAX_QUEUED_MS = 10000;
 
+	private static var permissionDenied:Bool;
+	private static var permissionMicrophone:Microphone;
+	private static var permissionRequests:Int = 0;
+
 	private var buffers:Array<AudioInputData>;
 	private var frameSize:Int;
 	private var microphone:Microphone;
 	private var parent:AudioInput;
+	private var processing:Int;
 	private var queuedBytes:Int;
 
 	public static function getDefaultDevice():AudioInputDevice
@@ -59,9 +72,74 @@ class FlashAudioInput
 		return devices;
 	}
 
+	public static function getPermissionStatus():PermissionStatus
+	{
+		if (!isSupported())
+		{
+			return UNDETERMINED;
+		}
+
+		var status = getAIRPermissionStatus();
+
+		if (status != null)
+		{
+			return status == "granted" ? GRANTED : (status == "denied" ? DENIED : UNDETERMINED);
+		}
+
+		// Flash Player keeps a microphone muted until the user allows it in its dialog
+		var microphone = Microphone.getMicrophone();
+
+		if (microphone != null && !microphone.muted)
+		{
+			return GRANTED;
+		}
+
+		return permissionDenied ? DENIED : UNDETERMINED;
+	}
+
 	public static function isSupported():Bool
 	{
 		return Microphone.isSupported;
+	}
+
+	public static function requestPermission():Void
+	{
+		var microphone = isSupported() ? Microphone.getMicrophone() : null;
+
+		if (microphone == null)
+		{
+			Timer.delay(AudioInput.onPermission.dispatch.bind(PermissionStatus.DENIED), 0);
+			return;
+		}
+
+		if (getAIRPermissionStatus() != null)
+		{
+			// AIR 24 and later ask with requestPermission() and answer with a PermissionEvent,
+			// which answers every request made meanwhile
+			if (permissionRequests++ > 0) return;
+			microphone.addEventListener("permissionStatus", microphone_onPermissionStatus);
+			untyped microphone.requestPermission();
+			return;
+		}
+
+		if (!microphone.muted)
+		{
+			Timer.delay(AudioInput.onPermission.dispatch.bind(PermissionStatus.GRANTED), 0);
+			return;
+		}
+
+		// One dialog answers every request made while it is shown
+		permissionRequests++;
+
+		if (permissionMicrophone != null)
+		{
+			return;
+		}
+
+		// Flash Player shows its dialog when a microphone is listened to, and answers with a StatusEvent
+		permissionMicrophone = microphone;
+		microphone.addEventListener(StatusEvent.STATUS, microphone_onStatus);
+		microphone.addEventListener(SampleDataEvent.SAMPLE_DATA, microphone_onPermissionSampleData);
 	}
 
 	public function new(parent:AudioInput)
@@ -76,7 +154,7 @@ class FlashAudioInput
 	public function dispose():Void
 	{
 		stop();
-		buffers.resize(0);
+		buffers = [];
 		queuedBytes = 0;
 	}
 
@@ -161,15 +239,51 @@ class FlashAudioInput
 			}
 		}
 
-		microphone = Microphone.getMicrophone(index);
+		var requested = parent.__processing;
+		processing = 0;
+		microphone = null;
+
+		#if flash10_2
+		// The enhanced microphone cancels echo in full duplex, and its automatic gain
+		// comes with that mode
+		if ((requested & 1) != 0)
+		{
+			microphone = Microphone.getEnhancedMicrophone(index);
+
+			if (microphone != null)
+			{
+				var options = new MicrophoneEnhancedOptions();
+				options.mode = MicrophoneEnhancedMode.FULL_DUPLEX;
+				options.autoGain = (requested & 4) != 0;
+				microphone.enhancedOptions = options;
+				processing = requested & (1 | 4);
+			}
+		}
+		#end
+
+		if (microphone == null)
+		{
+			microphone = Microphone.getMicrophone(index);
+		}
 
 		if (microphone == null)
 		{
 			return false;
 		}
 
-		microphone.rate = getMicrophoneRate(parent.sampleRate);
-		parent.sampleRate = microphone.rate * 1000;
+		// The enhanced microphone only captures at 16 kHz
+		if (processing == 0)
+		{
+			microphone.rate = getMicrophoneRate(parent.sampleRate);
+		}
+
+		parent.sampleRate = getSampleRate(microphone.rate);
+
+		#if flash10_1
+		// Flash suppresses noise by 30 dB unless it is told not to
+		microphone.noiseSuppressionLevel = (requested & 2) != 0 ? -30 : 0;
+		if ((requested & 2) != 0) processing |= 2;
+		#end
 
 		microphone.setLoopBack(false);
 		microphone.setSilenceLevel(0, -1);
@@ -215,6 +329,11 @@ class FlashAudioInput
 		return position;
 	}
 
+	public function getProcessing():Int
+	{
+		return processing;
+	}
+
 	private function getFrameSize():Int
 	{
 		return Std.int((parent.channels * parent.bitsPerSample) / 8);
@@ -240,6 +359,20 @@ class FlashAudioInput
 		}
 
 		return 5;
+	}
+
+	// Flash names its rates in rounded kHz
+	private static function getSampleRate(rate:Int):Int
+	{
+		return switch (rate)
+		{
+			case 44: 44100;
+			case 22: 22050;
+			case 16: 16000;
+			case 11: 11025;
+			case 8: 8000;
+			default: 5512;
+		}
 	}
 
 	private function isFormatSupported():Bool
@@ -273,6 +406,58 @@ class FlashAudioInput
 		buffers.push({bytes: bytes, offset: 0});
 		queuedBytes += bytes.length;
 		trimQueue();
+	}
+
+	private static function getAIRPermissionStatus():String
+	{
+		try
+		{
+			if (Reflect.hasField(Microphone, "permissionStatus"))
+			{
+				return Reflect.field(Microphone, "permissionStatus");
+			}
+		}
+		catch (e:Dynamic) {}
+
+		return null;
+	}
+
+	private static function microphone_onPermissionSampleData(event:SampleDataEvent):Void {}
+
+	private static function microphone_onPermissionStatus(event:Event):Void
+	{
+		event.target.removeEventListener("permissionStatus", microphone_onPermissionStatus);
+
+		var granted = (untyped event.status) == "granted";
+		var requests = permissionRequests;
+		permissionRequests = 0;
+
+		for (i in 0...requests)
+		{
+			AudioInput.onPermission.dispatch(granted ? PermissionStatus.GRANTED : PermissionStatus.DENIED);
+		}
+	}
+
+	private static function microphone_onStatus(event:StatusEvent):Void
+	{
+		if (event.code != "Microphone.Muted" && event.code != "Microphone.Unmuted")
+		{
+			return;
+		}
+
+		permissionMicrophone.removeEventListener(StatusEvent.STATUS, microphone_onStatus);
+		permissionMicrophone.removeEventListener(SampleDataEvent.SAMPLE_DATA, microphone_onPermissionSampleData);
+		permissionMicrophone = null;
+
+		permissionDenied = event.code == "Microphone.Muted";
+
+		var requests = permissionRequests;
+		permissionRequests = 0;
+
+		for (i in 0...requests)
+		{
+			AudioInput.onPermission.dispatch(permissionDenied ? PermissionStatus.DENIED : PermissionStatus.GRANTED);
+		}
 	}
 
 	private function trimQueue():Void

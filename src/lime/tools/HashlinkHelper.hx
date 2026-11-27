@@ -12,7 +12,7 @@ import sys.io.File;
 
 class HashlinkHelper
 {
-	public static inline var BUNDLED_HL_VER = "1.14.0";
+	public static inline var BUNDLED_HL_VER = "1.16.0";
 	private static inline var IMAGE_SUBSYSTEM_WINDOWS_GUI = 2;
 
 	private static function readUInt32LE(bytes:haxe.io.Bytes, offset:Int):Int
@@ -52,7 +52,7 @@ class HashlinkHelper
 		}
 	}
 
-	public static function copyHashlink(project:HXProject, targetDirectory:String, applicationDirectory:String, executablePath:String, ?is64 = true)
+	public static function copyHashlink(project:HXProject, targetDirectory:String, applicationDirectory:String, executablePath:String, ?is64 = true, ?isArm = false)
 	{
 		var platform = project.target;
 		var bindir = switch project.target
@@ -65,6 +65,10 @@ class HashlinkHelper
 				Sys.exit(1);
 				"";
 		};
+		if (isArm)
+		{
+			bindir += "Arm";
+		}
 		if (is64)
 		{
 			bindir += "64";
@@ -133,7 +137,10 @@ class HashlinkHelper
 			}
 		}
 
-		if (platform == WINDOWS && !project.targetFlags.exists("hlc") && !project.environment.exists("SHOW_CONSOLE"))
+		// A launcher without a console prints nowhere, even run from a terminal, as HashLink can't attach
+		// to the terminal's console the way hxcpp's no_console builds do. Debug builds keep theirs, so
+		// trace output and uncaught errors reach the terminal they run from.
+		if (platform == WINDOWS && !project.targetFlags.exists("hlc") && !project.debug && !project.environment.exists("SHOW_CONSOLE"))
 		{
 			setWindowsGUISubsystem(executablePath);
 		}

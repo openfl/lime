@@ -8,14 +8,219 @@ class TestMain extends Application
 	{
 		super();
 
+		#if cpp
+		if (Sys.systemName() == "Windows")
+		{
+			// hxcpp attaches a windowed program to the console of the process that started it, and
+			// trace then writes to that console instead of the output it was given, which Sys.stdout
+			// still writes to. CI reads that output, so it never showed the report.
+			haxe.Log.trace = function(v:Dynamic, ?infos:haxe.PosInfos)
+			{
+				var stdout = Sys.stdout();
+				stdout.writeString(haxe.Log.formatOutput(v, infos) + "\n");
+				stdout.flush();
+			};
+		}
+		#end
+
 		var runner = new Runner();
+		runner.addCase(new app.ApplicationTest());
 		runner.addCase(new app.EventTest());
+		runner.addCase(new app.FrameSwapCollectorTest());
+		runner.addCase(new app.FutureTest());
+		runner.addCase(new app.HTML5FrameTest());
+		runner.addCase(new app.PromiseTest());
+		runner.addCase(new graphics.CairoArgumentTest());
+		runner.addCase(new graphics.CairoCompositeTest());
+		runner.addCase(new graphics.CairoDrawTest());
+		runner.addCase(new graphics.CairoPathTest());
+		runner.addCase(new graphics.CairoPatternTest());
+		runner.addCase(new graphics.CairoSurfaceTest());
+		runner.addCase(new graphics.CairoTest());
+		runner.addCase(new graphics.CairoTextTest());
+		runner.addCase(new graphics.CairoTransformTest());
+		runner.addCase(new graphics.ImageAllocationTest());
+		runner.addCase(new graphics.ImageCodecTest());
+		runner.addCase(new graphics.ImageCopyTest());
+		runner.addCase(new graphics.ImageDataUtilTest());
+		runner.addCase(new graphics.ImageDecodeOutputTest());
+		runner.addCase(new graphics.ImageEncodeOutputTest());
+		runner.addCase(new graphics.ImageFillTest());
+		runner.addCase(new graphics.ImageOperationOutputTest());
+		runner.addCase(new graphics.ImagePixelTest());
+		runner.addCase(new graphics.ImageRegionTest());
+		runner.addCase(new graphics.ImageWorkerTest());
+		runner.addCase(new graphics.OpenGLTest());
+		runner.addCase(new math.ARGBTest());
+		runner.addCase(new math.BGRATest());
+		runner.addCase(new math.ColorMatrixTest());
+		runner.addCase(new math.Matrix3Test());
+		runner.addCase(new math.Matrix4Test());
+		runner.addCase(new math.RectangleTest());
+		runner.addCase(new math.RGBATest());
+		runner.addCase(new math.Vector2Test());
+		runner.addCase(new math.Vector4Test());
+		runner.addCase(new media.AudioBufferTest());
+		runner.addCase(new media.AudioBufferLoadTest());
+		runner.addCase(new media.AudioBufferDecodeTest());
+		runner.addCase(new media.AudioBufferReadSamplesTest());
+		runner.addCase(new media.AudioInputTest());
+		runner.addCase(new media.AudioInputOptionsTest());
+		runner.addCase(new media.AudioSourceTest());
+		runner.addCase(new media.AudioStreamQueueTest());
+		runner.addCase(new media.CameraInputTest());
+		runner.addCase(new media.OpenALSourceTest());
+		runner.addCase(new media.OpenALStateTest());
+		runner.addCase(new media.OpenALTest());
+		runner.addCase(new media.VideoBytesTest());
+		runner.addCase(new media.VideoConversionTest());
+		runner.addCase(new media.VideoDecoderTest());
+		runner.addCase(new media.VideoTextureOpenGLTest());
+		runner.addCase(new media.VideoInputTest());
+		runner.addCase(new media.VideoNetworkTest());
+		runner.addCase(new media.VideoFrameTest());
+		runner.addCase(new media.VideoSourceEventTest());
+		runner.addCase(new media.VideoSourceTest());
+		runner.addCase(new media.VorbisFileTest());
+		runner.addCase(new net.CURLEasyTest());
+		runner.addCase(new net.CURLMultiTest());
+		runner.addCase(new net.CURLTest());
+		runner.addCase(new net.HTTPRequestMethodsTest());
+		runner.addCase(new net.HTTPRequestRedirectTest());
+		runner.addCase(new net.HTTPRequestResponseTest());
+		runner.addCase(new net.HTTPRequestTest());
+		runner.addCase(new net.HTTPRequestTransferTest());
+		runner.addCase(new net.HTTPSTest());
+		runner.addCase(new net.LocalSocketTest());
+		runner.addCase(new net.NetworkInterfaceTest());
+		runner.addCase(new net.URIParserTest());
+		runner.addCase(new net.WebSocketTest());
+		runner.addCase(new system.BackgroundWorkerTest());
+		runner.addCase(new system.ClipboardFormatTest());
+		runner.addCase(new system.DisplayTest());
+		runner.addCase(new system.FileSystemInfoTest());
+		runner.addCase(new system.FinalizerTest());
+		runner.addCase(new system.FullPathTest());
+		runner.addCase(new system.HTML5ThreadPoolTest());
+		runner.addCase(new system.LocaleTest());
+		runner.addCase(new system.NativeBytesThreadTest());
+		runner.addCase(new system.ProcessTest());
+		runner.addCase(new system.TrashTest());
+		runner.addCase(new system.StorageVolumeTest());
+		runner.addCase(new system.TimerTest());
+		runner.addCase(new system.UserDirectoryTest());
+		runner.addCase(new ui.DragDropTest());
+		runner.addCase(new ui.FileDialogTest());
+		runner.addCase(new ui.GamepadTest());
+		runner.addCase(new ui.HighDPITest());
+		runner.addCase(new ui.InputEventTest());
+		runner.addCase(new ui.KeyCodeTest());
+		runner.addCase(new ui.KeyModifierTest());
+		runner.addCase(new ui.MenuTest());
+		runner.addCase(new ui.MenuOpenCloseTest());
+		runner.addCase(new ui.MouseLockTest());
+		runner.addCase(new ui.TrayIconTest());
+		runner.addCase(new ui.WebViewTest());
+		runner.addCase(new ui.WindowDisplayTest());
+		runner.addCase(new ui.WindowEventTest());
+		runner.addCase(new ui.WindowFullscreenTest());
+		runner.addCase(new ui.WindowFullscreenStateTest());
+		runner.addCase(new ui.WindowOrderTest());
+		runner.addCase(new ui.WindowTest());
 		runner.addCase(new utils.ArrayBufferTest());
+		runner.addCase(new utils.AssetBundleTest());
+		runner.addCase(new utils.AssetCacheTest());
+		runner.addCase(new utils.AssetLibraryTest());
+		runner.addCase(new utils.AssetManifestTest());
+		runner.addCase(new utils.AssetsTest());
+		runner.addCase(new utils.Base64Test());
+		runner.addCase(new utils.BytesTest());
+		runner.addCase(new utils.CompressionTest());
+		runner.addCase(new utils.CompressionOutputTest());
+		runner.addCase(new utils.Float32ArrayTest());
+		runner.addCase(new utils.HTML5BytesTest());
+		runner.addCase(new utils.Float64ArrayTest());
+		runner.addCase(new utils.Int8ArrayTest());
+		runner.addCase(new utils.Int16ArrayTest());
+		runner.addCase(new utils.Int32ArrayTest());
+		runner.addCase(new utils.ObjectPoolTest());
+		runner.addCase(new utils.TypedArrayAllocationTest());
+		runner.addCase(new utils.PackedAssetLibraryTest());
+		runner.addCase(new utils.PreloaderTest());
 		runner.addCase(new utils.UInt8ArrayTest());
+		runner.addCase(new utils.UInt8ClampedArrayTest());
 		runner.addCase(new utils.UInt16ArrayTest());
 		runner.addCase(new utils.UInt32ArrayTest());
 		runner.addCase(new utils.DataViewTest());
+		runner.addCase(new system.ThreadPoolTest());
+		runner.addCase(new text.FontGlyphOutputTest());
+		runner.addCase(new text.FontTest());
+		runner.addCase(new text.HarfBuzzBufferTest());
+		runner.addCase(new text.HarfBuzzFontTest());
+		runner.addCase(new text.HarfBuzzSetTest());
+		runner.addCase(new text.UTF8StringTest());
+		runner.addCase(new tools.ImageHelperTest());
+		runner.addCase(new tools.IconHelperTest());
+		#if sys
+		// Each test is named as it starts, so a run that hangs shows where
+		runner.onTestStart.add(function(handler)
+		{
+			Sys.println("Running " + Type.getClassName(Type.getClass(handler.fixture.target)) + "." + handler.fixture.method);
+			Sys.stdout().flush();
+		});
+		#end
+
+		#if (lime_cffi && !macro)
+		// The window tests leave their windows open, hidden, for the other tests of their class, and
+		// dozens of them make every frame after take longer: on the macOS runner, 34 made a frame take
+		// 51 ms by ImageWorkerTest. Once a class is done, the hidden windows it left are closed, other
+		// than the application's own, as closing the last window of the application ends it
+		var lastClass:String = null;
+		var leftOpen:Array<lime.ui.Window> = [];
+		runner.onTestComplete.add(function(handler)
+		{
+			leftOpen = Application.current.windows.copy();
+		});
+		runner.onTestStart.add(function(handler)
+		{
+			var testClass = Type.getClassName(Type.getClass(handler.fixture.target));
+
+			if (lastClass != null && testClass != lastClass)
+			{
+				var application = Application.current;
+
+				for (window in leftOpen)
+				{
+					if (window.hidden && window != application.window && application.windows.length > 1 && application.windows.indexOf(window) > -1)
+					{
+						window.close();
+					}
+				}
+
+				leftOpen = [];
+			}
+
+			lastClass = testClass;
+		});
+		#end
+
+		// A run narrowed with UTEST_PATTERN (CI's tests input) can match no test on a target that
+		// has none of them, as WebSocketTest on AIR, and utest fails a run with no tests
+		if (runner.length == 0 && runner.globalPattern != null)
+		{
+			runner.globalPattern = null;
+			runner.addCase(new NoTestMatchesThePattern());
+		}
+
 		Report.create(runner);
 		runner.run();
+	}
+}
+
+private class NoTestMatchesThePattern extends utest.Test
+{
+	public function testNoTestMatchesThePattern():Void
+	{
+		utest.Assert.pass("UTEST_PATTERN matches no test on this target; if it should, check its spelling");
 	}
 }

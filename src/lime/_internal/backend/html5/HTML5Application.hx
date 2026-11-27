@@ -18,6 +18,7 @@ import lime.ui.KeyModifier;
 import lime.ui.Gamepad;
 import lime.ui.GamepadButton;
 import lime.ui.Joystick;
+import lime.ui.Menu;
 import lime.ui.Window;
 
 @:access(lime._internal.backend.html5.HTML5Window)
@@ -32,11 +33,18 @@ class HTML5Application
 	private var currentUpdate:Float;
 	private var deltaTime:Float;
 	private var framePeriod:Float;
+
+	// How early a frame may run, so animation frames at the rate asked for are never skipped
+	private static inline var FRAME_SLACK:Float = 2;
 	private var gameDeviceCache = new Map<Int, GameDeviceData>();
+	// Where the browser says when a pad connects, pads are read only while one is connected
+	private var gamepadEvents:Bool;
+	private var gamepadsConnected:Int = 0;
 	private var hidden:Bool;
 	private var lastUpdate:Float;
 	private var nextUpdate:Float;
 	private var parent:Application;
+	private var preferVisibilityChange:Bool;
 	#if stats
 	private var stats:Dynamic;
 	#end
@@ -49,6 +57,36 @@ class HTML5Application
 		lastUpdate = 0;
 		nextUpdate = 0;
 		framePeriod = -1;
+
+		// mobile Safari sometimes dispatches the blur event, but completely
+		// skips the matching focus event. for instance, when opening the tab
+		// switcher and returning to the exact same tab. it may depend on which
+		// type of HTML element has focus, though.
+		//
+		// sometimes, mobile Safari doesn't dispatch the blur and focus events
+		// at all! however, it always dispatches the visibilitychange event when
+		// switching to a different tab, or to a different app, so we prefer to
+		// use visibilitychange instead, but only on iOS.
+		//
+		// on desktop, we should continue to use the blur and focus events
+		// because the page will be considered to remain visible when losing
+		// focus to another app. the visibilitychange event seems to be
+		// dispatched on desktop when changing tabs only. desktop Safari behaves
+		// like other desktop browsers.
+		//
+		// Note: Android behaves more similarly to desktop than to iOS.
+
+		#if haxe4
+		preferVisibilityChange = js.Lib.typeof(Browser.document.visibilityState) == "string"
+			&& ~/(iPad|iPhone|iPod).*OS/gi.match(Browser.window.navigator.userAgent);
+		#else
+		preferVisibilityChange = untyped __js__ ('typeof document.visibilityState === "string"')
+			&& ~/(iPad|iPhone|iPod).*OS/gi.match(Browser.window.navigator.userAgent);
+		#end
+		if (preferVisibilityChange)
+		{
+			hidden = Browser.document.hidden;
+		}
 
 		AudioManager.init();
 		accelerometer = Sensor.registerSensor(SensorType.ACCELEROMETER, 0);
@@ -276,7 +314,8 @@ class HTML5Application
 
 	public function configureFrameTiming(profile:FrameProfile, frameRate:Float, options:FrameOptions):Void
 	{
-		if (frameRate >= 60)
+		// 0 runs a frame on every animation frame; any other rate is a cap, 60 and above too
+		if (frameRate == 0)
 		{
 			framePeriod = -1;
 		}
@@ -298,6 +337,25 @@ class HTML5Application
 		Browser.window.addEventListener("blur", handleWindowEvent, false);
 		Browser.window.addEventListener("resize", handleWindowEvent, false);
 		Browser.window.addEventListener("beforeunload", handleWindowEvent, false);
+		Browser.document.addEventListener("visibilitychange", handleWindowEvent, false);
+
+		gamepadEvents = untyped #if haxe4 js.Syntax.code #else __js__ #end ("'ongamepadconnected' in window");
+
+		if (gamepadEvents)
+		{
+			Browser.window.addEventListener("gamepadconnected", handleGamepadEvent, false);
+			Browser.window.addEventListener("gamepaddisconnected", handleGamepadEvent, false);
+
+			// A pad the page saw before these listeners has no event to come
+			var devices = Joystick.__getDeviceData();
+			if (devices != null)
+			{
+				for (i in 0...devices.length)
+				{
+					if (devices[i] != null && devices[i].connected) gamepadsConnected++;
+				}
+			}
+		}
 
 		if (Reflect.hasField(Browser.window, "Accelerometer"))
 		{
@@ -392,20 +450,27 @@ class HTML5Application
 		return UNKNOWN;
 	}
 
-	private function handleApplicationEvent(?__):Void
+	private function handleApplicationEvent(?timestamp:Float):Void
 	{
 		// TODO: Support independent window frame rates
 
 		for (window in parent.__windows)
 		{
-			window.__backend.updateSize();
+			window.__backend.updateSizeForFrame();
 		}
 
-		updateGameDevices();
+		// navigator.getGamepads() makes a new snapshot each time, so it isn't called while no pad is
+		// connected, as browsers expose a pad only once it is used on the page and say so
+		if (!gamepadEvents || gamepadsConnected > 0)
+		{
+			updateGameDevices();
+		}
 
-		currentUpdate = Browser.window.performance.now();
+		// The time requestAnimationFrame gives is when the browser's frame began, which comes at
+		// even intervals where performance.now() in the callback doesn't
+		currentUpdate = (timestamp != null && timestamp > 0) ? timestamp : Browser.window.performance.now();
 
-		if (currentUpdate >= nextUpdate)
+		if (framePeriod < 0 || currentUpdate >= nextUpdate - FRAME_SLACK)
 		{
 			#if stats
 			stats.begin();
@@ -429,13 +494,26 @@ class HTML5Application
 			}
 			else
 			{
-				nextUpdate = currentUpdate - (currentUpdate % framePeriod) + framePeriod;
+				// From when this frame was due, so frames that come late keep the rate, or from when
+				// it came if that was earlier, so a display a little faster than the rate never
+				// builds up enough to skip one. A frame more than a period late starts afresh.
+				nextUpdate = Math.min(currentUpdate, nextUpdate) + framePeriod;
+				if (nextUpdate < currentUpdate) nextUpdate = currentUpdate + framePeriod;
 			}
 
 			lastUpdate = currentUpdate;
 		}
 
 		Browser.window.requestAnimationFrame(cast handleApplicationEvent);
+	}
+
+	public function setMenu(menu:Menu):Void
+	{
+		// Shown by the windows without a menu of their own
+		for (window in parent.__windows)
+		{
+			if (window.__menu == null) window.__backend.setMenu(null);
+		}
 	}
 
 	public function setVSyncMode(mode:VSyncMode):Void {}
@@ -460,6 +538,13 @@ class HTML5Application
 
 			if (event.type == "keydown")
 			{
+				// Key equivalents of the menu bar take priority, like native accelerators
+				if (parent.window.__backend.handleMenuKeyEquivalent(keyCode, modifier))
+				{
+					if (event.cancelable) event.preventDefault();
+					return;
+				}
+
 				@:privateAccess parent.window.onKeyDown.__dispatchWithTimestamp(timestamp, keyCode, modifier);
 
 				if (parent.window.onKeyDown.canceled && event.cancelable)
@@ -491,7 +576,7 @@ class HTML5Application
 			switch (event.type)
 			{
 				case "focus":
-					if (hidden)
+					if (!preferVisibilityChange && hidden)
 					{
 						parent.window.onFocusIn.dispatch();
 						parent.window.onActivate.dispatch();
@@ -499,7 +584,7 @@ class HTML5Application
 					}
 
 				case "blur":
-					if (!hidden)
+					if (!preferVisibilityChange && !hidden)
 					{
 						parent.window.onFocusOut.dispatch();
 						parent.window.onDeactivate.dispatch();
@@ -507,23 +592,17 @@ class HTML5Application
 					}
 
 				case "visibilitychange":
-					if (Browser.document.hidden)
+					if (Browser.document.hidden && !hidden)
 					{
-						if (!hidden)
-						{
-							parent.window.onFocusOut.dispatch();
-							parent.window.onDeactivate.dispatch();
-							hidden = true;
-						}
+						parent.window.onFocusOut.dispatch();
+						parent.window.onDeactivate.dispatch();
+						hidden = true;
 					}
-					else
+					else if (!Browser.document.hidden && hidden)
 					{
-						if (hidden)
-						{
-							parent.window.onFocusIn.dispatch();
-							parent.window.onActivate.dispatch();
-							hidden = false;
-						}
+						parent.window.onFocusIn.dispatch();
+						parent.window.onActivate.dispatch();
+						hidden = false;
 					}
 
 				case "resize":
@@ -550,6 +629,30 @@ class HTML5Application
 
 					// 	}
 			}
+		}
+	}
+
+	private function handleGamepadEvent(event:Dynamic):Void
+	{
+		switch (event.type)
+		{
+			case "gamepadconnected":
+				gamepadsConnected++;
+
+			case "gamepaddisconnected":
+				if (gamepadsConnected > 0) gamepadsConnected--;
+
+				// Some browsers leave a pad out of getGamepads() once it's gone, so polling wouldn't see it go
+				var id:Int = event.gamepad != null ? event.gamepad.index : -1;
+				var cache = gameDeviceCache.get(id);
+				if (cache != null && cache.connected)
+				{
+					gameDeviceCache.remove(id);
+					Joystick.__disconnect(id);
+					Gamepad.__disconnect(id);
+				}
+
+			default:
 		}
 	}
 
@@ -614,7 +717,8 @@ class HTML5Application
 				for (i in 0...data.buttons.length)
 				{
 					value = data.buttons[i].value;
-					var timestamp = System.getTimer();
+					// When the browser last read the gamepad, on the clock key events use
+					var timestamp = data.timestamp != null ? Std.int(data.timestamp) : System.getTimer();
 
 					if (value != cache.buttons[i])
 					{
@@ -688,7 +792,8 @@ class HTML5Application
 			}
 			else if (cache.connected)
 			{
-				cache.connected = false;
+				// Forgotten, so a pad that connects again at this index is connected again
+				gameDeviceCache.remove(id);
 
 				Joystick.__disconnect(id);
 				Gamepad.__disconnect(id);

@@ -122,6 +122,12 @@ class Assets
 				{
 					var asset = symbol.library.getAsset(symbol.symbolName, type);
 
+					if (asset == null)
+					{
+						Log.error(type + " asset \"" + id + "\" exists, but failed to load");
+						return null;
+					}
+
 					if (useCache && cache.enabled)
 					{
 						cache.set(id, type, asset);
@@ -159,6 +165,15 @@ class Assets
 		return cast getAsset(id, SOUND, useCache);
 	}
 
+	/**
+	 * Gets a sound that is decoded as it plays, rather than all at once
+	 * @usage		var music = Assets.getAudioBufferStream ("music.ogg");
+	 * @param	id		The ID or asset path for the sound
+	 * @param	useCache	Whether a sound already in the cache can be given instead. A sound
+	 * 	given decoded plays as it would streamed. Streamed sounds are not cached themselves,
+	 * 	as getAudioBuffer would then give one with no data.
+	 * @return		An AudioBuffer for an AudioSource to stream
+	 */
 	public static function getAudioBufferStream(id:String, useCache:Bool = true):AudioBuffer
 	{
 		#if (tools && !display && !macro)
@@ -182,14 +197,7 @@ class Assets
 			{
 				if (symbol.isLocal(type))
 				{
-					var asset = symbol.library.getAudioBufferStream(symbol.symbolName);
-
-					if (useCache && cache.enabled)
-					{
-						cache.set(id, type, asset);
-					}
-
-					return asset;
+					return symbol.library.getAudioBufferStream(symbol.symbolName);
 				}
 				else
 				{
@@ -349,16 +357,26 @@ class Assets
 		return (image != null && image.buffer != null);
 	}
 
+	/**
+		The IDs of every asset of `type` in the registered libraries, or of every asset when `type`
+		is `null`. Those of libraries other than the default are given as `"library:id"`, so each
+		can be passed to `exists()` and the getters.
+	**/
 	public static function list(type:AssetType = null):Array<String>
 	{
 		var items = [];
 
-		for (library in libraries)
+		for (name in libraries.keys())
 		{
-			var libraryItems = library.list(type);
+			var libraryItems = libraries.get(name).list(type);
 
 			if (libraryItems != null)
 			{
+				if (name != "default")
+				{
+					libraryItems = [for (id in libraryItems) name + ":" + id];
+				}
+
 				items = items.concat(libraryItems);
 			}
 		}
@@ -443,6 +461,13 @@ class Assets
 		return cast loadAsset(id, SOUND, useCache);
 	}
 
+	/**
+	 * Loads a sound that is decoded as it plays, rather than all at once
+	 * @param	id		The ID or asset path for the sound
+	 * @param	useCache	Whether a sound already in the cache can be given instead. Streamed
+	 * 	sounds are not cached themselves.
+	 * @return		A Future for an AudioBuffer for an AudioSource to stream
+	 */
 	public static function loadAudioBufferStream(id:String, useCache:Bool = true):Future<AudioBuffer>
 	{
 		#if (tools && !display && !macro)
@@ -464,14 +489,7 @@ class Assets
 		{
 			if (symbol.exists(type))
 			{
-				var future = symbol.library.loadAudioBufferStream(symbol.symbolName);
-
-				if (useCache && cache.enabled)
-				{
-					future.onComplete(function(asset) cache.set(id, type, asset));
-				}
-
-				return future;
+				return symbol.library.loadAudioBufferStream(symbol.symbolName);
 			}
 			else
 			{
@@ -539,9 +557,9 @@ class Assets
 					library.onChange.add(onChange.dispatch);
 					promise.completeWith(library.load());
 				}
-			}).onError(function(_)
+			}).onError(function(error)
 			{
-					promise.error("There is no asset library with an ID of \"" + id + "\"");
+					promise.error("Unable to load asset library \"" + id + "\" from bundle \"" + bundlePaths.get(id) + "\": " + Std.string(error) + ". Verify that the bundle exists and is readable.");
 			});
 		}
 		else
@@ -569,7 +587,7 @@ class Assets
 			{
 				if (manifest == null)
 				{
-					promise.error("Cannot parse asset manifest for library \"" + id + "\"");
+					promise.error("Cannot parse asset manifest \"" + path + "\" for library \"" + id + "\": it is empty or isn't a manifest");
 					return;
 				}
 
@@ -585,9 +603,9 @@ class Assets
 					library.onChange.add(onChange.dispatch);
 					promise.completeWith(library.load());
 				}
-			}).onError(function(_)
+			}).onError(function(error)
 			{
-					promise.error("There is no asset library with an ID of \"" + id + "\"");
+					promise.error("Unable to load asset library \"" + id + "\" from manifest \"" + path + "\" (root \"" + rootPath + "\"): " + Std.string(error) + ". Verify that the manifest and its packaged assets exist relative to this path.");
 			});
 		}
 		#end
@@ -656,23 +674,27 @@ class Assets
 		#end
 	}
 
-	@:noCompletion private static function __cacheBreak(path:String):String
+	/**
+		Adds the version that makes a browser load `path` again once it changes: the
+		asset's own `version`, which the manifest gives from its content, or the build's,
+		which changes with every build unless `lime-assets-version` sets it.
+	**/
+	@:noCompletion private static function __cacheBreak(path:String, version:String = null):String
 	{
 		#if web
-		if (cache.version > 0)
-		{
-			if (path.indexOf("?") > -1)
-			{
-				path += "&" + cache.version;
-			}
-			else
-			{
-				path += "?" + cache.version;
-			}
-		}
+		#if (!lime_assets_version && !lime_disable_assets_version)
+		if (version != null && version != "") return __addVersion(path, version);
+		#end
+
+		if (cache.version > 0) return __addVersion(path, Std.string(cache.version));
 		#end
 
 		return path;
+	}
+
+	@:noCompletion private static function __addVersion(path:String, version:String):String
+	{
+		return path + (path.indexOf("?") > -1 ? "&" : "?") + version;
 	}
 
 	@:noCompletion private static function __libraryNotFound(name:String):String

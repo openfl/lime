@@ -276,6 +276,19 @@ namespace lime {
 			}
 
 
+			// Makes room for inCount more, doubling the allocation as push_back
+			// does, so that appending a little at a time doesn't reallocate
+			// (and copy) for every append
+			inline void GrowFor(int inCount) {
+				int size = mSize + inCount;
+				if (size > mAlloc)
+				{
+					int alloc = mAlloc ? mAlloc * 2 : 16;
+					reserve(alloc > size ? alloc : size);
+				}
+			}
+
+
 			void reserve(int inSize) {
 				if (mAlloc<inSize && (QBUF_SIZE_==0 || inSize>QBufSize) )
 				{
@@ -464,6 +477,7 @@ namespace lime {
 
 			void append(const QuickVec<T_> &inOther) {
 				int s = mSize;
+				GrowFor(inOther.mSize);
 				resize(mSize+inOther.mSize);
 				for(int i=0;i<inOther.mSize;i++)
 					mPtr[s+i] = inOther[i];
@@ -472,6 +486,7 @@ namespace lime {
 
 			void append(const T_ *inOther,int inLen) {
 				int s = mSize;
+				GrowFor(inLen);
 				resize(mSize+inLen);
 				for(int i=0;i<inLen;i++)
 					mPtr[s+i] = inOther[i];

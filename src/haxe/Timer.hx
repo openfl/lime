@@ -218,6 +218,7 @@ private class TimerTask extends java.util.TimerTask
 #else
 import lime.system.System;
 
+@:access(lime.system.System)
 class Timer
 {
 	private static var sRunningTimers:Array<Timer> = [];
@@ -249,7 +250,8 @@ class Timer
 
 	private static function getMS():Float
 	{
-		return System.getTimer();
+		// System.getTimer wraps after 24.8 days, which would stop every timer
+		return System.__getTimer();
 	}
 
 	public static function measure<T>(f:Void->T, ?pos:PosInfos):T
@@ -264,7 +266,7 @@ class Timer
 
 	public static inline function stamp():Float
 	{
-		var timer = System.getTimer();
+		var timer = getMS();
 		return (timer > 0 ? timer / 1000 : 0);
 	}
 

@@ -37,11 +37,14 @@ namespace lime {
 			bool CreateImageViews ();
 			bool CreateInstance (const char* applicationName);
 			bool CreateOverlayBuffer (size_t requiredSize);
+			bool CreateRenderFinishedSemaphores ();
 			bool CreateRenderPass ();
 			bool CreateSurface ();
 			bool CreateSwapchain ();
 			bool CreateSwapchainResources ();
 			bool CreateSyncObjects ();
+			void DropAcquiredImage ();
+			bool Fault (const char* step);
 			void DestroyOverlayResources ();
 			void DestroySwapchainResources ();
 			uint32_t FindMemoryType (uint32_t typeFilter, VkMemoryPropertyFlags properties);
@@ -51,6 +54,8 @@ namespace lime {
 			bool PickPhysicalDevice ();
 			bool RecordCommandBuffer (uint32_t imageIndex, float red, float green, float blue, float alpha);
 			bool RecreateSwapchain ();
+			bool ReplaceFence ();
+			bool ReplaceImageAvailableSemaphore ();
 			void SetError (const std::string& value);
 
 			Window* window;
@@ -129,12 +134,12 @@ namespace lime {
 			VkRenderPass renderPass;
 			VkCommandPool commandPool;
 			VkSemaphore imageAvailableSemaphore;
-			VkSemaphore renderFinishedSemaphore;
 			VkFence inFlightFence;
 			VkBuffer overlayBuffer;
 			VkDeviceMemory overlayBufferMemory;
 			bool portabilityEnumerationSupported;
 			bool portabilitySubsetSupported;
+			bool imageAvailableStale;
 			bool swapchainDirty;
 			size_t overlayBufferCapacity;
 			unsigned char* overlayMappedData;
@@ -150,6 +155,12 @@ namespace lime {
 			std::vector<VkImageView> swapchainImageViews;
 			std::vector<VkFramebuffer> framebuffers;
 			std::vector<VkCommandBuffer> commandBuffers;
+			// One for each swapchain image, as a present may still wait on one while the next frame is drawn
+			std::vector<VkSemaphore> renderFinishedSemaphores;
+
+			// A render step made to fail once, named by LIME_VULKAN_RENDERER_FAULT when the renderer was
+			// created, for Lime's Vulkan smoke test
+			std::string faultStep;
 
 	};
 

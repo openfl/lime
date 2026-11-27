@@ -33,3 +33,5 @@ node_modules
 !templates/**/node_modules
 .vscode/
 tests/**/bin/
+templates/mbedtls/include/
+templates/mbedtls/config/

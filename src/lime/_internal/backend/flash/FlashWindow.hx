@@ -15,12 +15,16 @@ import flash.ui.Mouse;
 import flash.ui.MouseCursor as FlashMouseCursor;
 import flash.Lib;
 import lime.app.Application;
+import lime.app.Future;
 import lime.graphics.Image;
 import lime.graphics.RenderContext;
 import lime.graphics.RenderContextAttributes;
 import lime.math.Rectangle;
+import lime.ui.DragData;
+import lime.ui.DropAction;
 import lime.ui.KeyCode;
 import lime.ui.KeyModifier;
+import lime.ui.Menu;
 import lime.ui.MouseButton;
 import lime.ui.MouseCursor;
 import lime.ui.MouseWheelMode;
@@ -29,6 +33,7 @@ import lime.system.Display;
 import lime.system.DisplayMode;
 import lime.system.System;
 import lime.ui.Window;
+import lime.ui.WindowHandle;
 
 @:access(lime._internal.backend.flash.FlashApplication)
 @:access(lime.app.Application)
@@ -39,6 +44,7 @@ class FlashWindow
 	private static var windowID = 0;
 
 	private var cacheMouseX:Float;
+	private var minimizeOnFocusLoss = true;
 	private var cacheMouseY:Float;
 	private var cacheTime:Int;
 	private var currentTouches = new Map<Int, Touch>();
@@ -198,6 +204,10 @@ class FlashWindow
 
 	private function create():Void
 	{
+		#if !air
+		parent.__alwaysOnTop = false;
+		#end
+
 		if (#if air true #else FlashApplication.createFirstWindow #end)
 		{
 			var attributes = parent.__attributes;
@@ -285,6 +295,21 @@ class FlashWindow
 
 			stage.addEventListener(Event.ENTER_FRAME, handleApplicationEvent);
 		}
+	}
+
+	public function orderRelative(other:Window, above:Bool):Bool
+	{
+		return false;
+	}
+
+	public function orderToBack():Bool
+	{
+		return false;
+	}
+
+	public function startMoveResize(edges:Int):Bool
+	{
+		return false;
 	}
 
 	public function focus():Void {}
@@ -566,9 +591,39 @@ class FlashWindow
 		return frameRate;
 	}
 
+	public function flash(mode:Int):Bool
+	{
+		return false;
+	}
+
+	public function getDropTarget():Bool
+	{
+		return false;
+	}
+
+	public function getKeyboardGrab():Bool
+	{
+		return false;
+	}
+
+	public function getMinimizeOnFocusLoss():Bool
+	{
+		return minimizeOnFocusLoss;
+	}
+
 	public function getMouseLock():Bool
 	{
 		return false;
+	}
+
+	public function getMouseRect():Rectangle
+	{
+		return null;
+	}
+
+	public function getNativeHandle():WindowHandle
+	{
+		return null;
 	}
 
 	public function getOpacity():Float
@@ -582,6 +637,8 @@ class FlashWindow
 	}
 
 	public function move(x:Int, y:Int):Void {}
+
+	public function popupMenu(menu:Menu, x:Null<Float>, y:Null<Float>):Void {}
 
 	public function resize(width:Int, height:Int):Void {}
 
@@ -614,12 +671,37 @@ class FlashWindow
 		return false;
 	}
 
+	public function setMenu(menu:Menu):Void {}
+
 	public function setMinimized(value:Bool):Bool
 	{
 		return false;
 	}
 
+	public function setDropTarget(value:Bool):Bool
+	{
+		return false;
+	}
+
+	public function setKeyboardGrab(value:Bool):Bool
+	{
+		return false;
+	}
+
+	public function doDragDrop(data:DragData, image:Image, offsetX:Int, offsetY:Int, actions:DropAction):Future<DropAction>
+	{
+		return Future.withValue(DropAction.NONE);
+	}
+
+	// Nothing here minimizes a window when it loses focus, so the value is only kept
+	public function setMinimizeOnFocusLoss(value:Bool):Bool
+	{
+		return minimizeOnFocusLoss = value;
+	}
+
 	public function setMouseLock(value:Bool):Void {}
+
+	public function setMouseRect(value:Rectangle):Void {}
 
 	public function setOpacity(value:Float):Void {}
 
@@ -638,6 +720,13 @@ class FlashWindow
 		return textInputRect = value;
 	}
 
+	public function setAppearance(value:lime.ui.WindowAppearance):Void {}
+
+	public function getAppearance():lime.ui.WindowAppearance
+	{
+		return lime.ui.WindowAppearance.SYSTEM;
+	}
+
 	public function setTitle(value:String):String
 	{
 		return value;
@@ -650,7 +739,8 @@ class FlashWindow
 
 	public function setAlwaysOnTop(value:Bool):Bool
 	{
-		return value;
+		// The window stays where the browser or player puts it
+		return false;
 	}
 
 	public function warpMouse(x:Int, y:Int):Void {}

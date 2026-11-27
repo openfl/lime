@@ -34,14 +34,25 @@ body:
     id: versions
     attributes:
       label: Version Information
-      description: Include exact versions. Do not write "latest" by itself.
+      description: Include exact versions. Do not write "latest" by itself. For a library installed from git, also give its commit (`git rev-parse HEAD` in its folder).
       value: |
-        Lime version:
-        OpenFL version, if applicable:
+        Lime version, and git commit if from git:
+        OpenFL version, and git commit if from git, if applicable:
         Haxe version:
+        hxcpp (output of `haxelib path hxcpp`, or libhxcpp version and git commit), for native targets:
+        C++ toolchain (MSVC and its version, MinGW, clang or Xcode), for native targets:
         Target/runtime:
     validations:
       required: true
+
+  - type: textarea
+    id: diagnose
+    attributes:
+      label: lime diagnose Output
+      description: For native targets, run `lime diagnose` (Lime 8.4.0 and later) and paste what it prints. It lists the versions and commits above, the hxcpp folder, the C++ compiler hxcpp picks, and what Lime's native libraries were built from.
+      render: text
+    validations:
+      required: false
 
   - type: textarea
     id: environment
@@ -102,7 +113,7 @@ body:
     id: logs
     attributes:
       label: Logs and Output
-      description: Paste relevant console output, stack traces or build logs.
+      description: Paste the full console output of the command that shows the problem, from the command itself to the end, with stack traces. A crash's last line alone is rarely enough. For build problems, run the command with `-verbose`.
       render: text
     validations:
       required: false

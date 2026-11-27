@@ -10,6 +10,150 @@ class IOSHelper
 {
 	private static var initialized = false;
 
+	/**
+		Whether a simulator build is for arm64, which the simulator runs on an Apple
+		silicon Mac without Rosetta, rather than x86_64. It is where the Mac is Apple
+		silicon, or `-arm64` asks for it, as long as the hxcpp that builds the
+		libraries can build them for the arm64 simulator and every native library has
+		an arm64 simulator build. `-x86_64` asks for an x86_64 build.
+	**/
+	public static function useArm64Simulator(project:HXProject):Bool
+	{
+		if (project.targetFlags.exists("x86_64")
+			|| project.targetFlags.exists("i386")
+			|| project.targetFlags.exists("32")
+			|| project.targetFlags.exists("x86_32"))
+		{
+			return false;
+		}
+
+		var asked = project.targetFlags.exists("arm64");
+		if (!asked && !isAppleSiliconMac()) return false;
+
+		var buildLibrary = project.config.getString("cpp.buildLibrary", "hxcpp");
+
+		if (!buildsArm64Simulator(buildLibrary))
+		{
+			if (asked) Log.warn("The " + buildLibrary + " haxelib can't build for the arm64 simulator, so the simulator build is for x86_64. libhxcpp can.");
+			return false;
+		}
+
+		for (ndll in project.ndlls)
+		{
+			if (!FileSystem.exists(NDLL.getLibraryPath(ndll, "iPhone", "lib", ".iphonesim-arm64.a")))
+			{
+				if (asked) Log.warn("\"" + ndll.name + "\" has no library for the arm64 simulator, so the simulator build is for x86_64");
+				return false;
+			}
+		}
+
+		// A static library a project depends on is linked into every architecture, and one built
+		// for devices can't link into an arm64 simulator build, so that is only made when asked for
+		if (!asked)
+		{
+			for (dependency in project.dependencies)
+			{
+				if (StringTools.endsWith(dependency.path, ".a")) return false;
+			}
+		}
+
+		return true;
+	}
+
+	/**
+		Whether the hxcpp at `buildLibrary` builds libraries for the arm64 simulator,
+		as libhxcpp does and hxcpp up to 4.3 does not.
+	**/
+	public static function buildsArm64Simulator(buildLibrary:String = "hxcpp"):Bool
+	{
+		try
+		{
+			var path = Haxelib.getPath(new Haxelib(buildLibrary));
+			if (path == null || path == "") return false;
+
+			var finishSetup = Path.combine(path, "toolchain/finish-setup.xml");
+			return FileSystem.exists(finishSetup) && sys.io.File.getContent(finishSetup).indexOf(".iphonesim-arm64") > -1;
+		}
+		catch (e:Dynamic)
+		{
+			return false;
+		}
+	}
+
+	/**
+		Whether an app built with the hxcpp at `buildLibrary` links Security.framework.
+		libhxcpp's TLS checks a server's certificate against the system's trust store on
+		iOS and tvOS, and a static build there leaves the framework to the app's link;
+		hxcpp up to 4.3 uses it on macOS only. Read from the hxcpp's own TLS build file,
+		so an hxcpp that does not ask for it is built as before.
+	**/
+	public static function linksSecurityFramework(buildLibrary:String = "hxcpp"):Bool
+	{
+		try
+		{
+			var path = Haxelib.getPath(new Haxelib(buildLibrary));
+			if (path == null || path == "") return false;
+
+			var buildXml = Path.combine(path, "src/hx/libs/ssl/Build.xml");
+			return FileSystem.exists(buildXml) && sslBuildLinksSecurity(sys.io.File.getContent(buildXml));
+		}
+		catch (e:Dynamic)
+		{
+			return false;
+		}
+	}
+
+	/**
+		Whether `buildXml`, an hxcpp TLS library's Build.xml, links Security.framework on
+		an Apple platform other than macOS: a `Security` flag with no condition, or none
+		that limits it to macOS, on it or on a section around it.
+	**/
+	@:noCompletion public static function sslBuildLinksSecurity(buildXml:String):Bool
+	{
+		try
+		{
+			return hasSecurityFlag(Xml.parse(buildXml), false);
+		}
+		catch (e:Dynamic)
+		{
+			return false;
+		}
+	}
+
+	private static function hasSecurityFlag(parent:Xml, macOSOnly:Bool):Bool
+	{
+		for (element in parent.elements())
+		{
+			var condition = element.get("if");
+			var limited = macOSOnly || (condition != null && (StringTools.trim(condition) == "macos" || StringTools.trim(condition) == "mac"));
+
+			switch (element.nodeName)
+			{
+				case "flag", "vflag":
+					if (element.get("value") == "Security" && !limited) return true;
+
+				default:
+					if (hasSecurityFlag(element, limited)) return true;
+			}
+		}
+
+		return false;
+	}
+
+	private static var appleSiliconMac:Null<Bool>;
+
+	// The Mac itself, which uname reports as x86_64 to tools that run through Rosetta
+	private static function isAppleSiliconMac():Bool
+	{
+		if (appleSiliconMac == null)
+		{
+			var output = (System.hostPlatform == MAC) ? System.runProcess("", "sysctl", ["-n", "hw.optional.arm64"], true, true, true) : null;
+			appleSiliconMac = (output != null && StringTools.trim(output) == "1");
+		}
+
+		return appleSiliconMac;
+	}
+
 	public static function build(project:HXProject, workingDirectory:String, additionalArguments:Array<String> = null):Void
 	{
 		initialize(project);
@@ -136,7 +280,7 @@ class IOSHelper
 			else
 			{
 				commands.push("-arch");
-				commands.push("x86_64");
+				commands.push(useArm64Simulator(project) ? "arm64" : "x86_64");
 			}
 		}
 		else if (project.targetFlags.exists("armv7"))

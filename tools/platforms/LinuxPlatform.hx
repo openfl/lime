@@ -13,7 +13,10 @@ import lime.tools.AssetType;
 import lime.tools.CPPHelper;
 import lime.tools.DeploymentHelper;
 import lime.tools.HXProject;
+import lime.tools.IconHelper;
+import lime.tools.Icon;
 import lime.tools.JavaHelper;
+import lime.tools.NativeSourcesHelper;
 import lime.tools.NekoHelper;
 import lime.tools.NodeJSHelper;
 import lime.tools.Orientation;
@@ -109,7 +112,8 @@ class LinuxPlatform extends PlatformTarget
 
 		for (i in 1...project.windows.length)
 		{
-			defaults.windows.push(defaults.window);
+			// A copy each, as merge() copies each project window into its own default
+			defaults.windows.push(hxp.ObjectTools.copyFields(defaults.window, {}));
 		}
 
 		defaults.merge(project);
@@ -206,6 +210,20 @@ class LinuxPlatform extends PlatformTarget
 							&& (ndll.haxelib.name == "hxcpp" || ndll.haxelib.name == "hxlibc")) ? ".dll" : ".ndll", applicationDirectory,
 						project.debug, targetSuffix);
 				}
+			}
+		}
+
+		// Libraries that the application opens by itself, when it needs them, from the folder for its architecture
+		var libraryFolder = "Linux" + ((System.hostArchitecture == ARMV7 || System.hostArchitecture == ARM64) ? "Arm" : "") + (is64 ? "64" : "");
+
+		for (dependency in project.dependencies)
+		{
+			if (StringTools.endsWith(dependency.path, ".so")
+				&& Path.withoutDirectory(Path.directory(dependency.path)) == libraryFolder
+				&& FileSystem.exists(dependency.path))
+			{
+				System.mkdir(applicationDirectory);
+				copyIfNewer(dependency.path, applicationDirectory + "/" + Path.withoutDirectory(dependency.path));
 			}
 		}
 
@@ -599,6 +617,7 @@ class LinuxPlatform extends PlatformTarget
 					context.ndlls[i].path = NDLL.getLibraryPath(ndll,
 						"Linux" + ((System.hostArchitecture == ARMV7 || System.hostArchitecture == ARM64) ? "Arm" : "") + (is64 ? "64" : ""), "lib", ".a",
 						project.debug);
+					NativeSourcesHelper.checkLibrary(context.ndlls[i].path);
 				}
 			}
 		}
@@ -618,8 +637,16 @@ class LinuxPlatform extends PlatformTarget
 			ProjectHelper.recursiveSmartCopyTemplate(project, "cpp/static", targetDirectory + "/obj", context);
 		}
 
-		// context.HAS_ICON = IconHelper.createIcon (project.icons, 256, 256, Path.combine (applicationDirectory, "icon.png"));
-		copyProjectAssets(applicationDirectory);
+		var icons = project.icons;
+
+		if (!IconHelper.hasIcons(icons))
+		{
+			icons = [new Icon(System.findTemplate(project.templatePaths, "default/icon.svg"))];
+		}
+
+		context.HAS_ICON = IconHelper.createIcon(icons, 256, 256, Path.combine(applicationDirectory, "icon.png"));
+
+		copyProjectAssets(applicationDirectory, null, context);
 	}
 
 	@ignore public override function install():Void {}

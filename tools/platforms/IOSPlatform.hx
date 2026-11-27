@@ -17,6 +17,7 @@ import lime.tools.Asset;
 import lime.tools.AssetHelper;
 import lime.tools.AssetType;
 import lime.tools.CPPHelper;
+import lime.tools.Dependency;
 import lime.tools.DeploymentHelper;
 import lime.tools.HXProject;
 import lime.tools.Icon;
@@ -25,6 +26,7 @@ import lime.tools.ImageHelper;
 import lime.tools.IOSHelper;
 import lime.tools.Keystore;
 import lime.tools.LaunchStoryboard;
+import lime.tools.NativeSourcesHelper;
 import lime.tools.Orientation;
 import lime.tools.Platform;
 import lime.tools.PlatformTarget;
@@ -99,7 +101,8 @@ class IOSPlatform extends PlatformTarget
 
 		for (i in 1...project.windows.length)
 		{
-			defaults.windows.push(defaults.window);
+			// A copy each, as merge() copies each project window into its own default
+			defaults.windows.push(hxp.ObjectTools.copyFields(defaults.window, {}));
 		}
 
 		defaults.merge(project);
@@ -316,7 +319,7 @@ class IOSPlatform extends PlatformTarget
 			case "ipad": "2";
 			default: "1,2";
 		}
-		context.DEPLOYMENT = project.config.getString("ios.deployment", "13.6");
+		context.DEPLOYMENT = project.config.getString("ios.deployment", "15.0");
 
 		if (project.config.getString("ios.compiler") == "llvm" || project.config.getString("ios.compiler", "clang") == "clang")
 		{
@@ -332,6 +335,65 @@ class IOSPlatform extends PlatformTarget
 
 		context.IOS_LINKER_FLAGS = ["-stdlib=libc++"].concat(project.config.getArrayString("ios.linker-flags"));
 		context.IOS_NON_EXEMPT_ENCRYPTION = project.config.getBool("ios.non-exempt-encryption", false);
+
+		if (project.config.exists("ios.camera-usage-description"))
+		{
+			context.IOS_CAMERA_USAGE_DESCRIPTION = StringTools.htmlEscape(project.config.getString("ios.camera-usage-description"), true);
+		}
+
+		if (project.config.exists("ios.microphone-usage-description"))
+		{
+			// Info.plist is XML, so a description with & or < would break it
+			context.IOS_MICROPHONE_USAGE_DESCRIPTION = StringTools.htmlEscape(project.config.getString("ios.microphone-usage-description"), true);
+		}
+
+		// ProMotion iPhones run Core Animation above 60 Hz only with this key, which iPads
+		// don't need. It is set when a window asks for more than 60 frames a second, so an
+		// application at 60 isn't woken at 120 for frames it skips.
+		var highFrameRate = false;
+
+		for (window in project.windows)
+		{
+			if (window.fps != null && window.fps > 60) highFrameRate = true;
+		}
+
+		context.IOS_HIGH_FRAME_RATE = project.config.getBool("ios.high-frame-rate", highFrameRate);
+
+		// The privacy manifest gives App Store Connect a reason for each required reason
+		// API the application calls: Lime's frame clock reads the system boot time, and
+		// hxcpp's sys.FileSystem file timestamps. An application adds its own with
+		// <config:ios privacy-accessed-api="TYPE REASON..." />.
+		var privacyTypes:Array<{type:String, reasons:Array<String>}> = [
+			{type: "NSPrivacyAccessedAPICategorySystemBootTime", reasons: ["35F9.1"]},
+			{type: "NSPrivacyAccessedAPICategoryFileTimestamp", reasons: ["C617.1"]}
+		];
+
+		for (entry in project.config.getArrayString("ios.privacy-accessed-api"))
+		{
+			var words = [for (word in ~/\s+/g.split(StringTools.trim(entry))) if (word != "") word];
+			if (words.length < 2) continue;
+
+			var type = words.shift();
+			var existing = null;
+
+			for (privacyType in privacyTypes)
+			{
+				if (privacyType.type == type) existing = privacyType;
+			}
+
+			if (existing == null)
+			{
+				existing = {type: type, reasons: []};
+				privacyTypes.push(existing);
+			}
+
+			for (reason in words)
+			{
+				if (existing.reasons.indexOf(reason) == -1) existing.reasons.push(reason);
+			}
+		}
+
+		context.IOS_PRIVACY_ACCESSED_API_TYPES = privacyTypes;
 
 		switch (project.window.orientation)
 		{
@@ -354,7 +416,17 @@ class IOSPlatform extends PlatformTarget
 
 		context.frameworkSearchPaths = [];
 
-		for (dependency in project.dependencies)
+		var dependencies = project.dependencies.copy();
+
+		// libhxcpp's TLS checks certificates with the system's trust store, and leaves
+		// Security.framework to the app's link
+		if (IOSHelper.linksSecurityFramework(project.config.getString("cpp.buildLibrary", "hxcpp"))
+			&& !Lambda.exists(dependencies, function(dependency) return dependency.name == "Security.framework"))
+		{
+			dependencies.push(new Dependency("Security.framework", null));
+		}
+
+		for (dependency in dependencies)
 		{
 			var name:String = null;
 			var path:String = null;
@@ -473,6 +545,9 @@ class IOSPlatform extends PlatformTarget
 			|| (project.architectures.indexOf(Architecture.ARM64) > -1 && !project.targetFlags.exists("simulator")));
 		var i386 = (project.architectures.indexOf(Architecture.X86) > -1 && project.targetFlags.exists("simulator"));
 		var x86_64 = (command == "rebuild" || project.targetFlags.exists("simulator"));
+		// The arm64 simulator is a platform of its own, apart from arm64 devices
+		var arm64Simulator = (command == "rebuild" && IOSHelper.buildsArm64Simulator(project.config.getString("cpp.buildLibrary", "hxcpp")))
+			|| (project.targetFlags.exists("simulator") && IOSHelper.useArm64Simulator(project));
 
 		var arc = (project.targetFlags.exists("arc"));
 
@@ -484,6 +559,7 @@ class IOSPlatform extends PlatformTarget
 		if (arm64) commands.push(["-Dios", "-DHXCPP_CPP11", "-DHXCPP_ARM64"]);
 		if (i386) commands.push(["-Dios", "-Dsimulator", "-DHXCPP_M32", "-DHXCPP_CPP11"]);
 		if (x86_64) commands.push(["-Dios", "-Dsimulator", "-DHXCPP_M64", "-DHXCPP_CPP11"]);
+		if (arm64Simulator) commands.push(["-Dios", "-Dsimulator", "-DHXCPP_ARM64", "-DHXCPP_CPP11"]);
 
 		if (arc)
 		{
@@ -556,8 +632,7 @@ class IOSPlatform extends PlatformTarget
 			{name: "Icon-72@2x.png", size: 144},
 			{name: "Icon-76@2x.png", size: 152},
 			{name: "Icon-83.5@2x.png", size: 167},
-			{name: "Icon-60@3x.png", size: 180},
-			{name: "Icon-Marketing.png", size: 1024}
+			{name: "Icon-60@3x.png", size: 180}
 		];
 
 		context.HAS_ICON = true;
@@ -567,7 +642,7 @@ class IOSPlatform extends PlatformTarget
 
 		var icons = project.icons;
 
-		if (icons.length == 0)
+		if (!IconHelper.hasIcons(icons))
 		{
 			icons = [new Icon(System.findTemplate(project.templatePaths, "default/icon.svg"))];
 		}
@@ -578,6 +653,12 @@ class IOSPlatform extends PlatformTarget
 			{
 				context.HAS_ICON = false;
 			}
+		}
+
+		// App Store Connect turns down an App Store icon with an alpha channel, so it is drawn over white
+		if (!IconHelper.createOpaqueIcon(icons, 1024, 1024, Path.combine(iconPath, "Icon-Marketing.png"), 0xFFFFFF))
+		{
+			context.HAS_ICON = false;
 		}
 
 		if (project.launchStoryboard != null)
@@ -770,9 +851,9 @@ class IOSPlatform extends PlatformTarget
 
 		System.mkdir(projectDirectory + "/lib");
 
-		for (archID in 0...6)
+		for (archID in 0...7)
 		{
-			var arch = ["armv6", "armv7", "armv7s", "arm64", "i386", "x86_64"][archID];
+			var arch = ["armv6", "armv7", "armv7s", "arm64", "i386", "x86_64", "arm64-simulator"][archID];
 
 			if (arch == "armv6" && !context.ARMV6) continue;
 
@@ -784,13 +865,17 @@ class IOSPlatform extends PlatformTarget
 
 			if (arch == "i386" && !context.I386) continue;
 
+			// Only where the simulator build is for arm64, as there is no other library to fall back to
+			if (arch == "arm64-simulator" && !(project.targetFlags.exists("simulator") && IOSHelper.useArm64Simulator(project))) continue;
+
 			var libExt = [
 				".iphoneos.a",
 				".iphoneos-v7.a",
 				".iphoneos-v7s.a",
 				".iphoneos-64.a",
 				".iphonesim.a",
-				".iphonesim-64.a"
+				".iphonesim-64.a",
+				".iphonesim-arm64.a"
 			][archID];
 
 			System.mkdir(projectDirectory + "/lib/" + arch);
@@ -811,10 +896,12 @@ class IOSPlatform extends PlatformTarget
 					debugLib = NDLL.getLibraryPath(ndll, "iPhone", "lib", ".iphoneos.a", true);
 				}
 
+				NativeSourcesHelper.checkLibrary(releaseLib);
 				System.copyIfNewer(releaseLib, releaseDest);
 
 				if (FileSystem.exists(debugLib) && debugLib != releaseLib)
 				{
+					NativeSourcesHelper.checkLibrary(debugLib);
 					System.copyIfNewer(debugLib, debugDest);
 				}
 				else if (FileSystem.exists(debugDest))
@@ -841,7 +928,7 @@ class IOSPlatform extends PlatformTarget
 			}
 		}
 
-		copyProjectAssets(projectDirectory, "assets");
+		copyProjectAssets(projectDirectory, "assets", context);
 
 		if (project.targetFlags.exists("xcode") && System.hostPlatform == MAC && command == "update")
 		{
