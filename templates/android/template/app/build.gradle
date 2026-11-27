@@ -19,11 +19,11 @@ base {
 }
 
 ::end::android {
-	namespace "::APP_PACKAGE::"
+	namespace = "::APP_PACKAGE::"
 	compileSdkVersion Integer.parseInt(project.ANDROID_BUILD_SDK_VERSION)
 	buildToolsVersion project.ANDROID_BUILD_TOOLS_VERSION
-	::if (ANDROID_GRADLE_PLUGIN_4_0)::ndkPath '::ANDROID_NDK_ROOT_ESCAPED::'::end::
-	::if (ANDROID_NDK_VERSION)::ndkVersion '::ANDROID_NDK_VERSION::'::end::
+	::if (ANDROID_GRADLE_PLUGIN_4_0)::ndkPath = '::ANDROID_NDK_ROOT_ESCAPED::'::end::
+	::if (ANDROID_NDK_VERSION)::ndkVersion = '::ANDROID_NDK_VERSION::'::end::
 
 	defaultConfig {
 		applicationId "::META_PACKAGE_NAME::"
@@ -77,7 +77,7 @@ base {
 	buildTypes {
 		release {
 			minifyEnabled false
-			signingConfig signingConfigs.release
+			signingConfig = signingConfigs.release
 		}
 	}
 
