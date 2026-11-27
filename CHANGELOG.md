@@ -105,6 +105,7 @@ Changelog
 - Added `lime diagnose`, which prints the Haxe, Lime, OpenFL and libhxcpp versions, with git commits for git checkouts, the folder `haxelib path hxcpp` gives, the C++ compiler hxcpp picks, the host and what Lime's native libraries were built from, to paste into a bug report.
 - Added `<window preserve-drawing-buffer="true" />` and the `preserveDrawingBuffer` option of `lime.embed()`, so an HTML5 application's main window can keep its drawing buffer for `readPixels()` and `toDataURL()`.
 - Added deprecation warnings to the command-line tools for what Lime 9 removes: the YUI Compressor (`-yui`), the armv5 and armv6 Android architectures, and Haxe 3.
+- Added embedding of dynamic iOS frameworks: `<dependency path="MyFramework.framework" embed="true" />` copies a dynamic framework or `.xcframework` into the application and signs it, as a framework holding Swift code needs. A static framework is linked as before.
 - Changed native streamed audio to refill from a thread of its own, so a stall on the main thread no longer drains a stream's buffers and drops its sound. Define `lime_audio_no_stream_thread` to refill from the main thread as before.
 - Changed native audio loading to decode through SDL_sound first, then Lime's own WAV and Ogg Vorbis decoders.
 - Changed asset copying and embedding to behave consistently across targets.
