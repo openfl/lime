@@ -492,8 +492,7 @@ class AndroidPlatform extends PlatformTarget
 				"android:theme": "@android:style/Theme.NoTitleBar" + (project.window.fullscreen ? ".Fullscreen" : ""),
 				"android:hardwareAccelerated": "true",
 				// From API 36, large screens ignore the orientation lock of an app that is not a game
-				"android:appCategory": "game",
-				"android:allowNativeHeapPointerTagging": context.ANDROID_TARGET_SDK_VERSION >= 30 ? "false" : null
+				"android:appCategory": "game"
 			});
 		context.ANDROID_APPLICATION_CHILDREN = project.config.get("android.application").xmlChildren;
 		context.ANDROID_ACTIVITY = project.config.getKeyValueArray("android.activity",
