@@ -34,6 +34,137 @@ class StackBlur
 		__stackBlurCanvasRGBA(dest, Std.int(sourceRect.width), Std.int(sourceRect.height), blurX, blurY, quality);
 	}
 
+	/**
+		The same blur for the alpha alone, for a filter that then gives every pixel one color (a glow, a drop
+		shadow): the three other channels are set to 0, which is a valid pixel premultiplied or not.
+	**/
+	public static function blurAlpha(dest:Image, source:Image, sourceRect:Rectangle, destPoint:Vector2, blurX:Float, blurY:Float, quality:Int)
+	{
+		dest.copyPixels(source, sourceRect, destPoint);
+		__stackBlurCanvasAlpha(dest, Std.int(sourceRect.width), Std.int(sourceRect.height), blurX, blurY, quality);
+	}
+
+	// __stackBlurCanvasRGBA without what it does to the red, green and blue channels: the alpha it writes is the same
+	private static function __stackBlurCanvasAlpha(image:Image, width:Int, height:Int, blurX:Float, blurY:Float, quality:Int)
+	{
+		var radiusX = Math.round(blurX) >> 1;
+		var radiusY = Math.round(blurY) >> 1;
+
+		if (MUL_TABLE == null) return; // can be null due to static initialization order
+		if (radiusX >= MUL_TABLE.length) radiusX = MUL_TABLE.length - 1;
+		if (radiusY >= MUL_TABLE.length) radiusY = MUL_TABLE.length - 1;
+		if (radiusX < 0 || radiusY < 0) return;
+
+		var iterations = quality;
+		if (iterations < 1) iterations = 1;
+		if (iterations > 3) iterations = 3;
+
+		var px = image.data;
+		var x:Int, y:Int, i:Int, p:Int, yp:Int, yi:Int, yw:Int;
+		var a:Int, pa:Int;
+
+		var divx = (radiusX + radiusX + 1);
+		var divy = (radiusY + radiusY + 1);
+		var w = width;
+		var h = height;
+
+		var w1 = w - 1;
+		var h1 = h - 1;
+		var rxp1 = radiusX + 1;
+		var ryp1 = radiusY + 1;
+
+		var ssx = new haxe.ds.Vector<Int>(divx);
+		var ssy = new haxe.ds.Vector<Int>(divy);
+		var sx:Int, sy:Int, si:Int;
+
+		var mtx = MUL_TABLE[radiusX];
+		var stx = SHG_TABLE[radiusX];
+		var mty = MUL_TABLE[radiusY];
+		var sty = SHG_TABLE[radiusY];
+
+		while (iterations > 0)
+		{
+			iterations--;
+			yw = yi = 0;
+			var ms = mtx;
+			var ss = stx;
+			y = h;
+			do
+			{
+				a = rxp1 * (pa = px[yi + 3]);
+				sx = 0;
+				i = rxp1;
+				do
+				{
+					ssx[sx] = pa;
+					if (++sx == divx) sx = 0;
+				}
+				while (--i > -1);
+
+				for (i in 1...rxp1)
+				{
+					p = yi + ((w1 < i ? w1 : i) << 2);
+					a += (ssx[sx] = px[p + 3]);
+					if (++sx == divx) sx = 0;
+				}
+
+				si = 0;
+				for (x in 0...w)
+				{
+					px[yi + 3] = (a * ms) >>> ss;
+					yi += 4;
+					p = (yw + ((p = x + radiusX + 1) < w1 ? p : w1)) << 2;
+					pa = px[p + 3];
+					a -= ssx[si] - pa;
+					ssx[si] = pa;
+					if (++si == divx) si = 0;
+				}
+				yw += w;
+			}
+			while (--y > 0);
+
+			ms = mty;
+			ss = sty;
+			for (x in 0...w)
+			{
+				yi = x << 2;
+				a = ryp1 * (pa = px[yi + 3]);
+				sy = 0;
+				for (i in 0...ryp1)
+				{
+					ssy[sy] = pa;
+					if (++sy == divy) sy = 0;
+				}
+				yp = w;
+				for (i in 1...(radiusY + 1))
+				{
+					yi = (yp + x) << 2;
+					a += (ssy[sy] = px[yi + 3]);
+					if (++sy == divy) sy = 0;
+					if (i < h1)
+					{
+						yp += w;
+					}
+				}
+				yi = x;
+				si = 0;
+
+				for (y in 0...h)
+				{
+					p = yi << 2;
+					px[p] = px[p + 1] = px[p + 2] = 0;
+					px[p + 3] = (a * ms) >>> ss;
+					p = (x + (((p = y + ryp1) < h1 ? p : h1) * w)) << 2;
+					pa = px[p + 3];
+					a -= ssy[si] - pa;
+					ssy[si] = pa;
+					if (++si == divy) si = 0;
+					yi += w;
+				}
+			}
+		}
+	}
+
 	private static function __stackBlurCanvasRGBA(image:Image, width:Int, height:Int, blurX:Float, blurY:Float, quality:Int)
 	{
 		// TODO: Handle pixel order
