@@ -740,104 +740,105 @@ class ImageDataUtil
 		var originY = image.offsetY;
 		var read:RGBA = 0;
 
+		var width = image.width;
+		var height = image.height;
+		var origin = originY * stride + originX;
+		var m:Int = _mask;
+		var c:Int = _color;
+		// Alpha is the low byte of an RGBA value, and is the same premultiplied or not
+		var alphaOnly = (m & 0xFFFFFF00) == 0;
+		var alphaOffset = sourceFormat == ARGB32 ? 0 : 3;
 		var pixel:Int;
-		var hit:Bool;
+		var row:Int;
+		var hit = false;
 
-		for (x in 0...image.width)
+		inline function readPixel(offset:Int):Int
 		{
-			hit = false;
-
-			for (y in 0...image.height)
+			if (alphaOnly)
 			{
-				read.readUInt8(data, (y + originY) * stride + originX + x * 4, sourceFormat, premultiplied);
-				pixel = read;
-				hit = findColor ? (pixel & _mask) == _color : (pixel & _mask) != _color;
+				return data[offset + alphaOffset];
+			}
+			else
+			{
+				read.readUInt8(data, offset, sourceFormat, premultiplied);
+				return read;
+			}
+		}
 
-				if (hit)
-				{
-					if (x < left) left = x;
-					break;
-				}
+		// The rows are read in the order the buffer holds them: the first and the last
+		// row with a hit, then between them the first and the last column, each row
+		// stopping where another one already went further
+		for (y in 0...height)
+		{
+			row = origin + y * stride;
+
+			for (x in 0...width)
+			{
+				pixel = readPixel(row + x * 4);
+				hit = findColor ? (pixel & m) == c : (pixel & m) != c;
+
+				if (hit) break;
 			}
 
 			if (hit)
 			{
+				top = y;
 				break;
 			}
 		}
 
-		var ix;
-
-		for (x in 0...image.width)
+		if (hit)
 		{
-			ix = (image.width - 1) - x;
+			var y = height;
 			hit = false;
 
-			for (y in 0...image.height)
+			while (!hit && --y >= top)
 			{
-				read.readUInt8(data, (y + originY) * stride + originX + ix * 4, sourceFormat, premultiplied);
-				pixel = read;
-				hit = findColor ? (pixel & _mask) == _color : (pixel & _mask) != _color;
+				row = origin + y * stride;
 
-				if (hit)
+				for (x in 0...width)
 				{
-					if (ix > right) right = ix;
-					break;
+					pixel = readPixel(row + x * 4);
+					hit = findColor ? (pixel & m) == c : (pixel & m) != c;
+
+					if (hit)
+					{
+						bottom = y;
+						break;
+					}
 				}
 			}
 
-			if (hit)
+			left = width;
+			right = -1;
+
+			for (y in top...bottom + 1)
 			{
-				break;
-			}
-		}
+				row = origin + y * stride;
 
-		for (y in 0...image.height)
-		{
-			hit = false;
-
-			for (x in 0...image.width)
-			{
-				read.readUInt8(data, (y + originY) * stride + originX + x * 4, sourceFormat, premultiplied);
-				pixel = read;
-				hit = findColor ? (pixel & _mask) == _color : (pixel & _mask) != _color;
-
-				if (hit)
+				for (x in 0...left)
 				{
-					if (y < top) top = y;
-					break;
+					pixel = readPixel(row + x * 4);
+
+					if (findColor ? (pixel & m) == c : (pixel & m) != c)
+					{
+						left = x;
+						break;
+					}
 				}
-			}
 
-			if (hit)
-			{
-				break;
-			}
-		}
+				var x = width;
 
-		var iy;
-
-		for (y in 0...image.height)
-		{
-			iy = (image.height - 1) - y;
-			hit = false;
-
-			for (x in 0...image.width)
-			{
-				read.readUInt8(data, (iy + originY) * stride + originX + x * 4, sourceFormat, premultiplied);
-				pixel = read;
-				hit = findColor ? (pixel & _mask) == _color : (pixel & _mask) != _color;
-
-				if (hit)
+				while (--x > right)
 				{
-					if (iy > bottom) bottom = iy;
-					break;
-				}
-			}
+					pixel = readPixel(row + x * 4);
 
-			if (hit)
-			{
-				break;
+					if (findColor ? (pixel & m) == c : (pixel & m) != c)
+					{
+						right = x;
+						break;
+					}
+				}
 			}
 		}
 
