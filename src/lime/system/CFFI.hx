@@ -315,7 +315,10 @@ class CFFI
 				var ndllFolder = __findNDLLFolder() + __sysName();
 				throw "Could not load lime.ndll. This file is provided with Lime's Haxelib releases, but not via Git. "
 					+ "Please copy it from Lime's latest Haxelib release into either "
-					+ ndllFolder + " or " + ndllFolder + "64, as appropriate for your system. "
+					+ ndllFolder
+					+ " or "
+					+ ndllFolder
+					+ "64, as appropriate for your system. "
 					+ "Advanced users may run `lime rebuild cpp` instead."
 					+ (error != null ? '\nInternal error: $error' : "");
 			}

@@ -18,7 +18,10 @@ import sys.FileSystem;
 import sys.io.File;
 #end
 #if (js && html5)
+import js.Browser;
 import js.html.Blob;
+import js.html.FileReader;
+import js.html.InputElement;
 #end
 
 /**
@@ -41,7 +44,7 @@ import js.html.Blob;
 	```
 
 	Availability note: most file dialog operations are only available on desktop targets, though
-	`save()` is also available in HTML5.
+	`open()` and `save()` are also available in HTML5.
 **/
 #if !lime_debug
 @:fileXml('tags="haxe,release"')
@@ -53,7 +56,7 @@ class FileDialog
 {
 	/**
 		Triggers when the user clicks "Cancel" during any operation, or when a function is unsupported
-		(such as `open()` on HTML5).
+		(such as `browse()` on HTML5).
 	**/
 	public var onCancel = new Event<Void->Void>();
 
@@ -82,14 +85,77 @@ class FileDialog
 
 	public function new() {}
 
+	private static function __extensionFromFilter(filter:String):String
+	{
+		for (entry in filter.split(","))
+		{
+			if (entry.length == 0) continue;
+
+			var extension = entry;
+
+			if (StringTools.startsWith(extension, "*."))
+			{
+				extension = extension.substr(2);
+			}
+			else if (StringTools.startsWith(extension, "."))
+			{
+				extension = extension.substr(1);
+			}
+
+			if (extension.length == 0 || extension.indexOf("*") != -1 || extension.indexOf("?") != -1 || extension.indexOf("/") != -1
+				|| extension.indexOf("\\") != -1)
+			{
+				continue;
+			}
+
+			return extension;
+		}
+
+		return null;
+	}
+
+	#if (js && html5)
+	// The file input's `accept` for a filter: each bare extension or wildcard pattern becomes
+	// ".ext", a MIME type such as "image/*" is kept, and a filter that allows every file gives null
+	private static function __acceptFromFilter(filter:String):String
+	{
+		if (filter == null) return null;
+
+		var accept = [];
+
+		for (entry in filter.split(","))
+		{
+			entry = StringTools.trim(entry);
+			if (entry.length == 0) continue;
+
+			if (entry.indexOf("/") != -1)
+			{
+				accept.push(entry);
+				continue;
+			}
+
+			if (StringTools.startsWith(entry, "*")) entry = entry.substr(1);
+			if (StringTools.startsWith(entry, ".")) entry = entry.substr(1);
+
+			// "*" and "*.*" allow every file
+			if (entry.length == 0 || entry == "*") return null;
+			if (entry.indexOf("*") != -1 || entry.indexOf("?") != -1 || entry.indexOf("\\") != -1) continue;
+
+			accept.push("." + entry);
+		}
+
+		return accept.length > 0 ? accept.join(",") : null;
+	}
+	#end
+
 	/**
 		Opens a file selection dialog. If successful, either `onSelect` or `onSelectMultiple` will trigger
 		with the result(s).
 
 		This function only works on desktop targets, and will return `false` otherwise.
 		@param type 		Type of the file dialog: `OPEN`, `SAVE`, `OPEN_DIRECTORY` or `OPEN_MULTIPLE`.
-		@param filter 		A filter to use when browsing. Asterisks are treated as wildcards. For example,
-		`"*.jpg"` will match any file ending in `.jpg`.
+		@param filter 		A filter to use when browsing. Use a bare extension such as `"jpg"` or
+		a wildcard pattern such as `"*.jpg"`. Multiple filters may be separated by commas.
 		@param defaultPath 	The directory in which to start browsing and/or the default filename to
 		suggest. Defaults to `Sys.getCwd()`, with no default filename.
 		@param title 		The title to give the dialog window.
@@ -100,9 +166,7 @@ class FileDialog
 		if (type == null) type = FileDialogType.OPEN;
 
 		#if sys
-		if (defaultPath != null && defaultPath.length > 0
-			&& FileSystem.exists(defaultPath)
-			&& FileSystem.isDirectory(defaultPath))
+		if (defaultPath != null && defaultPath.length > 0 && FileSystem.exists(defaultPath) && FileSystem.isDirectory(defaultPath))
 		{
 			// if the default path is a directory, and the default path doesn't
 			// end with a separator, tiny file dialogs may open its parent
@@ -123,7 +187,7 @@ class FileDialog
 		#end
 
 		#if desktop
-		var worker = new ThreadPool(#if windows SINGLE_THREADED #end);
+		var worker = new ThreadPool();
 
 		worker.onComplete.add(function(result)
 		{
@@ -137,7 +201,8 @@ class FileDialog
 						// Makes sure the filename ends with extension
 						if (type == SAVE && filter != null && path.indexOf(".") == -1)
 						{
-							path += "." + filter;
+							var extension = __extensionFromFilter(filter);
+							if (extension != null) path += "." + extension;
 						}
 
 						onSelect.dispatch(path);
@@ -172,7 +237,7 @@ class FileDialog
 
 					var path = null;
 					#if (!macro && lime_cffi)
-					trace(defaultPath);
+					// trace(defaultPath);
 					path = CFFI.stringValue(NativeCFFI.lime_file_dialog_open_file(title, filter, defaultPath));
 					#end
 
@@ -238,18 +303,23 @@ class FileDialog
 	/**
 		Shows an open file dialog. If successful, `onOpen` will trigger with the file contents.
 
-		This function only works on desktop targets, and will return `false` otherwise.
-		@param filter 		A filter to use when browsing. Asterisks are treated as wildcards. For example,
-		`"*.jpg"` will match any file ending in `.jpg`.
+		This function works on desktop targets and HTML5, and will return `false` otherwise.
+
+		On HTML5 it shows the browser's file picker, which browsers only open from a user input
+		event, so call it from a mouse, touch or key event listener. `onCancel` triggers when the
+		picker closes without a file, in browsers that report it.
+		@param filter 		A filter to use when browsing. Use a bare extension such as `"jpg"` or
+		a wildcard pattern such as `"*.jpg"`. Multiple filters may be separated by commas. On HTML5,
+		a MIME type such as `"image/*"` may be given as well.
 		@param defaultPath 	The directory in which to start browsing and/or the default filename to
-		suggest. Defaults to `Sys.getCwd()`, with no default filename.
-		@param title 		The title to give the dialog window.
+		suggest. Defaults to `Sys.getCwd()`, with no default filename. Not used on HTML5.
+		@param title 		The title to give the dialog window. Not used on HTML5.
 		@return Whether `open()` is supported on this target.
 	**/
 	public function open(filter:String = null, defaultPath:String = null, title:String = null):Bool
 	{
 		#if (desktop && sys)
-		var worker = new ThreadPool(#if windows SINGLE_THREADED #end);
+		var worker = new ThreadPool();
 
 		worker.onComplete.add(function(path:String)
 		{
@@ -282,6 +352,56 @@ class FileDialog
 		});
 
 		return true;
+		#elseif (js && html5)
+		var input:InputElement = cast Browser.document.createElement("input");
+		input.type = "file";
+		var accept = __acceptFromFilter(filter);
+		if (accept != null) input.accept = accept;
+		input.style.display = "none";
+
+		// Only one of change and cancel is heard, and the input leaves the page with it
+		var settled = false;
+		var settle = function():Bool
+		{
+			if (settled) return false;
+			settled = true;
+			if (input.parentNode != null) input.parentNode.removeChild(input);
+			return true;
+		};
+
+		input.addEventListener("change", function(_)
+		{
+			if (!settle()) return;
+
+			var file = (input.files != null && input.files.length > 0) ? input.files[0] : null;
+
+			if (file == null)
+			{
+				onCancel.dispatch();
+				return;
+			}
+
+			var reader = new FileReader();
+			reader.onload = function(_)
+			{
+				onOpen.dispatch(Bytes.ofData(cast reader.result));
+			};
+			reader.onerror = function(_)
+			{
+				onCancel.dispatch();
+			};
+			reader.readAsArrayBuffer(file);
+		});
+
+		input.addEventListener("cancel", function(_)
+		{
+			if (settle()) onCancel.dispatch();
+		});
+
+		// Some browsers only open the picker for an input in the page
+		Browser.document.body.appendChild(input);
+		input.click();
+		return true;
 		#else
 		onCancel.dispatch();
 		return false;
@@ -293,8 +413,8 @@ class FileDialog
 
 		This function only works on desktop and HMTL5 targets, and will return `false` otherwise.
 		@param data 		The file contents, in `haxe.io.Bytes` format. (Implicit casting possible.)
-		@param filter 		A filter to use when browsing. Asterisks are treated as wildcards. For example,
-		`"*.jpg"` will match any file ending in `.jpg`. Used only if targeting deskop.
+		@param filter 		A filter to use when browsing. Use a bare extension such as `"jpg"` or
+		a wildcard pattern such as `"*.jpg"`. Multiple filters may be separated by commas. Used only if targeting deskop.
 		@param defaultPath 	The directory in which to start browsing and/or the default filename to
 		suggest. When targeting destkop, this defaults to `Sys.getCwd()` with no default filename. When targeting
 		HTML5, this defaults to the browser's download directory, with a default filename based on the MIME type.
@@ -312,7 +432,7 @@ class FileDialog
 		}
 
 		#if (desktop && sys)
-		var worker = new ThreadPool(#if windows SINGLE_THREADED #end);
+		var worker = new ThreadPool();
 
 		worker.onComplete.add(function(path:String)
 		{

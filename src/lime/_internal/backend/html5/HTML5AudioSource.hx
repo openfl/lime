@@ -4,8 +4,13 @@ import lime.math.Vector4;
 import lime.media.AudioSource;
 
 @:access(lime.media.AudioBuffer)
+@:access(lime.media.AudioSource)
 class HTML5AudioSource
 {
+	// How far ahead of now sources played together start, so the audio thread has every start
+	// before the time comes, in seconds
+	private static inline var PLAY_TOGETHER_LEAD = 0.02;
+
 	private var completed:Bool;
 	private var gain:Float;
 	private var id:Int;
@@ -25,6 +30,88 @@ class HTML5AudioSource
 	}
 
 	public function dispose():Void {}
+
+	/**
+		Plays every source, starting them on one Web Audio time, so they begin on the same sample.
+		Howler starts each sound as soon as it can, so while the sources are played, the nodes it
+		makes are started on a time a little ahead instead, and its end timers wait as much longer.
+		Sounds played through an audio element, which have no shared clock, start in turn.
+	**/
+	public static function playTogether(sources:Array<AudioSource>):Void
+	{
+		#if lime_howlerjs
+		var context:Dynamic = untyped Howler.ctx;
+
+		if (!lime.media.howlerjs.Howler.usingWebAudio || context == null || context.state != "running")
+		{
+			for (source in sources)
+			{
+				if (source != null) source.play();
+			}
+			return;
+		}
+
+		var when:Float = context.currentTime + PLAY_TOGETHER_LEAD;
+		var window:Dynamic = js.Browser.window;
+		var createBufferSource:Dynamic = context.createBufferSource;
+		var setTimeout:Dynamic = window.setTimeout;
+
+		context.createBufferSource = function()
+		{
+			var node:Dynamic = createBufferSource.call(context);
+			var start:Dynamic = node.start;
+			if (start != null)
+			{
+				node.start = function(time:Float, ?offset:Float, ?duration:Float)
+				{
+					var at = time > when ? time : when;
+					return duration != null ? start.call(node, at, offset, duration) : start.call(node, at, offset);
+				};
+			}
+			return node;
+		};
+
+		// Howler ends a sound with a timer for its length from now, which would cut its end short
+		window.setTimeout = function(handler:Dynamic, ?timeout:Float, ?a:Dynamic, ?b:Dynamic)
+		{
+			if (handler != null && handler.name == "bound _ended" && timeout != null)
+			{
+				timeout += PLAY_TOGETHER_LEAD * 1000;
+			}
+			return setTimeout.call(window, handler, timeout, a, b);
+		};
+
+		try
+		{
+			for (source in sources)
+			{
+				if (source != null) source.play();
+			}
+		}
+		catch (e:Dynamic)
+		{
+			context.createBufferSource = createBufferSource;
+			window.setTimeout = setTimeout;
+			throw e;
+		}
+
+		context.createBufferSource = createBufferSource;
+		window.setTimeout = setTimeout;
+
+		// A sound's position is counted from when it started playing
+		for (source in sources)
+		{
+			if (source == null || source.buffer == null || source.buffer.__srcHowl == null) continue;
+			var sound:Dynamic = untyped source.buffer.__srcHowl._soundById(source.__backend.id);
+			if (sound != null && sound._node != null && sound._node.bufferSource != null) sound._playStart = when;
+		}
+		#else
+		for (source in sources)
+		{
+			if (source != null) source.play();
+		}
+		#end
+	}
 
 	public function init():Void
 	{
@@ -261,7 +348,8 @@ class HTML5AudioSource
 		position.w = value.w;
 
 		#if lime_howlerjs
-		if (parent.buffer != null && parent.buffer.__srcHowl != null && parent.buffer.__srcHowl.pos != null) parent.buffer.__srcHowl.pos(position.x, position.y, position.z, id);
+		if (parent.buffer != null && parent.buffer.__srcHowl != null && parent.buffer.__srcHowl.pos != null) parent.buffer.__srcHowl.pos(position.x,
+			position.y, position.z, id);
 		// There are more settings to the position of the sound on the "pannerAttr()" function of howler. Maybe somebody who understands sound should look into it?
 		#end
 

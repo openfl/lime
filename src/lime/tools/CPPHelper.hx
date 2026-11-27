@@ -116,7 +116,21 @@ class CPPHelper
 
 			Sys.putEnv("HXCPP_EXIT_ON_ERROR", "");
 
+			// haxelib looks for a local repository from the folder it runs in, which can be outside the project
+			var cacheValue = Sys.getEnv("HAXELIB_PATH");
+			var repositoryPath = Haxelib.getRepositoryPath();
+
+			if (repositoryPath != "")
+			{
+				Sys.putEnv("HAXELIB_PATH", repositoryPath);
+			}
+
 			var code = Haxelib.runCommand(path, args);
+
+			if (cacheValue != null)
+			{
+				Sys.putEnv("HAXELIB_PATH", cacheValue);
+			}
 
 			if (code != 0)
 			{
@@ -208,7 +222,10 @@ class CPPHelper
 
 		if (!FileSystem.exists(path))
 		{
-			Log.warn("Skipping rebuild. Path not found: " + path + "\nIf you are using a release from Haxelib, source code for native binaries may not be bundled. To rebuild, you may need to check out the full repository.");
+			Log.warn("Skipping rebuild. Path not found: "
+				+ path
+				+
+				"\nIf you are using a release from Haxelib, source code for native binaries may not be bundled. To rebuild, you may need to check out the full repository.");
 			return;
 		}
 
@@ -221,7 +238,10 @@ class CPPHelper
 
 		if (!FileSystem.exists(Path.combine(path, buildFile)))
 		{
-			Log.warn("Skipping rebuild. Path not found: " + path + "\nIf you are using a release from Haxelib, source code for native binaries may not be bundled. To rebuild, you may need to check out the full repository.");
+			Log.warn("Skipping rebuild. Path not found: "
+				+ path
+				+
+				"\nIf you are using a release from Haxelib, source code for native binaries may not be bundled. To rebuild, you may need to check out the full repository.");
 			return;
 		}
 
@@ -282,6 +302,17 @@ class CPPHelper
 
 		Sys.putEnv("HXCPP_EXIT_ON_ERROR", "");
 
-		Haxelib.runCommand(path, args);
+		if (flags != null && flags.indexOf("clean") > -1)
+		{
+			Haxelib.runCommand(path, args);
+		}
+		else
+		{
+			// In a git checkout, each library built gets a record of the sources it was built from
+			NativeSourcesHelper.rebuild(path, function()
+			{
+				Haxelib.runCommand(path, args);
+			});
+		}
 	}
 }

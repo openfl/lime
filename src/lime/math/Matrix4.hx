@@ -108,7 +108,9 @@ abstract Matrix4(Float32Array) from Float32Array to Float32Array
 
 		if (pivotPoint != null)
 		{
+			// About the pivot: move it to the origin, rotate, and move it back
 			var p = pivotPoint;
+			m.prependTranslation(-p.x, -p.y, -p.z);
 			m.appendTranslation(p.x, p.y, p.z);
 		}
 
@@ -378,10 +380,10 @@ abstract Matrix4(Float32Array) from Float32Array to Float32Array
 		this[14] = -(zNear + zFar) * sz;
 		this[15] = 1;
 	}
-	
+
 	/**
-		Initializes this matrix with values for a perspective projection 
-		@param	fov	The field of view
+		Initializes this matrix with values for a perspective projection, as `gluPerspective` does
+		@param	fov	The vertical field of view, in degrees
 		@param	aspect	The aspect ratio
 		@param	zNear	The near depth-clipping plane position
 		@param	zFar	The far depth-clipping plane position
@@ -393,7 +395,8 @@ abstract Matrix4(Float32Array) from Float32Array to Float32Array
 			throw "Aspect ratio may not be 0";
 		}
 
-		var top = fov * zNear;
+		// The half-height of the view at zNear
+		var top = Math.tan(fov * Math.PI / 360) * zNear;
 		var bottom = -top;
 		var right = top * aspect;
 		var left = -right;
@@ -526,9 +529,10 @@ abstract Matrix4(Float32Array) from Float32Array to Float32Array
 	{
 		if (result == null) result = new Vector4();
 		var x = v.x, y = v.y, z = v.z;
-		result.x = (x * this[0] + y * this[4] + z * this[8] + this[3]);
-		result.y = (x * this[1] + y * this[5] + z * this[9] + this[7]);
-		result.z = (x * this[2] + y * this[6] + z * this[10] + this[11]);
+		// [3], [7] and [11] are the row that gives w, not the translation
+		result.x = (x * this[0] + y * this[4] + z * this[8]);
+		result.y = (x * this[1] + y * this[5] + z * this[9]);
+		result.z = (x * this[2] + y * this[6] + z * this[10]);
 		return result;
 	}
 
@@ -574,29 +578,135 @@ abstract Matrix4(Float32Array) from Float32Array to Float32Array
 	{
 		if (result == null) result = new Matrix4();
 
-		for (i in 0...16)
+		// As Flash's Matrix3D does: translation and scale linearly, and the
+		// rotation through quaternions, so that partway between two rotations
+		// is still a rotation
+		var from = __decompose(thisMat);
+		var to = __decompose(toMat);
+		var t = 1 - percent;
+
+		// The shorter way round
+		var dot = from[6] * to[6] + from[7] * to[7] + from[8] * to[8] + from[9] * to[9];
+		var sign = dot < 0 ? -1.0 : 1.0;
+		dot *= sign;
+
+		var fromWeight = t, toWeight = percent * sign;
+
+		if (dot < 0.9995)
 		{
-			result[i] = thisMat[i] + (toMat[i] - thisMat[i]) * percent;
+			var angle = Math.acos(dot);
+			var sin = Math.sin(angle);
+			fromWeight = Math.sin(t * angle) / sin;
+			toWeight = Math.sin(percent * angle) / sin * sign;
+		}
+
+		var qx = from[6] * fromWeight + to[6] * toWeight;
+		var qy = from[7] * fromWeight + to[7] * toWeight;
+		var qz = from[8] * fromWeight + to[8] * toWeight;
+		var qw = from[9] * fromWeight + to[9] * toWeight;
+		var length = Math.sqrt(qx * qx + qy * qy + qz * qz + qw * qw);
+
+		if (length > 0)
+		{
+			qx /= length;
+			qy /= length;
+			qz /= length;
+			qw /= length;
+		}
+
+		var sx = from[3] * t + to[3] * percent;
+		var sy = from[4] * t + to[4] * percent;
+		var sz = from[5] * t + to[5] * percent;
+
+		result[0] = (1 - 2 * (qy * qy + qz * qz)) * sx;
+		result[1] = (2 * (qx * qy + qz * qw)) * sx;
+		result[2] = (2 * (qx * qz - qy * qw)) * sx;
+		result[4] = (2 * (qx * qy - qz * qw)) * sy;
+		result[5] = (1 - 2 * (qx * qx + qz * qz)) * sy;
+		result[6] = (2 * (qy * qz + qx * qw)) * sy;
+		result[8] = (2 * (qx * qz + qy * qw)) * sz;
+		result[9] = (2 * (qy * qz - qx * qw)) * sz;
+		result[10] = (1 - 2 * (qx * qx + qy * qy)) * sz;
+
+		result[12] = from[0] * t + to[0] * percent;
+		result[13] = from[1] * t + to[1] * percent;
+		result[14] = from[2] * t + to[2] * percent;
+
+		// The row that gives w, which is (0, 0, 0, 1) for these, blends as it is
+		for (i in [3, 7, 11, 15])
+		{
+			result[i] = thisMat[i] * t + toMat[i] * percent;
 		}
 
 		return result;
 	}
 
-	/**
-		Interpolates the current matrix toward another matrix, resetting the values of the current matrix
-		@param	toMat	The second `Matrix4` object to interpolate toward
-		@param	percetn	The percentage value to interpolate by
-	**/
-	public function interpolateTo(toMat:Matrix4, percent:Float):Void
+	// Translation, scale and rotation as a quaternion: [tx, ty, tz, sx, sy, sz, qx, qy, qz, qw]
+	@:noCompletion private static function __decompose(m:Matrix4):Array<Float>
 	{
-		for (i in 0...16)
+		var sx = Math.sqrt(m[0] * m[0] + m[1] * m[1] + m[2] * m[2]);
+		var sy = Math.sqrt(m[4] * m[4] + m[5] * m[5] + m[6] * m[6]);
+		var sz = Math.sqrt(m[8] * m[8] + m[9] * m[9] + m[10] * m[10]);
+
+		// A mirror is a negative scale, so the rest is a rotation
+		var determinant3 = m[0] * (m[5] * m[10] - m[6] * m[9]) - m[4] * (m[1] * m[10] - m[2] * m[9]) + m[8] * (m[1] * m[6] - m[2] * m[5]);
+		if (determinant3 < 0) sx = -sx;
+
+		var r00 = sx != 0 ? m[0] / sx : 1.0, r10 = sx != 0 ? m[1] / sx : 0.0, r20 = sx != 0 ? m[2] / sx : 0.0;
+		var r01 = sy != 0 ? m[4] / sy : 0.0, r11 = sy != 0 ? m[5] / sy : 1.0, r21 = sy != 0 ? m[6] / sy : 0.0;
+		var r02 = sz != 0 ? m[8] / sz : 0.0, r12 = sz != 0 ? m[9] / sz : 0.0, r22 = sz != 0 ? m[10] / sz : 1.0;
+
+		var qx:Float, qy:Float, qz:Float, qw:Float;
+		var trace = r00 + r11 + r22;
+
+		if (trace > 0)
 		{
-			this[i] = this[i] + (toMat[i] - this[i]) * percent;
+			var k = 0.5 / Math.sqrt(trace + 1);
+			qw = 0.25 / k;
+			qx = (r21 - r12) * k;
+			qy = (r02 - r20) * k;
+			qz = (r10 - r01) * k;
 		}
+		else if (r00 > r11 && r00 > r22)
+		{
+			var k = 2 * Math.sqrt(1 + r00 - r11 - r22);
+			qw = (r21 - r12) / k;
+			qx = 0.25 * k;
+			qy = (r01 + r10) / k;
+			qz = (r02 + r20) / k;
+		}
+		else if (r11 > r22)
+		{
+			var k = 2 * Math.sqrt(1 + r11 - r00 - r22);
+			qw = (r02 - r20) / k;
+			qx = (r01 + r10) / k;
+			qy = 0.25 * k;
+			qz = (r12 + r21) / k;
+		}
+		else
+		{
+			var k = 2 * Math.sqrt(1 + r22 - r00 - r11);
+			qw = (r10 - r01) / k;
+			qx = (r02 + r20) / k;
+			qy = (r12 + r21) / k;
+			qz = 0.25 * k;
+		}
+
+		return [m[12], m[13], m[14], sx, sy, sz, qx, qy, qz, qw];
 	}
 
 	/**
-		Attempts to invert the current matrix, so long as the determinant is greater than zero
+		Interpolates the current matrix toward another matrix, resetting the values of the current matrix
+		@param	toMat	The second `Matrix4` object to interpolate toward
+		@param	percent	The percentage value to interpolate by
+	**/
+	public function interpolateTo(toMat:Matrix4, percent:Float):Void
+	{
+		interpolate(this, toMat, percent, this);
+	}
+
+	/**
+		Attempts to invert the current matrix, so long as the determinant is not zero
 		@return	Whether the `invert` operation was successful
 	**/
 	public function invert():Bool
@@ -654,65 +764,69 @@ abstract Matrix4(Float32Array) from Float32Array to Float32Array
 	**/
 	public function pointAt(pos:Vector4, at:Vector4 = null, up:Vector4 = null):Void
 	{
-		// TODO: This implementation is broken
+		// As Flash's Matrix3D: the position is kept, and the matrix is turned so
+		// that at points from it toward pos, with up as close to up as it can be
+		if (at == null) at = new Vector4(0, 0, -1);
+		if (up == null) up = new Vector4(0, -1, 0);
 
-		if (at == null)
+		var direction = new Vector4(pos.x - this[12], pos.y - this[13], pos.z - this[14]);
+		if (direction.length == 0) return;
+		direction.normalize();
+
+		var forward = at.clone();
+		forward.normalize();
+
+		// The frames that at and up make before and after, each a right-handed
+		// orthonormal basis, so the turn between them is a rotation
+		var localUp = __perpendicular(up, forward);
+		var localRight = forward.crossProduct(localUp);
+		var worldUp = __perpendicular(up, direction);
+		var worldRight = direction.crossProduct(worldUp);
+
+		// Each axis keeps its scale
+		var scale = [
+			Math.sqrt(this[0] * this[0] + this[1] * this[1] + this[2] * this[2]),
+			Math.sqrt(this[4] * this[4] + this[5] * this[5] + this[6] * this[6]),
+			Math.sqrt(this[8] * this[8] + this[9] * this[9] + this[10] * this[10])
+		];
+
+		for (column in 0...3)
 		{
-			at = new Vector4(0, 0, 1);
+			// Where the unit vector along this axis goes: back into the frame's
+			// own coordinates, then out along the turned frame
+			var r = column == 0 ? localRight.x : (column == 1 ? localRight.y : localRight.z);
+			var u = column == 0 ? localUp.x : (column == 1 ? localUp.y : localUp.z);
+			var f = column == 0 ? forward.x : (column == 1 ? forward.y : forward.z);
+			var length = scale[column] == 0 ? 1 : scale[column];
+
+			this[column * 4] = (worldRight.x * r + worldUp.x * u + direction.x * f) * length;
+			this[column * 4 + 1] = (worldRight.y * r + worldUp.y * u + direction.y * f) * length;
+			this[column * 4 + 2] = (worldRight.z * r + worldUp.z * u + direction.z * f) * length;
 		}
 
-		if (up == null)
+		// The row that gives w, which pointAt used to fill with pos
+		this[3] = 0;
+		this[7] = 0;
+		this[11] = 0;
+		this[15] = 1;
+	}
+
+	// The part of vector perpendicular to axis, as a unit vector, or any unit
+	// vector perpendicular to axis if they are parallel
+	@:noCompletion private static function __perpendicular(vector:Vector4, axis:Vector4):Vector4
+	{
+		var dot = vector.x * axis.x + vector.y * axis.y + vector.z * axis.z;
+		var result = new Vector4(vector.x - axis.x * dot, vector.y - axis.y * dot, vector.z - axis.z * dot);
+
+		if (result.length < 0.000001)
 		{
-			up = new Vector4(0, 1, 0);
+			result = Math.abs(axis.x) < 0.9 ? new Vector4(1, 0, 0) : new Vector4(0, 1, 0);
+			dot = result.x * axis.x + result.y * axis.y + result.z * axis.z;
+			result = new Vector4(result.x - axis.x * dot, result.y - axis.y * dot, result.z - axis.z * dot);
 		}
 
-		var dir = pos.subtract(at);
-		var vup = up.clone();
-		var right:Vector4;
-
-		dir.normalize();
-		vup.normalize();
-
-		var dir2 = dir.clone();
-		dir2.scaleBy(vup.dotProduct(dir));
-
-		vup = vup.subtract(dir2);
-
-		if (vup.length > 0)
-		{
-			vup.normalize();
-		}
-		else
-		{
-			if (dir.x != 0)
-			{
-				vup = new Vector4(-dir.y, dir.x, 0);
-			}
-			else
-			{
-				vup = new Vector4(1, 0, 0);
-			}
-		}
-
-		right = vup.crossProduct(dir);
-		right.normalize();
-
-		this[0] = right.x;
-		this[4] = right.y;
-		this[8] = right.z;
-		this[12] = 0.0;
-		this[1] = vup.x;
-		this[5] = vup.y;
-		this[9] = vup.z;
-		this[13] = 0.0;
-		this[2] = dir.x;
-		this[6] = dir.y;
-		this[10] = dir.z;
-		this[14] = 0.0;
-		this[3] = pos.x;
-		this[7] = pos.y;
-		this[11] = pos.z;
-		this[15] = 1.0;
+		result.normalize();
+		return result;
 	}
 
 	/**
@@ -787,7 +901,9 @@ abstract Matrix4(Float32Array) from Float32Array to Float32Array
 
 		if (pivotPoint != null)
 		{
+			// About the pivot: move it to the origin, rotate, and move it back
 			var p = pivotPoint;
+			m.prependTranslation(-p.x, -p.y, -p.z);
 			m.appendTranslation(p.x, p.y, p.z);
 		}
 

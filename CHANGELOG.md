@@ -1,6 +1,306 @@
 Changelog
 =========
 
+8.4.0 (??/??/2026)
+------------------
+
+- Added an experimental Vulkan renderer for native Windows, Linux, and Android targets.
+- Added `VulkanRenderContext` and Haxe Vulkan bindings for instance, device, swapchain, command, descriptor, memory, and pipeline helpers.
+- Added Vulkan bootstrap logging, error details, MSAA resolve support, mapped memory helpers, and descriptor helpers.
+- Added the `vulkan` define, which makes Vulkan the default for windows that name no context type, and the `no-vulkan` define to build without Vulkan. Where Vulkan is not available, the window uses OpenGL.
+- Added the `software-gl` define, which falls back to OpenGL drawn in software, before Cairo, on Windows, macOS and Linux. Set `LIME_SOFTWARE_GL=1` to test it. OpenGL contexts drawn in software report `attributes.hardware` as `false`.
+- Added `<config:android vulkan-required="false" />` to let Vulkan applications install on devices without Vulkan, and `<config:android vulkan-version="..." />`.
+- Added configurable application frame timing with `FrameProfile`, `FrameOptions`, `VSyncMode`, busy-wait, time precision, and uncap controls.
+- Added `AudioInput` and audio input device APIs with native OpenAL, HTML5, and Flash backends.
+- Added `<config:ios microphone-usage-description="..." />` and `<config:mac microphone-usage-description="..." />` for applications that use the microphone.
+- Added `AudioInput.permissionStatus`, `AudioInput.requestPermission()` and `AudioInput.onPermission`, with the `PermissionStatus` type, on HTML5, Android, iOS, macOS and Flash. HTML5 now reports a refused microphone instead of leaving `running` false.
+- Added `CameraInput`, `CameraInputDevice` and `CameraPosition`, capturing camera frames into `VideoFrame` on Windows, macOS, iOS, Android, Linux and HTML5, with the `camera-usage-description` config for iOS and macOS.
+- Added `AudioInput.echoCancellation`, `noiseSuppression` and `autoGain`, through the platform's voice processing on HTML5, Windows, macOS, iOS, Android and Flash, each reading whether it was applied once the input is running.
+- Added `CADisableMinimumFrameDurationOnPhone` to the iOS Info.plist when a window asks for more than 60 frames a second, so ProMotion iPhones reach it, and `<config:ios high-frame-rate="true|false" />` to decide.
+- Added a privacy manifest to iOS applications, which App Store Connect requires, declaring the required reason APIs Lime uses, and `<config:ios privacy-accessed-api="TYPE REASON..." />` for an application's own.
+- Added SDL_sound decoding and streaming, including inline stream playback, streams with unknown length, and loop counts.
+- Added `AudioBuffer.fromFileStream()`, `AudioBuffer.fromFilesStream()`, `AudioBuffer.fromBytesStream()`, `AudioBuffer.loadFromFileStream()`, and `AudioBuffer.loadFromFilesStream()`, which stream through SDL_sound, or Ogg Vorbis without it.
+- Added `Assets.getAudioBufferStream()` and `Assets.loadAudioBufferStream()` for streamed sound assets.
+- Added `AudioBuffer.readSamples()`, which reads PCM from any position of a decoded buffer, and of a streamed one on native targets.
+- Added recovery of OpenAL Soft audio after its output device changes or is disconnected.
+- Added `AudioSource.playTogether()`, which starts several sources in the same mixer update on native targets, and on the same Web Audio time on HTML5, for tracks that must stay aligned.
+- Added `Window.alwaysOnTop` and transparent window support.
+- Added `Window.orderToBack()`, `orderAbove()`, `orderBelow()`, `startMove()` and `startResize()`, with `WindowEdge`, on Windows, macOS and X11.
+- Added `Window.onDropStart`, `onDropText` and `onDropEnd`, so files dropped together can be handled as one group, and text drops on macOS, Linux and HTML5.
+- Added drag and drop in and out of windows: `Window.dropTarget`, `onDragEnter`, `onDragOver`, `onDragLeave`, `onDrop`, `dropAction` and `doDragDrop()`, with `DragData` in the clipboard's formats and `DropAction`, on Windows, macOS, Linux on X11 and HTML5.
+- Added `Window.nativeHandle`, the system's own window and display, for native code that works with them directly.
+- Added input event timestamps without changing listener signatures.
+- Added the platform's input time to mouse and touch event timestamps on native targets, as key and gamepad events already had.
+- Added `Promise.completeAsync()`.
+- Added `System.getFreeSpace()` and `System.isSymbolicLink()` on native targets.
+- Added `System.moveToTrash()` and `System.moveToTrashAsync()` on Windows, macOS and Linux.
+- Added `StorageVolume`, with the mounted volumes and `onMount` and `onUnmount` events, on Windows, macOS and Linux.
+- Added `NetworkInterface`, with the network interfaces and their addresses and an `onChange` event, on Windows, macOS, Linux, iOS and Android, and `onChange` on HTML5.
+- Added explicit font rendering flags and DPI-aware glyph rendering with `Font.renderGlyphWithLoadFlags()`, unhinted font decomposition with `Font.decomposeUnhinted()`, and HarfBuzz FT font change notifications.
+- Added `Font.isBold` and `Font.isItalic`.
+- Added `Font.setVariation()` to set the axes of variable fonts.
+- Added `Font.stemDarkening` and `Font.stemDarkeningParameters` to make text more readable.
+- Added a subpixel offset to `Font.renderGlyphWithLoadFlags()`.
+- Added `Cairo.getClipExtents()`, `getFillExtents()` and `getStrokeExtents()`, which give the extents as a `Rectangle`. `clipExtents()`, `fillExtents()` and `strokeExtents()` couldn't give their results and are deprecated.
+- Added project.xml support for Android manifest tags and Gradle plugin entries.
+- Added Android adaptive icons, which launchers on Android 8 and later mask to their own shape: the project's icon on a background color, with `<config:android adaptive-icon-background="#RRGGBB" />`, or layers given with `<icon path="" adaptive="foreground" />`, `background` and `monochrome`.
+- Added AIR options for Android App Bundles, Android Studio output, and shared runtime deployment.
+- Added VAO support on macOS.
+- Added `GL.copyImageSubData()` for desktop OpenGL 4.3 and `ARB_copy_image`.
+- Added `GL.polygonMode()`, for wireframes on desktop OpenGL, with `GL.supportsPolygonMode` and the `POINT`, `LINE`, `FILL` and `POLYGON_MODE` constants.
+- Added an `endian` argument to `Image.getPixels()`, as `setPixels()` has, so pixels can be read in the order `setPixels()` writes them back.
+- Added support for libhxcpp's incremental collector. With `HXCPP_GC_INCREMENTAL`, native C++ builds use it and advance a collection in the time left before a frame, unless `no-idle-gc` is defined.
+- Windows builds tell hxcpp where the application runs (`HXCPP_PGO_RUN_DIR`), so libhxcpp's profile-guided optimisation (`HXCPP_PGO`) works on the application in its own folder.
+- Added `VideoSource` and `VideoDecoder` for native video playback, with Media Foundation, AVFoundation, MediaCodec, and GStreamer backends.
+- Added texture output, HDR tone mapping, rotation and pixel aspect ratio, clock modes, gapless loops, stereo pan, skipping of late frames, and network streams to video playback, with NV12, RGBA, BGRA, and ARGB frames.
+- Added `VideoSource` playback on HTML5 through the browser's `<video>` element.
+- Added `VideoSource.loadFromFile()`, and `VideoDecoder.videoUnsupported` and `VideoDecoder.audioUnsupported` for streams of codecs that cannot be decoded.
+- Added `VideoSource.rate`, to play videos at 0.25 to 4 times normal speed.
+- Added `VideoSource.onReady`, `onSeek` and `onBuffering`, and `VideoSource.frameRate`, `bytesLoaded` and `bytesTotal`.
+- Added `VideoSource.fromBytes()`, `VideoSource.openBytes()`, `VideoDecoder.fromBytes()` and `VideoDecoder.openBytes()`. Embedded video assets now play, and URLs play on macOS and iOS, downloaded before they open.
+- Added the Vorbis sound of Matroska and WebM videos on Windows, which Media Foundation has no decoder for, read with libwebm and decoded with libvorbis.
+- Added `Window.flash()`, `Window.mouseRect`, and `Window.keyboardGrab`.
+- Added `Window.preciseMouseWheel` for smooth scrolling on touchpads and smooth wheels.
+- Added `Window.mouseLock` on HTML5, through the browser's pointer lock, with `onMouseMoveRelative` reporting the mouse's movement while it is locked.
+- Added `Window.appearance` and `Window.effectiveAppearance` to prefer light or dark window decorations.
+- Added `Window.onDisplayScaleChange`.
+- Added `Display.onConnect`, `Display.onDisconnect`, and `Display.onMove`.
+- Added `WindowAttributes.display`, to open a window centered on a chosen display, which `<window display="1" />` in project.xml now sets, and `WindowAttributes.displayMode`, to open a window in exclusive fullscreen at a display mode.
+- Added `Window.minimizeOnFocusLoss`, to keep a window in exclusive fullscreen while another window has focus.
+- Added `Gamepad.type`, motion sensors, touchpad events, trigger rumble, and light color.
+- Added AIR externs for `air.net.WebSocket` and `flash.events.WebSocketEvent`.
+- Added `Locale.preferredLocales`.
+- Added `ThreadPool.idleTimeout`, so idle threads wait for more work before they exit.
+- Added `CURL.versionInfo()` values for the library's age, version number, and features.
+- Added a `level` argument to `Bytes.compress()`, from 0 to 9, for each algorithm. Without it, compression is unchanged.
+- Added `HTTPRequest.verifyCertificates`.
+- Added `Menu`, `MenuItem`, `TrayIcon`, and `DockIcon` for native menu bars, context menus, system tray icons, and the macOS Dock, through the new native-desktop dependency.
+- Added the default macOS menu bar to `Application.menu`, which starts as a copy of it whose About, Hide, Services, Quit, and Window items keep working when items are added.
+- Added menu bars and context menus on HTML5, drawn in the page, for `Window.menu`, `Application.menu`, and `Menu.popup()`.
+- Added `FileDialog.open()` on HTML5, through the browser's file picker. Call it from a user input event, as browsers require.
+- Added `Clipboard.hasFormat()`, `getData()`, `setData()` and `clear()`, with `ClipboardFormat`, for HTML, rich text, URLs, file lists and images on Windows, macOS and Linux with GTK, and text, HTML and images on HTML5.
+- Added `TrayIcon.onMouseDown`, `onMouseUp` and `onDoubleClick`, and the pointer's screen position on `TrayIcon.onClick` and `onRightClick`, on Windows and macOS.
+- Added `Menu.onOpen`, dispatched before a menu is shown so its items can still change, and `Menu.onClose`, including for context menus closed without a selection.
+- Added `LocalServer` and `LocalSocket` for connections between processes of the same user, through the new native-ipc dependency.
+- Added `LocalServer` and `LocalSocket` on HTML5, between pages of the same origin, with `BroadcastChannel`.
+- Added `WebView`, a web page in a window on Windows, Linux, macOS, iOS, Android, AIR and in browsers, through the new StageWebView dependency. The `no-webview` define leaves the webview engine out of native and Android applications.
+- Added a `FocusDirection` to `WebView.focus()`, to enter the page at its first or last element, as tabbing does. `focus()` no longer enters it at the last element on Windows.
+- Added `WebSocket` and `WebSocketServer` for `ws://` and `wss://` clients and servers, through the new wsproto dependency, which CrossByte's WebSocket also runs on. Native targets need Haxe 4 for them.
+- Added `WebSocketError.CERTIFICATE_REJECTED`, dispatched on native targets when a `wss://` server's certificate does not verify.
+- Added `AL.getSourcedvSOFT()` for OpenAL Soft's source latency extension.
+- Added `ALC.getStringList()` to list every audio output and input device.
+- Added `ALC.isExtensionPresent()`.
+- Added `AL.deleteAux()`, `AL.deleteEffect()` and `AL.deleteFilter()` to free the effect slots, effects and filters that `AL.createAux()`, `AL.createEffect()` and `AL.createFilter()` make.
+- Added `ALC.reopenDevice()` and `ALC.eventIsSupported()` for OpenAL Soft's reopen-device and system-event extensions.
+- Added window icons on Linux.
+- Added the `-noupdate` flag to `lime build` and `lime test` to skip the update step.
+- Added the `-arm64` flag to build HashLink/C applications for Apple Silicon on macOS, with binaries from `lime rebuild hl -arm64`. HashLink's JIT does not run on Apple Silicon yet.
+- Added running Windows builds through Wine with `lime test` on other platforms.
+- Added arm64 iOS simulator builds, which the simulator runs on Apple silicon Macs without Rosetta. They are made there, or with `-arm64`, when the hxcpp that builds the libraries can make them, as libhxcpp can, and `-x86_64` still makes an x86_64 one. `lime rebuild ios` adds the arm64 simulator libraries.
+- Added the `lime_skip_invisible_windows` define to stop rendering windows that are hidden.
+- Added `&&`, `!` and parentheses to project.xml `if` and `unless` conditions, read as in Haxe's `#if`, and a warning for a condition that can't be read, which is false.
+- Added a warning to native builds and `lime rebuild` when the `hxcpp` haxelib is not libhxcpp while Lime is a git checkout or libhxcpp is installed, with the command that switches it, `haxelib run libhxcpp setup`.
+- Added a record of the sources `lime rebuild` built each native library from in a git checkout (`lime.ndll.sources` beside `lime.ndll`: the git tree of `project` and any submodules not at their pinned commits), and a warning in native builds that use a library built from older native sources, naming the `lime rebuild` command that builds it again. Haxelib releases and libraries without a record are not checked.
+- Added a warning to `lime rebuild` when submodules are not at the commits the checkout pins, naming `git submodule update --init --recursive`.
+- Added `lime diagnose`, which prints the Haxe, Lime, OpenFL and libhxcpp versions, with git commits for git checkouts, the folder `haxelib path hxcpp` gives, the C++ compiler hxcpp picks, the host and what Lime's native libraries were built from, to paste into a bug report.
+- Added `<window preserve-drawing-buffer="true" />` and the `preserveDrawingBuffer` option of `lime.embed()`, so an HTML5 application's main window can keep its drawing buffer for `readPixels()` and `toDataURL()`.
+- Added deprecation warnings to the command-line tools for what Lime 9 removes: the YUI Compressor (`-yui`), the armv5 and armv6 Android architectures, and Haxe 3.
+- Changed native streamed audio to refill from a thread of its own, so a stall on the main thread no longer drains a stream's buffers and drops its sound. Define `lime_audio_no_stream_thread` to refill from the main thread as before.
+- Changed native audio loading to decode through SDL_sound first, then Lime's own WAV and Ogg Vorbis decoders.
+- Changed asset copying and embedding to behave consistently across targets.
+- Changed OpenAL Soft HRTF to be disabled by default.
+- Changed OpenAL output device recovery with OpenAL Soft to move the device to the new output in place, holding every sound through the loss and carrying on from where it was, and to follow the system's default output as it changes where OpenAL Soft reports that.
+- Changed `allowHighDPI` on Windows to draw at each display's own resolution, rather than stretched from 96 DPI.
+- Changed `Window.alert()` to also request attention on macOS and Linux.
+- Changed Windows to show input methods' own composition and candidate windows.
+- Changed `FrameProfile.UNCAPPED` to uncap the frame loop.
+- Changed native desktop applications to update and render at no more than 30 frames a second while every window is minimised or hidden. Set `FrameOptions.backgroundFrameRate` to another rate, or to `0` to keep the full rate.
+- Changed HTML5 asset URLs to carry a version made from each asset's content, so a build that only changes code or other assets leaves an asset's URL, and the browser's cached copy, as they were. `lime-assets-version` still gives every asset the same version, and `lime-disable-assets-version` none.
+- Changed libraries made from asset bundles to decode images, sounds and fonts when they are first asked for, or at `load()` when marked to preload, and to stream music from the bundle. Reading a bundle lets go of each compressed file once it is inflated.
+- Changed the default Android target SDK to 36, which Google Play requires, with Android Gradle plugin 8.9.1 and Gradle 8.11.1. On Android 16, the back gesture and back key still reach the application as `APP_CONTROL_BACK`, and an Android application is a game by default (`android:appCategory="game"`), so it keeps its orientation on large screens.
+- Changed icons the tools scale down from larger images to average the pixels each one covers, rather than read four of them, so small icons come out smooth.
+- Added support for Android Gradle plugin 9 and Gradle 9, which removed `applicationVariants` and Groovy's SwingBuilder.
+- Changed native HTTP requests to look up names on a thread of their own on every platform.
+- Changed native HTTPS requests to check the server's certificate, against the system's trusted certificates (Mozilla's on iOS and tvOS). Set `HTTPRequest.verifyCertificates` to `false`, or define `lime-insecure-https`, for servers with self-signed certificates.
+- Changed static builds to use Lime's own mbedTLS rather than the one bundled with hxcpp.
+- Changed asset library load errors to say which bundle or manifest failed to load, and why.
+- Changed Windows HashLink release builds to hide the console window. Debug builds keep it, so `trace` output and uncaught errors reach the terminal they run from. Set the `SHOW_CONSOLE` environment variable, or `<setenv name="SHOW_CONSOLE" />`, to keep it in release builds.
+- Changed HTML5 on iOS Safari to pause and resume with the page's visibility, rather than window focus.
+- Changed `Font.loadFromName()` on HTML5 to use the browser's CSS Font Loading API in Safari, as in other browsers, rather than measuring text for up to three seconds.
+- Changed HTML5 applications with a frame rate of 0 to update on every animation frame.
+- Changed the error when the main class isn't found to also mention a missing `<source />` path.
+- Changed `Window.scale` to follow changes to the display scale, which `Window.onDisplayScaleChange` reports. Define `lime_disable_window_scale_change` to keep the scale a window was created with.
+- Changed SDL to name the application after its first window, as Linux shows it while it plays sound or keeps the screen awake.
+- Changed native windows to share OpenGL textures, buffers, and shaders with the main window, and to keep the main window's context current outside of rendering, rather than the last window created or rendered.
+- Changed desktop builds to include SDL's virtual joystick driver, as SDL does by default.
+- Changed embedded assets to no longer be copied to the output folder.
+- Changed asset libraries to drop disposed `AudioBuffer` objects from their caches.
+- Changed the iOS Xcode project to Xcode's recommended settings, with identity settings.
+- Changed the HTML5, Flash and WebAssembly test server to CrossByte's `HTTPServer`, run by the command-line tools, rather than http-server on a bundled Node.js, which made the haxelib too large to publish. CrossByte was chosen over snake-server because it answers range requests, which audio and video need to seek. The server listens on `127.0.0.1` unless `--host=0.0.0.0` lets other devices reach it. Building the tools now needs Haxe 4.3 or later, as does serving with `-eval`.
+- Changed desktop applications to take a quit request, such as Ctrl+C, SIGTERM or Cmd+Q, as a close request on every window, so `Window.onClose` runs and can cancel it, and `Application.onExit` follows.
+- Changed `-terser` to run terser through the system's `npx`, as `-npx` did, since Lime no longer bundles Node.js. It needs Node.js installed, and says so when it is not.
+- Changed `lime setup` to install libhxcpp, the continuation of hxcpp, in place of hxcpp, and to run its setup, which points the `hxcpp` haxelib at it so the compiler and every library that asks for hxcpp use it. Stock hxcpp, if installed, is left in place, and `haxelib run libhxcpp off` goes back to it. An `hxcpp` set with `haxelib dev` to a folder of your own is left as it is.
+- Changed the default iOS deployment target to 15.0, the oldest current Xcode versions build for.
+- Changed PNG and JPEG encoding on native targets to let the garbage collector run while it works, so an encode on another thread no longer holds up every collection until it finishes.
+- Changed Windows file dialogs to open on a worker thread again, as on the other platforms, so the application keeps drawing while one is open, and a dialog over a borderless fullscreen window no longer stays hidden behind it.
+- Changed native OpenGL windows to ask for a 24-bit depth buffer, rather than at least 8 bits.
+- Changed an OpenGL window whose pixel format the driver refuses, as over Remote Desktop, to try again with a basic one, and an application whose first window still can't be made to show why in a message box and exit, rather than run on with nothing on screen.
+- Changed setting `Window.frameRate` to the rate it already has to do nothing, and setting a new rate to keep the next frame's time rather than draw a frame at once.
+- Changed live resizing on Windows to draw each size the window takes, rather than stretch the last frame.
+- Updated pixman and platform config for LLVM assembly fixes, ARM NEON, Android NDKs, and Apple platforms.
+- Updated MojoAL and gamepad mappings.
+- Updated SDL submodule to version 2.32.10.
+- Updated OpenAL Soft submodule to version 1.25.2, with upstream's compiler fixes made after it (up to 7f9c6de1). Building Lime's native libraries from source now needs a C++20 compiler (GCC 12 or later on Linux), Android NDK r26 or later, and an hxcpp with the `cxx_standard` attribute, such as libhxcpp or hxcpp 4.3.135 and later.
+- Updated mbedTLS to 3.6.7 and curl to 8.23.0, adding TLS 1.3 to native HTTP requests.
+- Updated the bundled CA certificates to Mozilla's 2026-10-20 list, which drops three eMudhra roots.
+- Updated FreeType to 2.14.3, libpng to 1.6.59, zlib to 1.3.2, HarfBuzz to 14.6.0, libjpeg-turbo to 2.1.5.1 and libwebm to 1.0.0.32, for security fixes in reading fonts, images, compressed data and WebM files. FreeType's auto-hinter and hinting changed between versions, so some hinted glyphs and auto-hinted outlines can differ by a few pixels.
+- Changed native builds for x86 to include libpng's SSE2 row filters, as ARM builds include its NEON ones, which undo the Sub, Average and Paeth filters of RGB and RGBA PNGs faster while decoding.
+- Updated HashLink to 1.16.
+- Updated the macOS `webify`, which converts fonts for HTML5, to 0.1.10.0, and `ios-deploy` to 1.12.2, each with an arm64 build alongside x86_64, so neither needs Rosetta on Apple silicon Macs, and removed the unused `fruitstrap`.
+- Fixed an asset embedding regression.
+- Fixed `lime test` on Linux stopping with an xdg-open error instead of opening the browser, after starting the test server or for projects with an `app.url`. xdg-open now runs in the background.
+- Fixed HashLink on macOS boxing a `false` returned by a native function as `true`, as in a `Future` result: Lime's HashLink runtime clears the upper bits of a `Bool` before boxing it, as HashLink's newer JIT does.
+- Fixed Windows cpp icon resource handling when no icon is generated.
+- Fixed GL cleanup and desktop GL object collection.
+- Fixed native and HashLink `AudioBuffer` layout mismatches.
+- Fixed `AudioBuffer.fromBytes()` and `AudioBuffer.fromBase64()` on HTML5 to avoid forcing HTML5 audio buffers.
+- Fixed perspective camera matrix calculation.
+- Fixed Tizen `appinfo.json` templating.
+- Fixed Android architecture parsing for `x86_64` and `x86_32`.
+- Fixed `VideoDecoder` leaking a texture each time a `TEXTURE` video was read with another window's context current.
+- Fixed collected `GLSync` and `GLTransformFeedback` objects never being deleted.
+- Fixed collected framebuffers, vertex arrays, transform feedbacks and queries being deleted in whichever window's OpenGL context was current, and found by name in another window's.
+- Fixed 64-bit Android libraries built with NDK r27 or older and hxcpp 4.3.2 not being aligned for devices with 16 KB pages.
+- Fixed `::ANDROID_INSTALL_LOCATION::` in Android manifest templates copied from Lime 8.3 and earlier.
+- Fixed HTML5 gamepad connect and disconnect events.
+- Fixed a `ThreadPool` job started in an HTML5 application's constructor with `lime-threads`, whose worker looked for `undefined.js` and never ran it.
+- Fixed HTML5 gamepads in browsers that leave a disconnected pad out of `navigator.getGamepads()`, which never reported the disconnect, and a pad that connected again at the same index.
+- Fixed `projectFilePath` for HXP projects.
+- Fixed HTML5 transparent docs generation.
+- Fixed native HTTP requests freezing the application during slow name lookups (#1769).
+- Fixed HashLink collections waiting on threads blocked in native calls.
+- Fixed `Future.ready()` and `Future.result()` never seeing threaded work complete.
+- Fixed single-threaded `ThreadPool` work running past its share of a frame while waiting.
+- Fixed `Font.renderGlyphs()` reading glyphs in an outdated layout, and on HashLink.
+- Fixed `Font.decompose()` on HashLink giving kerning pairs with no values: their array was made for 32-bit integers, which the collector doesn't scan and the pairs overran.
+- Fixed `getVertexAttribOffset()` and `getBufferPointerv()` writing through a null pointer, and `mapBufferRange()`, `unmapBuffer()`, and `getBufferPointerv()` doing nothing on desktop OpenGL.
+- Fixed compositions longer than 31 bytes being cut short in input methods.
+- Fixed `AudioBuffer.fromBytes()`, `AudioBuffer.fromBytesStream()`, and WAV files without a `.wav` extension decoding as MP3, such as sounds that fade out to near silence.
+- Fixed WAV files with an odd-sized chunk before their samples, or a format chunk longer than 16 bytes, failing to decode.
+- Fixed `System.getTimer()`, `Timer`, and `Timer.stamp()` stopping after 24.8 days of uptime.
+- Fixed `System.openFile()` and `System.openURL()` on Windows showing a console window for a moment. They open through the shell rather than `cmd`.
+- Fixed the main loop freezing on Linux when the system clock changes.
+- Fixed SDL frame timing and event handling, and input and window pacing on Windows.
+- Fixed HTML5 frame pacing at 60 fps.
+- Fixed a crash in `HTML5Window` when the display scale differs at startup.
+- Fixed a crash when a native window is closed while it renders, and leaving no OpenGL context current when the window whose context was current is closed.
+- Fixed compressed 3D textures staying empty on desktop OpenGL.
+- Fixed PNG decoding from bytes using its reader after it went out of scope.
+- Fixed a crash opening compressed assets as files on Android.
+- Fixed OpenAL bindings returning uninitialized values, and `AL.sourceUnqueueBuffers()` returning buffers it didn't unqueue.
+- Fixed OpenAL objects deadlocking the collector when finalized, leaking buffers collected before their sources, and deleting the objects of a replacement device.
+- Fixed `AL.isFilter()` telling whether a source had the filter's name instead of whether it was a filter.
+- Fixed exceptions thrown in event listeners losing their original call site.
+- Fixed `Event` skipping a listener, or calling one again, when a listener adds or removes listeners while it runs.
+- Fixed constructing `Bytes` with no arguments on HashLink.
+- Fixed `Bytes.compress()` and `Bytes.decompress()` with LZMA on HTML5, and `Bytes.decompress()` on HTML5 accepting truncated ZLIB, GZIP and DEFLATE data, ZLIB data as GZIP and GZIP as ZLIB, and reading only the first member of a GZIP file.
+- Fixed `FileDialog` wildcard filters.
+- Fixed the Windows icon resource not being rebuilt when the icon changes.
+- Fixed template assets failing to copy when their destination directory doesn't exist.
+- Fixed the XRandR library name on Linux.
+- Fixed HXP projects processing Haxelib include files twice.
+- Fixed HashLink/C builds on macOS with newer Xcode versions.
+- Fixed WebAssembly builds with newer Emscripten versions.
+- Fixed loading an `HTTPRequest` again using a curl handle that had been freed, so the load never reached the server, or changed another request.
+- Fixed `CURLOption.ERRORBUFFER` handing libcurl a string to write errors to, which corrupted memory when a transfer failed. The handle now has a buffer of its own, read with `CURL.getErrorBuffer()`.
+- Fixed a `VorbisFile` opened from bytes reading them after they were collected.
+- Fixed a small memory leak for each `VorbisFile`.
+- Fixed `Font` glyph lookups for characters beyond U+FFFF, such as emoji, and for UTF-8 led by the bytes 0xE0, 0xED, and 0xF0, such as Devanagari and Thai.
+- Fixed `Window.maxWidth` setting the minimum size.
+- Fixed `Window.maximized` staying `true` after the system restores a maximized window, from its title bar or a keyboard shortcut.
+- Fixed `WindowAttributes.x` and `y`, and `<window x="" y="" />`, which native windows ignored, and `Window.x` and `y` on CommonJS builds, which used each other's accessors.
+- Fixed a window staying black after it entered or left fullscreen until something drew it again. `onExpose` is now dispatched for the first frames after the change.
+- Fixed the AIR `DNSResolverEvent` extern giving `bubbles` a String default, which failed builds that use it.
+- Fixed Android windows that aren't fullscreen drawing under the status and navigation bars on Android 15 and later, which draw applications that target API 35 or later edge to edge.
+- Fixed natively decoded PNG and JPEG images always being marked as transparent, JPEGs included, so OpenFL drew opaque bitmaps with blending.
+- Fixed a leak when a PNG fails to decode, and JPEG decoding reading past the end of its data when a marker claims more than is left.
+- Fixed PNG and JPEG `encode()` of an image that is part of a larger buffer encoding more than the image, and BMP `encode()` leaving 24-bit rows unpadded and writing ICO masks a byte per pixel.
+- Fixed `Image.resize()` truncating its colours, and wrapping the right and bottom edges' colours onto the left and top when scaling up.
+- Fixed `Image.getPixels()` and `setPixels()` without a format not using RGBA32 on every target.
+- Fixed `Image.copyPixels()` and `fillRect()` taking whole-image shortcuts where they give a different result.
+- Fixed `Image.merge()`, `copyChannel()` and `threshold()` with a destination point or rectangle past an edge shifting pixels and changing their arguments, and `copyPixels()` reading the alpha image from the wrong point.
+- Fixed `Image.floodFill()` not filling a lone pixel, reading a start point outside the image, and filling past an image that is part of a larger buffer.
+- Fixed `Image.threshold()` comparing the masked pixel with the whole threshold, and comparing colours byte by byte rather than as ARGB numbers.
+- Fixed `ImageDataUtil.gaussianBlur()` ignoring its strength, so OpenFL's glows and drop shadows drawn in software came out as the same faint halo whatever their strength.
+- Fixed writing a premultiplied colour changing the caller's colour, and native code premultiplying with different rounding.
+- Fixed `ARGB.readUInt8()` reading some formats' bytes into the wrong channels.
+- Fixed `ImageBuffer.clone()` on Flash sharing the original's pixel data.
+- Fixed `Image.scroll()` on Flash and AIR adding the image's offset in its bitmap to the amounts, and scrolling the whole bitmap for an image that is part of a larger one.
+- Fixed `Font.renderGlyph()` and `renderGlyphs()` rendering a font's embedded bitmaps as LCD.
+- Fixed `Font.fromFile()` returning null on Windows for paths with characters outside the system's code page, such as a user name in it.
+- Fixed fonts without a full name having no family name, and font names freed the wrong way.
+- Fixed `CairoImageSurface.fromImage()` of an image that is part of a larger buffer drawing into the buffer's top left, `CairoImageSurface.data` on HashLink, `Cairo.showText(null)` ending the process on HashLink, `Cairo.fontOptions` always being null, and colour stops on patterns that aren't gradients.
+- Fixed a HarfBuzz font made from a `Font` reading its face after the `Font` was collected, `HBBlob.data` giving 0 on C++, and HarfBuzz getters that gave the wrong value.
+- Fixed `Matrix3.transformRect()` placing its result at the wrong position.
+- Fixed `Matrix4.createPerspective()` not taking the vertical field of view in degrees, `appendRotation()` and `prependRotation()` not turning about the pivot point, and `pointAt()`, `deltaTransformVector()` and `interpolate()` not doing what Flash's `Matrix3D` does.
+- Fixed `ColorMatrix.concat()` ignoring the second matrix's offsets.
+- Fixed `Vector4.angleBetween()` giving NaN for parallel and opposite vectors.
+- Fixed typed arrays on native targets throwing when made from another type, copying past the view, writing `set()` at the wrong offset, and taking `subarray()` indices outside the view, and `UInt8ClampedArray` not clamping negative values to 0 on every CPU. Element access outside a view is ignored in debug builds.
+- Fixed the `WebGL2RenderContext` overloads that take `srcOffset`, `srcLength` or `length` counting bytes rather than elements on native targets.
+- Fixed `GL.getUniform()` on native targets reading another uniform, or with the wrong type, where the driver's locations differ from the indices.
+- Fixed `GL.getActiveAttrib()` and `GL.getActiveUniform()` on native targets sizing the name's buffer from a GL constant rather than the longest name the program has, and leaking the name on HashLink.
+- Fixed a crash when OpenGL objects are made or deleted while another thread collects.
+- Fixed `Bytes.decompress()` on native targets accepting truncated ZLIB, GZIP and DEFLATE data and reading only the first member of a GZIP file, and LZMA ending the process for empty or short data and failing on streams of unknown size.
+- Fixed the HTML5 LZMA library failing with "Cannot set properties of undefined (setting 'LZMA_WORKER')" when the application's script runs as a JavaScript module.
+- Fixed `GZip.compress()` and `decompress()` on Flash, and empty streams and concatenated GZIP members on Flash and AIR.
+- Fixed `Bytes` made in native code having a trailing zero on Neko, and `Bytes.fromFile()` giving null for an empty file.
+- Fixed `UTF8String` counting bytes rather than code points on Neko with Haxe 4.
+- Fixed `HTTPRequest.timeout` being ignored on native targets, so a server that never answered, or stopped partway, was waited on for good. It is how long a request may go without receiving or sending data, as OpenFL's `URLRequest.idleTimeout`, which sets it, so a download or upload still under way carries on past it.
+- Fixed `HTTPRequest.cancel()` not stopping the transfer, and a redirect that turns a request into a GET keeping its content.
+- Fixed `HTTPRequest` error statuses losing the response body, text responses keeping a BOM, and `responseHeaders` coming from an earlier response of a redirect and splitting values at every colon.
+- Fixed the last progress report of a native `HTTPRequest` missing the end of the body, and a new request waiting up to a second while others waited on their servers.
+- Fixed a PUT without data reading its body from standard input, and text POST and PUT bodies, such as OpenFL's `URLLoader` sends by default, going out chunked and with their line endings changed outside Windows.
+- Fixed native `HTTPRequest` sending no body for PATCH, DELETE, OPTIONS and other methods besides POST and PUT, so a server saw their data, or their form data, as empty.
+- Fixed `CURL.getInfo()` with string and 64-bit infos, cookies not being kept between requests on HashLink, `CURL.escape()` and `unescape()` with UTF-8, `CURLOption` and `CURLInfo` values that didn't match curl's, cloned handles sharing their original's headers and data, and `POSTFIELDS` freed before the transfer.
+- Fixed races between threads using CURL multi handles, and finalizing CURL handles deadlocking the collector.
+- Fixed `AL.getString()` with an unknown name ending the process on HashLink, refused vector queries giving uninitialized values, the three-value getters filling the wrong elements, and creating buffers and sources clearing an error the application hadn't read.
+- Fixed Ogg Vorbis decoding writing past its buffer.
+- Fixed `VorbisFile.readFloat()` doing nothing on native targets. It now decodes into the given bytes as interleaved 32-bit floats.
+- Fixed `AudioBuffer.dispose()` keeping the decoded samples and their OpenAL buffer on native targets.
+- Fixed a streamed `AudioSource` seeked before it plays replaying its first buffers, a seek starting it early, a `currentTime` set before `play()` being lost, and `currentTime` jumping to 0 at the end of a sound.
+- Fixed asset libraries not preloading again on `load()` after `unload()`, `isLocal()` and `Assets.list()` giving ids that don't work, a corrupt manifest or bundle ending the application rather than failing `loadLibrary()`, `AssetManifest.parse()` losing the version and absolute paths, `AssetBundle.fromFile()` with a file it can't read, and `PackedAssetLibrary` `unload()`, `loadText()` with zip packs, and loaders run before the pack loads.
+- Fixed `<`, `<=`, `>` and `>=` in project.xml `${...}` comparisons comparing versions and numbers as text, so 9.2.0 came after 10.0.0.
+- Fixed project.xml `<haxelib path>` not being relative to its file, nested `<assets>` directories and `<binary>` and `<text>` types, `<window>` x, y and display, `if` and `unless` inside `<config>`, included files being read more than once, and an included file's defines not replacing earlier ones.
+- Fixed asset include and exclude patterns matching part of a file name, `if="js"` being false in HTML5 builds, WebAssembly embedding assets not marked to embed, project windows sharing their settings, and gzip packs.
+- Fixed titles and meta values with `&`, `<` or quotes breaking generated files, Android Gradle plugin versions of 10 and later, merged config lists losing values, and SVG icons sized only by a viewBox.
+- Fixed a haxelib with a path of its own, such as Lime in a local haxelib repository or one given with `--haxelib-NAME=`, leaving out its `extraParams.hxml`, which broke embedded sounds.
+- Fixed defining `AIR_SDK` with `-D` or `<define>` crashing the tools unless the environment variable was set too.
+- Fixed `-static` desktop builds failing to link.
+- Fixed an exception thrown in a `Future.then()` callback not failing the chain, `Future.ofEvents()` forwarding only the first progress update, and a second `Promise.complete()` or `error()` replacing the first.
+- Fixed a `once` listener still being a listener while it runs.
+- Fixed `ObjectPool.release()` corrupting the pool in release builds for an object that isn't active in it.
+- Fixed `URIParser` with an `@` after the host, and with IPv6 hosts.
+- Fixed `ThreadPool.cancelJob()` cancelling another job, and jobs taken before `cancel()` going uncounted.
+- Fixed dropped files reaching every window's `onDropFile`, cloned mouse events naming window 0, `Window.onFullscreen` listeners reading `fullscreen` as `false`, and each window resize being dispatched twice on macOS, Linux and mobile.
+- Fixed setting the desktop's own display mode making every later fullscreen exclusive.
+- Fixed leaving fullscreen on Windows giving back a window larger than the display, which Windows then took for a fullscreen window and kept the taskbar behind. It is now made to fit, with the same shape.
+- Fixed `vsync="adaptive"` and `vsync="auto"` in project.xml asking for plain vertical sync.
+- Fixed HashLink leaking the text of each text input event and dropped file path, and `sys.io.Process` failing for every command on HashLink on Windows.
+- Fixed the tools opening a console window titled with the address on Windows, rather than the browser, for a project's `<app url>` and `lime setup`'s download pages, and `<command open>` doing the same for a path.
+- Fixed iOS and tvOS applications built with libhxcpp not linking Security.framework, which libhxcpp's TLS (`sys.ssl`, HTTPS through `haxe.Http`, `WebSocket` over `wss://`) uses there to check certificates. Lime links it only when the hxcpp in use asks for it, so builds with hxcpp 4.3 are unchanged.
+- Fixed `FileSystem.fullPath()` on HashLink for Windows giving only the first half of each name in its case on disk.
+- Fixed decoding sounds from bytes on macOS and iOS crashing when SDL_sound's Core Audio decoder tries them, as it does for M4A, AAC and CAF data and for bytes that aren't a sound.
+- Fixed HTML5 `-minify` and `-final` builds minifying the embedded JavaScript libraries along with the application, so libraries such as howler.min.js were minified a second time. Only the application is minified now, and the embedded libraries are added as they are.
+- Fixed the `Assets` getters giving null with no error when an asset exists but fails to load, such as an Ogg file the decoder can't read, or throwing an unclear cache error for a sound or image. They now report it with `Log.error`, as for a missing asset, and leave it out of the cache.
+- Fixed C++ builds with the build folder outside the project running hxcpp from the global haxelib repository, rather than the project's local repository.
+- Fixed `lime run` and `lime test` not accepting `--args` as they do `-args` and `--`, reading the arguments after it as a project path rather than passing them at launch.
+- Fixed the iOS App Store icon keeping its transparency and alpha channel, which App Store Connect rejects. It is now drawn over white and written without an alpha channel.
+- Fixed iOS builds failing to sign with a distribution provisioning profile, as the entitlements always set `get-task-allow` to true. The provisioning profile now sets it, as in projects Xcode makes, so development builds can still be debugged.
+- Fixed Cairo clipping thick strokes under a matrix that stretches one axis and shrinks the other by about the same factor.
+- Fixed `System.desktopDirectory` and `System.documentsDirectory` on Linux always giving `~/Desktop` and `~/Documents`, rather than the folders the desktop's user-dirs.dirs file names, such as `~/Bureau` in French.
+- Fixed `window.displayMode.refreshRate` reading 0 where SDL has no refresh rate for the window's mode, as on Linux: it now gives the display's current rate.
+- Fixed `Window.fullscreen` reading `false` while a window is still fullscreen: after it is minimized and restored, as with Alt+Tab, when macOS enters fullscreen with a maximize, and when a maximized window goes fullscreen. It now reads SDL's own state at those events.
+
 8.3.2 (05/13/2026)
 ------------------
 

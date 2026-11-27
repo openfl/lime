@@ -25,19 +25,73 @@ class AssetHelper
 	{
 		knownExtensions = [
 
-			"jpg" => IMAGE, "jpeg" => IMAGE, "png" => IMAGE, "gif" => IMAGE, "webp" => IMAGE, "bmp" => IMAGE, "tiff" => IMAGE, "jfif" => IMAGE, "otf" => FONT,
-			"ttf" => FONT, "wav" => SOUND, "wave" => SOUND, "flac" => SOUND, "mid" => SOUND, "midi" => SOUND, "ogg" => SOUND, "spx" => SOUND, "au" => SOUND,
-			"aiff" => SOUND, "oga" => SOUND, "mp3" => MUSIC, "mp2" => MUSIC, "exe" => BINARY, "bin" => BINARY, "so" => BINARY, "pch" => BINARY,
-			"dll" => BINARY, "zip" => BINARY, "tar" => BINARY, "gz" => BINARY, "fla" => BINARY, "swf" => BINARY, "atf" => BINARY, "psd" => BINARY,
-			"awd" => BINARY, "txt" => TEXT, "text" => TEXT, "xml" => TEXT, "java" => TEXT, "hx" => TEXT, "cpp" => TEXT, "c" => TEXT, "h" => TEXT,
-			"cs" => TEXT, "js" => TEXT, "mm" => TEXT, "hxml" => TEXT, "html" => TEXT, "json" => TEXT, "css" => TEXT, "gpe" => TEXT, "pbxproj" => TEXT,
-			"plist" => TEXT, "properties" => TEXT, "ini" => TEXT, "hxproj" => TEXT, "nmml" => TEXT, "lime" => TEXT, "svg" => TEXT,
+			"jpg" => IMAGE,
+			"jpeg" => IMAGE,
+			"png" => IMAGE,
+			"gif" => IMAGE,
+			"webp" => IMAGE,
+			"bmp" => IMAGE,
+			"tiff" => IMAGE,
+			"jfif" => IMAGE,
+			"otf" => FONT,
+			"ttf" => FONT,
+			"wav" => SOUND,
+			"wave" => SOUND,
+			"flac" => SOUND,
+			"mid" => SOUND,
+			"midi" => SOUND,
+			"ogg" => SOUND,
+			"spx" => SOUND,
+			"au" => SOUND,
+			"aiff" => SOUND,
+			"oga" => SOUND,
+			"mp3" => MUSIC,
+			"mp2" => MUSIC,
+			"exe" => BINARY,
+			"bin" => BINARY,
+			"so" => BINARY,
+			"pch" => BINARY,
+			"dll" => BINARY,
+			"zip" => BINARY,
+			"tar" => BINARY,
+			"gz" => BINARY,
+			"fla" => BINARY,
+			"swf" => BINARY,
+			"atf" => BINARY,
+			"psd" => BINARY,
+			"awd" => BINARY,
+			"txt" => TEXT,
+			"text" => TEXT,
+			"xml" => TEXT,
+			"java" => TEXT,
+			"hx" => TEXT,
+			"cpp" => TEXT,
+			"c" => TEXT,
+			"h" => TEXT,
+			"cs" => TEXT,
+			"js" => TEXT,
+			"mm" => TEXT,
+			"hxml" => TEXT,
+			"html" => TEXT,
+			"json" => TEXT,
+			"css" => TEXT,
+			"gpe" => TEXT,
+			"pbxproj" => TEXT,
+			"plist" => TEXT,
+			"properties" => TEXT,
+			"ini" => TEXT,
+			"hxproj" => TEXT,
+			"nmml" => TEXT,
+			"lime" => TEXT,
+			"svg" => TEXT,
 
 		];
 	}
 
 	public static function copyAsset(asset:Asset, destination:String, context:Dynamic = null)
 	{
+		System.mkdir(Path.directory(destination));
+
 		if (asset.sourcePath != "")
 		{
 			System.copyFile(asset.sourcePath, destination, context, asset.type == TEMPLATE);
@@ -107,6 +161,7 @@ class AssetHelper
 	{
 		var manifest = new AssetManifest();
 		var pathGroups = new Map<String, Array<String>>();
+		var versionGroups = new Map<String, Array<String>>();
 
 		var libraries = new Map<String, Library>();
 		if (library == null) library = DEFAULT_LIBRARY_NAME;
@@ -120,7 +175,7 @@ class AssetHelper
 
 		for (asset in project.assets)
 		{
-			assetData = getAssetData(project, pathGroups, libraries, library, asset);
+			assetData = getAssetData(project, pathGroups, versionGroups, libraries, library, asset);
 
 			if (assetData != null)
 			{
@@ -136,6 +191,24 @@ class AssetHelper
 		}
 
 		return manifest;
+	}
+
+	/**
+		The first 10 hex digits of the MD5 of an asset's file, or null where it has none,
+		so a browser loads it again once its content changes.
+	**/
+	private static function contentVersion(asset:Asset):String
+	{
+		try
+		{
+			if (asset.sourcePath != null && asset.sourcePath != "" && FileSystem.exists(asset.sourcePath) && !FileSystem.isDirectory(asset.sourcePath))
+			{
+				return haxe.crypto.Md5.make(File.getBytes(asset.sourcePath)).toHex().substr(0, 10);
+			}
+		}
+		catch (e:Dynamic) {}
+
+		return null;
 	}
 
 	public static function createManifests(project:HXProject, targetDirectory:String = null):Array<AssetManifest>
@@ -192,8 +265,8 @@ class AssetHelper
 		return manifests;
 	}
 
-	private static function getAssetData(project:HXProject, pathGroups:Map<String, Array<String>>, libraries:Map<String, Library>, library:String,
-			asset:Asset):Dynamic
+	private static function getAssetData(project:HXProject, pathGroups:Map<String, Array<String>>, versionGroups:Map<String, Array<String>>,
+			libraries:Map<String, Library>, library:String, asset:Asset):Dynamic
 	{
 		if ((asset.library != null && asset.library != library) || asset.type == TEMPLATE) return null;
 		if (asset.library == null && library != DEFAULT_LIBRARY_NAME) return null;
@@ -239,6 +312,10 @@ class AssetHelper
 			{
 				assetData.path = asset.resourceName;
 
+				// The URL changes with the asset's content, rather than with every build
+				var version = contentVersion(asset);
+				if (version != null) assetData.version = version;
+
 				if (asset.embed != false || (asset.library != null && libraries.exists(asset.library) && libraries[asset.library].preload))
 				{
 					assetData.preload = true;
@@ -251,15 +328,19 @@ class AssetHelper
 					if (!pathGroups.exists(soundName))
 					{
 						pathGroups.set(soundName, [assetData.path]);
+						versionGroups.set(soundName, [version]);
 					}
 					else
 					{
 						pathGroups[soundName].push(assetData.path);
+						versionGroups[soundName].push(version);
 						Reflect.deleteField(assetData, "preload");
 					}
 
 					Reflect.deleteField(assetData, "path");
+					Reflect.deleteField(assetData, "version");
 					assetData.pathGroup = pathGroups[soundName];
+					if (version != null) assetData.versionGroup = versionGroups[soundName];
 				}
 			}
 		}
@@ -285,12 +366,12 @@ class AssetHelper
 		return assetData;
 	}
 
-	private static function getPackedAssetData(project:HXProject, output:FileOutput, pathGroups:Map<String, Array<String>>, libraries:Map<String, Library>,
-			library:Library, asset:Asset):Dynamic
+	private static function getPackedAssetData(project:HXProject, output:FileOutput, pathGroups:Map<String, Array<String>>,
+			versionGroups:Map<String, Array<String>>, libraries:Map<String, Library>, library:Library, asset:Asset):Dynamic
 	{
 		if (project.target == HTML5 && (asset.type == MUSIC || asset.type == SOUND || asset.type == FONT))
 		{
-			return getAssetData(project, pathGroups, libraries, library.name, asset);
+			return getAssetData(project, pathGroups, versionGroups, libraries, library.name, asset);
 		}
 
 		if (asset.type == TEMPLATE) return null;
@@ -339,7 +420,7 @@ class AssetHelper
 						{
 							var bytes:Bytes = asset.data;
 							bytes = bytes.compress(GZIP);
-							output.writeBytes(bytes, 0, asset.data.length);
+							output.writeBytes(bytes, 0, bytes.length);
 						}
 						else if (asset.sourcePath != null)
 						{
@@ -620,6 +701,7 @@ class AssetHelper
 		var embeddedLibrary = false;
 
 		var pathGroups = new Map<String, Array<String>>();
+		var versionGroups = new Map<String, Array<String>>();
 		var libraries = new Map<String, Library>();
 		for (lib in project.libraries)
 		{
@@ -666,7 +748,7 @@ class AssetHelper
 
 						for (asset in project.assets)
 						{
-							assetData = getPackedAssetData(project, output, pathGroups, libraries, library, asset);
+							assetData = getPackedAssetData(project, output, pathGroups, versionGroups, libraries, library, asset);
 
 							if (assetData != null)
 							{

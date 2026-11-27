@@ -7,7 +7,6 @@ import lime.system.CFFI;
 #if (!lime_doc_gen || lime_cffi)
 import lime.system.CFFIPointer;
 #end
-
 #if (!lime_doc_gen || lime_cffi)
 import lime._internal.backend.native.NativeCFFI;
 #end

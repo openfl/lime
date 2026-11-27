@@ -4,6 +4,7 @@
 #include <system/Display.h>
 #include <system/DisplayMode.h>
 #include <system/JNI.h>
+#include <system/Locale.h>
 #include <system/System.h>
 
 #ifdef HX_MACOS
@@ -38,6 +39,9 @@
 
 #include <SDL.h>
 #include <string>
+#include <cstdlib>
+#include <cstring>
+#include <fstream>
 
 #include <locale>
 #include <codecvt>
@@ -64,6 +68,17 @@ namespace lime {
 
 	const char* Clipboard::GetText () {
 
+		if (HasDesktopText ()) {
+
+			// Freed with free, as SDL's text is
+			std::string text;
+			if (!GetFormatText (0, &text)) return NULL;
+			char* copy = (char*)malloc (text.size () + 1);
+			if (copy) memcpy (copy, text.c_str (), text.size () + 1);
+			return copy;
+
+		}
+
 		return SDL_GetClipboardText ();
 
 	}
@@ -71,6 +86,7 @@ namespace lime {
 
 	bool Clipboard::HasText () {
 
+		if (HasDesktopText ()) return HasFormat (0);
 		return SDL_HasClipboardText ();
 
 	}
@@ -78,6 +94,7 @@ namespace lime {
 
 	bool Clipboard::SetText (const char* text) {
 
+		if (HasDesktopText () && SetDesktopText (text)) return true;
 		return (SDL_SetClipboardText (text) == 0);
 
 	}
@@ -94,11 +111,108 @@ namespace lime {
 	}
 
 
+	std::string* Locale::GetPreferredLocales () {
+
+		// The languages the user prefers, most preferred first, as "en-US,fr,ja"
+		SDL_Locale* locales = SDL_GetPreferredLocales ();
+		std::string* result = new std::string ();
+
+		if (locales) {
+
+			for (SDL_Locale* locale = locales; locale->language; locale++) {
+
+				if (!result->empty ()) result->append (",");
+				result->append (locale->language);
+
+				if (locale->country) {
+
+					result->append ("-");
+					result->append (locale->country);
+
+				}
+
+			}
+
+			SDL_free (locales);
+
+		}
+
+		return result;
+
+	}
+
+
 	bool System::GetAllowScreenTimeout () {
 
 		return SDL_IsScreenSaverEnabled ();
 
 	}
+
+
+	#if !defined (HX_WINDOWS) && !defined (__APPLE__) && !defined (ANDROID)
+	// Linux and other XDG desktops list the user's folders, named in the user's language, in
+	// $XDG_CONFIG_HOME/user-dirs.dirs or ~/.config/user-dirs.dirs, with lines such as
+	// XDG_DESKTOP_DIR="$HOME/Bureau". path keeps its English default when there is no such line.
+	static void GetXDGUserDirectory (const char* name, const char* home, std::string* path) {
+
+		const char* configHome = getenv ("XDG_CONFIG_HOME");
+		std::string file;
+
+		if (configHome != NULL && configHome[0] == '/') {
+
+			file = std::string (configHome) + std::string ("/user-dirs.dirs");
+
+		} else {
+
+			file = std::string (home) + std::string ("/.config/user-dirs.dirs");
+
+		}
+
+		std::ifstream stream (file.c_str ());
+		std::string key = std::string ("XDG_") + name + std::string ("_DIR");
+		std::string line;
+
+		while (std::getline (stream, line)) {
+
+			// Lines starting with # are comments, and a value is "$HOME/..." or "/..." in quotes, with \ escaping a character
+			size_t i = line.find_first_not_of (" \t");
+			if (i == std::string::npos || line.compare (i, key.size (), key) != 0) continue;
+			i = line.find_first_not_of (" \t", i + key.size ());
+			if (i == std::string::npos || line[i] != '=') continue;
+			i = line.find_first_not_of (" \t", i + 1);
+			if (i == std::string::npos || line[i] != '"') continue;
+			i++;
+
+			std::string value;
+
+			if (line.compare (i, 6, "$HOME/") == 0 || line.compare (i, 6, "$HOME\"") == 0) {
+
+				value = home;
+				i += 5;
+
+			} else if (line.compare (i, 1, "/") != 0) {
+
+				continue;
+
+			}
+
+			while (i < line.size () && line[i] != '"') {
+
+				if (line[i] == '\\' && i + 1 < line.size ()) i++;
+				value += line[i++];
+
+			}
+
+			if (i == line.size ()) continue;
+			while (value.size () > 1 && value[value.size () - 1] == '/') value.erase (value.size () - 1);
+
+			// The last line wins, as it does when the shell reads the file
+			*path = value;
+
+		}
+
+	}
+	#endif
 
 
 	std::wstring* System::GetDirectory (SystemDirectory type, const char* company, const char* title) {
@@ -164,6 +278,9 @@ namespace lime {
 				if (home != NULL) {
 
 					std::string path = std::string (home) + std::string ("/Desktop");
+					#ifndef __APPLE__
+					GetXDGUserDirectory ("DESKTOP", home, &path);
+					#endif
 					wstring_convert converter;
 					result = new std::wstring (converter.from_bytes(path));
 
@@ -202,6 +319,9 @@ namespace lime {
 				if (home != NULL) {
 
 					std::string path = std::string (home) + std::string ("/Documents");
+					#ifndef __APPLE__
+					GetXDGUserDirectory ("DOCUMENTS", home, &path);
+					#endif
 					wstring_convert converter;
 					result = new std::wstring (converter.from_bytes(path));
 
@@ -574,7 +694,12 @@ namespace lime {
 
 	double System::GetTimer () {
 
+		// SDL_GetTicks is 32-bit and wraps after 49.7 days
+		#if SDL_VERSION_ATLEAST(2, 0, 18)
+		return SDL_GetTicks64 ();
+		#else
 		return SDL_GetTicks ();
+		#endif
 
 	}
 
@@ -618,8 +743,10 @@ namespace lime {
 				off_t outStart;
 				off_t outLength;
 				fd = AAsset_openFileDescriptor ((AAsset*)(((SDL_RWops*)handle)->hidden.androidio.asset), &outStart, &outLength);
-				FILE* file = ::fdopen (fd, "rb");
-				::fseek (file, outStart, 0);
+
+				// Compressed assets have no file descriptor
+				FILE* file = fd >= 0 ? ::fdopen (fd, "rb") : NULL;
+				if (file) ::fseek (file, outStart, 0);
 				System::GCExitBlocking ();
 				return file;
 				#endif

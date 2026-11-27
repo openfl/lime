@@ -4,6 +4,7 @@ package lime.media;
 @:fileXml('tags="haxe,release"')
 @:noDebug
 #end
+
 /**
 	The `AudioInputDevice` class describes an audio capture device that can be
 	used with `AudioInput`.

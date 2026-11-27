@@ -92,7 +92,8 @@ class HTML5Platform extends PlatformTarget
 
 		for (i in 1...project.windows.length)
 		{
-			defaults.windows.push(defaults.window);
+			// A copy each, as merge() copies each project window into its own default
+			defaults.windows.push(hxp.ObjectTools.copyFields(defaults.window, {}));
 		}
 
 		defaults.merge(project);
@@ -148,6 +149,12 @@ class HTML5Platform extends PlatformTarget
 				ModuleHelper.patchFile(outputFile);
 			}
 
+			// Minify the application alone, before the embedded libraries are added to it
+			if (project.targetFlags.exists("minify") || type == "final")
+			{
+				HTML5Helper.minify(project, targetDirectory + "/bin/" + project.app.file + ".js");
+			}
+
 			if (FileSystem.exists(outputFile))
 			{
 				var context = project.templateContext;
@@ -168,11 +175,6 @@ class HTML5Platform extends PlatformTarget
 				}
 
 				System.copyFileTemplate(project.templatePaths, "html5/output.js", outputFile, context);
-			}
-
-			if (project.targetFlags.exists("minify") || type == "final")
-			{
-				HTML5Helper.minify(project, targetDirectory + "/bin/" + project.app.file + ".js");
 			}
 		}
 	}
@@ -209,7 +211,8 @@ class HTML5Platform extends PlatformTarget
 		// modified more recently than the .hxml, then the .hxml cannot be
 		// considered valid anymore. it may cause errors in editors like vscode.
 		if (FileSystem.exists(path)
-			&& (project.projectFilePath == null || !FileSystem.exists(project.projectFilePath)
+			&& (project.projectFilePath == null
+				|| !FileSystem.exists(project.projectFilePath)
 				|| (FileSystem.stat(path).mtime.getTime() > FileSystem.stat(project.projectFilePath).mtime.getTime())))
 		{
 			return File.getContent(path);
@@ -404,7 +407,7 @@ class HTML5Platform extends PlatformTarget
 
 		var icons = project.icons;
 
-		if (icons.length == 0)
+		if (!IconHelper.hasIcons(icons))
 		{
 			icons = [new Icon(System.findTemplate(project.templatePaths, "default/icon.svg"))];
 		}

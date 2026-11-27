@@ -27,7 +27,16 @@ class RunScript
 
 		if (!rebuildBinaries) return;
 
-		var platforms = ["Windows", "Mac", "Mac64", "MacArm64", "Linux", "Linux64", "LinuxArm", "LinuxArm64"];
+		var platforms = [
+			"Windows",
+			"Mac",
+			"Mac64",
+			"MacArm64",
+			"Linux",
+			"Linux64",
+			"LinuxArm",
+			"LinuxArm64"
+		];
 
 		for (platform in platforms)
 		{
@@ -208,18 +217,32 @@ class RunScript
 		if (args.indexOf("-eval") >= 0)
 		{
 			args.remove("-eval");
-			Log.info("Experimental: executing `lime " + args.slice(0, args.length - 1).join(" ")
-				+ "` using Eval (https://haxe.org/blog/eval/)");
+			Log.info("Experimental: executing `lime " + args.slice(0, args.length - 1).join(" ") + "` using Eval (https://haxe.org/blog/eval/)");
 
-			var args = [
-				"-D", "lime",
-				"-cp", toolsDirectory,
-				"-cp", Path.combine(toolsDirectory, "platforms"),
-				"-cp", Path.combine(limeDirectory, "src"),
-				"-lib", "format",
-				"-lib", "hxp",
-				"--run", "CommandLineTools"].concat(args);
-			Sys.exit(runCommand("", "haxe", args));
+			var evalArgs = [
+				   "-D",                                    "lime",
+				  "-cp",                            toolsDirectory,
+				  "-cp", Path.combine(toolsDirectory, "platforms"),
+				  "-cp",        Path.combine(limeDirectory, "src"),
+				 "-lib",                                  "format",
+				 "-lib",                                     "hxp"
+			];
+
+			// CrossByte serves lime test html5, and needs Haxe 4.3. It comes after Lime's
+			// source, so its haxe.Timer, which its runtime needs without lime_cffi, is found first
+			var crossbyte = Haxelib.getPath(new Haxelib("crossbyte"), false);
+			var haxeVersion:Version = StringTools.trim(System.runProcess("", "haxe", ["-version"], true, true, true));
+
+			if (crossbyte != null && crossbyte != "" && haxeVersion >= ("4.3.0" : Version))
+			{
+				evalArgs.push("-lib");
+				evalArgs.push("crossbyte");
+			}
+
+			evalArgs.push("--run");
+			evalArgs.push("CommandLineTools");
+
+			Sys.exit(runCommand("", "haxe", evalArgs.concat(args)));
 		}
 
 		var tools_n = Path.combine(toolsDirectory, "tools.n");

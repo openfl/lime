@@ -1,7 +1,6 @@
 package lime.graphics.vulkan;
 
 import haxe.Int64;
-
 #if (!lime_doc_gen || lime_cffi)
 import lime._internal.backend.native.NativeCFFI;
 #end
@@ -25,8 +24,8 @@ class VKDescriptorSetLayout
 		#if (!macro && lime_cffi && lime_vulkan)
 		if (isValid() && device != null && device.isValid())
 		{
-			NativeCFFI.lime_vk_destroy_descriptor_set_layout(device.instance.context.__windowHandle, device.instance.handle.high,
-				device.instance.handle.low, device.handle.high, device.handle.low, handle.high, handle.low);
+			NativeCFFI.lime_vk_destroy_descriptor_set_layout(device.instance.context.__windowHandle, device.instance.handle.high, device.instance.handle.low,
+				device.handle.high, device.handle.low, handle.high, handle.low);
 			handle = Int64.ofInt(0);
 		}
 		#end

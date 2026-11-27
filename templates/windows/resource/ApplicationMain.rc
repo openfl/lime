@@ -1,6 +1,6 @@
 #include "winres.h"
 
-::if (HAS_ICON)::IDI_ICON1 ICON "ApplicationMain.ico"::end::
+::if (HAS_ICON)::IDI_ICON1 ICON "ApplicationMain.ico" /* ::ICON_HASH:: */::end::
 
 LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_UK
 
@@ -18,13 +18,13 @@ BEGIN
 	BEGIN
 		BLOCK "040904b0"
 		BEGIN
-			VALUE "CompanyName", "::APP_COMPANY::"
-			VALUE "FileDescription", "::APP_DESCRIPTION::"
+			VALUE "CompanyName", "::RC_COMPANY::"
+			VALUE "FileDescription", "::RC_DESCRIPTION::"
 			VALUE "FileVersion", "::FILE_VERSION::"
-			VALUE "InternalName", "::APP_FILE::"
-			VALUE "LegalCopyright", "Copyright (C) ::APP_COPYRIGHT_YEARS:: ::APP_COMPANY::"
-			VALUE "OriginalFilename", "::APP_FILE::"
-			VALUE "ProductName", "::APP_PACKAGE::"
+			VALUE "InternalName", "::RC_FILE::"
+			VALUE "LegalCopyright", "Copyright (C) ::APP_COPYRIGHT_YEARS:: ::RC_COMPANY::"
+			VALUE "OriginalFilename", "::RC_FILE::"
+			VALUE "ProductName", "::RC_PACKAGE::"
 			VALUE "ProductVersion", "::FILE_VERSION::"
 		END
 	END

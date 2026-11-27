@@ -46,33 +46,28 @@ class ArrayBufferView
 	} // new
 
 	// Constructor helpers
+
 	@:allow(lime.utils)
 	#if !no_typedarray_inline
 	inline
 	#end
 	function initTypedArray(view:ArrayBufferView)
 	{
-		var srcData = view.buffer;
-		var srcLength = view.length;
-		var srcByteOffset = view.byteOffset;
-		var srcElementSize = view.bytesPerElement;
-		var elementSize = bytesPerElement;
+		byteOffset = 0;
+		length = view.length;
+		byteLength = toByteLength(length);
+		buffer = new ArrayBuffer(byteLength);
 
-		// same species, so just blit the data
-		// in other words, it shares the same bytes per element etc
 		if (view.type == type)
 		{
-			cloneBuffer(srcData, srcByteOffset);
+			// Only the view's own bytes
+			buffer.blit(0, view.buffer, view.byteOffset, view.byteLength);
 		}
 		else
 		{
-			// see :note:1: below use FPHelper!
-			throw("unimplemented");
+			// Each value is converted, as in ECMAScript
+			copyElements(view, 0);
 		}
-
-		byteLength = bytesPerElement * srcLength;
-		byteOffset = 0;
-		length = srcLength;
 
 		return this;
 	} // (typedArray)
@@ -138,19 +133,20 @@ class ArrayBufferView
 	{
 		if (view != null && array == null)
 		{
-			if (offset + view.length > this.length) {
+			if (offset < 0 || offset + view.length > this.length)
+			{
 				throw TAError.RangeError;
 			}
-			if (bytesPerElement == view.bytesPerElement)
+
+			if (view.type == type)
 			{
-				buffer.blit(toByteLength(offset), view.buffer, view.byteOffset, view.byteLength);
+				// Bytes are only copied as they are between the same types
+				buffer.blit(byteOffset + toByteLength(offset), view.buffer, view.byteOffset, view.byteLength);
 			}
 			else
 			{
-				for (i in 0...view.length)
-				{
-					transferElement(view, i, this, offset + i);
-				}
+				// A source that shares this buffer is read as it was before the copy
+				copyElements(view.buffer == buffer ? copyOf(view) : view, offset);
 			}
 		}
 		else if (array != null && view == null)
@@ -167,13 +163,15 @@ class ArrayBufferView
 	#if !no_typedarray_inline
 	inline
 	#end
-	function cloneBuffer(src:ArrayBuffer, srcByteOffset:Int = 0)
+	static function copyOf(view:ArrayBufferView):ArrayBufferView
 	{
-		var srcLength = src.length;
-		var cloneLength = srcLength - srcByteOffset;
-
-		buffer = new ArrayBuffer(cloneLength);
-		buffer.blit(0, src, srcByteOffset, cloneLength);
+		var copy = new ArrayBufferView(null, view.type);
+		copy.byteOffset = 0;
+		copy.byteLength = view.byteLength;
+		copy.length = view.length;
+		copy.buffer = new ArrayBuffer(view.byteLength);
+		copy.buffer.blit(0, view.buffer, view.byteOffset, view.byteLength);
+		return copy;
 	}
 
 	@:generic
@@ -183,10 +181,15 @@ class ArrayBufferView
 	#end
 	function subarray<T_subarray>(begin:Int, end:Null<Int> = null):T_subarray
 	{
+		// As in ECMAScript, negative indices count back from the end, and both
+		// are clamped to this view so the subarray never reaches outside it
 		if (end == null) end = length;
+		if (begin < 0) begin = (begin + length < 0) ? 0 : begin + length;
+		else if (begin > length) begin = length;
+		if (end < 0) end = (end + length < 0) ? 0 : end + length;
+		else if (end > length) end = length;
 		var len = end - begin;
 		if (len < 0) len = 0;
-		if (len > this.length) len = this.length;
 		var byte_offset = toByteLength(begin) + byteOffset;
 
 		var view:ArrayBufferView = switch (type)
@@ -296,182 +299,113 @@ class ArrayBufferView
 	// Non-spec
 	#if !no_typedarray_inline
 	#end
-	function copyFromArray(array:Array<#if hl Dynamic #else Float #end>, offset:Int = 0)
+	function copyFromArray(array:Array< #if hl Dynamic #else Float #end>, offset:Int = 0)
 	{
-		// Ideally, native semantics could be used, like cpp.NativeArray.blit
-		var i = 0, len = array.length;
+		var len = array.length;
 
-		if (offset + len > this.length) {
+		if (offset < 0 || offset + len > this.length)
+		{
 			throw TAError.RangeError;
 		}
 
+		// From the view's own offset, as element access is
+		var pos = byteOffset + toByteLength(offset);
+
+		for (i in 0...len)
+		{
+			#if (neko || hl)
+			var element:Dynamic = array[i];
+			var value:Float = (element == null) ? 0 : element;
+			#else
+			var value:Float = array[i];
+			#end
+
+			setElement(type, buffer, pos, value);
+			pos += bytesPerElement;
+		}
+	}
+
+	// Converts each element of view to this type, writing from element offset
+	function copyElements(view:ArrayBufferView, offset:Int):Void
+	{
+		var fromPos = view.byteOffset;
+		var toPos = byteOffset + toByteLength(offset);
+
+		for (i in 0...view.length)
+		{
+			setElement(type, buffer, toPos, getElement(view.type, view.buffer, fromPos));
+			fromPos += view.bytesPerElement;
+			toPos += bytesPerElement;
+		}
+	}
+
+	// An element as the Number ECMAScript reads, with a UInt32 one unsigned
+	@:noCompletion @:allow(lime.utils) static function getElement(type:TypedArrayType, buffer:ArrayBuffer, pos:Int):Float
+	{
+		return switch (type)
+		{
+			case Int8: ArrayBufferIO.getInt8(buffer, pos);
+			case Int16: ArrayBufferIO.getInt16(buffer, pos);
+			case Int32: ArrayBufferIO.getInt32(buffer, pos);
+			case Uint8, Uint8Clamped: ArrayBufferIO.getUint8(buffer, pos);
+			case Uint16: ArrayBufferIO.getUint16(buffer, pos);
+			case Uint32:
+				var bits:Int = ArrayBufferIO.getInt32(buffer, pos);
+				bits < 0 ? bits + 4294967296.0 : bits;
+			case Float32: ArrayBufferIO.getFloat32(buffer, pos);
+			case Float64: ArrayBufferIO.getFloat64(buffer, pos);
+			case None: throw "getElement on a base type ArrayBuffer";
+		}
+	}
+
+	// Writes value as ECMAScript's ToInt8, ToUint8Clamp and so on convert it
+	@:noCompletion @:allow(lime.utils) static function setElement(type:TypedArrayType, buffer:ArrayBuffer, pos:Int, value:Float):Void
+	{
 		switch (type)
 		{
-			case Int8:
-				while (i < len)
-				{
-					var pos = (offset + i) * bytesPerElement;
-					#if neko
-					var value = array[i];
-					if (value == null) value = 0;
-					ArrayBufferIO.setInt8(buffer, pos, Std.int(value));
-					#else
-					ArrayBufferIO.setInt8(buffer, pos, Std.int(array[i]));
-					#end
-					++i;
-				}
-			case Int16:
-				while (i < len)
-				{
-					var pos = (offset + i) * bytesPerElement;
-					#if neko
-					var value = array[i];
-					if (value == null) value = 0;
-					ArrayBufferIO.setInt16(buffer, pos, Std.int(value));
-					#else
-					ArrayBufferIO.setInt16(buffer, pos, Std.int(array[i]));
-					#end
-					++i;
-				}
-			case Int32:
-				while (i < len)
-				{
-					var pos = (offset + i) * bytesPerElement;
-					#if neko
-					var value = array[i];
-					if (value == null) value = 0;
-					ArrayBufferIO.setInt32(buffer, pos, Std.int(value));
-					#else
-					ArrayBufferIO.setInt32(buffer, pos, Std.int(array[i]));
-					#end
-					++i;
-				}
-			case Uint8:
-				while (i < len)
-				{
-					var pos = (offset + i) * bytesPerElement;
-					#if neko
-					var value = array[i];
-					if (value == null) value = 0;
-					ArrayBufferIO.setUint8(buffer, pos, Std.int(value));
-					#else
-					ArrayBufferIO.setUint8(buffer, pos, Std.int(array[i]));
-					#end
-					++i;
-				}
-			case Uint16:
-				while (i < len)
-				{
-					var pos = (offset + i) * bytesPerElement;
-					#if neko
-					var value = array[i];
-					if (value == null) value = 0;
-					ArrayBufferIO.setUint16(buffer, pos, Std.int(value));
-					#else
-					ArrayBufferIO.setUint16(buffer, pos, Std.int(array[i]));
-					#end
-					++i;
-				}
-			case Uint32:
-				while (i < len)
-				{
-					var pos = (offset + i) * bytesPerElement;
-					#if neko
-					var value = array[i];
-					if (value == null) value = 0;
-					ArrayBufferIO.setUint32(buffer, pos, Std.int(value));
-					#else
-					ArrayBufferIO.setUint32(buffer, pos, Std.int(array[i]));
-					#end
-					++i;
-				}
-			case Uint8Clamped:
-				while (i < len)
-				{
-					var pos = (offset + i) * bytesPerElement;
-					#if neko
-					var value = array[i];
-					if (value == null) value = 0;
-					ArrayBufferIO.setUint8Clamped(buffer, pos, Std.int(value));
-					#else
-					ArrayBufferIO.setUint8Clamped(buffer, pos, Std.int(array[i]));
-					#end
-					++i;
-				}
-			case Float32:
-				while (i < len)
-				{
-					var pos = (offset + i) * bytesPerElement;
-					ArrayBufferIO.setFloat32(buffer, pos, array[i]);
-					++i;
-				}
-			case Float64:
-				while (i < len)
-				{
-					var pos = (offset + i) * bytesPerElement;
-					ArrayBufferIO.setFloat64(buffer, pos, array[i]);
-					++i;
-				}
-
-			case None:
-				throw "copyFromArray on a base type ArrayBuffer";
+			case Int8: ArrayBufferIO.setInt8(buffer, pos, toInt32(value));
+			case Int16: ArrayBufferIO.setInt16(buffer, pos, toInt32(value));
+			case Int32: ArrayBufferIO.setInt32(buffer, pos, toInt32(value));
+			case Uint8: ArrayBufferIO.setUint8(buffer, pos, toInt32(value));
+			case Uint8Clamped: ArrayBufferIO.setUint8(buffer, pos, toUint8Clamp(value));
+			case Uint16: ArrayBufferIO.setUint16(buffer, pos, toInt32(value));
+			case Uint32: ArrayBufferIO.setInt32(buffer, pos, toInt32(value));
+			case Float32: ArrayBufferIO.setFloat32(buffer, pos, value);
+			case Float64: ArrayBufferIO.setFloat64(buffer, pos, value);
+			case None: throw "setElement on a base type ArrayBuffer";
 		}
 	}
 
-	static function transferElement(fromView:ArrayBufferView, fromIndex:Int, toView:ArrayBufferView, toIndex:Int):Void
+	// ECMAScript's ToInt32: truncate, then wrap modulo 2^32, with NaN and the
+	// infinities 0. Std.int leaves values outside the Int32 range unspecified,
+	// and Neko and HashLink give -2147483648 for them.
+	@:noCompletion @:allow(lime.utils) static function toInt32(value:Float):Int
 	{
-		var fromValue:Dynamic = null;
-		var fromPos = fromView.byteOffset + (fromIndex * fromView.bytesPerElement);
-		switch (fromView.type)
-		{
-			case Int8:
-				fromValue = ArrayBufferIO.getInt8(fromView.buffer, fromPos);
-			case Int16:
-				fromValue = ArrayBufferIO.getInt16(fromView.buffer, fromPos);
-			case Int32:
-				fromValue = ArrayBufferIO.getInt32(fromView.buffer, fromPos);
-			case Uint8:
-				fromValue = ArrayBufferIO.getUint8(fromView.buffer, fromPos);
-			case Uint16:
-				fromValue = ArrayBufferIO.getUint16(fromView.buffer, fromPos);
-			case Uint32:
-				fromValue = ArrayBufferIO.getUint32(fromView.buffer, fromPos);
-			case Uint8Clamped:
-				fromValue = ArrayBufferIO.getUint8(fromView.buffer, fromPos);
-			case Float32:
-				fromValue = ArrayBufferIO.getFloat32(fromView.buffer, fromPos);
-			case Float64:
-				fromValue = ArrayBufferIO.getFloat64(fromView.buffer, fromPos);
-			case None:
-				throw "transferElement on a base type ArrayBuffer";
-		}
+		// NaN fails both comparisons
+		if (value >= -2147483648.0 && value <= 2147483647.0) return Std.int(value);
+		if (Math.isNaN(value) || !Math.isFinite(value)) return 0;
 
-		var toPos = toView.byteOffset + (toIndex * toView.bytesPerElement);
-		switch (toView.type)
-		{
-			case Int8:
-				ArrayBufferIO.setInt8(toView.buffer, toPos, fromValue);
-			case Int16:
-				ArrayBufferIO.setInt16(toView.buffer, toPos, fromValue);
-			case Int32:
-				ArrayBufferIO.setInt32(toView.buffer, toPos, fromValue);
-			case Uint8:
-				ArrayBufferIO.setUint8(toView.buffer, toPos, fromValue);
-			case Uint16:
-				ArrayBufferIO.setUint16(toView.buffer, toPos, fromValue);
-			case Uint32:
-				ArrayBufferIO.setUint32(toView.buffer, toPos, fromValue);
-			case Uint8Clamped:
-				ArrayBufferIO.setUint8Clamped(toView.buffer, toPos, fromValue);
-			case Float32:
-				ArrayBufferIO.setFloat32(toView.buffer, toPos, fromValue);
-			case Float64:
-				ArrayBufferIO.setFloat64(toView.buffer, toPos, fromValue);
-			case None:
-				throw "transferElement on a base type ArrayBuffer";
-		}
+		var truncated = value < 0 ? Math.fceil(value) : Math.ffloor(value);
+		var wrapped = truncated - 4294967296.0 * Math.ffloor(truncated / 4294967296.0);
+		if (wrapped >= 2147483648.0) wrapped -= 4294967296.0;
+		return Std.int(wrapped);
 	}
 
+	// ECMAScript's ToUint8Clamp: clamp to 0...255, rounding half to even
+	@:noCompletion @:allow(lime.utils) static function toUint8Clamp(value:Float):Int
+	{
+		// NaN fails the comparison too
+		if (!(value > 0)) return 0;
+		if (value >= 255) return 255;
+
+		var floor = Math.ffloor(value);
+		var whole = Std.int(floor);
+		var fraction = value - floor;
+
+		if (fraction < 0.5) return whole;
+		if (fraction > 0.5) return whole + 1;
+		return (whole & 1) == 0 ? whole : whole + 1;
+	}
 } // ArrayBufferView
 
 #end // !js
@@ -547,7 +481,7 @@ abstract TypedArrayType(Int) from Int to Int
 	#if (haxe_ver >= 4.0) extern #else @:extern #end
 	inline
 	#end
-	public static function setUint8Clamped(buffer:ArrayBuffer, byteOffset:Int, value:UInt)
+	public static function setUint8Clamped(buffer:ArrayBuffer, byteOffset:Int, value:Float)
 	{
 		setUint8(buffer, byteOffset, _clamp(value));
 	}
@@ -980,12 +914,15 @@ abstract TypedArrayType(Int) from Int to Int
 	#if (haxe_ver >= 4.0) extern #else @:extern #end
 	inline
 	#end
-	// clamp a Int to a 0-255 Uint8 (for Uint8Clamped array)
+	// clamp a value to a 0-255 Uint8 (for Uint8Clamped array). The value is
+	// clamped before Std.int sees it, since converting a float outside the Int32
+	// range is undefined in C++, and ARM64 and x86 give different results.
 	static function _clamp(_in:Float):Int
 	{
-		var _out = Std.int(_in);
-		_out = _out > 255 ? 255 : _out;
-		return _out < 0 ? 0 : _out;
+		// NaN fails the comparison too
+		if (!(_in > 0)) return 0;
+		if (_in >= 255) return 255;
+		return Std.int(_in);
 	} // _clamp
 }
 #else // #error "ArrayBufferIO is not used on js target, use DataView instead"

@@ -2,7 +2,6 @@ package lime.graphics.vulkan;
 
 import haxe.Int64;
 import haxe.io.Bytes;
-
 #if (!lime_doc_gen || lime_cffi)
 import lime._internal.backend.native.NativeCFFI;
 #end
@@ -49,8 +48,8 @@ class VKPipelineCache
 		if (isValid() && device != null && device.isValid())
 		{
 			var bytes = Bytes.alloc(0);
-			if (NativeCFFI.lime_vk_get_pipeline_cache_data(device.instance.context.__windowHandle, device.instance.handle.high,
-				device.instance.handle.low, device.handle.high, device.handle.low, handle.high, handle.low, bytes))
+			if (NativeCFFI.lime_vk_get_pipeline_cache_data(device.instance.context.__windowHandle, device.instance.handle.high, device.instance.handle.low,
+				device.handle.high, device.handle.low, handle.high, handle.low, bytes))
 			{
 				return bytes;
 			}

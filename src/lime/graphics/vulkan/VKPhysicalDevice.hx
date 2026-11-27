@@ -121,7 +121,7 @@ class VKPhysicalDevice
 		Returns the first queue family that matches the requested capabilities.
 	**/
 	public function getQueueFamily(requireGraphics:Bool = true, requirePresent:Bool = false, requireCompute:Bool = false,
-		requireTransfer:Bool = false):VKQueueFamilyInfo
+			requireTransfer:Bool = false):VKQueueFamilyInfo
 	{
 		for (queueFamily in queueFamilies)
 		{
@@ -135,7 +135,7 @@ class VKPhysicalDevice
 	}
 
 	public inline function hasQueueFamily(requireGraphics:Bool = true, requirePresent:Bool = false, requireCompute:Bool = false,
-		requireTransfer:Bool = false):Bool
+			requireTransfer:Bool = false):Bool
 	{
 		return getQueueFamily(requireGraphics, requirePresent, requireCompute, requireTransfer) != null;
 	}
@@ -152,8 +152,14 @@ class VKPhysicalDevice
 			counts &= framebufferStencilSampleCounts;
 		}
 
-		for (sampleCount in [VK.SAMPLE_COUNT_64_BIT, VK.SAMPLE_COUNT_32_BIT, VK.SAMPLE_COUNT_16_BIT, VK.SAMPLE_COUNT_8_BIT,
-			VK.SAMPLE_COUNT_4_BIT, VK.SAMPLE_COUNT_2_BIT])
+		for (sampleCount in [
+			VK.SAMPLE_COUNT_64_BIT,
+			VK.SAMPLE_COUNT_32_BIT,
+			VK.SAMPLE_COUNT_16_BIT,
+			VK.SAMPLE_COUNT_8_BIT,
+			VK.SAMPLE_COUNT_4_BIT,
+			VK.SAMPLE_COUNT_2_BIT
+		])
 		{
 			if ((counts & sampleCount) != 0)
 			{

@@ -359,6 +359,7 @@
             <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/video/wayland/SDL_waylandevents.c" />
             <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/video/wayland/SDL_waylandmouse.c" />
             <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/video/wayland/SDL_waylandopengles.c" />
+            <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/video/wayland/SDL_waylandshmbuffer.c" />
             <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/video/wayland/SDL_waylandtouch.c" />
             <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/video/wayland/SDL_waylandvideo.c" />
             <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/video/wayland/SDL_waylandvulkan.c" />
@@ -389,7 +390,6 @@
             <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/main/psp/SDL_psp_main.c" />
             <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/power/psp/SDL_syspower.c" />
             <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/render/psp/SDL_render_psp.c" />
-            <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/thread/psp/SDL_syscond.c" />
             <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/thread/psp/SDL_sysmutex.c" />
             <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/thread/psp/SDL_syssem.c" />
             <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/thread/psp/SDL_systhread.c" />
@@ -493,6 +493,9 @@
 
             <section unless="winrt">
 
+                <!-- Finds the SDL headers the patched SDL_windowsopengl.c includes by relative path -->
+                <compilerflag value="-I${NATIVE_TOOLKIT_PATH}/sdl/src/video/windows/" />
+
                 <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/audio/wasapi/SDL_wasapi_win32.c" />
                 <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/filesystem/windows/SDL_sysfilesystem.c" />
                 <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/locale/windows/SDL_syslocale.c" />
@@ -506,7 +509,8 @@
                 <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/video/windows/SDL_windowsmessagebox.c" />
                 <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/video/windows/SDL_windowsmodes.c" />
                 <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/video/windows/SDL_windowsmouse.c" />
-                <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/video/windows/SDL_windowsopengl.c" />
+                <!-- Patched to use the pixel formats of an OpenGL library loaded from a path, such as Mesa -->
+                <file name="${NATIVE_TOOLKIT_PATH}/custom/sdl/src/video/windows/SDL_windowsopengl.c" />
                 <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/video/windows/SDL_windowsopengles.c" />
                 <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/video/windows/SDL_windowsshape.c" />
                 <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/video/windows/SDL_windowsvideo.c" />

@@ -21,6 +21,8 @@ class ProjectHelper
 
 		if (FileSystem.exists(path))
 		{
+			NativeSourcesHelper.checkLibrary(path);
+
 			var targetPath = Path.combine(targetDirectory, namePrefix + ndll.name);
 
 			if (targetSuffix != null)
@@ -142,28 +144,28 @@ class ProjectHelper
 				index = substring.indexOf("<=");
 				value = ProjectHelper.replaceVariable(project, substring.substr(0, index));
 
-				return Std.string(value <= substring.substr(index + 2));
+				return Std.string(compareValues(value, substring.substr(index + 2)) <= 0);
 			}
 			else if (substring.indexOf("<") > -1)
 			{
 				index = substring.indexOf("<");
 				value = ProjectHelper.replaceVariable(project, substring.substr(0, index));
 
-				return Std.string(value < substring.substr(index + 1));
+				return Std.string(compareValues(value, substring.substr(index + 1)) < 0);
 			}
 			else if (substring.indexOf(">=") > -1)
 			{
 				index = substring.indexOf(">=");
 				value = ProjectHelper.replaceVariable(project, substring.substr(0, index));
 
-				return Std.string(value >= substring.substr(index + 2));
+				return Std.string(compareValues(value, substring.substr(index + 2)) >= 0);
 			}
 			else if (substring.indexOf(">") > -1)
 			{
 				index = substring.indexOf(">");
 				value = ProjectHelper.replaceVariable(project, substring.substr(0, index));
 
-				return Std.string(value > substring.substr(index + 1));
+				return Std.string(compareValues(value, substring.substr(index + 1)) > 0);
 			}
 			else if (substring.indexOf(".") > -1)
 			{
@@ -184,6 +186,40 @@ class ProjectHelper
 		}
 
 		return string;
+	}
+
+	/**
+		Compares two values of a condition: numbers as numbers, dotted versions such as
+		10.0.0 part by part, and anything else as text. A number with at most one dot,
+		such as `haxe_ver`'s 4.307, is a decimal number, so 4.005 comes before 4.1.
+	**/
+	public static function compareValues(a:String, b:String):Int
+	{
+		var number = ~/^[0-9]+(\.[0-9]+)*$/;
+
+		if (!number.match(a) || !number.match(b))
+		{
+			return (a < b) ? -1 : (a > b ? 1 : 0);
+		}
+
+		var aParts = a.split(".");
+		var bParts = b.split(".");
+
+		if (aParts.length <= 2 && bParts.length <= 2)
+		{
+			var aValue = Std.parseFloat(a);
+			var bValue = Std.parseFloat(b);
+			return (aValue < bValue) ? -1 : (aValue > bValue ? 1 : 0);
+		}
+
+		for (i in 0...Std.int(Math.max(aParts.length, bParts.length)))
+		{
+			var aPart = (i < aParts.length) ? Std.parseFloat(aParts[i]) : 0;
+			var bPart = (i < bParts.length) ? Std.parseFloat(bParts[i]) : 0;
+			if (aPart != bPart) return (aPart < bPart) ? -1 : 1;
+		}
+
+		return 0;
 	}
 
 	public static function substitutePath(project:HXProject, path:String):String

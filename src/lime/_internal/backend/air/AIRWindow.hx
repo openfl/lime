@@ -95,6 +95,9 @@ class AIRWindow extends FlashWindow
 		if (Reflect.hasField(attributes, "width")) width = attributes.width;
 		if (Reflect.hasField(attributes, "height")) height = attributes.height;
 
+		// AIR windows are made opaque, as is the first, by the application descriptor
+		parent.transparent = false;
+
 		if (FlashApplication.createFirstWindow)
 		{
 			nativeWindow = Lib.current.stage.nativeWindow;
@@ -187,7 +190,8 @@ class AIRWindow extends FlashWindow
 		if (parent.application.window == parent)
 		{
 			var newDeviceOrientation:Orientation = UNKNOWN;
-			switch (parent.stage.deviceOrientation) {
+			switch (parent.stage.deviceOrientation)
+			{
 				case DEFAULT:
 					newDeviceOrientation = PORTRAIT;
 				case UPSIDE_DOWN:
@@ -202,7 +206,8 @@ class AIRWindow extends FlashWindow
 			parent.application.onDeviceOrientationChange.dispatch(newDeviceOrientation);
 		}
 		var newDisplayOrientation:Orientation = UNKNOWN;
-		switch (event.afterOrientation) {
+		switch (event.afterOrientation)
+		{
 			case DEFAULT:
 				newDisplayOrientation = PORTRAIT;
 			case UPSIDE_DOWN:
@@ -329,6 +334,15 @@ class AIRWindow extends FlashWindow
 		}
 
 		return value;
+	}
+
+	public override function flash(mode:Int):Bool
+	{
+		// AIR's attention requests end on their own once the window is focused
+		if (nativeWindow == null || !NativeWindow.supportsNotification || mode == 0) return false;
+
+		nativeWindow.notifyUser(mode == 2 ? NotificationType.CRITICAL : NotificationType.INFORMATIONAL);
+		return true;
 	}
 
 	public override function setAlwaysOnTop(value:Bool):Bool

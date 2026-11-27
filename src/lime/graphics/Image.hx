@@ -59,7 +59,6 @@ import format.tools.Deflate;
 import sys.io.File;
 #end
 #end
-
 /**
 	`Image` is a convenience class for working with bitmap images in Lime.
 
@@ -355,12 +354,20 @@ class Image
 	**/
 	public function copyChannel(sourceImage:Image, sourceRect:Rectangle, destPoint:Vector2, sourceChannel:ImageChannel, destChannel:ImageChannel):Void
 	{
-		sourceRect = __clipRect(sourceRect);
-		if (buffer == null || sourceRect == null) return;
+		if (buffer == null || sourceImage == null || sourceRect == null || destPoint == null) return;
 		if (destChannel == ALPHA && !transparent) return;
-		if (sourceRect.width <= 0 || sourceRect.height <= 0) return;
-		if (sourceRect.x + sourceRect.width > sourceImage.width) sourceRect.width = sourceImage.width - sourceRect.x;
-		if (sourceRect.y + sourceRect.height > sourceImage.height) sourceRect.height = sourceImage.height - sourceRect.y;
+
+		var clippedPoint = new Vector2();
+		sourceRect = __clipCopy(sourceImage, sourceRect, destPoint, clippedPoint);
+		if (sourceRect == null) return;
+		destPoint = clippedPoint;
+
+		if (sourceImage == this && destPoint.x < sourceRect.right && destPoint.y < sourceRect.bottom
+			&& destPoint.x + sourceRect.width > sourceRect.x && destPoint.y + sourceRect.height > sourceRect.y)
+		{
+			// Overlapping rects within one image read the pixels as they were
+			sourceImage = clone();
+		}
 
 		switch (type)
 		{
@@ -395,8 +402,7 @@ class Image
 				sourceRect.offset(sourceImage.offsetX, sourceImage.offsetY);
 				destPoint.offset(offsetX, offsetY);
 
-				buffer.__srcBitmapData.copyChannel(sourceImage.buffer.src, sourceRect.__toFlashRectangle(), destPoint.__toFlashPoint(), srcChannel,
-					dstChannel);
+				buffer.__srcBitmapData.copyChannel(sourceImage.buffer.src, sourceRect.__toFlashRectangle(), destPoint.__toFlashPoint(), srcChannel, dstChannel);
 
 			default:
 		}
@@ -414,52 +420,54 @@ class Image
 	public function copyPixels(sourceImage:Image, sourceRect:Rectangle, destPoint:Vector2, alphaImage:Image = null, alphaPoint:Vector2 = null,
 			mergeAlpha:Bool = false):Void
 	{
-		if (buffer == null || sourceImage == null) return;
-		if (sourceRect.width <= 0 || sourceRect.height <= 0) return;
+		if (buffer == null || sourceImage == null || sourceRect == null || destPoint == null) return;
 		if (width <= 0 || height <= 0) return;
 
-		if (sourceRect.x + sourceRect.width > sourceImage.width) sourceRect.width = sourceImage.width - sourceRect.x;
-		if (sourceRect.y + sourceRect.height > sourceImage.height) sourceRect.height = sourceImage.height - sourceRect.y;
+		var clippedPoint = new Vector2();
+		var clippedRect = __clipCopy(sourceImage, sourceRect, destPoint, clippedPoint);
+		if (clippedRect == null) return;
 
-		if (sourceRect.x < 0)
+		if (alphaPoint != null)
 		{
-			sourceRect.width += sourceRect.x;
-			sourceRect.x = 0;
+			// The alpha image is read from alphaPoint at the corner of sourceRect, so
+			// it moves with whatever clipping cut from the corner
+			alphaPoint = new Vector2(alphaPoint.x + clippedRect.x - sourceRect.x, alphaPoint.y + clippedRect.y - sourceRect.y);
 		}
 
-		if (sourceRect.y < 0)
-		{
-			sourceRect.height += sourceRect.y;
-			sourceRect.y = 0;
-		}
+		sourceRect = clippedRect;
+		destPoint = clippedPoint;
 
-		if (destPoint.x + sourceRect.width > width) sourceRect.width = width - destPoint.x;
-		if (destPoint.y + sourceRect.height > height) sourceRect.height = height - destPoint.y;
-
-		if (destPoint.x < 0)
+		if (alphaImage == sourceImage
+			&& (alphaPoint == null ? (sourceRect.x == 0 && sourceRect.y == 0) : (alphaPoint.x == sourceRect.x && alphaPoint.y == sourceRect.y)))
 		{
-			sourceRect.width += destPoint.x;
-			sourceRect.x -= destPoint.x;
-			destPoint.x = 0;
-		}
-
-		if (destPoint.y < 0)
-		{
-			sourceRect.height += destPoint.y;
-			sourceRect.y -= destPoint.y;
-			destPoint.y = 0;
+			// The alpha image would read the source's own pixels
+			alphaImage = null;
+			alphaPoint = null;
 		}
 
 		if (sourceImage == this && destPoint.x < sourceRect.right && destPoint.y < sourceRect.bottom)
 		{
-			// TODO: Optimize further?
-			sourceImage = clone();
-		}
+			// The pixels written would overwrite some still to be read, so the
+			// source is read from a copy: of only sourceRect, where the pixels
+			// are in a buffer and the rectangle is in whole pixels
+			#if (js && html5)
+			if (type == DATA) ImageCanvasUtil.convertToData(this);
+			#end
 
-		if (alphaImage == sourceImage && (alphaPoint == null || (alphaPoint.x == 0 && alphaPoint.y == 0)))
-		{
-			alphaImage = null;
-			alphaPoint = null;
+			if (type == DATA
+				&& buffer.data != null
+				&& sourceRect.x == Std.int(sourceRect.x)
+				&& sourceRect.y == Std.int(sourceRect.y)
+				&& sourceRect.width == Std.int(sourceRect.width)
+				&& sourceRect.height == Std.int(sourceRect.height))
+			{
+				sourceImage = __copyRect(sourceRect);
+				sourceRect = new Rectangle(0, 0, sourceRect.width, sourceRect.height);
+			}
+			else
+			{
+				sourceImage = clone();
+			}
 		}
 
 		switch (type)
@@ -853,23 +861,33 @@ class Image
 		Gets a region of pixels from the `Image`, as `Bytes`
 		@param	rect	The source `Rectangle` to read from
 		@param	format	(Optional) The `PixelFormat` to use when writing to the `Bytes` object (default is `RGBA`)
+		@param	endian	(Optional) The endianness of the outgoing bytes (default is `BIG_ENDIAN`, which writes each
+		pixel's bytes in the order the format names them). `LITTLE_ENDIAN` writes them in reverse, as
+		`setPixels()` reads them with that endianness.
 		@return	A `Bytes` object representing the region, or `null` if it is not possible to read
 	**/
-	public function getPixels(rect:Rectangle, format:PixelFormat = null):Bytes
+	public function getPixels(rect:Rectangle, format:PixelFormat = null, endian:Endian = null):Bytes
 	{
-		if (buffer == null) return null;
+		if (buffer == null || rect == null) return null;
 
+		// Only the part of the rect inside the image, and the caller's rect is left alone
+		rect = __clipRect(rect);
+		if (rect == null) return Bytes.alloc(0);
+
+		// Set here, as the native code takes it as an Int, and on Neko null isn't RGBA32
+		if (format == null) format = RGBA32;
+		if (endian == null) endian = BIG_ENDIAN;
 		switch (type)
 		{
 			case CANVAS:
-				return ImageCanvasUtil.getPixels(this, rect, format);
+				return ImageCanvasUtil.getPixels(this, rect, format, endian);
 
 			case DATA:
 				#if (js && html5)
 				ImageCanvasUtil.convertToData(this);
 				#end
 
-				return ImageDataUtil.getPixels(this, rect, format);
+				return ImageDataUtil.getPixels(this, rect, format, endian);
 
 			case FLASH:
 				#if flash
@@ -904,6 +922,23 @@ class Image
 						}
 
 						byteArray.position = 0;
+				}
+
+				if (endian == LITTLE_ENDIAN)
+				{
+					// Each pixel's bytes in reverse
+					var length = Std.int(byteArray.length / 4);
+
+					for (i in 0...length)
+					{
+						var value = byteArray.readUnsignedInt();
+						byteArray.position -= 4;
+						byteArray.endian = flash.utils.Endian.LITTLE_ENDIAN;
+						byteArray.writeUnsignedInt(value);
+						byteArray.endian = flash.utils.Endian.BIG_ENDIAN;
+					}
+
+					byteArray.position = 0;
 				}
 
 				return Bytes.ofData(byteArray);
@@ -1041,8 +1076,10 @@ class Image
 
 		return promise.future;
 		#else
-		var request = new HTTPRequest<Image>();
-		return request.load(path).then(function(image)
+		// The bytes are decoded by loadFromBytes, on a worker: a request for an
+		// Image would decode them as it completes, on the main thread
+		var request = new HTTPRequest<Bytes>();
+		return request.load(path).then(loadFromBytes).then(function(image)
 		{
 			if (image != null)
 			{
@@ -1069,7 +1106,12 @@ class Image
 	public function merge(sourceImage:Image, sourceRect:Rectangle, destPoint:Vector2, redMultiplier:Int, greenMultiplier:Int, blueMultiplier:Int,
 			alphaMultiplier:Int):Void
 	{
-		if (buffer == null || sourceImage == null) return;
+		if (buffer == null || sourceImage == null || sourceRect == null || destPoint == null) return;
+
+		var clippedPoint = new Vector2();
+		sourceRect = __clipCopy(sourceImage, sourceRect, destPoint, clippedPoint);
+		if (sourceRect == null) return;
+		destPoint = clippedPoint;
 
 		switch (type)
 		{
@@ -1154,7 +1196,16 @@ class Image
 				copyPixels(this, rect, new Vector2(x, y));
 
 			case FLASH:
-				buffer.__srcBitmapData.scroll(x + offsetX, y + offsetX);
+				// BitmapData.scroll moves the whole bitmap, so an image that is part of a
+				// larger one keeps to its own rectangle as the DATA path does
+				if (offsetX == 0 && offsetY == 0 && width == buffer.__srcBitmapData.width && height == buffer.__srcBitmapData.height)
+				{
+					buffer.__srcBitmapData.scroll(x, y);
+				}
+				else
+				{
+					copyPixels(this, rect, new Vector2(x, y));
+				}
 
 			default:
 		}
@@ -1239,13 +1290,15 @@ class Image
 		@param	rect	The region of pixels in this `Image` to replace with the incoming bytes
 		@param	bytePointer	A `BytePointer` object referencing the `Bytes` and position to read from
 		@param	format	(Optional) The `PixelFormat` that the pixels are encoded in (default is `RGBA`)
-		@param	endian (Optional) The endianness of the incoming bytes (default is the system endianness)
+		@param	endian (Optional) The endianness of the incoming bytes (default is `BIG_ENDIAN`)
 	**/
 	public function setPixels(rect:Rectangle, bytePointer:BytePointer, format:PixelFormat = null, endian:Endian = null):Void
 	{
 		rect = __clipRect(rect);
 		if (buffer == null || rect == null) return;
 		if (endian == null) endian = BIG_ENDIAN;
+		// Set here, as the native code takes it as an Int, and on Neko null isn't RGBA32
+		if (format == null) format = RGBA32;
 
 		switch (type)
 		{
@@ -1350,7 +1403,12 @@ class Image
 	public function threshold(sourceImage:Image, sourceRect:Rectangle, destPoint:Vector2, operation:String, threshold:Int, color:Int = 0x00000000,
 			mask:Int = 0xFFFFFFFF, copySource:Bool = false, format:PixelFormat = null):Int
 	{
-		if (buffer == null || sourceImage == null || sourceRect == null) return 0;
+		if (buffer == null || sourceImage == null || sourceRect == null || destPoint == null) return 0;
+
+		var clippedPoint = new Vector2();
+		sourceRect = __clipCopy(sourceImage, sourceRect, destPoint, clippedPoint);
+		if (sourceRect == null) return 0;
+		destPoint = clippedPoint;
 
 		switch (type)
 		{
@@ -1389,9 +1447,93 @@ class Image
 		return 0;
 	}
 
+	// A new image of rect's pixels, stored as they are here, byte for byte
+	@:noCompletion private function __copyRect(rect:Rectangle):Image
+	{
+		var width = Std.int(rect.width);
+		var height = Std.int(rect.height);
+		var bytesPerPixel = Std.int(buffer.bitsPerPixel / 8);
+		var rowLength = width * bytesPerPixel;
+		var stride = buffer.stride;
+		var position = (Std.int(rect.y) + offsetY) * stride + (Std.int(rect.x) + offsetX) * bytesPerPixel;
+
+		var data = new UInt8Array(rowLength * height);
+
+		for (row in 0...height)
+		{
+			#if js
+			data.set(buffer.data.subarray(position, position + rowLength), row * rowLength);
+			#else
+			data.buffer.blit(row * rowLength, buffer.data.buffer, buffer.data.byteOffset + position, rowLength);
+			#end
+			position += stride;
+		}
+
+		var copy = new ImageBuffer(data, width, height, buffer.bitsPerPixel, buffer.format);
+		copy.premultiplied = buffer.premultiplied;
+		copy.transparent = buffer.transparent;
+
+		return new Image(copy, 0, 0, width, height, null, DATA);
+	}
+
+	// The part of sourceRect that is inside sourceImage and, put at destPoint,
+	// inside this image, in new objects so that the caller's are left alone.
+	// What is cut from one moves the other along. Null when nothing is left.
+	@:noCompletion private function __clipCopy(sourceImage:Image, sourceRect:Rectangle, destPoint:Vector2, clippedPoint:Vector2):Rectangle
+	{
+		var x = sourceRect.x;
+		var y = sourceRect.y;
+		var w = sourceRect.width;
+		var h = sourceRect.height;
+		var destX = destPoint.x;
+		var destY = destPoint.y;
+
+		if (x < 0)
+		{
+			w += x;
+			destX -= x;
+			x = 0;
+		}
+
+		if (y < 0)
+		{
+			h += y;
+			destY -= y;
+			y = 0;
+		}
+
+		if (x + w > sourceImage.width) w = sourceImage.width - x;
+		if (y + h > sourceImage.height) h = sourceImage.height - y;
+
+		if (destX < 0)
+		{
+			w += destX;
+			x -= destX;
+			destX = 0;
+		}
+
+		if (destY < 0)
+		{
+			h += destY;
+			y -= destY;
+			destY = 0;
+		}
+
+		if (destX + w > width) w = width - destX;
+		if (destY + h > height) h = height - destY;
+
+		if (w <= 0 || h <= 0) return null;
+
+		clippedPoint.setTo(destX, destY);
+		return new Rectangle(x, y, w, h);
+	}
+
 	@:noCompletion private function __clipRect(r:Rectangle):Rectangle
 	{
 		if (r == null) return null;
+
+		// A copy, so that the caller's rect is left alone
+		r = r.clone();
 
 		if (r.x < 0)
 		{
@@ -1457,6 +1599,14 @@ class Image
 		#end
 	}
 
+	#if (js && html5)
+	// The bytes alone, as a Blob takes the whole of the buffer it is given
+	@:noCompletion private static function __bytesView(bytes:Bytes):Dynamic
+	{
+		return untyped #if haxe4 js.Syntax.code #else __js__ #end ("new Uint8Array({0}, 0, {1})", bytes.getData(), bytes.length);
+	}
+	#end
+
 	@:noCompletion private function __fromBytes(bytes:Bytes, onload:Image->Void = null):Bool
 	{
 		#if (js && html5)
@@ -1474,13 +1624,55 @@ class Image
 		{
 			type = "image/gif";
 		}
+		else if (__isWebP(bytes))
+		{
+			type = "image/webp";
+		}
 		else
 		{
 			// throw "Image tried to read PNG/JPG Bytes, but found an invalid header.";
 			return false;
 		}
 
-		__fromBase64(Base64.encode(bytes), type, onload);
+		// The browser reads the bytes from a Blob, rather than from a Base64 data URI that encodes
+		// them only to decode them again, and lets go of them once the image has loaded
+		var url:String = null;
+		try
+		{
+			url = js.html.URL.createObjectURL(new js.html.Blob([__bytesView(bytes)], {type: type}));
+		}
+		catch (e:Dynamic) {}
+
+		if (url == null)
+		{
+			__fromBase64(Base64.encode(bytes), type, onload);
+			return true;
+		}
+
+		var image:JSImage = untyped #if haxe4 js.Syntax.code #else __js__ #end ('new window.Image ()');
+
+		image.addEventListener("load", function(event)
+		{
+			js.html.URL.revokeObjectURL(url);
+
+			buffer = new ImageBuffer(null, image.width, image.height);
+			buffer.__srcImage = cast image;
+
+			offsetX = 0;
+			offsetY = 0;
+			width = buffer.width;
+			height = buffer.height;
+
+			if (onload != null)
+			{
+				onload(this);
+			}
+		}, false);
+		image.addEventListener("error", function(event)
+		{
+			js.html.URL.revokeObjectURL(url);
+		}, false);
+		image.src = url;
 		return true;
 		#elseif (lime_cffi && !macro)
 		if (bytes == null || bytes.length == 0)

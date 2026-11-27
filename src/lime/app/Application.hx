@@ -10,6 +10,7 @@ import lime.ui.Joystick;
 import lime.ui.JoystickHatPosition;
 import lime.ui.KeyCode;
 import lime.ui.KeyModifier;
+import lime.ui.Menu;
 import lime.ui.MouseButton;
 import lime.ui.MouseWheelMode;
 import lime.ui.Touch;
@@ -27,6 +28,7 @@ import lime.utils.Preloader;
 @:fileXml('tags="haxe,release"')
 @:noDebug
 #end
+@:access(lime.ui.Menu)
 @:access(lime.ui.Window)
 class Application extends Module
 {
@@ -34,6 +36,16 @@ class Application extends Module
 		The current Application instance that is executing
 	**/
 	public static var current(default, null):Application;
+
+	/**
+		Whether the application has its own menu bar, set using `menu`.
+
+		This is `true` on macOS, where the menu bar belongs to the application
+		rather than to its windows, and on HTML5, where windows without a menu
+		of their own show it. Elsewhere, use `Window.menu` when
+		`Window.supportsMenu` is `true`.
+	**/
+	public static var supportsMenu(get, never):Bool;
 
 	/**
 		The device's orientation.
@@ -44,6 +56,23 @@ class Application extends Module
 		Meta-data values for the application, such as a version or a package name
 	**/
 	public var meta:Map<String, String>;
+
+	/**
+		The menu bar of the application, or `null` for the default menu bar.
+
+		On macOS, the submenu of the first item becomes the application menu,
+		which is titled with the application name. Other top-level items should
+		have submenus. Changes to the menu are applied immediately.
+
+		On macOS, the menu starts as a copy of the default menu bar, with its
+		About, Hide, Services, Quit and Window items, so that items can be added
+		to it. Those items still do what they do on the default menu bar, and are
+		selected as other items are, although canceling `onSelect` does not stop
+		them. Setting `null` restores the default.
+
+		Has no visible effect where `Application.supportsMenu` is `false`.
+	**/
+	public var menu(get, set):Menu;
 
 	/**
 		A list of currently attached Module instances
@@ -60,7 +89,8 @@ class Application extends Module
 	/**
 		The current frame pacing profile for this application.
 		On native targets, this controls the shared application
-		main loop strategy.
+		main loop strategy. See `FrameProfile` for how it combines with
+		`frameOptions`, `vsyncMode` and `Window.frameRate`.
 	**/
 	public var frameProfile(get, set):FrameProfile;
 
@@ -115,9 +145,11 @@ class Application extends Module
 	@:noCompletion private var __frameConfigured:Bool;
 	@:noCompletion private var __frameOptions:FrameOptions;
 	@:noCompletion private var __frameProfile:FrameProfile;
+	@:noCompletion private var __menu:Menu;
 	@:noCompletion private var __preloader:Preloader;
 	@:noCompletion private var __vsyncMode:VSyncMode;
 	@:noCompletion private var __window:Window;
+	@:noCompletion private var __windowCreationError:String;
 	@:noCompletion private var __windowByID:Map<Int, Window>;
 	@:noCompletion private var __windows:Array<Window>;
 
@@ -130,6 +162,7 @@ class Application extends Module
 			{
 				"frameOptions": {get: p.get_frameOptions, set: p.set_frameOptions},
 				"frameProfile": {get: p.get_frameProfile, set: p.set_frameProfile},
+				"menu": {get: p.get_menu, set: p.set_menu},
 				"preloader": {get: p.get_preloader},
 				"vsyncMode": {get: p.get_vsyncMode, set: p.set_vsyncMode},
 				"window": {get: p.get_window},
@@ -156,14 +189,15 @@ class Application extends Module
 		__frameConfigured = false;
 		__frameOptions =
 			{
-				timePrecision: TimePrecision.Auto,
-				busyWait: BusyWaitMode.Auto,
-				uncapMode: UncapMode.Off
+				timePrecision: TimePrecision.AUTO,
+				busyWait: BusyWaitMode.AUTO,
+				uncapMode: UncapMode.OFF,
+				backgroundFrameRate: 30
 			};
-		__frameProfile = FrameProfile.Balanced;
+		__frameProfile = FrameProfile.BALANCED;
 		__windowByID = new Map();
 		__windows = new Array();
-		__vsyncMode = VSyncMode.Off;
+		__vsyncMode = VSyncMode.OFF;
 
 		__backend = new ApplicationBackend(this);
 		__backend.configureFrameTiming(__frameProfile, __frameRate, __copyFrameOptions(__frameOptions));
@@ -189,6 +223,7 @@ class Application extends Module
 	/**
 		Creates a new Window and adds it to the Application
 		@param	attributes	A set of parameters to initialize the window
+		@return	The new Window, or null if it could not be created
 	**/
 	public function createWindow(attributes:WindowAttributes):Window
 	{
@@ -565,6 +600,7 @@ class Application extends Module
 
 	@:noCompletion private function __createWindow(attributes:WindowAttributes):Window
 	{
+		__windowCreationError = null;
 		var window = new Window(this, attributes);
 		if (window.id == -1) return null;
 		__seedFrameConfiguration(attributes);
@@ -609,6 +645,11 @@ class Application extends Module
 			__windows.remove(window);
 			__windowByID.remove(window.id);
 			window.close();
+
+			if (window.__menu != null)
+			{
+				@:privateAccess window.__menu.__windows.remove(window);
+			}
 
 			__checkForAllWindowsClosed();
 		}
@@ -703,6 +744,31 @@ class Application extends Module
 		return __frameProfile;
 	}
 
+	@:noCompletion private function get_menu():Menu
+	{
+		#if (lime_cffi && !macro && mac)
+		// macOS has a menu bar of its own from the start, which the menu copies
+		if (__menu == null)
+		{
+			var defaultMenu = lime._internal.backend.native.NativeMenu.getApplicationMenu();
+			if (defaultMenu != null) set_menu(defaultMenu);
+		}
+		#end
+
+		return __menu;
+	}
+
+	@:noCompletion private static function get_supportsMenu():Bool
+	{
+		#if (lime_cffi && !macro)
+		return (lime._internal.backend.native.NativeMenu.getSupport() & lime._internal.backend.native.NativeMenu.SUPPORT_APPLICATION) != 0;
+		#elseif (js && html5)
+		return true;
+		#else
+		return false;
+		#end
+	}
+
 	@:noCompletion private inline function get_window():Window
 	{
 		return __window;
@@ -728,6 +794,20 @@ class Application extends Module
 	{
 		__applyFrameConfiguration(value, __frameOptions, __vsyncMode, true);
 		return __frameProfile;
+	}
+
+	@:noCompletion private function set_menu(value:Menu):Menu
+	{
+		if (value != __menu)
+		{
+			if (__menu != null) __menu.__application = null;
+			__menu = value;
+			if (value != null) value.__application = this;
+
+			__backend.setMenu(value);
+		}
+
+		return value;
 	}
 
 	@:noCompletion private function set_vsyncMode(value:VSyncMode):VSyncMode
@@ -764,16 +844,18 @@ class Application extends Module
 		if (value == null)
 		{
 			return {
-				timePrecision: TimePrecision.Auto,
-				busyWait: BusyWaitMode.Auto,
-				uncapMode: UncapMode.Off
+				timePrecision: TimePrecision.AUTO,
+				busyWait: BusyWaitMode.AUTO,
+				uncapMode: UncapMode.OFF,
+				backgroundFrameRate: 30
 			};
 		}
 
 		return {
 			timePrecision: value.timePrecision,
 			busyWait: value.busyWait,
-			uncapMode: value.uncapMode
+			uncapMode: value.uncapMode,
+			backgroundFrameRate: Reflect.hasField(value, "backgroundFrameRate") ? value.backgroundFrameRate : 30
 		};
 	}
 
@@ -789,6 +871,7 @@ class Application extends Module
 		if (Reflect.hasField(value, "timePrecision")) base.timePrecision = value.timePrecision;
 		if (Reflect.hasField(value, "busyWait")) base.busyWait = value.busyWait;
 		if (Reflect.hasField(value, "uncapMode")) base.uncapMode = value.uncapMode;
+		if (Reflect.hasField(value, "backgroundFrameRate")) base.backgroundFrameRate = value.backgroundFrameRate;
 
 		return base;
 	}
@@ -861,7 +944,7 @@ class Application extends Module
 
 			if (Reflect.hasField(context, "vsync") && context.vsync)
 			{
-				return VSyncMode.On;
+				return VSyncMode.ON;
 			}
 		}
 
@@ -882,7 +965,15 @@ class Application extends Module
 
 	@:noCompletion private function __setFrameRateFromWindow(value:Float):Float
 	{
-		__frameRate = __normalizeFrameRate(value);
+		var frameRate = __normalizeFrameRate(value);
+
+		// Setting the frame rate it has, as applications that set it often do, changes nothing
+		if (frameRate == __frameRate && __frameConfigured)
+		{
+			return __frameRate;
+		}
+
+		__frameRate = frameRate;
 		__applyFrameConfiguration(__frameProfile, __frameOptions, __vsyncMode, true);
 		return __frameRate;
 	}

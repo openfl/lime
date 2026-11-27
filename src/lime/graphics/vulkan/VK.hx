@@ -5,7 +5,6 @@ import lime.graphics.VulkanRenderContext;
 #if (!lime_doc_gen || lime_cffi)
 import lime.system.CFFI;
 #end
-
 #if (!lime_doc_gen || lime_cffi)
 import lime._internal.backend.native.NativeCFFI;
 #end
@@ -18,6 +17,11 @@ import lime._internal.backend.native.NativeCFFI;
 	Like `lime.graphics.opengl.GL`, this class is the public place for low-level
 	graphics API access. Vulkan is explicit by design, so the API is organized
 	around handles and lifecycle objects instead of GL-style global state.
+
+	Vulkan support is experimental: this API can change in a minor release.
+	It is available on native Windows, Linux and Android targets for windows
+	created with a `VULKAN` context type, or by default in applications built with
+	the `vulkan` define. They use OpenGL instead where Vulkan is not available.
 **/
 class VK
 {
@@ -352,8 +356,7 @@ class VK
 		This currently prefers graphics-capable devices, optionally requiring
 		present support, and favors discrete GPUs by default.
 	**/
-	public static function pickPhysicalDevice(devices:Array<VKPhysicalDevice>, requirePresent:Bool = false,
-		preferDiscrete:Bool = true):VKPhysicalDevice
+	public static function pickPhysicalDevice(devices:Array<VKPhysicalDevice>, requirePresent:Bool = false, preferDiscrete:Bool = true):VKPhysicalDevice
 	{
 		if (devices == null || devices.length == 0)
 		{

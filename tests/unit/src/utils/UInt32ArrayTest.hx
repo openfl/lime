@@ -7,19 +7,23 @@ import lime.utils.ArrayBuffer;
 import utest.Assert;
 import utest.Test;
 
-class UInt32ArrayTest extends Test {
-	public function new() {
+class UInt32ArrayTest extends Test
+{
+	public function new()
+	{
 		super();
 	}
 
-	public function testByteLength():Void {
+	public function testByteLength():Void
+	{
 		var buffer = new ArrayBuffer(16);
 		var array = new UInt32Array(buffer);
 		Assert.equals(4, array.length);
 		Assert.equals(16, array.byteLength);
 	}
 
-	public function testValues():Void {
+	public function testValues():Void
+	{
 		var buffer = new ArrayBuffer(16);
 		var array = new UInt32Array(buffer);
 		Assert.equals(0x0, array[0]);
@@ -44,7 +48,8 @@ class UInt32ArrayTest extends Test {
 		#end
 	}
 
-	public function testSubarray():Void {
+	public function testSubarray():Void
+	{
 		var buffer = new ArrayBuffer(16);
 		var array = new UInt32Array(buffer);
 		array[0] = 0xcafebabe;
@@ -113,12 +118,13 @@ class UInt32ArrayTest extends Test {
 		#end
 	}
 
-	public function testSetArrayOfInts():Void {
+	public function testSetArrayOfInts():Void
+	{
 		var array1:Array<Int> = [0xcafebabe, 0xdecafbad, 0xffffffff, 0xdeadbeef];
 
 		var buffer2 = new ArrayBuffer(32);
 		var array2 = new UInt32Array(buffer2);
-		
+
 		array2.set(array1);
 		#if js
 		Assert.equals(untyped #if haxe4 js.Syntax.code #else __js__ #end ('0xcafebabe'), array2[0]);
@@ -136,7 +142,8 @@ class UInt32ArrayTest extends Test {
 		Assert.equals(0x0, array2[6]);
 		Assert.equals(0x0, array2[7]);
 
-		for (i in 0...array2.length) {
+		for (i in 0...array2.length)
+		{
 			array2[i] = 0x0;
 		}
 
@@ -165,7 +172,8 @@ class UInt32ArrayTest extends Test {
 		var buffer2 = new ArrayBuffer(32);
 		var array2 = new UInt32Array(buffer2);
 
-		Assert.raises(function():Void {
+		Assert.raises(function():Void
+		{
 			array2.set(array1, 6);
 		});
 		Assert.equals(0x0, array2[0]);
@@ -178,7 +186,8 @@ class UInt32ArrayTest extends Test {
 		Assert.equals(0x0, array2[7]);
 	}
 
-	public function testSetUInt8Array():Void {
+	public function testSetUInt8Array():Void
+	{
 		var buffer1 = new ArrayBuffer(4);
 		var array1 = new UInt8Array(buffer1);
 		array1[0] = 0xca;
@@ -200,7 +209,8 @@ class UInt32ArrayTest extends Test {
 		Assert.equals(0x0, array2[7]);
 
 		// reset the array to all zeros
-		for (i in 0...array2.length) {
+		for (i in 0...array2.length)
+		{
 			array2[i] = 0x0;
 		}
 
@@ -215,7 +225,8 @@ class UInt32ArrayTest extends Test {
 		Assert.equals(0x0, array2[7]);
 	}
 
-	public function testSetUInt8ArrayRangeError():Void {
+	public function testSetUInt8ArrayRangeError():Void
+	{
 		var buffer1 = new ArrayBuffer(4);
 		var array1 = new UInt8Array(buffer1);
 		array1[0] = 0xca;
@@ -227,7 +238,8 @@ class UInt32ArrayTest extends Test {
 		var array2 = new UInt32Array(buffer2);
 
 		// if the array can't fit, it throws
-		Assert.raises(function():Void {
+		Assert.raises(function():Void
+		{
 			array2.set(array1, 6);
 		});
 		// in that case, none of the values should have been updated
@@ -241,7 +253,8 @@ class UInt32ArrayTest extends Test {
 		Assert.equals(0x0, array2[7]);
 	}
 
-	public function testSetUInt16Array():Void {
+	public function testSetUInt16Array():Void
+	{
 		var buffer1 = new ArrayBuffer(8);
 		var array1 = new UInt16Array(buffer1);
 		array1[0] = 0xcafe;
@@ -263,7 +276,8 @@ class UInt32ArrayTest extends Test {
 		Assert.equals(0x0, array2[7]);
 
 		// reset the array to all zeros
-		for (i in 0...array2.length) {
+		for (i in 0...array2.length)
+		{
 			array2[i] = 0x0;
 		}
 
@@ -278,7 +292,8 @@ class UInt32ArrayTest extends Test {
 		Assert.equals(0x0, array2[7]);
 	}
 
-	public function testSetUInt16ArrayRangeError():Void {
+	public function testSetUInt16ArrayRangeError():Void
+	{
 		var buffer1 = new ArrayBuffer(8);
 		var array1 = new UInt16Array(buffer1);
 		array1[0] = 0xcafe;
@@ -290,7 +305,8 @@ class UInt32ArrayTest extends Test {
 		var array2 = new UInt32Array(buffer2);
 
 		// if the array can't fit, it throws
-		Assert.raises(function():Void {
+		Assert.raises(function():Void
+		{
 			array2.set(array1, 6);
 		});
 		// in that case, none of the values should have been updated
@@ -304,7 +320,8 @@ class UInt32ArrayTest extends Test {
 		Assert.equals(0x0, array2[7]);
 	}
 
-	public function testSetUInt32Array():Void {
+	public function testSetUInt32Array():Void
+	{
 		var buffer1 = new ArrayBuffer(16);
 		var array1 = new UInt32Array(buffer1);
 		array1[0] = 0xcafebabe;
@@ -333,7 +350,8 @@ class UInt32ArrayTest extends Test {
 		Assert.equals(0x0, array2[7]);
 
 		// reset the array to all zeros
-		for (i in 0...array2.length) {
+		for (i in 0...array2.length)
+		{
 			array2[i] = 0x0;
 		}
 
@@ -355,7 +373,8 @@ class UInt32ArrayTest extends Test {
 		Assert.equals(0x0, array2[7]);
 	}
 
-	public function testSetUInt32ArrayRangeError():Void {
+	public function testSetUInt32ArrayRangeError():Void
+	{
 		var buffer1 = new ArrayBuffer(16);
 		var array1 = new UInt32Array(buffer1);
 		array1[0] = 0xcafebabe;
@@ -367,7 +386,8 @@ class UInt32ArrayTest extends Test {
 		var array2 = new UInt32Array(buffer2);
 
 		// if the array can't fit, it throws
-		Assert.raises(function():Void {
+		Assert.raises(function():Void
+		{
 			array2.set(array1, 6);
 		});
 		// in that case, none of the values should have been updated
@@ -379,5 +399,52 @@ class UInt32ArrayTest extends Test {
 		Assert.equals(0x0, array2[5]);
 		Assert.equals(0x0, array2[6]);
 		Assert.equals(0x0, array2[7]);
+	}
+
+	public function testElementsReadBackAsUnsignedAcrossTheirRange():Void
+	{
+		var array = new UInt32Array(5);
+		array[0] = 0xFFFFFFFF;
+		array[1] = 0x80000000;
+		array[2] = 0x7FFFFFFF;
+		array[3] = 0xDEADBEEF;
+		array[4] = 0x000000FF;
+
+		assertUnsigned([4294967295.0, 2147483648.0, 2147483647.0, 3735928559.0, 255.0], array);
+
+		// Compared as UInt, values above 0x7FFFFFFF are the larger ones
+		var high:UInt = array[1];
+		var low:UInt = array[2];
+		Assert.isTrue(high > low, "0x80000000 read back as no more than 0x7FFFFFFF");
+	}
+
+	public function testElementsReadBackAsUnsignedThroughAViewWithAByteOffset():Void
+	{
+		var buffer = new ArrayBuffer(24);
+		var whole = new UInt32Array(buffer);
+		whole[0] = 0x00000001;
+		whole[1] = 0xFFFFFFFF;
+		whole[2] = 0x80000000;
+		whole[3] = 0xCAFEBABE;
+		whole[4] = 0x7FFFFFFF;
+
+		var view = new UInt32Array(buffer, 4, 4);
+		Assert.equals(4, view.byteOffset);
+		assertUnsigned([4294967295.0, 2147483648.0, 3405691582.0, 2147483647.0], view);
+
+		var subarray = whole.subarray(1, 5);
+		Assert.equals(4, subarray.byteOffset);
+		assertUnsigned([4294967295.0, 2147483648.0, 3405691582.0, 2147483647.0], subarray);
+	}
+
+	private static function assertUnsigned(expected:Array<Float>, array:UInt32Array, ?pos:haxe.PosInfos):Void
+	{
+		Assert.equals(expected.length, array.length, pos);
+
+		for (i in 0...expected.length)
+		{
+			var value:UInt = array[i];
+			Assert.equals(expected[i], (value : Float), "element " + i + " read back as " + (value : Float), pos);
+		}
 	}
 }

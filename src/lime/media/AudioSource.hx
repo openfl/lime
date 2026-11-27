@@ -9,6 +9,7 @@ import lime.math.Vector4;
 @:fileXml('tags="haxe,release"')
 @:noDebug
 #end
+
 /**
 	The `AudioSource` class provides a way to control audio playback in a Lime application. 
 	It allows for playing, pausing, and stopping audio, as well as controlling various 
@@ -24,7 +25,7 @@ class AudioSource
 		An event that is dispatched when the audio playback is complete.
 	**/
 	public var onComplete = new Event<Void->Void>();
-	
+
 	/**
 		The `AudioBuffer` associated with this `AudioSource`.
 	**/
@@ -78,16 +79,13 @@ class AudioSource
 	{
 		this.buffer = buffer;
 		this.offset = offset;
-
 		__backend = new AudioSourceBackend(this);
 
 		if (length != null && length != 0)
 		{
 			this.length = length;
 		}
-
 		this.loops = loops;
-
 		if (buffer != null)
 		{
 			init();
@@ -113,6 +111,25 @@ class AudioSource
 	public function play():Void
 	{
 		__backend.play();
+	}
+
+	/**
+		Plays or resumes each of `sources`, so they begin at the same moment. On native targets they start in one
+		`alSourcePlayv`, in the same mixer update, rather than in whichever one each `play()` happened to reach (a
+		period, often 10-20 ms, apart). Use it to start tracks that must stay aligned, such as a song's instrumental
+		and vocals. On HTML5 with Web Audio, they start on one `AudioContext` time, a moment ahead, so they begin on
+		the same sample. Sounds played through an HTML5 audio element, and sources on Flash, are played in turn.
+	**/
+	public static function playTogether(sources:Array<AudioSource>):Void
+	{
+		#if !flash
+		AudioSourceBackend.playTogether(sources);
+		#else
+		for (source in sources)
+		{
+			if (source != null) source.play();
+		}
+		#end
 	}
 
 	/**

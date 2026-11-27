@@ -1,11 +1,44 @@
 #include "SDLApplication.h"
 #include "SDLGamepad.h"
 #include "SDLJoystick.h"
+#include "SDLMenu.h"
+#include "SDLTrayIcon.h"
 #include <algorithm>
+#include <cmath>
+#include <limits>
+#include <net/LocalSocket.h>
 #include <system/System.h>
 
 #ifdef HX_MACOS
 #include <CoreFoundation/CoreFoundation.h>
+#endif
+
+#if defined(HX_WINDOWS) && !defined(HX_WINRT)
+#ifndef NOMINMAX
+#define NOMINMAX
+#endif
+#ifndef WIN32_LEAN_AND_MEAN
+#define WIN32_LEAN_AND_MEAN
+#endif
+#include <windows.h>
+#ifndef CREATE_WAITABLE_TIMER_HIGH_RESOLUTION
+#define CREATE_WAITABLE_TIMER_HIGH_RESOLUTION 0x00000002
+#endif
+
+// Looked up at run time: MinGW's headers declare CreateWaitableTimerExW only
+// when _WIN32_WINNT says Vista or later
+typedef HANDLE (WINAPI *CreateWaitableTimerExWFunc) (LPSECURITY_ATTRIBUTES, LPCWSTR, DWORD, DWORD);
+
+static HANDLE CreateHighResolutionTimer ()
+{
+	HMODULE kernel32 = GetModuleHandleW (L"kernel32.dll");
+	if (!kernel32) return NULL;
+	CreateWaitableTimerExWFunc create = (CreateWaitableTimerExWFunc)GetProcAddress (kernel32, "CreateWaitableTimerExW");
+	if (!create) return NULL;
+	return create (NULL, NULL, CREATE_WAITABLE_TIMER_HIGH_RESOLUTION, TIMER_ALL_ACCESS);
+}
+#elif !defined(HX_WINDOWS)
+#include <time.h>
 #endif
 
 #ifdef EMSCRIPTEN
@@ -28,29 +61,136 @@ namespace lime
 	bool inBackground = false;
 
 	static SDL_atomic_t s_waitEventBlocking;
+
+	// Swaps made by every window, counted on the main thread
+	static unsigned int s_contextFlips = 0;
+
+	// Pushed from native-ipc's threads when local socket events wait, so a loop
+	// waiting for events wakes and dispatches them.
+	static Uint32 localSocketEventType = 0;
+
+	static void WakeLocalSockets()
+	{
+		SDL_Event event;
+		SDL_zero(event);
+		event.type = localSocketEventType;
+		SDL_PushEvent(&event);
+	}
+
+	class ScopedModalGC {
+		bool wasBlocking;
+	public:
+		ScopedModalGC():wasBlocking(SDL_AtomicGet(&s_waitEventBlocking) != 0) {
+			if (wasBlocking) {
+				System::GCExitBlocking();
+				SDL_AtomicSet(&s_waitEventBlocking, 0);
+			}
+		}
+		~ScopedModalGC() {
+			if (wasBlocking) {
+				System::GCEnterBlocking();
+				SDL_AtomicSet(&s_waitEventBlocking, 1);
+			}
+		}
+	};
+
 #if defined(HX_WINDOWS) && !defined(HX_WINRT)
 	static SDL_atomic_t s_nativeModalLoopDepth;
 	static SDL_atomic_t s_inModalEventWatch;
+
+	// Restore native callback state even if a dispatched callback throws.
+	class ScopedModalWatch {
+		bool entered;
+	public:
+		ScopedModalWatch():entered(SDL_AtomicCAS(&s_inModalEventWatch, 0, 1) != 0) {}
+		~ScopedModalWatch() { if (entered) SDL_AtomicSet(&s_inModalEventWatch, 0); }
+		bool Entered() const { return entered; }
+	};
+
+	class ScopedModalCallbacks {
+		ValuePointer* update;
+		ValuePointer* render;
+		ValuePointer* window;
+	public:
+		ScopedModalCallbacks(ValuePointer** callbacks):update(ApplicationEvent::callback),render(RenderEvent::callback),window(WindowEvent::callback)
+		{
+			ApplicationEvent::callback = callbacks[0];
+			RenderEvent::callback = callbacks[1];
+			WindowEvent::callback = callbacks[2];
+		}
+		~ScopedModalCallbacks()
+		{
+			ApplicationEvent::callback = update;
+			RenderEvent::callback = render;
+			WindowEvent::callback = window;
+		}
+	};
 #endif
+
+	// For native code that the system calls back while it waits for events, and
+	// which needs an answer from Haxe before it returns
+	void SDLApplication::CallFromEventPump(void (*callback)(void*), void* data)
+	{
+		ScopedModalGC gc;
+		callback(data);
+	}
+
+	void AllowHighDPI()
+	{
+
+#if defined(HX_WINDOWS) && !defined(HX_WINRT)
+		// Windows otherwise draws the application at 96 DPI and stretches it to
+		// each display's scale. Window sizes stay in points, as on macOS, with
+		// the drawable in pixels. Both are read as SDL starts.
+		SDL_SetHint(SDL_HINT_WINDOWS_DPI_AWARENESS, "permonitorv2");
+		SDL_SetHint(SDL_HINT_WINDOWS_DPI_SCALING, "1");
+#endif
+	}
+
+	// Idle events leave this many milliseconds before a frame, and come this often
+	static const double IDLE_MIN_REMAINING = 2.0;
+	static const double IDLE_INTERVAL = 1.0;
 
 	SDLApplication::SDLApplication()
 	{
 
+		active = false;
 		allowBusyWait = true;
 		busyWaitOnly = false;
+		mainLoopApplied = false;
+#if defined(HX_WINDOWS) && !defined(HX_WINRT)
+		// Windows 10 1803 and later; without it the remainder of a frame is spun as before
+		frameTimer = CreateHighResolutionTimer ();
+#endif
+		swapPaced = false;
+		swapFallback = false;
+		shortSwaps = 0;
+		lastSwapFrame = 0.0;
 		currentUpdate = 0.0;
+		deltaRemainder = 0.0;
+		dispatchedFrames = 0;
 		displayRefreshRate = 60.0;
 		initFlags = SDL_INIT_VIDEO | SDL_INIT_GAMECONTROLLER | SDL_INIT_TIMER | SDL_INIT_JOYSTICK;
 		firstTime = true;
+		mouseCaptureRequested = false;
 #if defined(LIME_MOJOAL) || defined(LIME_OPENALSOFT)
 		initFlags |= SDL_INIT_AUDIO;
 #endif
+
+		// Input methods show their own composition and candidate windows, which
+		// Lime apps don't draw, and compositions longer than an SDL text event
+		// holds arrive whole. Both are read as the video subsystem starts.
+		SDL_SetHint(SDL_HINT_IME_SHOW_UI, "1");
+		SDL_SetHint(SDL_HINT_IME_SUPPORT_EXTENDED_TEXT, "1");
 
 		if (SDL_Init(initFlags) != 0)
 		{
 
 			printf("Could not initialize SDL: %s.\n", SDL_GetError());
 		}
+
+		// Lime's cancelable window-close callback owns last-window termination.
+		SDL_SetHintWithPriority(SDL_HINT_QUIT_ON_LAST_WINDOW_CLOSE, "0", SDL_HINT_OVERRIDE);
 
 #ifdef LIME_SDL_SOUND
 		if (!Sound_Init ()) {
@@ -62,28 +202,60 @@ namespace lime
 
 		SDL_LogSetPriority(SDL_LOG_CATEGORY_APPLICATION, SDL_LOG_PRIORITY_WARN);
 
+		if (localSocketEventType == 0)
+		{
+			localSocketEventType = SDL_RegisterEvents(1);
+
+			// SDL_USEREVENT is a frame request here, so never share it.
+			if (localSocketEventType == SDL_USEREVENT)
+				localSocketEventType = SDL_RegisterEvents(1);
+
+			if (localSocketEventType == (Uint32)-1)
+				localSocketEventType = 0;
+		}
+
+		if (localSocketEventType != 0)
+			LocalSocket::SetWakeHandler(WakeLocalSockets);
+
 		currentApplication = this;
 #if defined(HX_WINDOWS) && !defined(HX_WINRT)
 		modalWatchInstalled = false;
+		modalExceptionPending = false;
+		modalFramePending = false;
+		SDL_zero(modalFrameEvent);
+		for (int i = 0; i < 4; ++i)
+			modalCallbacks[i] = 0;
 		mainThreadID = SDL_ThreadID();
-		pendingResizeDispatchSkips = 0;
-		pendingWatchRenderSkips = 0;
 #endif
 
 		framePeriod = 1000.0 / 60.0;
+		idleEvents = false;
 		lastUpdate = 0.0;
 		lastSleepCalibration = 0;
+		nextIdle = 0.0;
 		nextUpdate = 0.0;
 		performanceFrequency = SDL_GetPerformanceFrequency();
+		clockStartCounter = SDL_GetPerformanceCounter();
+#if SDL_VERSION_ATLEAST(2, 0, 18)
+		clockStartTicks = SDL_GetTicks64();
+#else
+		clockStartTicks = 0;
+#endif
+		clockLastTicks = SDL_GetTicks();
+		clockElapsedTicks = 0;
 		realVSyncActive = false;
+		requestedBackgroundFrameRate = 30.0;
 		requestedBusyWaitMode = MAIN_LOOP_BUSY_WAIT_AUTO;
+		windowsHidden = false;
 		requestedFrameRate = 60.0;
 		requestedProfile = MAIN_LOOP_PROFILE_BALANCED;
 		requestedTimePrecisionMode = MAIN_LOOP_TIME_PRECISION_AUTO;
 		requestedUncapMode = MAIN_LOOP_UNCAP_OFF;
+		activeUncapMode = MAIN_LOOP_UNCAP_OFF;
 		requestedVSyncMode = MAIN_LOOP_VSYNC_OFF;
 		schedulerUnthrottled = false;
 		sleepGuardMs = 2.0;
+		swapPaced = false;
 		useDisplayDrivenFallback = false;
 		useHighResolutionTimer = false;
 
@@ -102,6 +274,9 @@ namespace lime
 		WindowEvent windowEvent;
 
 		SDL_EventState(SDL_DROPFILE, SDL_ENABLE);
+		SDL_EventState(SDL_DROPTEXT, SDL_ENABLE);
+		SDL_EventState(SDL_DROPBEGIN, SDL_ENABLE);
+		SDL_EventState(SDL_DROPCOMPLETE, SDL_ENABLE);
 		SDLJoystick::Init();
 #if defined(HX_WINDOWS) && !defined(HX_WINRT)
 		SDL_AtomicSet(&s_nativeModalLoopDepth, 0);
@@ -110,6 +285,7 @@ namespace lime
 		SDL_AddEventWatch(ModalEventWatch, this);
 		modalWatchInstalled = true;
 #endif
+		SDL_AddEventWatch(MinimizeOnFocusLossWatch, NULL);
 
 #ifdef HX_MACOS
 		CFURLRef resourcesURL = CFBundleCopyResourcesDirectoryURL(CFBundleGetMainBundle());
@@ -135,14 +311,23 @@ namespace lime
 		}
 
 		nextUpdate += framePeriod;
-		while (nextUpdate <= currentUpdate)
+		if (nextUpdate <= currentUpdate)
 		{
-			nextUpdate += framePeriod;
+			double skippedPeriods = std::floor((currentUpdate - nextUpdate) / framePeriod) + 1.0;
+			nextUpdate += skippedPeriods * framePeriod;
+			// Rounding at a large clock value must not leave the deadline due.
+			if (nextUpdate <= currentUpdate)
+				nextUpdate = std::nextafter(currentUpdate, (std::numeric_limits<double>::infinity)());
 		}
 	}
 
 	void SDLApplication::ApplyMainLoopSettings()
 	{
+
+		bool wasUnthrottled = schedulerUnthrottled;
+		bool wasSwapPaced = swapPaced;
+		bool wasDisplayDriven = useDisplayDrivenFallback;
+		bool wasBusyWaitOnly = busyWaitOnly;
 
 		double clampedFrameRate = requestedFrameRate;
 		if (clampedFrameRate > 0.0 && clampedFrameRate > 10000.0)
@@ -164,17 +349,26 @@ namespace lime
 
 		useDisplayDrivenFallback = false;
 		schedulerUnthrottled = false;
+		swapPaced = false;
+		swapFallback = false;
+		shortSwaps = 0;
 
 		bool hasExplicitFrameRate = (clampedFrameRate > 0.0);
 		double effectiveFrameRate = hasExplicitFrameRate ? clampedFrameRate : 1.0;
 
-		if (requestedUncapMode == MAIN_LOOP_UNCAP_SOFT || requestedUncapMode == MAIN_LOOP_UNCAP_HARD)
+		// The uncapped profile uncaps the loop unless the options ask for more
+		activeUncapMode = requestedUncapMode;
+		if (activeUncapMode == MAIN_LOOP_UNCAP_OFF && requestedProfile == MAIN_LOOP_PROFILE_UNCAPPED)
+			activeUncapMode = MAIN_LOOP_UNCAP_SOFT;
+
+		if (activeUncapMode == MAIN_LOOP_UNCAP_SOFT || activeUncapMode == MAIN_LOOP_UNCAP_HARD)
 		{
 			schedulerUnthrottled = true;
 		}
 		else if (realVSyncActive && hasExplicitFrameRate && clampedFrameRate >= displayRefreshRate)
 		{
 			schedulerUnthrottled = true;
+			swapPaced = true;
 		}
 		else if (requestedVSyncMode == MAIN_LOOP_VSYNC_AUTO && !realVSyncActive && hasExplicitFrameRate && clampedFrameRate >= displayRefreshRate)
 		{
@@ -183,6 +377,20 @@ namespace lime
 		}
 
 		framePeriod = 1000.0 / effectiveFrameRate;
+
+		// While every window is minimised or hidden, nothing shows the frames, so they are
+		// timed at no more than the background frame rate, whatever the profile
+		bool backgroundLimited = windowsHidden && requestedBackgroundFrameRate > 0.0;
+
+		if (backgroundLimited)
+		{
+			double backgroundPeriod = 1000.0 / requestedBackgroundFrameRate;
+			schedulerUnthrottled = false;
+			swapPaced = false;
+			useDisplayDrivenFallback = false;
+			if (framePeriod < backgroundPeriod)
+				framePeriod = backgroundPeriod;
+		}
 
 		switch (requestedTimePrecisionMode)
 		{
@@ -196,7 +404,7 @@ namespace lime
 
 			default:
 				useHighResolutionTimer = (requestedProfile == MAIN_LOOP_PROFILE_PRECISION || requestedProfile == MAIN_LOOP_PROFILE_UNCAPPED ||
-					requestedUncapMode != MAIN_LOOP_UNCAP_OFF || clampedFrameRate > 1000.0);
+					activeUncapMode != MAIN_LOOP_UNCAP_OFF || clampedFrameRate > 1000.0);
 				break;
 		}
 
@@ -215,9 +423,28 @@ namespace lime
 				break;
 		}
 
-		busyWaitOnly = allowBusyWait && (requestedUncapMode == MAIN_LOOP_UNCAP_HARD || (framePeriod > 0.0 && framePeriod <= 2.0));
-		currentUpdate = GetCurrentTimeMs();
-		nextUpdate = currentUpdate;
+		if (backgroundLimited)
+			allowBusyWait = false;
+
+		busyWaitOnly = allowBusyWait && (activeUncapMode == MAIN_LOOP_UNCAP_HARD || (framePeriod > 0.0 && framePeriod <= 2.0));
+
+		bool samePacing = mainLoopApplied && wasUnthrottled == schedulerUnthrottled && wasSwapPaced == swapPaced &&
+			wasDisplayDriven == useDisplayDrivenFallback && wasBusyWaitOnly == busyWaitOnly;
+		mainLoopApplied = true;
+
+		if (samePacing && !schedulerUnthrottled && framePeriod > 0.0)
+		{
+			// Keep the next frame where it was, but no later than a new period after the last one,
+			// so setting the frame rate often doesn't make a frame due each time
+			double latest = currentUpdate + framePeriod;
+			if (nextUpdate > latest)
+				nextUpdate = latest;
+		}
+		else
+		{
+			currentUpdate = GetCurrentTimeMs();
+			nextUpdate = currentUpdate;
+		}
 	}
 
 	void SDLApplication::CalibrateSleepGuard(bool force)
@@ -257,6 +484,23 @@ namespace lime
 		lastSleepCalibration = now;
 	}
 
+	bool SDLApplication::CalibrateSleepGuardBefore(double remaining)
+	{
+
+		// The measurement sleeps for about the guard, so it waits for a wait
+		// with time to spare, where it can't make the frame start late. The
+		// caller reads the time left again when it returns true.
+		Uint32 now = SDL_GetTicks();
+		if (lastSleepCalibration != 0 && (now - lastSleepCalibration) < 5000)
+			return false;
+
+		if (remaining < (double)GetSleepGuardMs() * 2.0 + 2.0)
+			return false;
+
+		CalibrateSleepGuard();
+		return true;
+	}
+
 	Uint32 SDLApplication::GetSleepGuardMs() const
 	{
 
@@ -269,12 +513,22 @@ namespace lime
 	double SDLApplication::GetCurrentTimeMs() const
 	{
 
-		if (useHighResolutionTimer && performanceFrequency != 0)
+		if (performanceFrequency != 0)
 		{
-			return ((double)SDL_GetPerformanceCounter() * 1000.0) / (double)performanceFrequency;
+			// Both precision modes use the same epoch; only their resolution differs.
+			double now = ((double)(SDL_GetPerformanceCounter() - clockStartCounter) * 1000.0) / (double)performanceFrequency;
+			return useHighResolutionTimer ? now : std::floor(now);
 		}
 
-		return (double)SDL_GetTicks();
+		// Extend legacy ticks without requiring a newer SDL minimum version.
+#if SDL_VERSION_ATLEAST(2, 0, 18)
+		return (double)(SDL_GetTicks64() - clockStartTicks);
+#else
+		Uint32 ticks = SDL_GetTicks();
+		clockElapsedTicks += (Uint32)(ticks - clockLastTicks);
+		clockLastTicks = ticks;
+		return (double)clockElapsedTicks;
+#endif
 	}
 
 	double SDLApplication::GetDisplayRefreshRate() const
@@ -296,15 +550,29 @@ namespace lime
 	void SDLApplication::DispatchFrame(double now, bool renderFrame)
 	{
 
-		currentUpdate = now;
+#if defined(IPHONE) || defined(EMSCRIPTEN)
+		int top = 0;
+		gc_set_top_of_stack(&top, false);
+#endif
+
+		currentUpdate = (std::max)(now, lastUpdate);
 		applicationEvent.type = UPDATE;
 
 		double delta = currentUpdate - lastUpdate;
 		if (delta < 0.0)
 			delta = 0.0;
 
-		applicationEvent.deltaTime = (int)(delta + 0.5);
+		double elapsed = delta + deltaRemainder;
+		double rounded = std::floor(elapsed + 0.5);
+		if (rounded > (double)(std::numeric_limits<int>::max)())
+		{
+			rounded = (double)(std::numeric_limits<int>::max)();
+			elapsed = rounded;
+		}
+		applicationEvent.deltaTime = (int)rounded;
+		deltaRemainder = elapsed - rounded;
 		lastUpdate = currentUpdate;
+		dispatchedFrames++;
 
 		AdvanceNextUpdate();
 
@@ -312,8 +580,90 @@ namespace lime
 
 		if (renderFrame)
 		{
+			unsigned int flips = s_contextFlips;
+			double renderStart = swapPaced ? GetCurrentTimeMs() : 0.0;
 			RenderEvent::Dispatch(&renderEvent);
+			if (swapPaced) PaceFrameAfterRender(s_contextFlips != flips, GetCurrentTimeMs() - renderStart);
 		}
+	}
+
+	void SDLApplication::NoteContextFlip()
+	{
+
+		s_contextFlips++;
+	}
+
+	// A swap with vsync waits for the display for most of a light frame, and the
+	// collector needn't wait for it. The flag is the event wait's, so a callback
+	// that arrives during the swap leaves the blocking section first.
+	static int s_swapWasBlocking = 0;
+
+	void SDLApplication::EnterSwapBlocking()
+	{
+
+		System::GCEnterBlocking();
+		s_swapWasBlocking = SDL_AtomicSet(&s_waitEventBlocking, 1);
+	}
+
+	void SDLApplication::ExitSwapBlocking()
+	{
+
+		SDL_AtomicSet(&s_waitEventBlocking, s_swapWasBlocking);
+		System::GCExitBlocking();
+	}
+
+	void SDLApplication::PaceFrameAfterRender(bool swapped, double renderMs)
+	{
+
+		double refreshPeriod = 1000.0 / displayRefreshRate;
+
+		// The loop runs unthrottled while each swap waits for the display. A frame that
+		// swaps nothing, as when an application skips drawing an unchanged scene, waits
+		// for nothing, so until a frame swaps again, frames come once per refresh.
+		if (!swapped)
+		{
+			schedulerUnthrottled = false;
+			nextUpdate = currentUpdate + refreshPeriod;
+			return;
+		}
+
+		if (swapFallback)
+		{
+			// Frames are timed while the swaps don't wait. One that blocks for a good part of a
+			// refresh shows the display pacing them again.
+			if (renderMs >= refreshPeriod * 0.25)
+			{
+				swapFallback = false;
+				shortSwaps = 0;
+				lastSwapFrame = currentUpdate;
+				schedulerUnthrottled = true;
+			}
+
+			return;
+		}
+
+		// A swap can return at once, as when a driver forces vsync off, in a remote session or
+		// a virtual machine, which would leave update and render running back to back. Frames
+		// that swapped coming well under a refresh apart several times running show that.
+		double interval = currentUpdate - lastSwapFrame;
+		lastSwapFrame = currentUpdate;
+
+		if (interval < refreshPeriod * 0.5)
+		{
+			if (++shortSwaps >= 3)
+			{
+				swapFallback = true;
+				schedulerUnthrottled = false;
+				nextUpdate = currentUpdate + framePeriod;
+				return;
+			}
+		}
+		else
+		{
+			shortSwaps = 0;
+		}
+
+		schedulerUnthrottled = true;
 	}
 
 	bool SDLApplication::IsFrameDue(double now) const
@@ -323,6 +673,23 @@ namespace lime
 			return true;
 
 		return (now >= nextUpdate);
+	}
+
+	bool SDLApplication::IsIdleDue(double now) const
+	{
+
+		return idleEvents && !schedulerUnthrottled && now >= nextIdle && nextUpdate - now >= IDLE_MIN_REMAINING;
+	}
+
+	void SDLApplication::DispatchIdle(double remaining)
+	{
+
+		ApplicationEvent idleEvent;
+		idleEvent.type = IDLE;
+		idleEvent.deltaTime = (int)remaining;
+		ApplicationEvent::Dispatch(&idleEvent);
+
+		nextIdle = GetCurrentTimeMs() + IDLE_INTERVAL;
 	}
 
 	bool SDLApplication::IsSchedulerUnthrottled() const
@@ -336,6 +703,40 @@ namespace lime
 
 		ApplyMainLoopSettings();
 	}
+
+	bool SDLApplication::SleepsOutTheRemainder() const
+	{
+
+		// The precision profile, or busy waiting asked for by name, keeps the spin
+		return requestedProfile != MAIN_LOOP_PROFILE_PRECISION && requestedBusyWaitMode != MAIN_LOOP_BUSY_WAIT_ON;
+	}
+
+#if defined(HX_WINDOWS) && !defined(HX_WINRT)
+	bool SDLApplication::WaitOnFrameTimer(double ms)
+	{
+
+		if (!frameTimer || !SleepsOutTheRemainder())
+			return false;
+
+		if (ms > 8.0)
+			ms = 8.0;
+
+		// Relative, in 100 ns units
+		LARGE_INTEGER due;
+		due.QuadPart = -(LONGLONG)(ms * 10000.0);
+
+		if (due.QuadPart >= 0)
+			return true;
+
+		if (!SetWaitableTimer((HANDLE)frameTimer, &due, 0, NULL, NULL, FALSE))
+			return false;
+
+		// Any message wakes it, and SDL posts one for events pushed from other threads
+		HANDLE timer = (HANDLE)frameTimer;
+		MsgWaitForMultipleObjectsEx(1, &timer, INFINITE, QS_ALLINPUT, MWMO_INPUTAVAILABLE);
+		return true;
+	}
+#endif
 
 	void SDLApplication::UpdateSleepGuard(Uint32 requestedMs, Uint32 elapsedMs)
 	{
@@ -357,12 +758,35 @@ namespace lime
 	SDLApplication::~SDLApplication()
 	{
 #if defined(HX_WINDOWS) && !defined(HX_WINRT)
+		if (frameTimer)
+		{
+			CloseHandle((HANDLE)frameTimer);
+			frameTimer = NULL;
+		}
 		if (modalWatchInstalled && SDL_WasInit(0))
 		{
 			SDL_DelEventWatch(ModalEventWatch, this);
 			modalWatchInstalled = false;
 		}
+		for (int i = 0; i < 4; ++i)
+			delete modalCallbacks[i];
 #endif
+	}
+
+	// SDL reads its minimize on focus loss hint when a window loses focus. Only the window that has
+	// focus can lose it, so the hint follows each window's Window.minimizeOnFocusLoss as it gains focus.
+	// A watch is called as SDL raises the event, before the window can lose focus again.
+	int SDLApplication::MinimizeOnFocusLossWatch(void *userdata, SDL_Event *event)
+	{
+
+		if (event && event->type == SDL_WINDOWEVENT && event->window.event == SDL_WINDOWEVENT_FOCUS_GAINED)
+		{
+			SDL_Window *window = SDL_GetWindowFromID(event->window.windowID);
+			if (window) SDL_SetHint(SDL_HINT_VIDEO_MINIMIZE_ON_FOCUS_LOSS, SDL_GetWindowData(window, "Lime.KeepOnFocusLoss") == NULL ? "auto" : "0");
+		}
+
+		return 0;
+
 	}
 
 #if defined(HX_WINDOWS) && !defined(HX_WINRT)
@@ -382,6 +806,7 @@ namespace lime
 		}
 	}
 
+
 	int SDLApplication::ModalEventWatch(void *userdata, SDL_Event *event)
 	{
 
@@ -393,21 +818,98 @@ namespace lime
 			return 0;
 
 		SDLApplication *application = (SDLApplication *)userdata;
-		if (!application || !application->active || inBackground)
+		if (!application || SDL_ThreadID() != application->mainThreadID)
+			return 0;
+		if (!application->active || inBackground)
 			return 0;
 		if (SDL_AtomicGet(&s_waitEventBlocking) == 0 && SDL_AtomicGet(&s_nativeModalLoopDepth) == 0)
 			return 0;
 
-		if (SDL_ThreadID() != application->mainThreadID)
+		if (application->modalExceptionPending || application->modalNativeException || !application->modalCallbacks[3])
 			return 0;
 
-		// Prevent re-entry if rendering queues another window event.
-		if (!SDL_AtomicCAS(&s_inModalEventWatch, 0, 1))
+		// A window event queued while a frame is drawn doesn't draw another
+		if (SDL_AtomicGet(&s_inModalEventWatch) != 0)
 			return 0;
 
-		application->PumpOneFrameFromWatch(event);
-		SDL_AtomicSet(&s_inModalEventWatch, 0);
+		// SDL calls every watch with its event lock held, so a frame drawn here would make any
+		// thread pushing an event wait for it, and anything the frame waits on that pushes one,
+		// such as a local socket's thread it closes, would never finish. The frame is drawn once
+		// SDL_PushEvent has returned, from the window's procedure. A resize is kept over other
+		// events, as it draws even when no frame is due.
+		bool pendingResize = application->modalFramePending && (application->modalFrameEvent.window.event == SDL_WINDOWEVENT_SIZE_CHANGED || application->modalFrameEvent.window.event == SDL_WINDOWEVENT_RESIZED);
+		if (!pendingResize)
+			application->modalFrameEvent = *event;
+		application->modalFramePending = true;
 		return 0;
+	}
+
+	void SDLApplication::RunPendingModalFrame()
+	{
+
+		SDLApplication *application = currentApplication;
+		if (!application || !application->modalFramePending || SDL_ThreadID() != application->mainThreadID)
+			return;
+
+		SDL_Event event = application->modalFrameEvent;
+		application->modalFramePending = false;
+
+		// Otherwise the frame loop draws it, as it handles the window event
+		if (!application->active || inBackground)
+			return;
+		if (SDL_AtomicGet(&s_waitEventBlocking) == 0 && SDL_AtomicGet(&s_nativeModalLoopDepth) == 0)
+			return;
+		if (application->modalExceptionPending || application->modalNativeException || !application->modalCallbacks[3])
+			return;
+
+		// Prevent re-entry if rendering sends the window another message.
+		ScopedModalWatch watch;
+		if (!watch.Entered())
+			return;
+
+		try
+		{
+			ScopedModalCallbacks callbacks(application->modalCallbacks);
+			application->PumpOneFrameFromWatch(&event);
+		}
+		catch (...)
+		{
+			application->modalNativeException = std::current_exception();
+		}
+	}
+
+	void SDLApplication::SetModalCallbacks(ValuePointer* update, ValuePointer* render, ValuePointer* window, ValuePointer* rethrow)
+	{
+		for (int i = 0; i < 4; ++i)
+			delete modalCallbacks[i];
+		modalCallbacks[0] = update;
+		modalCallbacks[1] = render;
+		modalCallbacks[2] = window;
+		modalCallbacks[3] = rethrow;
+	}
+
+	void SDLApplication::DeferModalException()
+	{
+		modalExceptionPending = true;
+	}
+
+	void SDLApplication::CheckModalException(bool blocking)
+	{
+		if (!modalExceptionPending && !modalNativeException)
+			return;
+		if (blocking)
+		{
+			SDL_AtomicSet(&s_waitEventBlocking, 0);
+			System::GCExitBlocking();
+		}
+		if (modalNativeException)
+		{
+			std::exception_ptr exception = modalNativeException;
+			modalNativeException = std::exception_ptr();
+			std::rethrow_exception(exception);
+		}
+		modalExceptionPending = false;
+		modalCallbacks[3]->Call();
 	}
 
 	void SDLApplication::PumpOneFrameFromWatch(SDL_Event *watchEvent)
@@ -417,47 +919,28 @@ namespace lime
 			return;
 
 		bool isResizeEvent = false;
-		bool isExposeEvent = false;
 		if (watchEvent && watchEvent->type == SDL_WINDOWEVENT)
 		{
 			isResizeEvent = (watchEvent->window.event == SDL_WINDOWEVENT_SIZE_CHANGED || watchEvent->window.event == SDL_WINDOWEVENT_RESIZED);
-			isExposeEvent = (watchEvent->window.event == SDL_WINDOWEVENT_EXPOSED);
 		}
 
 		double now = GetCurrentTimeMs();
 		bool frameDue = IsFrameDue(now);
-		bool isResizeOrExposeEvent = (isResizeEvent || isExposeEvent);
 		if (!frameDue && !isResizeEvent)
 			return;
 
-		bool exitedBlocking = false;
-		if (SDL_AtomicGet(&s_waitEventBlocking))
-		{
-			System::GCExitBlocking();
-			SDL_AtomicSet(&s_waitEventBlocking, 0);
-			exitedBlocking = true;
-		}
+		ScopedModalGC gc;
 
 		if (isResizeEvent)
 		{
 			ProcessWindowEvent(watchEvent);
-			pendingResizeDispatchSkips++;
 		}
 
-		if (frameDue)
+		// A new size is drawn at once, while Windows is still handling it: until a frame is drawn at that size the
+		// window shows the last one stretched to it, so content laid out between due frames jumps as it's resized.
+		if (frameDue || isResizeEvent)
 		{
 			DispatchFrame(now);
-
-			if (watchEvent && isResizeOrExposeEvent)
-			{
-				pendingWatchRenderSkips++;
-			}
-		}
-
-		if (exitedBlocking)
-		{
-			System::GCEnterBlocking();
-			SDL_AtomicSet(&s_waitEventBlocking, 1);
 		}
 	}
 #endif
@@ -503,16 +986,6 @@ namespace lime
 		switch (event->type)
 		{
 
-		case SDL_USEREVENT:
-
-			if (!inBackground)
-			{
-
-				DispatchFrame(GetCurrentTimeMs());
-			}
-
-			break;
-
 		case SDL_APP_WILLENTERBACKGROUND:
 
 			inBackground = true;
@@ -527,6 +1000,9 @@ namespace lime
 
 		case SDL_APP_DIDENTERFOREGROUND:
 
+			lastUpdate = GetCurrentTimeMs();
+			nextUpdate = lastUpdate;
+			deltaRemainder = 0.0;
 			windowEvent.type = WINDOW_ACTIVATE;
 			WindowEvent::Dispatch(&windowEvent);
 
@@ -543,6 +1019,10 @@ namespace lime
 		case SDL_CONTROLLERBUTTONUP:
 		case SDL_CONTROLLERDEVICEADDED:
 		case SDL_CONTROLLERDEVICEREMOVED:
+		case SDL_CONTROLLERSENSORUPDATE:
+		case SDL_CONTROLLERTOUCHPADDOWN:
+		case SDL_CONTROLLERTOUCHPADMOTION:
+		case SDL_CONTROLLERTOUCHPADUP:
 
 			ProcessGamepadEvent(event);
 			break;
@@ -563,10 +1043,26 @@ namespace lime
 				OrientationEvent::Dispatch(&orientationEvent);
 
 				break;
+
+			case SDL_DISPLAYEVENT_CONNECTED:
+			case SDL_DISPLAYEVENT_DISCONNECTED:
+			case SDL_DISPLAYEVENT_MOVED:
+
+				// Displays come and go, and move as they are arranged or the primary
+				// display changes
+				orientationEvent.type = event->display.event == SDL_DISPLAYEVENT_CONNECTED ? DISPLAY_CONNECT : (event->display.event == SDL_DISPLAYEVENT_DISCONNECTED ? DISPLAY_DISCONNECT : DISPLAY_MOVE);
+				orientationEvent.orientation = 0;
+				orientationEvent.display = event->display.display;
+				OrientationEvent::Dispatch(&orientationEvent);
+
+				break;
 			}
 			break;
 
 		case SDL_DROPFILE:
+		case SDL_DROPTEXT:
+		case SDL_DROPBEGIN:
+		case SDL_DROPCOMPLETE:
 
 			ProcessDropEvent(event);
 			break;
@@ -630,8 +1126,14 @@ namespace lime
 			break;
 #endif
 
+		case SDL_SYSWMEVENT:
+
+			ProcessMenuEvent(event);
+			break;
+
 		case SDL_TEXTINPUT:
 		case SDL_TEXTEDITING:
+		case SDL_TEXTEDITING_EXT:
 
 			ProcessTextEvent(event);
 			break;
@@ -653,101 +1155,53 @@ namespace lime
 			case SDL_WINDOWEVENT_RESTORED:
 
 				ProcessWindowEvent(event);
+
+				// The frame rate drops while every window is minimised or hidden
+				if (event->window.event == SDL_WINDOWEVENT_SHOWN || event->window.event == SDL_WINDOWEVENT_HIDDEN ||
+					event->window.event == SDL_WINDOWEVENT_MINIMIZED || event->window.event == SDL_WINDOWEVENT_RESTORED ||
+					event->window.event == SDL_WINDOWEVENT_MAXIMIZED)
+					UpdateWindowsHidden(true);
+				break;
+
+			case SDL_WINDOWEVENT_DISPLAY_CHANGED:
+
+				// The display's refresh rate decides whether frames are swap paced
+				ApplyMainLoopSettings();
 				break;
 
 			case SDL_WINDOWEVENT_EXPOSED:
 
 				ProcessWindowEvent(event);
-
-				if (!inBackground)
+				// Rendering is scheduled by Update, or by the watch while a native
+				// modal loop owns the thread. Do not consume a frame without drawing.
+#if !defined(HX_WINDOWS) || defined(HX_WINRT)
 				{
-					bool skipImmediateRender = false;
-#if defined(HX_WINDOWS) && !defined(HX_WINRT)
-					if (pendingWatchRenderSkips > 0)
-					{
-						pendingWatchRenderSkips--;
-						skipImmediateRender = true;
-					}
-
-					if (SDL_AtomicGet(&s_waitEventBlocking))
-					{
-						PumpOneFrameFromWatch();
-					}
-					else
-#endif
-					{
-						double now = GetCurrentTimeMs();
-						bool frameDue = IsFrameDue(now);
-						if (frameDue)
-						{
-							DispatchFrame(now, !skipImmediateRender);
-						}
-					}
+					double now = GetCurrentTimeMs();
+					if (!inBackground && IsFrameDue(now)) DispatchFrame(now);
 				}
-
+#endif
 				break;
 
 			case SDL_WINDOWEVENT_SIZE_CHANGED:
 			case SDL_WINDOWEVENT_RESIZED:
-			{
-
-				bool skipResizeDispatch = false;
-				bool skipImmediateRender = false;
 #if defined(HX_WINDOWS) && !defined(HX_WINRT)
-				if (pendingResizeDispatchSkips > 0)
+				ProcessWindowEvent(event, true);
+#else
+				// SDL posts SIZE_CHANGED for every change of size, and RESIZED after it with the
+				// same size when the user or the system resized the window, so one is enough
+				if (event->window.event == SDL_WINDOWEVENT_RESIZED) break;
+
+				ProcessWindowEvent(event);
 				{
-					pendingResizeDispatchSkips--;
-					skipResizeDispatch = true;
-				}
-				if (pendingWatchRenderSkips > 0)
-				{
-					pendingWatchRenderSkips--;
-					skipImmediateRender = true;
+					double now = GetCurrentTimeMs();
+					if (!inBackground && IsFrameDue(now)) DispatchFrame(now);
 				}
 #endif
-				if (!skipResizeDispatch)
-				{
-					ProcessWindowEvent(event);
-				}
-
-				if (!inBackground)
-				{
-#if defined(HX_WINDOWS) && !defined(HX_WINRT)
-					if (SDL_AtomicGet(&s_waitEventBlocking))
-					{
-						PumpOneFrameFromWatch();
-					}
-					else
-#endif
-					{
-						double now = GetCurrentTimeMs();
-						bool frameDue = IsFrameDue(now);
-						if (frameDue)
-						{
-							DispatchFrame(now, !skipImmediateRender);
-						}
-					}
-				}
-
 				break;
-			}
 
 			case SDL_WINDOWEVENT_CLOSE:
 
 				ProcessWindowEvent(event);
-
-				// Avoid handling SDL_QUIT if in response to window.close
-				SDL_Event event;
-
-				if (SDL_PollEvent(&event))
-				{
-
-					if (event.type != SDL_QUIT)
-					{
-
-						HandleEvent(&event);
-					}
-				}
 				break;
 			}
 
@@ -755,7 +1209,54 @@ namespace lime
 
 		case SDL_QUIT:
 
+			// SDL raises SDL_QUIT for exits the application did not initiate itself:
+			// SIGTERM / SIGINT through its default signal handlers, Cmd+Q on macOS.
+			// Stopping the loop here skips the Haxe side entirely: Window.onClose,
+			// Application.onExit (documented as cancelable, but dispatched only after
+			// Exec has already returned) and anything built on them, such as OpenFL's
+			// NativeApplication "exiting". Route the quit as a close request on every
+			// open window instead, so the same cancelable chain runs as for a click on
+			// the close button. Only stop the loop outright when nothing is open; SDL
+			// also raises SDL_QUIT when the last window goes away.
+#if defined(ANDROID) || defined(IPHONE) || defined(EMSCRIPTEN)
+			// On mobile and the web, SDL_QUIT means the system is ending the
+			// application, which a close handler cannot refuse
 			active = false;
+#else
+			if (windows.empty () || !WindowEvent::callback)
+			{
+				active = false;
+				break;
+			}
+
+			{
+				// Closing a window unregisters it, so iterate over a copy.
+				std::vector<SDLWindow*> openWindows (windows);
+
+				for (std::vector<SDLWindow*>::const_iterator iter = openWindows.begin (); iter != openWindows.end (); ++iter)
+				{
+					if (!(*iter)->sdlWindow) continue;
+
+					windowEvent.type = WINDOW_CLOSE;
+					windowEvent.windowID = SDL_GetWindowID ((*iter)->sdlWindow);
+					WindowEvent::Dispatch (&windowEvent);
+				}
+			}
+#endif
+
+			break;
+
+		default:
+
+			if (localSocketEventType != 0 && event->type == localSocketEventType)
+			{
+				LocalSocket::Update();
+				break;
+			}
+
+			// Menu and tray icon events queued by SDLMenu use a registered event type
+			ProcessMenuEvent(event);
+			ProcessTrayIconEvent(event);
 			break;
 		}
 	}
@@ -764,12 +1265,12 @@ namespace lime
 	{
 
 		active = true;
+		deltaRemainder = 0.0;
 		lastUpdate = GetCurrentTimeMs();
 		nextUpdate = lastUpdate;
 		firstTime = true;
 #if defined(HX_WINDOWS) && !defined(HX_WINRT)
-		pendingResizeDispatchSkips = 0;
-		pendingWatchRenderSkips = 0;
+		dispatchedWindowSizes.clear();
 		SDL_AtomicSet(&s_nativeModalLoopDepth, 0);
 #endif
 		CalibrateSleepGuard(true);
@@ -793,11 +1294,28 @@ namespace lime
 		if (DropEvent::callback)
 		{
 
-			dropEvent.type = DROP_FILE;
+			switch (event->type)
+			{
+			case SDL_DROPTEXT:
+				dropEvent.type = DROP_TEXT;
+				break;
+			case SDL_DROPBEGIN:
+				dropEvent.type = DROP_BEGIN;
+				break;
+			case SDL_DROPCOMPLETE:
+				dropEvent.type = DROP_COMPLETE;
+				break;
+			default:
+				dropEvent.type = DROP_FILE;
+				break;
+			}
+
 			dropEvent.file = (vbyte *)event->drop.file;
+			dropEvent.windowID = event->drop.windowID;
 
 			DropEvent::Dispatch(&dropEvent);
-			SDL_free(dropEvent.file);
+			if (event->drop.file) SDL_free(event->drop.file);
+			dropEvent.file = NULL;
 		}
 	}
 
@@ -893,6 +1411,36 @@ namespace lime
 				SDLGamepad::Disconnect(event->cdevice.which);
 				break;
 			}
+
+			case SDL_CONTROLLERSENSORUPDATE:
+
+				// The sensor goes in axis, and its readings in x, y and z
+				gamepadEvent.type = GAMEPAD_SENSOR_UPDATE;
+				gamepadEvent.id = event->csensor.which;
+				gamepadEvent.axis = event->csensor.sensor;
+				gamepadEvent.x = event->csensor.data[0];
+				gamepadEvent.y = event->csensor.data[1];
+				gamepadEvent.z = event->csensor.data[2];
+				gamepadEvent.timestamp = event->common.timestamp;
+
+				GamepadEvent::Dispatch(&gamepadEvent);
+				break;
+
+			case SDL_CONTROLLERTOUCHPADDOWN:
+			case SDL_CONTROLLERTOUCHPADMOTION:
+			case SDL_CONTROLLERTOUCHPADUP:
+
+				// The finger goes in button, and where it is in x and y
+				gamepadEvent.type = event->type == SDL_CONTROLLERTOUCHPADDOWN ? GAMEPAD_TOUCHPAD_DOWN : (event->type == SDL_CONTROLLERTOUCHPADMOTION ? GAMEPAD_TOUCHPAD_MOVE : GAMEPAD_TOUCHPAD_UP);
+				gamepadEvent.id = event->ctouchpad.which;
+				gamepadEvent.button = event->ctouchpad.finger;
+				gamepadEvent.x = event->ctouchpad.x;
+				gamepadEvent.y = event->ctouchpad.y;
+				gamepadEvent.z = event->ctouchpad.pressure;
+				gamepadEvent.timestamp = event->common.timestamp;
+
+				GamepadEvent::Dispatch(&gamepadEvent);
+				break;
 			}
 		}
 	}
@@ -1041,6 +1589,51 @@ namespace lime
 		}
 	}
 
+	void SDLApplication::ProcessMenuEvent(SDL_Event *event)
+	{
+
+		Uint32 windowID;
+		int id;
+
+		if (!MenuEvent::callback)
+			return;
+
+		if (SDLMenu::GetSelection(event, &windowID, &id))
+		{
+
+			menuEvent.type = MENU_SELECT;
+			menuEvent.id = id;
+			menuEvent.windowID = windowID;
+
+			MenuEvent::Dispatch(&menuEvent);
+		}
+		else if (SDLMenu::GetDockMenuSelection(event, &id))
+		{
+
+			menuEvent.type = MENU_DOCK_SELECT;
+			menuEvent.id = id;
+			menuEvent.windowID = 0;
+
+			MenuEvent::Dispatch(&menuEvent);
+		}
+		else
+		{
+
+			int source;
+
+			if (SDLMenu::GetClose(event, &windowID, &id, &source) && source >= 0 && source <= 3)
+			{
+
+				// One type for each place a menu belongs, in native_desktop's MenuSource order
+				menuEvent.type = (MenuEventType)(MENU_CLOSE_WINDOW + source);
+				menuEvent.id = id;
+				menuEvent.windowID = windowID;
+
+				MenuEvent::Dispatch(&menuEvent);
+			}
+		}
+	}
+
 	void SDLApplication::ProcessMouseEvent(SDL_Event *event)
 	{
 
@@ -1061,7 +1654,18 @@ namespace lime
 
 			case SDL_MOUSEBUTTONDOWN:
 
-				SDL_CaptureMouse(SDL_TRUE);
+				// SDL 2.0.22+ captures while buttons are held, before queued events
+				// reach Lime. Replaying capture here can recapture after SDL has
+				// already processed a complete down/up batch. Keep the legacy
+				// path for older SDL, touch-synthesized mouse events (excluded
+				// by SDL auto capture), and applications that disable it.
+#if defined(HX_WINDOWS) && !defined(HX_WINRT) && SDL_VERSION_ATLEAST(2, 0, 22)
+				if (event->button.which == SDL_TOUCH_MOUSEID || !SDL_GetHintBoolean(SDL_HINT_MOUSE_AUTO_CAPTURE, SDL_TRUE))
+#endif
+				{
+					SDL_CaptureMouse(SDL_TRUE);
+					mouseCaptureRequested = true;
+				}
 
 				mouseEvent.type = MOUSE_DOWN;
 				mouseEvent.button = event->button.button - 1;
@@ -1072,7 +1676,14 @@ namespace lime
 
 			case SDL_MOUSEBUTTONUP:
 
-				SDL_CaptureMouse(SDL_FALSE);
+#if defined(HX_WINDOWS) && !defined(HX_WINRT) && SDL_VERSION_ATLEAST(2, 0, 22)
+				// Release our own request even if the hint changed while held.
+				if (mouseCaptureRequested || event->button.which == SDL_TOUCH_MOUSEID || !SDL_GetHintBoolean(SDL_HINT_MOUSE_AUTO_CAPTURE, SDL_TRUE))
+#endif
+				{
+					SDL_CaptureMouse(SDL_FALSE);
+					mouseCaptureRequested = false;
+				}
 
 				mouseEvent.type = MOUSE_UP;
 				mouseEvent.button = event->button.button - 1;
@@ -1085,22 +1696,30 @@ namespace lime
 
 				mouseEvent.type = MOUSE_WHEEL;
 
+				// Whole steps, and, in movementX and movementY, the fractions of a
+				// step that touchpads and smooth wheels scroll by, for windows
+				// with preciseMouseWheel
 				if (event->wheel.direction == SDL_MOUSEWHEEL_FLIPPED)
 				{
 
 					mouseEvent.x = -event->wheel.x;
 					mouseEvent.y = -event->wheel.y;
+					mouseEvent.movementX = -event->wheel.preciseX;
+					mouseEvent.movementY = -event->wheel.preciseY;
 				}
 				else
 				{
 
 					mouseEvent.x = event->wheel.x;
 					mouseEvent.y = event->wheel.y;
+					mouseEvent.movementX = event->wheel.preciseX;
+					mouseEvent.movementY = event->wheel.preciseY;
 				}
 				break;
 			}
 
 			mouseEvent.windowID = event->button.windowID;
+			mouseEvent.timestamp = event->common.timestamp;
 			MouseEvent::Dispatch(&mouseEvent);
 		}
 	}
@@ -1139,6 +1758,8 @@ namespace lime
 		if (TextEvent::callback)
 		{
 
+			const char *text = event->text.text;
+
 			switch (event->type)
 			{
 
@@ -1153,6 +1774,15 @@ namespace lime
 				textEvent.start = event->edit.start;
 				textEvent.length = event->edit.length;
 				break;
+
+			case SDL_TEXTEDITING_EXT:
+
+				// A composition too long for SDL_TEXTEDITING
+				textEvent.type = TEXT_EDIT;
+				textEvent.start = event->editExt.start;
+				textEvent.length = event->editExt.length;
+				text = event->editExt.text ? event->editExt.text : "";
+				break;
 			}
 
 			if (textEvent.text)
@@ -1161,11 +1791,18 @@ namespace lime
 				free(textEvent.text);
 			}
 
-			textEvent.text = (vbyte *)malloc(strlen(event->text.text) + 1);
-			strcpy((char *)textEvent.text, event->text.text);
+			textEvent.text = (vbyte *)malloc(strlen(text) + 1);
+			strcpy((char *)textEvent.text, text);
 
 			textEvent.windowID = event->text.windowID;
 			TextEvent::Dispatch(&textEvent);
+		}
+
+		// SDL leaves the long composition's text to the application to free
+		if (event->type == SDL_TEXTEDITING_EXT)
+		{
+
+			SDL_free(event->editExt.text);
 		}
 	}
 
@@ -1201,12 +1838,56 @@ namespace lime
 			touchEvent.dy = event->tfinger.dy;
 			touchEvent.pressure = event->tfinger.pressure;
 			touchEvent.device = event->tfinger.touchId;
+			touchEvent.timestamp = event->common.timestamp;
 
 			TouchEvent::Dispatch(&touchEvent);
 		}
 	}
 
-	void SDLApplication::ProcessWindowEvent(SDL_Event *event)
+#if defined(HX_WINDOWS) && !defined(HX_WINRT)
+	bool SDLApplication::PrepareResizeEvent(SDL_Event *event, bool currentSize)
+	{
+		// SDL coalesces its own events, but directly pushed live-resize events
+		// can still contain older sizes. Reconcile queued events to current native
+		// dimensions; the watch uses its immediate dimensions before SDL updates.
+		if (currentSize)
+		{
+			SDL_Window *window = SDL_GetWindowFromID(event->window.windowID);
+			if (window)
+				SDL_GetWindowSize(window, &event->window.data1, &event->window.data2);
+		}
+		std::pair<int, int> size(event->window.data1, event->window.data2);
+		std::map<Uint32, std::pair<int, int>>::iterator previous = dispatchedWindowSizes.find(event->window.windowID);
+		if (previous != dispatchedWindowSizes.end() && previous->second == size)
+			return false;
+		dispatchedWindowSizes[event->window.windowID] = size;
+		return true;
+	}
+#endif
+
+	void SDLApplication::ProcessTrayIconEvent(SDL_Event *event)
+	{
+
+		int id;
+		int type;
+		int itemID;
+		int x;
+		int y;
+
+		if (TrayIconEvent::callback && SDLMenu::GetTrayIconEvent(event, &id, &type, &itemID, &x, &y))
+		{
+
+			trayIconEvent.type = (TrayIconEventType)type;
+			trayIconEvent.id = id;
+			trayIconEvent.itemID = itemID;
+			trayIconEvent.x = x;
+			trayIconEvent.y = y;
+
+			TrayIconEvent::Dispatch(&trayIconEvent);
+		}
+	}
+
+	void SDLApplication::ProcessWindowEvent(SDL_Event *event, bool currentSize)
 	{
 
 		if (WindowEvent::callback)
@@ -1256,6 +1937,9 @@ namespace lime
 			case SDL_WINDOWEVENT_SIZE_CHANGED:
 			case SDL_WINDOWEVENT_RESIZED:
 
+#if defined(HX_WINDOWS) && !defined(HX_WINRT)
+				if (!PrepareResizeEvent(event, currentSize)) return;
+#endif
 				windowEvent.type = WINDOW_RESIZE;
 				windowEvent.width = event->window.data1;
 				windowEvent.height = event->window.data2;
@@ -1267,7 +1951,20 @@ namespace lime
 			}
 
 			windowEvent.windowID = event->window.windowID;
+#if defined(HX_WINDOWS) && !defined(HX_WINRT)
+			try {
+				WindowEvent::Dispatch(&windowEvent);
+				if (modalExceptionPending && (event->window.event == SDL_WINDOWEVENT_SIZE_CHANGED || event->window.event == SDL_WINDOWEVENT_RESIZED))
+					dispatchedWindowSizes.erase(event->window.windowID);
+			} catch (...) {
+				// A failed resize callback must be retryable at the same dimensions.
+				if (event->window.event == SDL_WINDOWEVENT_SIZE_CHANGED || event->window.event == SDL_WINDOWEVENT_RESIZED)
+					dispatchedWindowSizes.erase(event->window.windowID);
+				throw;
+			}
+#else
 			WindowEvent::Dispatch(&windowEvent);
+#endif
 		}
 	}
 
@@ -1286,7 +1983,8 @@ namespace lime
 #endif
 
 #ifdef LIME_SDL_SOUND
-		Sound_Quit ();
+		// Not under a stream being refilled on another thread
+		SDLSound::Quit ();
 #endif
 
 		SDL_QuitSubSystem(initFlags);
@@ -1303,6 +2001,7 @@ namespace lime
 		{
 			windows.push_back (window);
 			window->SetVSyncMode (requestedVSyncMode);
+			UpdateWindowsHidden (false);
 			RefreshVSyncState ();
 		}
 
@@ -1314,8 +2013,55 @@ namespace lime
 	void SDLApplication::UnregisterWindow(SDLWindow *window)
 	{
 
+#if defined(HX_WINDOWS) && !defined(HX_WINRT)
+		if (window) dispatchedWindowSizes.erase(window->GetID());
+#endif
 		windows.erase (std::remove (windows.begin (), windows.end (), window), windows.end ());
+		UpdateWindowsHidden (false);
 		RefreshVSyncState ();
+	}
+
+	void SDLApplication::UpdateWindowsHidden(bool apply)
+	{
+
+		// An application without windows isn't limited, as it may draw nothing on purpose
+		int shown = 0;
+		int counted = 0;
+
+		for (std::vector<SDLWindow*>::const_iterator iter = windows.begin (); iter != windows.end (); ++iter)
+		{
+			if (!*iter || !(*iter)->sdlWindow)
+				continue;
+
+			counted++;
+			if (!(SDL_GetWindowFlags ((*iter)->sdlWindow) & (SDL_WINDOW_MINIMIZED | SDL_WINDOW_HIDDEN)))
+				shown++;
+		}
+
+		bool hidden = (counted > 0 && shown == 0);
+
+		if (hidden != windowsHidden)
+		{
+			windowsHidden = hidden;
+			if (apply) ApplyMainLoopSettings ();
+		}
+	}
+
+	void SDLApplication::SetBackgroundFrameRate(double frameRate)
+	{
+
+		double rate = (frameRate > 0.0) ? frameRate : 0.0;
+		if (rate == requestedBackgroundFrameRate)
+			return;
+
+		requestedBackgroundFrameRate = rate;
+		if (windowsHidden) ApplyMainLoopSettings ();
+	}
+
+	void SDLApplication::SetIdleEvents(bool enabled)
+	{
+
+		idleEvents = enabled;
 	}
 
 	void SDLApplication::SetMainLoop(int profile, double frameRate, int timePrecision, int busyWait, int uncapMode)
@@ -1336,75 +2082,117 @@ namespace lime
 		ApplyMainLoopSettings();
 	}
 
+	bool SDLApplication::SetMenu(const unsigned char *data, int length)
+	{
+
+		return SDLMenu::SetApplicationMenu(data, length);
+	}
+
 	void SDLApplication::SetVSyncMode(int vsyncMode)
 	{
 
+		bool changed = (vsyncMode != requestedVSyncMode);
 		requestedVSyncMode = vsyncMode;
 
 		for (std::vector<SDLWindow*>::iterator iter = windows.begin (); iter != windows.end (); ++iter)
 		{
-			if (*iter)
+			// A window applies its mode when it is made, so one already in this mode is left alone
+			if (*iter && (*iter)->GetRequestedVSyncMode () != requestedVSyncMode)
 			{
 				(*iter)->SetVSyncMode (requestedVSyncMode);
+				changed = true;
 			}
 		}
 
-		RefreshVSyncState();
+		if (changed)
+			RefreshVSyncState();
 	}
 
 	bool SDLApplication::Update()
 	{
 
+		SDLTrayIcon::Update();
+		LocalSocket::Update();
+
+#if defined(HX_WINDOWS) && !defined(HX_WINRT)
+		CheckModalException();
+#endif
+		Uint64 framesBeforeEvents = dispatchedFrames;
 		SDL_Event event;
 		event.type = -1;
 
+#if defined(HX_WINDOWS) && !defined(HX_WINRT)
+		bool pumpedEvents = false;
+		bool handledEvent = false;
+#endif
+
 #if (!defined(IPHONE) && !defined(EMSCRIPTEN))
 
-		if (active && !firstTime && requestedUncapMode != MAIN_LOOP_UNCAP_HARD && WaitEvent(&event))
+		if (active && (inBackground || (!firstTime && activeUncapMode != MAIN_LOOP_UNCAP_HARD)))
 		{
-
-			HandleEvent(&event);
-			event.type = -1;
-			if (!active)
-				return active;
+#if defined(HX_WINDOWS) && !defined(HX_WINRT)
+			// Windows WaitEvent always pumps before returning. Do not pump the OS again
+			// merely to drain the SDL events that it has already collected.
+			pumpedEvents = true;
+#endif
+			if (WaitEvent(&event))
+			{
+#if defined(HX_WINDOWS) && !defined(HX_WINRT)
+				CheckModalException();
+#endif
+#if defined(HX_WINDOWS) && !defined(HX_WINRT)
+					handledEvent = true;
+#endif
+				HandleEvent(&event);
+				event.type = -1;
+				if (!active)
+					return active;
+			}
 		}
 
 		firstTime = false;
 
 #endif
 
+#if defined(HX_WINDOWS) && !defined(HX_WINRT)
+		if (!pumpedEvents)
+			SDL_PumpEvents();
+		CheckModalException();
+
+		// Snapshot the batch size without dequeuing it. New arrivals cannot extend this
+		// turn indefinitely, preserving a finite cycle in uncapped modes too. Fetch
+		// one event at a time so SYSWMEVENT storage and early-exit payload ownership
+		// remain valid. Uncapped modes must not yield after every event just because
+		// IsFrameDue is always true; they drain this finite batch instead.
+		int queuedEvents = SDL_PeepEvents(NULL, 0, SDL_PEEKEVENT, SDL_FIRSTEVENT, SDL_LASTEVENT);
+		while (queuedEvents-- > 0)
+		{
+			if (handledEvent && !schedulerUnthrottled && IsFrameDue(GetCurrentTimeMs()))
+				break;
+			if (SDL_PeepEvents(&event, 1, SDL_GETEVENT, SDL_FIRSTEVENT, SDL_LASTEVENT) != 1)
+				break;
+			handledEvent = true;
+#else
 		while (SDL_PollEvent(&event))
 		{
+#endif
 
 			HandleEvent(&event);
 			event.type = -1;
+#if defined(HX_WINDOWS) && !defined(HX_WINRT)
+			CheckModalException();
+#endif
 			if (!active)
 				return active;
 		}
 
 		currentUpdate = GetCurrentTimeMs();
 
-#if defined(IPHONE) || defined(EMSCRIPTEN)
-
-		if (IsFrameDue(currentUpdate))
+		if (!inBackground && dispatchedFrames == framesBeforeEvents && IsFrameDue(currentUpdate))
 		{
 
-			event.type = SDL_USEREVENT;
-			HandleEvent(&event);
-			event.type = -1;
+			DispatchFrame(currentUpdate);
 		}
-
-#else
-
-		if (IsFrameDue(currentUpdate))
-		{
-
-			event.type = SDL_USEREVENT;
-			HandleEvent(&event);
-			event.type = -1;
-		}
-
-#endif
 
 		return active;
 	}
@@ -1432,6 +2220,16 @@ namespace lime
 	int SDLApplication::WaitEvent(SDL_Event *event)
 	{
 
+		if (inBackground)
+		{
+			System::GCEnterBlocking();
+			SDL_AtomicSet(&s_waitEventBlocking, 1);
+			int result = SDL_WaitEventTimeout(event, 100);
+			SDL_AtomicSet(&s_waitEventBlocking, 0);
+			System::GCExitBlocking();
+			return result;
+		}
+
 #if defined(HX_MACOS) || defined(ANDROID)
 
 		for (;;)
@@ -1443,9 +2241,34 @@ namespace lime
 			if (schedulerUnthrottled || remaining <= 0.0)
 			{
 
-				SDL_zero(*event);
-				event->type = SDL_USEREVENT;
-				return 1;
+				return 0;
+			}
+
+			if (IsIdleDue(now))
+			{
+
+				DispatchIdle(remaining);
+				continue;
+			}
+
+			if (allowBusyWait && busyWaitOnly)
+			{
+				System::GCEnterBlocking();
+				SDL_AtomicSet(&s_waitEventBlocking, 1);
+				while ((nextUpdate - GetCurrentTimeMs()) > 0.0)
+				{
+					SDL_PumpEvents();
+					int result = SDL_PeepEvents(event, 1, SDL_GETEVENT, SDL_FIRSTEVENT, SDL_LASTEVENT);
+					if (result != 0)
+					{
+						SDL_AtomicSet(&s_waitEventBlocking, 0);
+						System::GCExitBlocking();
+						return result == 1 ? 1 : 0;
+					}
+				}
+				SDL_AtomicSet(&s_waitEventBlocking, 0);
+				System::GCExitBlocking();
+				return 0;
 			}
 
 			int waitMs = (int)(remaining + 0.999);
@@ -1460,7 +2283,18 @@ namespace lime
 			else if (!busyWaitOnly)
 			{
 
-				CalibrateSleepGuard();
+				if (CalibrateSleepGuardBefore(remaining))
+				{
+					// Measuring slept, so the time left is read again
+					remaining = nextUpdate - GetCurrentTimeMs();
+					if (remaining <= 0.0)
+						return 0;
+
+					waitMs = (int)(remaining + 0.999);
+					if (waitMs < 1)
+						waitMs = 1;
+				}
+
 				Uint32 guardMs = GetSleepGuardMs();
 				if (remaining > (double)guardMs + 1.0)
 				{
@@ -1473,7 +2307,9 @@ namespace lime
 
 			Uint32 waitStart = SDL_GetTicks();
 			System::GCEnterBlocking();
+			SDL_AtomicSet(&s_waitEventBlocking, 1);
 			int result = SDL_WaitEventTimeout(event, waitMs);
+			SDL_AtomicSet(&s_waitEventBlocking, 0);
 			System::GCExitBlocking();
 			Uint32 waitElapsed = SDL_GetTicks() - waitStart;
 
@@ -1482,35 +2318,8 @@ namespace lime
 			if (result == -1)
 				return 0;
 
-			if (allowBusyWait && !busyWaitOnly)
+			if (allowBusyWait)
 				UpdateSleepGuard((Uint32)waitMs, waitElapsed);
-
-			if (allowBusyWait && busyWaitOnly)
-			{
-
-				while ((nextUpdate - GetCurrentTimeMs()) > 0.0)
-				{
-
-					SDL_PumpEvents();
-
-					switch (SDL_PeepEvents(event, 1, SDL_GETEVENT, SDL_FIRSTEVENT, SDL_LASTEVENT))
-					{
-
-					case -1:
-						return 0;
-
-					case 1:
-						return 1;
-
-					default:
-						break;
-					}
-				}
-
-				SDL_zero(*event);
-				event->type = SDL_USEREVENT;
-				return 1;
-			}
 		}
 
 #else
@@ -1523,6 +2332,9 @@ namespace lime
 
 			SDL_PumpEvents();
 
+#if defined(HX_WINDOWS) && !defined(HX_WINRT)
+			CheckModalException(isBlocking);
+#endif
 			switch (SDL_PeepEvents(event, 1, SDL_GETEVENT, SDL_FIRSTEVENT, SDL_LASTEVENT))
 			{
 
@@ -1546,6 +2358,21 @@ namespace lime
 
 			default:
 
+				if (IsIdleDue(GetCurrentTimeMs()))
+				{
+
+					// Haxe code runs on an idle event, which it can't do in a blocking section
+					if (isBlocking)
+					{
+						SDL_AtomicSet(&s_waitEventBlocking, 0);
+						System::GCExitBlocking();
+						isBlocking = false;
+					}
+
+					DispatchIdle(nextUpdate - GetCurrentTimeMs());
+					break;
+				}
+
 				if (!isBlocking)
 				{
 					System::GCEnterBlocking();
@@ -1559,15 +2386,12 @@ namespace lime
 				if (schedulerUnthrottled || remaining <= 0.0)
 				{
 
-					SDL_zero(*event);
-					event->type = SDL_USEREVENT;
-
 					if (isBlocking)
 					{
 						SDL_AtomicSet(&s_waitEventBlocking, 0);
 						System::GCExitBlocking();
 					}
-					return 1;
+					return 0;
 				}
 
 				if (!allowBusyWait)
@@ -1611,7 +2435,20 @@ namespace lime
 				if (!busyWaitOnly)
 				{
 
-					CalibrateSleepGuard();
+					if (CalibrateSleepGuardBefore(remaining))
+					{
+						// Measuring slept, so the time left is read again
+						remaining = nextUpdate - GetCurrentTimeMs();
+						if (remaining <= 0.0)
+						{
+							if (isBlocking)
+							{
+								SDL_AtomicSet(&s_waitEventBlocking, 0);
+								System::GCExitBlocking();
+							}
+							return 0;
+						}
+					}
 
 					Uint32 guardMs = GetSleepGuardMs();
 					if (remaining > (double)guardMs + 1.0)
@@ -1652,12 +2489,36 @@ namespace lime
 					}
 				}
 
+#if defined(HX_WINDOWS) && !defined(HX_WINRT)
+				// Wait out the remainder on the high-resolution timer rather than spinning, then
+				// go round again to take what woke it
+				if (!busyWaitOnly && WaitOnFrameTimer(remaining))
+					break;
+#endif
+
 				// Busy-wait the final remainder for tighter frame pacing.
 				for (;;)
 				{
 
+#if defined(HX_WINDOWS) && !defined(HX_WINRT)
+					// The initial pump above already provided fresh input. Once the frame
+					// deadline is reached, do not start another potentially costly OS pump.
+					if (!schedulerUnthrottled && IsFrameDue(GetCurrentTimeMs()))
+					{
+						if (isBlocking)
+						{
+							SDL_AtomicSet(&s_waitEventBlocking, 0);
+							System::GCExitBlocking();
+						}
+						return 0;
+					}
+#endif
+
 					SDL_PumpEvents();
 
+#if defined(HX_WINDOWS) && !defined(HX_WINRT)
+					CheckModalException(isBlocking);
+#endif
 					switch (SDL_PeepEvents(event, 1, SDL_GETEVENT, SDL_FIRSTEVENT, SDL_LASTEVENT))
 					{
 
@@ -1684,16 +2545,24 @@ namespace lime
 						if ((nextUpdate - GetCurrentTimeMs()) <= 0.0)
 						{
 
-							SDL_zero(*event);
-							event->type = SDL_USEREVENT;
-
 							if (isBlocking)
 							{
 								SDL_AtomicSet(&s_waitEventBlocking, 0);
 								System::GCExitBlocking();
 							}
-							return 1;
+							return 0;
 						}
+
+#if !defined(HX_WINDOWS)
+						// Sleep a fifth of a millisecond between pumps rather than spinning
+						if (!busyWaitOnly && SleepsOutTheRemainder())
+						{
+							struct timespec slice;
+							slice.tv_sec = 0;
+							slice.tv_nsec = 200000;
+							nanosleep(&slice, NULL);
+						}
+#endif
 
 						break;
 					}
