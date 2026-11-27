@@ -329,6 +329,29 @@ class DragDropTest extends Test
 		Assert.isFalse(window.dropTarget);
 	}
 
+	// On macOS, native-desktop 1.2.1 gave a target's window a class of its own, and SDL, closing the
+	// window, could no longer stop watching it, which ended the application
+	public function testAWindowClosesWhileADropTarget():Void
+	{
+		if (open() == null) return;
+
+		var closing = create();
+		closing.dropTarget = true;
+		closing.close();
+		Assert.equals(-1, Application.current.windows.indexOf(closing));
+	}
+
+	public function testAWindowClosesAfterItWasADropTarget():Void
+	{
+		if (open() == null) return;
+
+		var closing = create();
+		closing.dropTarget = true;
+		closing.dropTarget = false;
+		closing.close();
+		Assert.equals(-1, Application.current.windows.indexOf(closing));
+	}
+
 	#if (cpp && windows)
 	/**
 		Drags text, then two files, over the window through its OLE drop target,
