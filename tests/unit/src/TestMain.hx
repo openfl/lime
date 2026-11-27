@@ -39,6 +39,7 @@ class TestMain extends Application
 		runner.addCase(new graphics.CairoTest());
 		runner.addCase(new graphics.CairoTextTest());
 		runner.addCase(new graphics.CairoTransformTest());
+		runner.addCase(new graphics.ImageBlurTest());
 		runner.addCase(new graphics.ImageAllocationTest());
 		runner.addCase(new graphics.ImageCodecTest());
 		runner.addCase(new graphics.ImageCopyTest());
