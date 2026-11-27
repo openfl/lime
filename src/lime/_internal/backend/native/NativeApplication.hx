@@ -114,6 +114,11 @@ class NativeApplication
 	private var modalExceptionPending = false;
 	#end
 
+	// What a listener threw where native code drops exceptions, as while a menu opens or a drag goes over a
+	// window. It is thrown again from the frame loop, so that it reaches the application's handler.
+	private static var deferredException:Dynamic;
+	private static var deferredExceptionPending = false;
+
 	public var handle:Dynamic;
 
 	#if android
@@ -319,11 +324,31 @@ class NativeApplication
 	}
 	#end
 
+	private static function deferException(exception:Dynamic):Void
+	{
+		// The first one thrown explains the rest
+		if (deferredExceptionPending) return;
+
+		deferredException = exception;
+		deferredExceptionPending = true;
+	}
+
+	private static function throwDeferredException():Void
+	{
+		if (!deferredExceptionPending) return;
+
+		var exception = deferredException;
+		deferredException = null;
+		deferredExceptionPending = false;
+		throw exception;
+	}
+
 	private function handleApplicationEvent():Void
 	{
 		switch (applicationEventInfo.type)
 		{
 			case UPDATE:
+				throwDeferredException();
 				updateTimer();
 
 				// WebSockets are read and written once a frame, once there are any
@@ -430,6 +455,19 @@ class NativeApplication
 
 	// Dispatched while the system waits for the action a drop would take, which is read back from dragEventInfo
 	private function handleDragEvent():Void
+	{
+		// The system's drag and drop calls this, and native code there drops what is thrown
+		try
+		{
+			dispatchDragEvent();
+		}
+		catch (exception:Dynamic)
+		{
+			deferException(exception);
+		}
+	}
+
+	private function dispatchDragEvent():Void
 	{
 		var info = dragEventInfo;
 
@@ -816,6 +854,13 @@ class NativeApplication
 					if (window.context != null)
 					{
 						NativeWindow.rendering = window;
+
+						if (window.__backend.__exposeFrames > 0)
+						{
+							window.__backend.__exposeFrames--;
+							window.onExpose.dispatch();
+						}
+
 						window.__backend.render();
 						window.onRender.dispatch(window.context);
 
@@ -1006,14 +1051,14 @@ class NativeApplication
 
 				case WINDOW_MAXIMIZE:
 					window.__maximized = true;
-					window.__fullscreen = false;
+					window.__fullscreen = window.__backend.getFullscreen();
 					window.__minimized = false;
 					window.onMaximize.dispatch();
 
 				case WINDOW_MINIMIZE:
 					window.__minimized = true;
 					window.__maximized = false;
-					window.__fullscreen = false;
+					window.__fullscreen = window.__backend.getFullscreen();
 					window.onMinimize.dispatch();
 
 				case WINDOW_MOVE:
@@ -1038,7 +1083,8 @@ class NativeApplication
 					window.onResize.dispatch(windowEventInfo.width, windowEventInfo.height);
 
 				case WINDOW_RESTORE:
-					window.__fullscreen = false;
+					if (window.__fullscreen) window.__backend.__exposeFrames = 2;
+					window.__fullscreen = window.__backend.getFullscreen();
 					window.__maximized = false;
 					window.__minimized = false;
 					window.onRestore.dispatch();

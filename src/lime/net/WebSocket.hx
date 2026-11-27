@@ -120,7 +120,9 @@ class WebSocket
 		system's trusted authorities and the URL's host name. On by default;
 		turn it off only for a server under your own control, such as one
 		with a self-signed certificate in development. Set before `connect`.
-		Native targets only: a browser always checks.
+		A certificate that does not verify ends the connect with `onError`
+		dispatching `CERTIFICATE_REJECTED`. Native targets only: a browser
+		always checks.
 	**/
 	public var verifyCertificates:Bool = true;
 

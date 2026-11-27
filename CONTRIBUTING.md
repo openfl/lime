@@ -70,6 +70,34 @@ Any breaking changes or major version updates must be submitted to the next majo
 
 For example, breaking changes intended for 9.0.0 go into 9.0.0-dev.
 
+## Continuous Integration
+
+CI runs in GitHub Actions (`.github/workflows/main.yml`). The openfl organization shares a limited number of runners across all of its repositories (about 20 jobs at once, and only 5 of them on macOS), so a full run of Lime's matrix can wait behind other work. These rules keep the queue short:
+
+ 1. Pull requests run the full matrix when they are opened, updated, reopened or marked ready for review.
+
+ 2. Draft pull requests run nothing. Mark the pull request ready for review when you want it tested.
+
+ 3. Pushes to your fork run the full matrix on any branch, so a fork can be used to test changes before opening a pull request. Those runs count against your own account's runners, not the organization's.
+
+ 4. In openfl/lime itself, a push only runs CI on `develop`, `master`, `*-dev` branches and `train/*` branches. Other branches are tested by their pull request's run, or by hand.
+
+ 5. A new push replaces the run still going for the same branch or pull request, so pushing several commits in a row only finishes one run. You can also cancel a run from the Actions tab when you know it is no longer needed.
+
+ 6. Add `[skip ci]` to a commit message to push without starting a run, for example for a typo fix while a run is still going.
+
+To check a fix for a few failures without running everything, start the CI workflow by hand from the Actions tab ("Run workflow"), or with the GitHub CLI, and narrow it:
+
+ - `jobs`: the jobs to run, separated by commas (`linux`, `linux-arm64`, `vulkan-smoke`, `macos`, `macos-intel`, `windows`, `webassembly`, `android`, `ios`, `docs`, `flash-samples`, `air-samples`). Empty runs them all.
+
+ - `tests`: the unit tests to run, as a utest pattern, such as `WebSocketTest|ImageWorkerTest`. The job's other checks and sample builds are skipped. A target with no test that matches passes with one placeholder test, so check the spelling when a run passes that quickly. Empty runs them all.
+
+```
+gh workflow run main.yml --ref my-branch -f jobs=linux,windows -f tests='WebSocketTest'
+```
+
+Maintainers may also test several pull requests together on a `train/*` branch, which merges them into one branch and runs the matrix once for all of them.
+
 ## AI Contribution
 
 AI Contributions are welcome. Contributors are responsible for all code regardless of how it is produced. The actual engineering questions are whether the implementation is correct, maintainable, adequately tested, and compatible with the project's requirements.

@@ -8,6 +8,21 @@ class TestMain extends Application
 	{
 		super();
 
+		#if cpp
+		if (Sys.systemName() == "Windows")
+		{
+			// hxcpp attaches a windowed program to the console of the process that started it, and
+			// trace then writes to that console instead of the output it was given, which Sys.stdout
+			// still writes to. CI reads that output, so it never showed the report.
+			haxe.Log.trace = function(v:Dynamic, ?infos:haxe.PosInfos)
+			{
+				var stdout = Sys.stdout();
+				stdout.writeString(haxe.Log.formatOutput(v, infos) + "\n");
+				stdout.flush();
+			};
+		}
+		#end
+
 		var runner = new Runner();
 		runner.addCase(new app.ApplicationTest());
 		runner.addCase(new app.EventTest());
@@ -47,10 +62,13 @@ class TestMain extends Application
 		runner.addCase(new math.Vector2Test());
 		runner.addCase(new math.Vector4Test());
 		runner.addCase(new media.AudioBufferTest());
+		runner.addCase(new media.AudioBufferLoadTest());
+		runner.addCase(new media.AudioBufferDecodeTest());
 		runner.addCase(new media.AudioBufferReadSamplesTest());
 		runner.addCase(new media.AudioInputTest());
 		runner.addCase(new media.AudioInputOptionsTest());
 		runner.addCase(new media.AudioSourceTest());
+		runner.addCase(new media.AudioStreamQueueTest());
 		runner.addCase(new media.CameraInputTest());
 		runner.addCase(new media.OpenALSourceTest());
 		runner.addCase(new media.OpenALStateTest());
@@ -91,7 +109,9 @@ class TestMain extends Application
 		runner.addCase(new system.TrashTest());
 		runner.addCase(new system.StorageVolumeTest());
 		runner.addCase(new system.TimerTest());
+		runner.addCase(new system.UserDirectoryTest());
 		runner.addCase(new ui.DragDropTest());
+		runner.addCase(new ui.FileDialogTest());
 		runner.addCase(new ui.GamepadTest());
 		runner.addCase(new ui.HighDPITest());
 		runner.addCase(new ui.InputEventTest());
@@ -99,10 +119,13 @@ class TestMain extends Application
 		runner.addCase(new ui.KeyModifierTest());
 		runner.addCase(new ui.MenuTest());
 		runner.addCase(new ui.MenuOpenCloseTest());
+		runner.addCase(new ui.MouseLockTest());
 		runner.addCase(new ui.TrayIconTest());
 		runner.addCase(new ui.WebViewTest());
+		runner.addCase(new ui.WindowDisplayTest());
 		runner.addCase(new ui.WindowEventTest());
 		runner.addCase(new ui.WindowFullscreenTest());
+		runner.addCase(new ui.WindowFullscreenStateTest());
 		runner.addCase(new ui.WindowOrderTest());
 		runner.addCase(new ui.WindowTest());
 		runner.addCase(new utils.ArrayBufferTest());
@@ -138,6 +161,7 @@ class TestMain extends Application
 		runner.addCase(new text.HarfBuzzSetTest());
 		runner.addCase(new text.UTF8StringTest());
 		runner.addCase(new tools.ImageHelperTest());
+		runner.addCase(new tools.IconHelperTest());
 		#if sys
 		// Each test is named as it starts, so a run that hangs shows where
 		runner.onTestStart.add(function(handler)
@@ -147,7 +171,57 @@ class TestMain extends Application
 		});
 		#end
 
+		#if (lime_cffi && !macro)
+		// The window tests leave their windows open, hidden, for the other tests of their class, and
+		// dozens of them make every frame after take longer: on the macOS runner, 34 made a frame take
+		// 51 ms by ImageWorkerTest. Once a class is done, the hidden windows it left are closed, other
+		// than the application's own, as closing the last window of the application ends it
+		var lastClass:String = null;
+		var leftOpen:Array<lime.ui.Window> = [];
+		runner.onTestComplete.add(function(handler)
+		{
+			leftOpen = Application.current.windows.copy();
+		});
+		runner.onTestStart.add(function(handler)
+		{
+			var testClass = Type.getClassName(Type.getClass(handler.fixture.target));
+
+			if (lastClass != null && testClass != lastClass)
+			{
+				var application = Application.current;
+
+				for (window in leftOpen)
+				{
+					if (window.hidden && window != application.window && application.windows.length > 1 && application.windows.indexOf(window) > -1)
+					{
+						window.close();
+					}
+				}
+
+				leftOpen = [];
+			}
+
+			lastClass = testClass;
+		});
+		#end
+
+		// A run narrowed with UTEST_PATTERN (CI's tests input) can match no test on a target that
+		// has none of them, as WebSocketTest on AIR, and utest fails a run with no tests
+		if (runner.length == 0 && runner.globalPattern != null)
+		{
+			runner.globalPattern = null;
+			runner.addCase(new NoTestMatchesThePattern());
+		}
+
 		Report.create(runner);
 		runner.run();
+	}
+}
+
+private class NoTestMatchesThePattern extends utest.Test
+{
+	public function testNoTestMatchesThePattern():Void
+	{
+		utest.Assert.pass("UTEST_PATTERN matches no test on this target; if it should, check its spelling");
 	}
 }

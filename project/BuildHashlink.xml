@@ -52,7 +52,9 @@
 		<file name="${HASHLINK_PATH}/src/std/random.c" />
 		<file name="${HASHLINK_PATH}/src/std/socket.c" />
 		<file name="${HASHLINK_PATH}/src/std/string.c" />
-		<file name="${HASHLINK_PATH}/src/std/sys.c" />
+		<!-- Lime's copy, which gives fullPath() each part's case on disk in full on Windows, as
+		     HashLink does since HaxeFoundation/hashlink#1027 -->
+		<file name="${NATIVE_TOOLKIT_PATH}/custom/hashlink/src/std/sys.c" />
 		<file name="${HASHLINK_PATH}/src/std/thread.c" />
 		<file name="${HASHLINK_PATH}/src/std/types.c" />
 		<file name="${HASHLINK_PATH}/src/std/buffer.c" />

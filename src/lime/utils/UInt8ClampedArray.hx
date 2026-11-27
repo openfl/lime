@@ -162,7 +162,15 @@ abstract UInt8ClampedArray(ArrayBufferView) from ArrayBufferView to ArrayBufferV
 	public inline function __get(idx:Int)
 	{
 		// Outside the view, debug builds read 0, as ECMAScript reads undefined
+		#if hl
+		// Read straight from the buffer: ArrayBufferIO gives a Null<UInt>, which
+		// HashLink allocates for every element read
+		var bytes = this.buffer;
+		var pos = this.byteOffset + idx;
+		return #if debug (idx < 0 || idx >= this.length) ? (0 : UInt) : #end ((pos : UInt) < (bytes.length : UInt) ? (@:privateAccess bytes.b)[pos] : 0 : UInt);
+		#else
 		return #if debug (idx < 0 || idx >= this.length) ? 0 : #end ArrayBufferIO.getUint8(this.buffer, this.byteOffset + idx);
+		#end
 	}
 
 	@:noCompletion

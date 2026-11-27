@@ -11,11 +11,17 @@
 	<assets path="assets" rename="assets" />
 	<!-- VideoBytesTest opens a video embedded in the application, which has no file of its own -->
 	<assets path="assets/video.mp4" rename="embedded/video.mp4" embed="true" />
+	<!-- AudioBufferLoadTest loads a sound embedded in the application -->
+	<assets path="assets/tone.ogg" rename="embedded/tone.ogg" embed="true" unless="web" />
 
 	<haxelib name="lime" />
 	<haxelib name="utest" />
 	<!-- ImageHelperTest runs the command-line tools' image code, which uses hxp -->
 	<haxelib name="hxp" />
+	<!-- and IconHelperTest their App Store icon, which writes its PNG with format -->
+	<haxelib name="format" />
+	<!-- AudioStreamQueueTest reads what each stream queues through NativeAudioSource's test hooks -->
+	<haxedef name="lime_audio_test_hooks" />
 	<!-- Available before Lime's asset library has been initialized. -->
 	<haxeflag name="-resource" value="fixtures/tls_server.py@lime-test-tls-server" if="neko" />
 
