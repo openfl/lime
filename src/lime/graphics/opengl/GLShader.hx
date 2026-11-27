@@ -54,13 +54,13 @@ public static function fromSource(gl:WebGLRenderContext, source:String, type:Int
 #else
 @:forward abstract GLShader(Dynamic) from Dynamic to Dynamic
 {
-	#if !lime_webgl
+	// For the native render context, which documentation builds also read. It is here for every
+	// target, as dox merges each target's documentation of a type into one
 	@:noDoc @:from private static function fromInt(id:Int):GLShader
 	{
 		return 0;
 	}
-	#end
-	
+
 	public static function fromSource(gl:Dynamic, source:String, type:Int):GLShader
 	{
 		return null;
