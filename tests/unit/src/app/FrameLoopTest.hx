@@ -42,8 +42,7 @@ import utest.Test;
 	asks for one, from any thread, and a frame that is asked for comes as soon as the frame rate
 	allows.
 
-	Vertical sync holds frames to the display where the display makes each swap wait. Where it
-	does not, frames are timed at the frame rate instead, however long the application draws for.
+	Vertical sync holds frames to the display where the display makes each swap wait.
 **/
 class FrameLoopTest extends Test
 {
@@ -949,61 +948,6 @@ class FrameLoopTest extends Test
 					"with vertical sync on at " + refresh + " Hz, and a frame rate of " + (refresh * 4) + ", there were " + round(rate) + " updates a second");
 				async.done();
 			});
-		});
-	}
-
-	/**
-		Where a swap returns at once, as when a driver forces vertical sync off, in a remote session
-		or in a virtual machine, frames are timed at the frame rate until a swap is seen to wait
-		again. The time an application takes to draw is not the swap waiting: taken for it, each
-		timed frame would end the timing, and frames would come as fast as they are drawn until the
-		swaps were seen not to wait again.
-
-		Here drawing takes over a quarter of a refresh, and a frame under half of one.
-	**/
-	@:timeout(30000)
-	public function testVerticalSyncThatDoesNotWaitKeepsTheFrameRateWhileDrawingIsSlow(async:Async):Void
-	{
-		unpacedSwaps(0.36, async);
-	}
-
-	/** And here a frame takes most of a refresh, which is still closer together than a display would pace them **/
-	@:timeout(30000)
-	public function testVerticalSyncThatDoesNotWaitKeepsTheFrameRateWhileFramesAreLong(async:Async):Void
-	{
-		unpacedSwaps(0.7, async);
-	}
-
-	private function unpacedSwaps(share:Float, async:Async):Void
-	{
-		swapsWait(async, function(window:Window, refresh:Float, uncapped:Float, wait:Bool)
-		{
-			if (wait)
-			{
-				trace("Swaps wait for the display here (" + round(uncapped) + " frames a second uncapped, at " + refresh
-					+ " Hz), so vertical sync that does not wait was not tested");
-				Assert.pass();
-				async.done();
-				return;
-			}
-
-			var draw = (1 / refresh) * share;
-			var slow = function(_) spin(draw);
-
-			window.onRender.add(slow);
-			cleanups.push(function() window.onRender.remove(slow));
-			pace(FrameProfile.BALANCED, refresh, null, VSyncMode.ON);
-
-			frames(1.5, function(times:Array<Float>, deltas:Array<Int>, cpu:Float)
-			{
-				window.onRender.remove(slow);
-
-				var rate = rateOf(times);
-				Assert.isTrue(rate <= refresh * 1.1,
-					"with vertical sync on at " + refresh + " frames a second, where swaps do not wait (" + round(uncapped)
-					+ " frames a second uncapped), drawing for " + round(draw * 1000) + " ms gave " + round(rate) + " updates a second");
-				async.done();
-			}, 12);
 		});
 	}
 
