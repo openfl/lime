@@ -63,6 +63,7 @@
 #include <ui/TrayIconEvent.h>
 #include <ui/Window.h>
 #include <ui/WindowEvent.h>
+#include <utils/DataPointer.h>
 #include <utils/compress/LZMA.h>
 #include <utils/compress/Zlib.h>
 #include <vm/NekoVM.h>
@@ -1874,7 +1875,7 @@ namespace lime {
 
 	value lime_bytes_from_data_pointer (double data, int length, value _bytes) {
 
-		uintptr_t ptr = (uintptr_t)data;
+		uintptr_t ptr = DataPointerToAddress (data);
 		Bytes bytes (_bytes);
 		bytes.Resize (length);
 
@@ -1891,7 +1892,7 @@ namespace lime {
 
 	HL_PRIM Bytes* HL_NAME(hl_bytes_from_data_pointer) (double data, int length, Bytes* bytes) {
 
-		uintptr_t ptr = (uintptr_t)data;
+		uintptr_t ptr = DataPointerToAddress (data);
 		bytes->Resize (length);
 
 		if (ptr) {
@@ -1908,14 +1909,14 @@ namespace lime {
 	double lime_bytes_get_data_pointer (value bytes) {
 
 		Bytes data = Bytes (bytes);
-		return (uintptr_t)data.b;
+		return DataPointerFromAddress ((uintptr_t)data.b);
 
 	}
 
 
 	HL_PRIM double HL_NAME(hl_bytes_get_data_pointer) (Bytes* bytes) {
 
-		return bytes ? (uintptr_t)bytes->b : 0;
+		return DataPointerFromAddress (bytes ? (uintptr_t)bytes->b : 0);
 
 	}
 
@@ -1925,7 +1926,7 @@ namespace lime {
 		if (val_is_null (bytes)) return 0;
 
 		Bytes data = Bytes (bytes);
-		return (uintptr_t)data.b + offset;
+		return DataPointerFromAddress ((uintptr_t)data.b + offset);
 
 	}
 
@@ -1933,7 +1934,7 @@ namespace lime {
 	HL_PRIM double HL_NAME(hl_bytes_get_data_pointer_offset) (Bytes* bytes, int offset) {
 
 		if (!bytes) return 0;
-		return (uintptr_t)bytes->b + offset;
+		return DataPointerFromAddress ((uintptr_t)bytes->b + offset);
 
 	}
 
@@ -1959,14 +1960,14 @@ namespace lime {
 
 	double lime_cffi_get_native_pointer (value handle) {
 
-		return (uintptr_t)val_data (handle);
+		return DataPointerFromAddress ((uintptr_t)val_data (handle));
 
 	}
 
 
 	HL_PRIM double HL_NAME(hl_cffi_get_native_pointer) (HL_CFFIPointer* handle) {
 
-		return (uintptr_t)handle->ptr;
+		return DataPointerFromAddress ((uintptr_t)handle->ptr);
 
 	}
 
@@ -2339,14 +2340,14 @@ namespace lime {
 
 	double lime_data_pointer_offset (double pointer, int offset) {
 
-		return (uintptr_t)pointer + offset;
+		return DataPointerFromAddress (DataPointerToAddress (pointer) + offset);
 
 	}
 
 
 	HL_PRIM double HL_NAME(hl_data_pointer_offset) (double pointer, int offset) {
 
-		return (uintptr_t)pointer + offset;
+		return DataPointerFromAddress (DataPointerToAddress (pointer) + offset);
 
 	}
 

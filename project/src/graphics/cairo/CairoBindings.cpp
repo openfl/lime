@@ -10,6 +10,7 @@
 #include <system/ValuePointer.h>
 #include <text/Font.h>
 #include <utils/Bytes.h>
+#include <utils/DataPointer.h>
 #include <string.h>
 
 
@@ -1062,7 +1063,7 @@ namespace lime {
 
 	value lime_cairo_image_surface_create_for_data (double data, int format, int width, int height, int stride) {
 
-		cairo_surface_t* surface = cairo_image_surface_create_for_data ((unsigned char*)(uintptr_t)data, (cairo_format_t)format, width, height, stride);
+		cairo_surface_t* surface = cairo_image_surface_create_for_data ((unsigned char*)DataPointerToAddress (data), (cairo_format_t)format, width, height, stride);
 
 		value object = CFFIPointer (surface, gc_cairo_surface);
 		cairoObjects_Mutex.Lock ();
@@ -1075,7 +1076,7 @@ namespace lime {
 
 	HL_PRIM HL_CFFIPointer* HL_NAME(hl_cairo_image_surface_create_for_data) (double data, int format, int width, int height, int stride) {
 
-		cairo_surface_t* surface = cairo_image_surface_create_for_data ((unsigned char*)(uintptr_t)data, (cairo_format_t)format, width, height, stride);
+		cairo_surface_t* surface = cairo_image_surface_create_for_data ((unsigned char*)DataPointerToAddress (data), (cairo_format_t)format, width, height, stride);
 
 		HL_CFFIPointer* object = HLCFFIPointer (surface, (hl_finalizer)hl_gc_cairo_surface);
 		cairoObjects_Mutex.Lock ();
@@ -1088,14 +1089,14 @@ namespace lime {
 
 	double lime_cairo_image_surface_get_data (value handle) {
 
-		return (uintptr_t)cairo_image_surface_get_data ((cairo_surface_t*)val_data (handle));
+		return DataPointerFromAddress ((uintptr_t)cairo_image_surface_get_data ((cairo_surface_t*)val_data (handle)));
 
 	}
 
 
 	HL_PRIM double HL_NAME(hl_cairo_image_surface_get_data) (HL_CFFIPointer* handle) {
 
-		return (uintptr_t)cairo_image_surface_get_data ((cairo_surface_t*)handle->ptr);
+		return DataPointerFromAddress ((uintptr_t)cairo_image_surface_get_data ((cairo_surface_t*)handle->ptr));
 
 	}
 
