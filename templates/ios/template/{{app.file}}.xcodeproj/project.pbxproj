@@ -40,11 +40,7 @@
 			remoteGlobalIDString = 1EF0A87F121AE1CE003F2F59;
 			remoteInfo = "Build Haxe";
 		};
-/* End PBXContainerItemProxy section */
-
-/* Begin PBXCopyFilesBuildPhase section */
-::ADDL_PBX_COPY_FILES_BUILD_PHASE::
-/* End PBXCopyFilesBuildPhase section */
+/* End PBXContainerItemProxy section */::ADDL_PBX_COPY_FILES_BUILD_PHASE::
 
 /* Begin PBXFileReference section */
 		1D6058910D05DD3D006BFB54 /* ::APP_TITLE::.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "::APP_TITLE::.app"; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -414,8 +410,7 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "::APP_FILE::/::APP_FILE::-Prefix.pch";
 				INFOPLIST_FILE = "::APP_FILE::/::APP_FILE::-Info.plist";
-				IPHONEOS_DEPLOYMENT_TARGET = ::DEPLOYMENT::;
-				::ADDL_PBX_RUNPATH_SEARCH_PATHS::
+				IPHONEOS_DEPLOYMENT_TARGET = ::DEPLOYMENT::;::ADDL_PBX_RUNPATH_SEARCH_PATHS::
 				"LIBRARY_SEARCH_PATHS[sdk=iphoneos*][arch=arm64]" = (
 					"$(inherited)",
 					"\"$(SRCROOT)/::APP_FILE::/lib/arm64-debug\"",
@@ -479,8 +474,7 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "::APP_FILE::/::APP_FILE::-Prefix.pch";
 				INFOPLIST_FILE = "::APP_FILE::/::APP_FILE::-Info.plist";
-				IPHONEOS_DEPLOYMENT_TARGET = ::DEPLOYMENT::;
-				::ADDL_PBX_RUNPATH_SEARCH_PATHS::
+				IPHONEOS_DEPLOYMENT_TARGET = ::DEPLOYMENT::;::ADDL_PBX_RUNPATH_SEARCH_PATHS::
 				"LIBRARY_SEARCH_PATHS[sdk=iphoneos*][arch=arm64]" = (
 					"$(inherited)",
 					"\"$(SRCROOT)/::APP_FILE::/lib/arm64\"",
