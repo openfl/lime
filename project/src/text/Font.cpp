@@ -925,7 +925,7 @@ namespace lime {
 			// 'kerning' field
 			if (FT_HAS_KERNING (((FT_Face)face))) {
 
-				hl_varray* _kerning = (hl_varray*)hl_alloc_array (&hlt_i32, kern.size ());
+				hl_varray* _kerning = (hl_varray*)hl_alloc_array (&hlt_dynobj, kern.size ());
 				vdynamic** _kerningData = hl_aptr (_kerning, vdynamic*);
 
 				for (i = 0; i < kern.size(); i++) {
