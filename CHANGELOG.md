@@ -107,6 +107,8 @@ Changelog
 - Added deprecation warnings to the command-line tools for what Lime 9 removes: the YUI Compressor (`-yui`), the armv5 and armv6 Android architectures, and Haxe 3.
 - Added embedding of dynamic iOS frameworks: `<dependency path="MyFramework.framework" embed="true" />` copies a dynamic framework or `.xcframework` into the application and signs it, as a framework holding Swift code needs. A static framework is linked as before.
 - Added an `alphaOnly` argument to `ImageDataUtil.gaussianBlur()`, which blurs the alpha alone and leaves the other channels at 0, for glows and drop shadows.
+- Added `Window.setCustomCursor()`, to show an image as the mouse cursor. Building Lime on Linux now needs Xcursor's headers, such as `libxcursor-dev`.
+- Added `System.isHidden()`, whether a file or folder is hidden: on Windows by its hidden attribute, elsewhere by a name that starts with a dot, and on macOS and iOS also by the hidden flag.
 - Changed native streamed audio to refill from a thread of its own, so a stall on the main thread no longer drains a stream's buffers and drops its sound. Define `lime_audio_no_stream_thread` to refill from the main thread as before.
 - Changed native audio loading to decode through SDL_sound first, then Lime's own WAV and Ogg Vorbis decoders.
 - Changed asset copying and embedding to behave consistently across targets.
@@ -164,6 +166,7 @@ Changelog
 - Changed `Image.getColorBoundsRect()` to read the rows in the order the buffer holds them, and between the first and last rows that match, so trimming an image that is mostly empty around its content reads far fewer pixels. With a mask of the alpha alone, it compares the alpha byte, so a premultiplied image is not unmultiplied.
 - Changed the Android Gradle templates to assign `namespace`, `ndkPath`, `ndkVersion` and `signingConfig` with `=`, which Gradle 10 requires.
 - Changed Cairo's `fill()`, `fillPreserve()`, `stroke()`, `strokePreserve()`, `paint()`, `paintWithAlpha()`, `mask()` and `maskSurface()` on native targets to let the garbage collector run while they draw, so drawing on another thread no longer holds up every collection until it finishes.
+- Changed Android apps that target API 30 or later to run with heap pointer tagging on, as Android intends, now that a `DataPointer` keeps a tagged address. A project whose own native code can't take tagged addresses can set `android:allowNativeHeapPointerTagging="false"` on `<application />` in `<config:android>`.
 - Updated HashLink to 1.16.
 - Updated the macOS `webify`, which converts fonts for HTML5, to 0.1.10.0, and `ios-deploy` to 1.12.2, each with an arm64 build alongside x86_64, so neither needs Rosetta on Apple silicon Macs, and removed the unused `fruitstrap`.
 - Fixed an asset embedding regression.
@@ -311,6 +314,8 @@ Changelog
 - Fixed documentation builds that define `doc_gen` without `lime-doc-gen`, as flixel-doc's does, failing for HashLink on `GLShader.fromInt`.
 - Fixed `Window.fullscreen` reading `false` while a window is still fullscreen: after it is minimized and restored, as with Alt+Tab, when macOS enters fullscreen with a maximize, and when a maximized window goes fullscreen. It now reads SDL's own state at those events.
 - Fixed iOS simulators whose names hold parentheses, such as "iPad Air 11-inch (M2)", getting the wrong ID and name, so `lime test ios -simulator` could not start them.
+- Fixed a `DataPointer` on 64-bit Android dropping the low bits of an address the heap tags in its top byte, which handed OpenGL, Cairo, HarfBuzz and `Bytes` the wrong address.
+- Fixed native HTTP requests not loading a `file:` URL, as AIR's `File.url` gives, whether written `file:///path`, `file:/path` or `file://localhost/path`.
 - Fixed `Image.colorTransform()` on native targets giving the wrong colors when two threads transform images at once.
 - Fixed a native window's size and position reading uninitialised memory when SDL can't read the window.
 
