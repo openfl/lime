@@ -14,6 +14,7 @@ namespace lime {
 
 			static SDL_Cursor* arrowCursor;
 			static SDL_Cursor* crosshairCursor;
+			static SDL_Cursor* customCursor;
 			static SDL_Cursor* moveCursor;
 			static SDL_Cursor* pointerCursor;
 			static SDL_Cursor* resizeNESWCursor;

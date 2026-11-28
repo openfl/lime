@@ -5,11 +5,13 @@ import lime.app.Event;
 import lime.app.Future;
 import lime.app.VSyncMode;
 import lime.graphics.Image;
+import lime.graphics.ImageBuffer;
 import lime.graphics.RenderContext;
 import lime.graphics.RenderContextAttributes;
 import lime.math.Rectangle;
 import lime.system.Display;
 import lime.system.DisplayMode;
+import lime.utils.UInt8Array;
 #if (js && html5)
 import js.html.Element;
 #end
@@ -2907,6 +2909,36 @@ class Window
 			return;
 		}
 		__backend.setIcon(image);
+	}
+
+	/**
+		Shows an image as the mouse cursor over this window. `cursor` is then
+		`CUSTOM`, until it is set to another cursor; setting it back to `CUSTOM`
+		shows the last image set here again.
+
+		Supported on native desktop targets and HTML5. Most platforms show a
+		cursor up to 32×32 pixels as it is, and may scale a larger one.
+		@param image The cursor's pixels.
+		@param hotSpotX The horizontal position, in the image, of the point that
+		clicks.
+		@param hotSpotY The vertical position, in the image, of the point that
+		clicks.
+		@return Whether the cursor could be made.
+	**/
+	public function setCustomCursor(image:Image, hotSpotX:Int = 0, hotSpotY:Int = 0):Bool
+	{
+		if (image == null || image.buffer == null || hotSpotX < 0 || hotSpotY < 0 || hotSpotX >= image.width || hotSpotY >= image.height)
+		{
+			return false;
+		}
+
+		// The image alone, where it is part of a larger buffer, as a cursor is made from a whole buffer
+		if (image.offsetX != 0 || image.offsetY != 0 || image.width != image.buffer.width || image.height != image.buffer.height)
+		{
+			image = new Image(new ImageBuffer(UInt8Array.fromBytes(image.getPixels(image.rect, RGBA32)), image.width, image.height, 32, RGBA32));
+		}
+
+		return __backend.setCustomCursor(image, hotSpotX, hotSpotY);
 	}
 
 	public function toString():String

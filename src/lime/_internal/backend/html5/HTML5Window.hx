@@ -75,6 +75,7 @@ class HTML5Window
 	private var cacheMouseX:Float;
 	private var cacheMouseY:Float;
 	private var cursor:MouseCursor;
+	private var customCursor:String;
 	private var dragDepth:Int = 0;
 	private var dragOut:{data:DragData, image:Image, offsetX:Int, offsetY:Int, actions:DropAction, promise:Promise<DropAction>, started:Bool};
 	private var dropTarget:Bool = false;
@@ -1504,6 +1505,7 @@ class HTML5Window
 					case TEXT: "text";
 					case WAIT: "wait";
 					case WAIT_ARROW: "wait";
+					case CUSTOM: customCursor != null ? customCursor : "auto";
 					default: "auto";
 				}
 			}
@@ -1512,6 +1514,25 @@ class HTML5Window
 		}
 
 		return cursor;
+	}
+
+	public function setCustomCursor(image:Image, hotSpotX:Int, hotSpotY:Int):Bool
+	{
+		// a copy, as the image is converted to a canvas to be encoded
+		var copy = image.clone();
+		copy.premultiplied = false;
+		ImageCanvasUtil.convertToCanvas(copy);
+		var canvas:CanvasElement = @:privateAccess copy.buffer.__srcCanvas;
+
+		if (canvas == null)
+		{
+			return false;
+		}
+
+		customCursor = "url(" + canvas.toDataURL("image/png") + ") " + hotSpotX + " " + hotSpotY + ", auto";
+		parent.element.style.cursor = customCursor;
+		cursor = CUSTOM;
+		return true;
 	}
 
 	public function setDisplayMode(value:DisplayMode):DisplayMode
