@@ -122,6 +122,12 @@ class Assets
 				{
 					var asset = symbol.library.getAsset(symbol.symbolName, type);
 
+					if (asset == null)
+					{
+						Log.error(type + " asset \"" + id + "\" exists, but failed to load");
+						return null;
+					}
+
 					if (useCache && cache.enabled)
 					{
 						cache.set(id, type, asset);
@@ -351,16 +357,26 @@ class Assets
 		return (image != null && image.buffer != null);
 	}
 
+	/**
+		The IDs of every asset of `type` in the registered libraries, or of every asset when `type`
+		is `null`. Those of libraries other than the default are given as `"library:id"`, so each
+		can be passed to `exists()` and the getters.
+	**/
 	public static function list(type:AssetType = null):Array<String>
 	{
 		var items = [];
 
-		for (library in libraries)
+		for (name in libraries.keys())
 		{
-			var libraryItems = library.list(type);
+			var libraryItems = libraries.get(name).list(type);
 
 			if (libraryItems != null)
 			{
+				if (name != "default")
+				{
+					libraryItems = [for (id in libraryItems) name + ":" + id];
+				}
+
 				items = items.concat(libraryItems);
 			}
 		}
@@ -571,7 +587,7 @@ class Assets
 			{
 				if (manifest == null)
 				{
-					promise.error("Cannot parse asset manifest for library \"" + id + "\"");
+					promise.error("Cannot parse asset manifest \"" + path + "\" for library \"" + id + "\": it is empty or isn't a manifest");
 					return;
 				}
 
@@ -658,23 +674,27 @@ class Assets
 		#end
 	}
 
-	@:noCompletion private static function __cacheBreak(path:String):String
+	/**
+		Adds the version that makes a browser load `path` again once it changes: the
+		asset's own `version`, which the manifest gives from its content, or the build's,
+		which changes with every build unless `lime-assets-version` sets it.
+	**/
+	@:noCompletion private static function __cacheBreak(path:String, version:String = null):String
 	{
 		#if web
-		if (cache.version > 0)
-		{
-			if (path.indexOf("?") > -1)
-			{
-				path += "&" + cache.version;
-			}
-			else
-			{
-				path += "?" + cache.version;
-			}
-		}
+		#if (!lime_assets_version && !lime_disable_assets_version)
+		if (version != null && version != "") return __addVersion(path, version);
+		#end
+
+		if (cache.version > 0) return __addVersion(path, Std.string(cache.version));
 		#end
 
 		return path;
+	}
+
+	@:noCompletion private static function __addVersion(path:String, version:String):String
+	{
+		return path + (path.indexOf("?") > -1 ? "&" : "?") + version;
 	}
 
 	@:noCompletion private static function __libraryNotFound(name:String):String

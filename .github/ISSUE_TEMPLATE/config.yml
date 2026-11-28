@@ -1,1 +1,8 @@
 blank_issues_enabled: false
+contact_links:
+  - name: Questions and help
+    url: https://community.openfl.org/c/lime/19
+    about: Ask how to use Lime, or for help with your own project, on the community forums.
+  - name: Discord
+    url: https://discordapp.com/invite/tDgq8EE
+    about: Chat with other Lime and OpenFL developers.

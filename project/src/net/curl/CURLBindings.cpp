@@ -6,6 +6,7 @@
 #include <system/ValuePointer.h>
 #include <utils/Bytes.h>
 #include <string.h>
+#include <algorithm>
 #include <map>
 #include <vector>
 
@@ -42,9 +43,11 @@ namespace lime {
 	std::map<void*, bool> curlMultiValid;
 	std::map<CURL*, void*> curlObjects;
 	std::map<void*, bool> curlValid;
+	std::map<void*, char*> errorBuffers;
 	std::map<void*, ValuePointer*> headerCallbacks;
 	std::map<void*, curl_slist*> headerSLists;
 	std::map<void*, std::vector<char*>* > headerValues;
+	std::map<void*, char*> postFields;
 	std::map<void*, ValuePointer*> progressCallbacks;
 	std::map<void*, CURL_Progress*> progressValues;
 	std::map<void*, Bytes*> readBytes;
@@ -110,6 +113,137 @@ namespace lime {
 	}
 
 
+	// For libcurl's callbacks, which read the handle maps. They run inside
+	// curl_easy_perform or curl_multi_perform, where the thread is already
+	// blocking for the collector, and the mutex is recursive, so the lock
+	// curl_multi_perform holds around them is taken again.
+	struct CURL_MapLock {
+
+		CURL_MapLock () { curl_gc_mutex.Lock (); }
+		~CURL_MapLock () { curl_gc_mutex.Unlock (); }
+
+	};
+
+
+	// libcurl only points at POSTFIELDS, which have to last until the
+	// transfer, so the handle keeps a copy. COPYPOSTFIELDS would be dropped
+	// by a POSTFIELDSIZE set afterwards.
+	CURLcode set_post_fields (void* handle, CURL* curl, const char* fields) {
+
+		char* copy = NULL;
+
+		if (fields) {
+
+			size_t size = strlen (fields) + 1;
+			copy = (char*)malloc (size);
+			memcpy (copy, fields, size);
+
+		}
+
+		lock_curl_gc ();
+
+		CURLcode code = curl_easy_setopt (curl, CURLOPT_POSTFIELDS, copy);
+
+		if (postFields.find (handle) != postFields.end ()) {
+
+			free (postFields[handle]);
+			postFields.erase (handle);
+
+		}
+
+		if (copy) postFields[handle] = copy;
+
+		curl_gc_mutex.Unlock ();
+
+		return code;
+
+	}
+
+
+	void release_post_fields (void* handle) {
+
+		if (postFields.find (handle) != postFields.end ()) {
+
+			free (postFields[handle]);
+			postFields.erase (handle);
+
+		}
+
+	}
+
+
+	void release_error_buffer (void* handle) {
+
+		if (errorBuffers.find (handle) != errorBuffers.end ()) {
+
+			free (errorBuffers[handle]);
+			errorBuffers.erase (handle);
+
+		}
+
+	}
+
+
+	// libcurl writes up to CURL_ERROR_SIZE bytes to ERRORBUFFER whenever a
+	// transfer fails, which may be later and on the transfer thread, so the
+	// handle owns that buffer rather than pointing at a string's
+	CURLcode set_error_buffer (void* handle, CURL* curl, bool enable) {
+
+		CURLcode code;
+
+		lock_curl_gc ();
+
+		if (enable) {
+
+			bool owned = errorBuffers.find (handle) != errorBuffers.end ();
+			char* buffer = owned ? errorBuffers[handle] : (char*)calloc (CURL_ERROR_SIZE, 1);
+
+			code = curl_easy_setopt (curl, CURLOPT_ERRORBUFFER, buffer);
+
+			if (code == CURLE_OK) {
+
+				errorBuffers[handle] = buffer;
+
+			} else if (!owned) {
+
+				free (buffer);
+
+			}
+
+		} else {
+
+			code = curl_easy_setopt (curl, CURLOPT_ERRORBUFFER, (char*)NULL);
+			release_error_buffer (handle);
+
+		}
+
+		curl_gc_mutex.Unlock ();
+
+		return code;
+
+	}
+
+
+	// Whether a setopt parameter turns the error buffer on: anything but
+	// null or false, so a string, as the option once took, still does
+	bool error_buffer_enabled (value parameter) {
+
+		if (val_is_null (parameter)) return false;
+		if (val_is_bool (parameter)) return val_bool (parameter);
+		return true;
+
+	}
+
+
+	bool hl_error_buffer_enabled (vdynamic* parameter) {
+
+		if (!parameter) return false;
+		if (parameter->t->kind == HBOOL) return parameter->v.b;
+		return true;
+
+	}
+
+
 	void release_curl (value handle, CURL* curl) {
 
 		if (curlMultiReferences.find (handle) != curlMultiReferences.end ()) {
@@ -156,6 +290,10 @@ namespace lime {
 			writeBufferSize.erase (handle);
 
 		}
+
+		// After curl_easy_cleanup, which is the last that may use them
+		release_post_fields (handle);
+		release_error_buffer (handle);
 
 		ValuePointer* callback;
 		Bytes* bytes;
@@ -278,6 +416,10 @@ namespace lime {
 			writeBufferSize.erase (handle);
 
 		}
+
+		// After curl_easy_cleanup, which is the last that may use them
+		release_post_fields (handle);
+		release_error_buffer (handle);
 
 		ValuePointer* callback;
 		Bytes* bytes;
@@ -562,6 +704,60 @@ namespace lime {
 	}
 
 
+	// curl_easy_duphandle copies the options, so the clone's still point at
+	// the original's header list and callback data. Give it its own.
+	void curl_own_duplicated_state (void* handle, void* duphandle, CURL* dup) {
+
+		if (headerSLists.find (handle) != headerSLists.end ()) {
+
+			struct curl_slist* chunk = NULL;
+
+			for (struct curl_slist* item = headerSLists[handle]; item; item = item->next) {
+
+				chunk = curl_slist_append (chunk, item->data);
+
+			}
+
+			headerSLists[duphandle] = chunk;
+			curl_easy_setopt (dup, CURLOPT_HTTPHEADER, chunk);
+
+		}
+
+		if (postFields.find (handle) != postFields.end ()) {
+
+			// curl_easy_duphandle copies the pointer, not the data
+			size_t size = strlen (postFields[handle]) + 1;
+			char* copy = (char*)malloc (size);
+			memcpy (copy, postFields[handle], size);
+			postFields[duphandle] = copy;
+			curl_easy_setopt (dup, CURLOPT_POSTFIELDS, copy);
+
+		}
+
+		if (errorBuffers.find (handle) != errorBuffers.end ()) {
+
+			// Or the clone writes its errors to the original's buffer
+			char* buffer = (char*)calloc (CURL_ERROR_SIZE, 1);
+			errorBuffers[duphandle] = buffer;
+			curl_easy_setopt (dup, CURLOPT_ERRORBUFFER, buffer);
+
+		}
+
+		if (headerCallbacks.find (duphandle) != headerCallbacks.end ()) curl_easy_setopt (dup, CURLOPT_HEADERDATA, duphandle);
+		if (progressCallbacks.find (duphandle) != progressCallbacks.end ()) curl_easy_setopt (dup, CURLOPT_PROGRESSDATA, duphandle);
+		if (writeCallbacks.find (duphandle) != writeCallbacks.end ()) curl_easy_setopt (dup, CURLOPT_WRITEDATA, duphandle);
+		if (xferInfoCallbacks.find (duphandle) != xferInfoCallbacks.end ()) curl_easy_setopt (dup, CURLOPT_XFERINFODATA, duphandle);
+
+		if (readBytes.find (duphandle) != readBytes.end ()) {
+
+			curl_easy_setopt (dup, CURLOPT_READDATA, duphandle);
+			curl_easy_setopt (dup, CURLOPT_SEEKDATA, duphandle);
+
+		}
+
+	}
+
+
 	value lime_curl_easy_duphandle (value handle) {
 
 		lock_curl_gc ();
@@ -626,6 +822,8 @@ namespace lime {
 			xferInfoValues[duphandle] = new CURL_XferInfo ();
 
 		}
+
+		curl_own_duplicated_state (handle, duphandle, dup);
 
 		curl_gc_mutex.Unlock ();
 
@@ -694,6 +892,8 @@ namespace lime {
 
 		}
 
+		curl_own_duplicated_state (handle, duphandle, dup);
+
 		curl_gc_mutex.Unlock ();
 
 		return duphandle;
@@ -703,8 +903,16 @@ namespace lime {
 
 	value lime_curl_easy_escape (value curl, HxString url, int length) {
 
-		char* result = curl_easy_escape ((CURL*)val_data(curl), url.__s, length);
-		return result ? alloc_string (result) : alloc_null ();
+		// The string's UTF-8 bytes, as hxcpp may hold it as UTF-16
+		const char* text = url.__s ? hxs_utf8 (url, nullptr) : NULL;
+		if (!text) return alloc_null ();
+
+		char* result = curl_easy_escape ((CURL*)val_data(curl), text, length);
+		if (!result) return alloc_null ();
+
+		value _result = alloc_string (result);
+		curl_free (result);
+		return _result;
 
 	}
 
@@ -712,7 +920,11 @@ namespace lime {
 	HL_PRIM vbyte* HL_NAME(hl_curl_easy_escape) (HL_CFFIPointer* curl, hl_vstring* url, int length) {
 
 		char* result = curl_easy_escape ((CURL*)curl->ptr, url ? hl_to_utf8 (url->bytes) : NULL, length);
-		return (vbyte*)result;
+		if (!result) return NULL;
+
+		vbyte* _result = hl_copy_bytes ((const vbyte*)result, (int)strlen (result) + 1);
+		curl_free (result);
+		return _result;
 
 	}
 
@@ -971,10 +1183,25 @@ namespace lime {
 			case CURLINFO_RTSP_SESSION_ID:
 			case CURLINFO_SCHEME:
 
-				char stringValue;
+			{
+				char* stringValue = NULL;
 				code = curl_easy_getinfo (handle, type, &stringValue);
-				return alloc_string (&stringValue);
-				break;
+				return (code == CURLE_OK && stringValue) ? alloc_string (stringValue) : alloc_null ();
+			}
+
+			case CURLINFO_SIZE_UPLOAD_T:
+			case CURLINFO_SIZE_DOWNLOAD_T:
+			case CURLINFO_SPEED_DOWNLOAD_T:
+			case CURLINFO_SPEED_UPLOAD_T:
+			case CURLINFO_CONTENT_LENGTH_DOWNLOAD_T:
+			case CURLINFO_CONTENT_LENGTH_UPLOAD_T:
+			{
+				// 64 bits, where a long is 32 on Windows
+				curl_off_t offValue = 0;
+				code = curl_easy_getinfo (handle, type, &offValue);
+				if (offValue >= INT_MIN && offValue <= INT_MAX) return alloc_int ((int)offValue);
+				return alloc_float ((double)offValue);
+			}
 
 			case CURLINFO_RESPONSE_CODE:
 			case CURLINFO_HTTP_CONNECTCODE:
@@ -997,17 +1224,11 @@ namespace lime {
 			case CURLINFO_HTTP_VERSION:
 			case CURLINFO_PROXY_SSL_VERIFYRESULT:
 			case CURLINFO_PROTOCOL:
-			case CURLINFO_SIZE_UPLOAD_T: // TODO: These should be larger
-			case CURLINFO_SIZE_DOWNLOAD_T:
-			case CURLINFO_SPEED_DOWNLOAD_T:
-			case CURLINFO_SPEED_UPLOAD_T:
-			case CURLINFO_CONTENT_LENGTH_DOWNLOAD_T:
-			case CURLINFO_CONTENT_LENGTH_UPLOAD_T:
-
-				long intValue;
+			{
+				long intValue = 0;
 				code = curl_easy_getinfo (handle, type, &intValue);
 				return alloc_int (intValue);
-				break;
+			}
 
 			case CURLINFO_TOTAL_TIME:
 			case CURLINFO_NAMELOOKUP_TIME:
@@ -1089,17 +1310,40 @@ namespace lime {
 			case CURLINFO_RTSP_SESSION_ID:
 			case CURLINFO_SCHEME:
 			{
-				char stringValue;
+				char* stringValue = NULL;
 				code = curl_easy_getinfo (handle, type, &stringValue);
+				if (code != CURLE_OK || !stringValue) return NULL;
 
-				int size = strlen (&stringValue) + 1;
-				char* val = (char*)malloc (size);
-				memcpy (val, &stringValue, size);
-
+				// CURL.getInfo makes the bytes a String
 				result = hl_alloc_dynamic (&hlt_bytes);
-				result->v.b = val;
+				result->v.bytes = hl_copy_bytes ((const vbyte*)stringValue, (int)strlen (stringValue) + 1);
 				return result;
-				break;
+			}
+
+			case CURLINFO_SIZE_UPLOAD_T:
+			case CURLINFO_SIZE_DOWNLOAD_T:
+			case CURLINFO_SPEED_DOWNLOAD_T:
+			case CURLINFO_SPEED_UPLOAD_T:
+			case CURLINFO_CONTENT_LENGTH_DOWNLOAD_T:
+			case CURLINFO_CONTENT_LENGTH_UPLOAD_T:
+			{
+				// 64 bits, where a long is 32 on Windows
+				curl_off_t offValue = 0;
+				code = curl_easy_getinfo (handle, type, &offValue);
+
+				if (offValue >= INT_MIN && offValue <= INT_MAX) {
+
+					result = hl_alloc_dynamic (&hlt_i32);
+					result->v.i = (int)offValue;
+
+				} else {
+
+					result = hl_alloc_dynamic (&hlt_f64);
+					result->v.d = (double)offValue;
+
+				}
+
+				return result;
 			}
 
 			case CURLINFO_RESPONSE_CODE:
@@ -1123,14 +1367,8 @@ namespace lime {
 			case CURLINFO_HTTP_VERSION:
 			case CURLINFO_PROXY_SSL_VERIFYRESULT:
 			case CURLINFO_PROTOCOL:
-			case CURLINFO_SIZE_UPLOAD_T: // TODO: These should be larger
-			case CURLINFO_SIZE_DOWNLOAD_T:
-			case CURLINFO_SPEED_DOWNLOAD_T:
-			case CURLINFO_SPEED_UPLOAD_T:
-			case CURLINFO_CONTENT_LENGTH_DOWNLOAD_T:
-			case CURLINFO_CONTENT_LENGTH_UPLOAD_T:
 			{
-				long intValue;
+				long intValue = 0;
 				code = curl_easy_getinfo (handle, type, &intValue);
 
 				result = hl_alloc_dynamic (&hlt_i32);
@@ -1162,8 +1400,43 @@ namespace lime {
 				break;
 			}
 
-			case CURLINFO_SSL_ENGINES:
 			case CURLINFO_COOKIELIST:
+			{
+				struct curl_slist* cookies = NULL;
+				code = curl_easy_getinfo (handle, CURLINFO_COOKIELIST, &cookies);
+				if (code != CURLE_OK) return NULL;
+
+				// One line for each cookie, which CURL.getInfo makes an array, as the
+				// other targets give. A cookie line holds no line breaks.
+				int length = 0;
+
+				for (struct curl_slist* each = cookies; each; each = each->next) {
+
+					length += (int)strlen (each->data) + 1;
+
+				}
+
+				vbyte* bytes = hl_alloc_bytes (length + 1);
+				int position = 0;
+
+				for (struct curl_slist* each = cookies; each; each = each->next) {
+
+					int size = (int)strlen (each->data);
+					memcpy (bytes + position, each->data, size);
+					position += size;
+					if (each->next) bytes[position++] = '\n';
+
+				}
+
+				bytes[position] = 0;
+				curl_slist_free_all (cookies);
+
+				result = hl_alloc_dynamic (&hlt_bytes);
+				result->v.bytes = bytes;
+				return result;
+			}
+
+			case CURLINFO_SSL_ENGINES:
 			case CURLINFO_CERTINFO:
 			case CURLINFO_TLS_SESSION:
 			case CURLINFO_TLS_SSL_PTR:
@@ -1377,6 +1650,11 @@ namespace lime {
 		curl_easy_reset ((CURL*)val_data(curl));
 		CURL_SetCertificates ((CURL*)val_data(curl));
 
+		// The reset handle no longer has an error buffer
+		lock_curl_gc ();
+		release_error_buffer (curl);
+		curl_gc_mutex.Unlock ();
+
 	}
 
 
@@ -1384,6 +1662,10 @@ namespace lime {
 
 		curl_easy_reset ((CURL*)curl->ptr);
 		CURL_SetCertificates ((CURL*)curl->ptr);
+
+		lock_curl_gc ();
+		release_error_buffer (curl);
+		curl_gc_mutex.Unlock ();
 
 	}
 
@@ -1408,6 +1690,7 @@ namespace lime {
 
 	static size_t header_callback (void *ptr, size_t size, size_t nmemb, void *userp) {
 
+		CURL_MapLock lock;
 		std::vector<char*>* values = headerValues[userp];
 
 		if (size * nmemb > 0) {
@@ -1432,6 +1715,7 @@ namespace lime {
 
 		}
 
+		CURL_MapLock lock;
 		char* buffer = writeBuffers[userp];
 		int writeSize = (size * nmemb);
 
@@ -1469,6 +1753,7 @@ namespace lime {
 	}
 
 	static int seek_callback (void *userp, curl_off_t offset, int origin) {
+		CURL_MapLock lock;
 		if (origin == SEEK_SET)  {
 			readBytesPosition[userp] = offset;
 			return CURL_SEEKFUNC_OK;
@@ -1478,6 +1763,7 @@ namespace lime {
 
 	static size_t read_callback (void *buffer, size_t size, size_t nmemb, void *userp) {
 
+		CURL_MapLock lock;
 		Bytes* bytes = readBytes[userp];
 		int position = readBytesPosition[userp];
 		int length = size * nmemb;
@@ -1500,6 +1786,7 @@ namespace lime {
 
 	static int progress_callback (void *userp, double dltotal, double dlnow, double ultotal, double ulnow) {
 
+		CURL_MapLock lock;
 		CURL_Progress* progress = progressValues[userp];
 
 		progress->dltotal = dltotal;
@@ -1514,6 +1801,7 @@ namespace lime {
 
 	static int xferinfo_callback (void *userp, curl_off_t dltotal, curl_off_t dlnow, curl_off_t ultotal, curl_off_t ulnow) {
 
+		CURL_MapLock lock;
 		CURL_XferInfo* xferInfo = xferInfoValues[userp];
 
 		xferInfo->dltotal = dltotal;
@@ -1664,6 +1952,10 @@ namespace lime {
 				break;
 
 			case CURLOPT_ERRORBUFFER:
+
+				code = set_error_buffer (handle, easy_handle, error_buffer_enabled (parameter));
+				break;
+
 			case CURLOPT_URL:
 			case CURLOPT_PROXY:
 			case CURLOPT_NOPROXY:
@@ -1743,6 +2035,14 @@ namespace lime {
 			case CURLOPT_REQUEST_TARGET:
 
 				if (type == CURLOPT_CAINFO || type == CURLOPT_CAPATH || type == CURLOPT_PROXY_CAINFO || type == CURLOPT_PROXY_CAPATH) CURL_UseOwnCertificates (easy_handle, type);
+				if (type == CURLOPT_POSTFIELDS) {
+
+					// The string can be collected before the transfer
+					code = set_post_fields (handle, easy_handle, val_string (parameter));
+					break;
+
+				}
+
 				code = curl_easy_setopt (easy_handle, type, val_string (parameter));
 				break;
 
@@ -1949,6 +2249,8 @@ namespace lime {
 
 			default:
 
+				// As libcurl answers for an option it doesn't know
+				code = CURLE_UNKNOWN_OPTION;
 				break;
 
 		}
@@ -2096,6 +2398,10 @@ namespace lime {
 				break;
 
 			case CURLOPT_ERRORBUFFER:
+
+				code = set_error_buffer (handle, easy_handle, hl_error_buffer_enabled (parameter));
+				break;
+
 			case CURLOPT_URL:
 			case CURLOPT_PROXY:
 			case CURLOPT_NOPROXY:
@@ -2176,6 +2482,14 @@ namespace lime {
 			{
 				hl_vstring* str = (hl_vstring*)parameter;
 				if (type == CURLOPT_CAINFO || type == CURLOPT_CAPATH || type == CURLOPT_PROXY_CAINFO || type == CURLOPT_PROXY_CAPATH) CURL_UseOwnCertificates (easy_handle, type);
+				if (type == CURLOPT_POSTFIELDS) {
+
+					// hl_to_utf8's buffer can be collected before the transfer
+					code = set_post_fields (handle, easy_handle, str ? hl_to_utf8 (str->bytes) : NULL);
+					break;
+
+				}
+
 				code = curl_easy_setopt (easy_handle, type, str ? hl_to_utf8 (str->bytes) : NULL);
 				break;
 			}
@@ -2382,11 +2696,53 @@ namespace lime {
 
 			default:
 
+				// As libcurl answers for an option it doesn't know
+				code = CURLE_UNKNOWN_OPTION;
 				break;
 
 		}
 
 		return code;
+
+	}
+
+
+	// A copy of the handle's error buffer, so it can be read while the
+	// transfer thread may write to it. False if it has none.
+	bool copy_error_buffer (void* handle, char* copy) {
+
+		bool found = false;
+
+		lock_curl_gc ();
+
+		if (errorBuffers.find (handle) != errorBuffers.end ()) {
+
+			memcpy (copy, errorBuffers[handle], CURL_ERROR_SIZE);
+			copy[CURL_ERROR_SIZE - 1] = '\0';
+			found = true;
+
+		}
+
+		curl_gc_mutex.Unlock ();
+
+		return found;
+
+	}
+
+
+	value lime_curl_easy_errorbuffer (value handle) {
+
+		char copy[CURL_ERROR_SIZE];
+		return copy_error_buffer (handle, copy) ? alloc_string (copy) : alloc_null ();
+
+	}
+
+
+	HL_PRIM vbyte* HL_NAME(hl_curl_easy_errorbuffer) (HL_CFFIPointer* handle) {
+
+		char copy[CURL_ERROR_SIZE];
+		if (!copy_error_buffer (handle, copy)) return NULL;
+		return hl_copy_bytes ((const vbyte*)copy, (int)strlen (copy) + 1);
 
 	}
 
@@ -2412,8 +2768,16 @@ namespace lime {
 
 	value lime_curl_easy_unescape (value curl, HxString url, int inlength, int outlength) {
 
-		char* result = curl_easy_unescape ((CURL*)val_data(curl), url.__s, inlength, &outlength);
-		return result ? alloc_string (result) : alloc_null ();
+		const char* text = url.__s ? hxs_utf8 (url, nullptr) : NULL;
+		if (!text) return alloc_null ();
+
+		// Every byte curl decoded, a %00 included
+		char* result = curl_easy_unescape ((CURL*)val_data(curl), text, inlength, &outlength);
+		if (!result) return alloc_null ();
+
+		value _result = alloc_string_len (result, outlength);
+		curl_free (result);
+		return _result;
 
 	}
 
@@ -2421,10 +2785,16 @@ namespace lime {
 	HL_PRIM vbyte* HL_NAME(hl_curl_easy_unescape) (HL_CFFIPointer* curl, hl_vstring* url, int inlength, int outlength) {
 
 		char* result = curl_easy_unescape ((CURL*)curl->ptr, url ? hl_to_utf8 (url->bytes) : NULL, inlength, &outlength);
-		int length = strlen (result);
-		char* _result = (char*)malloc (length + 1);
-		strcpy (_result, result);
-		return (vbyte*)_result;
+		if (!result) return NULL;
+
+		// The decoded length, then the bytes, as a %00 decodes to a zero that would end
+		// the string. CURL.unescape() reads them back.
+		vbyte* _result = hl_alloc_bytes (outlength + 5);
+		memcpy (_result, &outlength, 4);
+		memcpy (_result + 4, result, outlength);
+		_result[outlength + 4] = 0;
+		curl_free (result);
+		return _result;
 
 	}
 
@@ -2606,16 +2976,71 @@ namespace lime {
 	}
 
 
+	static int curl_multi_running_handles (void* multi_handle) {
+
+		lock_curl_gc ();
+		std::map<void*, int>::iterator it = curlMultiRunningHandles.find (multi_handle);
+		int running = it != curlMultiRunningHandles.end () ? it->second : 0;
+		curl_gc_mutex.Unlock ();
+		return running;
+
+	}
+
+
+	// The multi handle's easy handles, looked up under the lock, which its
+	// callers then let go to flush each one
+	static std::vector<void*> curl_multi_handles_copy (void* multi_handle) {
+
+		std::vector<void*> handles;
+		std::map<void*, std::vector<void*>* >::iterator it = curlMultiHandles.find (multi_handle);
+		if (it != curlMultiHandles.end ()) handles = *it->second;
+		return handles;
+
+	}
+
+
+	// Whether an easy handle is still in the multi handle, as a callback run
+	// while flushing may have removed it. Called with the lock held.
+	static bool curl_multi_has_handle (void* multi_handle, void* curl_handle) {
+
+		std::map<void*, std::vector<void*>* >::iterator it = curlMultiHandles.find (multi_handle);
+		if (it == curlMultiHandles.end ()) return false;
+		return std::find (it->second->begin (), it->second->end (), curl_handle) != it->second->end ();
+
+	}
+
+
+	// The CURL object of the easy handle a message is for, or NULL
+	static void* curl_multi_message_object (CURL* curl) {
+
+		lock_curl_gc ();
+
+		void* object = NULL;
+		std::map<CURL*, void*>::iterator handle = curlObjects.find (curl);
+
+		if (handle != curlObjects.end ()) {
+
+			std::map<void*, ValuePointer*>::iterator found = curlMultiObjects.find (handle->second);
+			if (found != curlMultiObjects.end ()) object = (void*)found->second->Get ();
+
+		}
+
+		curl_gc_mutex.Unlock ();
+		return object;
+
+	}
+
+
 	int lime_curl_multi_get_running_handles (value multi_handle) {
 
-		return curlMultiRunningHandles[multi_handle];
+		return curl_multi_running_handles (multi_handle);
 
 	}
 
 
 	HL_PRIM int HL_NAME(hl_curl_multi_get_running_handles) (HL_CFFIPointer* multi_handle) {
 
-		return curlMultiRunningHandles[multi_handle];
+		return curl_multi_running_handles (multi_handle);
 
 	}
 
@@ -2631,20 +3056,10 @@ namespace lime {
 			const field id_curl = val_id ("curl");
 			const field id_result = val_id ("result");
 
-			CURL* curl = msg->easy_handle;
+			// The handle maps change under the lock on other threads
+			value object = (value)curl_multi_message_object (msg->easy_handle);
 			value result = alloc_empty_object ();
-
-			if (curlObjects.find (curl) != curlObjects.end ()) {
-
-				value handle = (value)curlObjects[curl];
-				alloc_field (result, id_curl, (value)curlMultiObjects[handle]->Get ());
-
-			} else {
-
-				// TODO?
-				alloc_field (result, id_curl, alloc_null ());
-
-			}
+			alloc_field (result, id_curl, object ? object : alloc_null ());
 
 			alloc_field (result, id_result, alloc_int (msg->data.result));
 			return result;
@@ -2669,19 +3084,8 @@ namespace lime {
 			const int id_curl = hl_hash_utf8 ("curl");
 			const int id_result = hl_hash_utf8 ("result");
 
-			CURL* curl = msg->easy_handle;
-
-			if (curlObjects.find (curl) != curlObjects.end ()) {
-
-				HL_CFFIPointer* handle = (HL_CFFIPointer*)curlObjects[curl];
-				hl_dyn_setp (result, id_curl, &hlt_dyn, (vdynamic*)curlMultiObjects[handle]->Get ());
-
-			} else {
-
-				// TODO?
-				hl_dyn_setp (result, id_curl, &hlt_dyn, NULL);
-
-			}
+			// The handle maps change under the lock on other threads
+			hl_dyn_setp (result, id_curl, &hlt_dyn, (vdynamic*)curl_multi_message_object (msg->easy_handle));
 
 			hl_dyn_seti (result, id_result, &hlt_i32, msg->data.result);
 			return result;
@@ -2711,9 +3115,13 @@ namespace lime {
 
 		lock_curl_gc ();
 
-		std::vector<void*>* handles = curlMultiHandles[multi_handle];
+		// The lock is let go for each flush, whose callbacks may add or remove
+		// handles, so the handles are walked from a copy
+		std::vector<void*> handles = curl_multi_handles_copy (multi_handle);
 
-		for (std::vector<void*>::iterator it = handles->begin (); it != handles->end (); ++it) {
+		for (std::vector<void*>::iterator it = handles.begin (); it != handles.end (); ++it) {
+
+			if (!curl_multi_has_handle (multi_handle, *it)) continue;
 
 			curl_gc_mutex.Unlock ();
 			lime_curl_easy_flush ((value)*it);
@@ -2721,7 +3129,11 @@ namespace lime {
 
 		}
 
-		curlMultiRunningHandles[multi_handle] = runningHandles;
+		if (curlMultiValid.find (multi_handle) != curlMultiValid.end ()) {
+
+			curlMultiRunningHandles[multi_handle] = runningHandles;
+
+		}
 
 		curl_gc_mutex.Unlock ();
 
@@ -2744,9 +3156,12 @@ namespace lime {
 
 		lock_curl_gc ();
 
-		std::vector<void*>* handles = curlMultiHandles[multi_handle];
+		// See lime_curl_multi_perform
+		std::vector<void*> handles = curl_multi_handles_copy (multi_handle);
 
-		for (std::vector<void*>::iterator it = handles->begin (); it != handles->end (); ++it) {
+		for (std::vector<void*>::iterator it = handles.begin (); it != handles.end (); ++it) {
+
+			if (!curl_multi_has_handle (multi_handle, *it)) continue;
 
 			curl_gc_mutex.Unlock ();
 			lime_hl_curl_easy_flush ((HL_CFFIPointer*)*it);
@@ -2754,7 +3169,11 @@ namespace lime {
 
 		}
 
-		curlMultiRunningHandles[multi_handle] = runningHandles;
+		if (curlMultiValid.find (multi_handle) != curlMultiValid.end ()) {
+
+			curlMultiRunningHandles[multi_handle] = runningHandles;
+
+		}
 
 		curl_gc_mutex.Unlock ();
 
@@ -2939,6 +3358,47 @@ namespace lime {
 	}
 
 
+	int lime_curl_multi_poll (value multi_handle, int timeout_ms) {
+
+		System::GCEnterBlocking ();
+
+		int retcode;
+		CURLMcode result = curl_multi_poll ((CURLM*)val_data (multi_handle), 0, 0, timeout_ms, &retcode);
+
+		System::GCExitBlocking ();
+		return result;
+
+	}
+
+
+	HL_PRIM int HL_NAME(hl_curl_multi_poll) (HL_CFFIPointer* multi_handle, int timeout_ms) {
+
+		System::GCEnterBlocking ();
+
+		int retcode;
+		CURLMcode result = curl_multi_poll ((CURLM*)multi_handle->ptr, 0, 0, timeout_ms, &retcode);
+
+		System::GCExitBlocking ();
+		return result;
+
+	}
+
+
+	// Called from any thread: it takes no lock, so a thread in curl_multi_poll wakes at once
+	int lime_curl_multi_wakeup (value multi_handle) {
+
+		return curl_multi_wakeup ((CURLM*)val_data (multi_handle));
+
+	}
+
+
+	HL_PRIM int HL_NAME(hl_curl_multi_wakeup) (HL_CFFIPointer* multi_handle) {
+
+		return curl_multi_wakeup ((CURLM*)multi_handle->ptr);
+
+	}
+
+
 	int lime_curl_multi_wait (value multi_handle, int timeout_ms) {
 
 		System::GCEnterBlocking ();
@@ -3047,6 +3507,7 @@ namespace lime {
 
 	DEFINE_PRIME1v (lime_curl_easy_cleanup);
 	DEFINE_PRIME1 (lime_curl_easy_duphandle);
+	DEFINE_PRIME1 (lime_curl_easy_errorbuffer);
 	DEFINE_PRIME3 (lime_curl_easy_escape);
 	DEFINE_PRIME2 (lime_curl_easy_getinfo);
 	DEFINE_PRIME0 (lime_curl_easy_init);
@@ -3070,7 +3531,9 @@ namespace lime {
 	DEFINE_PRIME1 (lime_curl_multi_perform);
 	DEFINE_PRIME2 (lime_curl_multi_remove_handle);
 	DEFINE_PRIME3 (lime_curl_multi_setopt);
+	DEFINE_PRIME2 (lime_curl_multi_poll);
 	DEFINE_PRIME2 (lime_curl_multi_wait);
+	DEFINE_PRIME1 (lime_curl_multi_wakeup);
 	DEFINE_PRIME0 (lime_curl_version);
 	DEFINE_PRIME1 (lime_curl_version_info);
 
@@ -3080,6 +3543,7 @@ namespace lime {
 
 	DEFINE_HL_PRIM (_VOID, hl_curl_easy_cleanup, _TCFFIPOINTER);
 	DEFINE_HL_PRIM (_TCFFIPOINTER, hl_curl_easy_duphandle, _TCFFIPOINTER);
+	DEFINE_HL_PRIM (_BYTES, hl_curl_easy_errorbuffer, _TCFFIPOINTER);
 	DEFINE_HL_PRIM (_BYTES, hl_curl_easy_escape, _TCFFIPOINTER _STRING _I32);
 	DEFINE_HL_PRIM (_DYN, hl_curl_easy_getinfo, _TCFFIPOINTER _I32);
 	DEFINE_HL_PRIM (_TCFFIPOINTER, hl_curl_easy_init, _NO_ARG);
@@ -3103,7 +3567,9 @@ namespace lime {
 	DEFINE_HL_PRIM (_I32, hl_curl_multi_perform, _TCFFIPOINTER);
 	DEFINE_HL_PRIM (_I32, hl_curl_multi_remove_handle, _TCFFIPOINTER _TCFFIPOINTER);
 	DEFINE_HL_PRIM (_I32, hl_curl_multi_setopt, _TCFFIPOINTER _I32 _DYN);
+	DEFINE_HL_PRIM (_I32, hl_curl_multi_poll, _TCFFIPOINTER _I32);
 	DEFINE_HL_PRIM (_I32, hl_curl_multi_wait, _TCFFIPOINTER _I32);
+	DEFINE_HL_PRIM (_I32, hl_curl_multi_wakeup, _TCFFIPOINTER);
 	DEFINE_HL_PRIM (_BYTES, hl_curl_version, _NO_ARG);
 	DEFINE_HL_PRIM (_DYN, hl_curl_version_info, _I32);
 

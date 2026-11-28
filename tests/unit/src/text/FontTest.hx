@@ -19,6 +19,50 @@ class FontTest extends Test
 	}
 
 	#if (lime_cffi && !macro)
+	public function testAFontWithoutAFullNameIsNamedAfterItsFamily():Void
+	{
+		// BDF isn't SFNT, so it has no name records, only the family FreeType reads
+		var bdf = [
+			"STARTFONT 2.1",
+			"FONT -lime-test-medium-r-normal--8-80-75-75-c-80-iso10646-1",
+			"SIZE 8 75 75",
+			"FONTBOUNDINGBOX 8 8 0 0",
+			"STARTPROPERTIES 3",
+			"FAMILY_NAME \"Lime Test\"",
+			"FONT_ASCENT 8",
+			"FONT_DESCENT 0",
+			"ENDPROPERTIES",
+			"CHARS 1",
+			"STARTCHAR A",
+			"ENCODING 65",
+			"SWIDTH 500 0",
+			"DWIDTH 8 0",
+			"BBX 8 8 0 0",
+			"BITMAP",
+			"18", "24", "42", "42", "7E", "42", "42", "00",
+			"ENDCHAR",
+			"ENDFONT",
+			""
+		].join("\n");
+
+		var font = Font.fromBytes(lime.utils.Bytes.ofString(bdf));
+		Assert.notNull(font, "the BDF font did not open");
+		if (font != null) Assert.equals("Lime Test", font.name);
+	}
+
+	public function testDecomposeGivesTheFontsName():Void
+	{
+		var font = Font.fromFile(PATH);
+		Assert.notNull(font, "cannot open " + PATH);
+		if (font == null) return;
+
+		Assert.isTrue(font.name != null && font.name.length > 0, "the font has no name");
+
+		var data = font.decompose();
+		Assert.notNull(data, "decompose() gave nothing");
+		if (data != null) Assert.equals(font.name, data.family_name);
+	}
+
 	private function variableFont():Font
 	{
 		var font = Font.fromFile(VARIABLE_PATH);
@@ -231,5 +275,281 @@ class FontTest extends Test
 			Assert.isTrue(empty > 0, "glyph " + glyph + " covers its whole box");
 		}
 	}
+
+	public function testAFontsOwnBitmapsAreRenderedAsTheyAre():Void
+	{
+		// A BDF font has only 1-bit bitmaps, which FreeType gives as they are,
+		// where it renders an outline as LCD. They were read as LCD, a third as
+		// wide, and past the end of FreeType's bitmap.
+		var rows = ["18", "24", "42", "42", "7E", "42", "42", "00"];
+		var bdf = [
+			"STARTFONT 2.1",
+			"FONT -lime-test-medium-r-normal--8-80-72-72-c-80-iso10646-1",
+			"SIZE 8 72 72",
+			"FONTBOUNDINGBOX 8 8 0 0",
+			"STARTPROPERTIES 3",
+			"FAMILY_NAME \"Lime Bitmap Test\"",
+			"FONT_ASCENT 8",
+			"FONT_DESCENT 0",
+			"ENDPROPERTIES",
+			"CHARS 1",
+			"STARTCHAR A",
+			"ENCODING 65",
+			"SWIDTH 500 0",
+			"DWIDTH 8 0",
+			"BBX 8 8 0 0",
+			"BITMAP"
+		].concat(rows).concat(["ENDCHAR", "ENDFONT", ""]).join("\n");
+
+		var expected = [];
+		for (row in rows)
+		{
+			var bits = Std.parseInt("0x" + row);
+			expected.push([for (x in 0...8) (bits & (0x80 >> x)) != 0 ? "#" : "."].join(""));
+		}
+
+		var font = Font.fromBytes(lime.utils.Bytes.ofString(bdf));
+		Assert.notNull(font, "the BDF font did not open");
+		if (font == null) return;
+
+		var glyph = font.getGlyph("A");
+
+		// Twice, as the bytes past the bitmap changed from one render to the next
+		for (i in 0...2)
+		{
+			var image = font.renderGlyphWithLoadFlags(glyph, 8, 72);
+			Assert.equals(expected.join("\n"), describeAlpha(image), "renderGlyphWithLoadFlags()");
+		}
+
+		var images = font.renderGlyphs([glyph], 8);
+		Assert.equals(expected.join("\n"), describeAlpha(images != null ? images.get(glyph) : null), "renderGlyphs()");
+	}
+
+	/** Each pixel as # where it is covered and . where it isn't, a line a row **/
+	private static function describeAlpha(image:lime.graphics.Image):String
+	{
+		if (image == null) return "null";
+
+		// renderGlyph() gives RGBA images of their own, renderGlyphs() 8-bit
+		// coverage within one buffer
+		var buffer = image.buffer;
+		var lines = [];
+		for (y in 0...image.height)
+		{
+			var line = "";
+			for (x in 0...image.width)
+			{
+				var pixel = (image.offsetY + y) * buffer.width + image.offsetX + x;
+				var coverage = buffer.bitsPerPixel == 8 ? buffer.data[pixel] : buffer.data[pixel * 4 + 3];
+				line += coverage > 127 ? "#" : ".";
+			}
+			lines.push(line);
+		}
+		return lines.join("\n");
+	}
+
+	// Lime 8.3 subclasses override renderGlyph(glyph, fontSize) and decompose(),
+	// as OverridingFont does, so a parameter added to either would stop them
+	// compiling
+	public function testRenderGlyphRendersAt96DPIAsBefore():Void
+	{
+		var font = new OverridingFont();
+		@:privateAccess font.__fromFile(PATH);
+		var glyph = font.getGlyphs("H")[0];
+
+		var image = font.renderGlyph(glyph, 32);
+		var at96 = font.renderGlyphWithLoadFlags(glyph, 32, 96);
+		Assert.notNull(image);
+		Assert.notNull(at96);
+		if (image == null || at96 == null) return;
+
+		Assert.equals(1, font.rendered);
+		Assert.equals(at96.width + "x" + at96.height, image.width + "x" + image.height);
+		Assert.isTrue(at96.buffer.data.toBytes().compare(image.buffer.data.toBytes()) == 0, "renderGlyph() and renderGlyphWithLoadFlags() at 96 DPI differ");
+	}
+
+	public function testDecomposeUnhintedGivesTheSameGlyphs():Void
+	{
+		var font = new OverridingFont();
+		@:privateAccess font.__fromFile(PATH);
+
+		var hinted = font.decompose();
+		var unhinted = font.decomposeUnhinted();
+		Assert.notNull(hinted);
+		Assert.notNull(unhinted);
+		if (hinted == null || unhinted == null) return;
+
+		Assert.equals(1, font.decomposed);
+		Assert.equals(hinted.family_name, unhinted.family_name);
+		// HashLink gives glyphs as a native array, not an Array, so they are counted by num_glyphs
+		Assert.equals(hinted.num_glyphs, unhinted.num_glyphs);
+		Assert.isTrue(unhinted.num_glyphs > 0);
+	}
+	#end
+
+	#if (js && html5)
+	// On HTML5, loadFromName() loads a web font through the CSS Font Loading API wherever the browser
+	// has it, Safari included, rather than measuring text in it every 50 ms for up to 3 seconds (#1125).
+	// The test page declares the font in assets/mono.ttf as 'Lime Samples Mono Regular'.
+
+	@:timeout(5000)
+	public function testSafariLoadsWebFontsThroughTheFontLoadingAPI(async:utest.Async):Void
+	{
+		var page = new WebFontPage(SAFARI);
+
+		Font.loadFromName(WEB_FONT).onComplete(function(font)
+		{
+			page.restore();
+
+			Assert.equals(WEB_FONT, font.name);
+			Assert.equals(1, page.loads.length, "calls to document.fonts.load(): " + page.loads.join(", "));
+			Assert.isTrue(page.loads.length > 0 && page.loads[0].indexOf(WEB_FONT) > -1, "loaded " + page.loads.join(", "));
+			// Loaded, so text can be drawn in it now
+			var faces = [];
+			(untyped js.Browser.document).fonts.forEach(function(face:Dynamic)
+			{
+				if (StringTools.replace(face.family, "\"", "") == WEB_FONT) faces.push(face.status);
+			});
+			Assert.isTrue(faces.length > 0 && faces.indexOf("loaded") > -1, "the font's faces are " + faces.join(", ") + ", not loaded");
+			async.done();
+		}).onError(function(error)
+		{
+			page.restore();
+			Assert.fail("loading failed: " + error);
+			async.done();
+		});
+	}
+
+	@:timeout(5000)
+	public function testAnIOSWebViewLoadsWebFontsThroughTheFontLoadingAPI(async:utest.Async):Void
+	{
+		var page = new WebFontPage(IOS_WEB_VIEW);
+
+		Font.loadFromName(WEB_FONT).onComplete(function(font)
+		{
+			page.restore();
+
+			Assert.equals(1, page.loads.length, "calls to document.fonts.load(): " + page.loads.join(", "));
+			async.done();
+		}).onError(function(error)
+		{
+			page.restore();
+			Assert.fail("loading failed: " + error);
+			async.done();
+		});
+	}
+
+	@:timeout(5000)
+	public function testAMissingWebFontDoesNotKeepSafariWaiting(async:utest.Async):Void
+	{
+		// The font loading API says at once that no font of that name is declared, where measuring
+		// text in it would wait out its three seconds
+		var page = new WebFontPage(SAFARI);
+		var started = haxe.Timer.stamp();
+
+		Font.loadFromName("Lime Test No Such Font").onComplete(function(font)
+		{
+			var elapsed = haxe.Timer.stamp() - started;
+			page.restore();
+
+			Assert.equals("Lime Test No Such Font", font.name);
+			Assert.isTrue(elapsed < 1, "took " + Math.round(elapsed * 1000) + " ms");
+			async.done();
+		}).onError(function(error)
+		{
+			page.restore();
+			Assert.fail("loading failed: " + error);
+			async.done();
+		});
+	}
+
+	@:timeout(10000)
+	public function testWithoutTheFontLoadingAPIWebFontsStillLoad(async:utest.Async):Void
+	{
+		// A browser without document.fonts measures text in the font instead
+		var page = new WebFontPage(null, false);
+
+		Font.loadFromName(WEB_FONT).onComplete(function(font)
+		{
+			page.restore();
+
+			Assert.equals(WEB_FONT, font.name);
+			async.done();
+		}).onError(function(error)
+		{
+			page.restore();
+			Assert.fail("loading failed: " + error);
+			async.done();
+		});
+	}
+
+	private static inline var WEB_FONT = "Lime Samples Mono Regular";
+	private static inline var SAFARI = "Mozilla/5.0 (Macintosh; Intel Mac OS X 14_5) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.5 Safari/605.1.15";
+	private static inline var IOS_WEB_VIEW = "Mozilla/5.0 (iPhone; CPU iPhone OS 12_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148";
 	#end
 }
+
+#if (js && html5)
+/**
+	The page as another browser shows it: `navigator.userAgent` reads `userAgent` when one is
+	given, and `document.fonts` is gone when `fontLoadingAPI` is false. Otherwise each call to
+	`document.fonts.load()` is noted in `loads` and goes on to the browser's own. `restore()`
+	puts the page back as it was.
+**/
+private class WebFontPage
+{
+	public var loads(default, null):Array<String> = [];
+
+	public function new(userAgent:String, fontLoadingAPI:Bool = true)
+	{
+		if (userAgent != null)
+		{
+			js.lib.Object.defineProperty(js.Browser.navigator, "userAgent", {configurable: true, get: function() return userAgent});
+		}
+
+		var document:Dynamic = js.Browser.document;
+
+		if (!fontLoadingAPI)
+		{
+			js.lib.Object.defineProperty(document, "fonts", {configurable: true, value: null});
+		}
+		else
+		{
+			var fonts:Dynamic = document.fonts;
+			var load:Dynamic = fonts.load;
+			fonts.load = function(font:String, ?text:String):Dynamic
+			{
+				loads.push(font);
+				return load.call(fonts, font, text);
+			};
+		}
+	}
+
+	public function restore():Void
+	{
+		js.Syntax.delete(js.Browser.navigator, "userAgent");
+		js.Syntax.delete(js.Browser.document, "fonts");
+		js.Syntax.delete((untyped js.Browser.document).fonts, "load");
+	}
+}
+#end
+
+#if (lime_cffi && !macro)
+private class OverridingFont extends Font
+{
+	public var decomposed:Int = 0;
+	public var rendered:Int = 0;
+
+	override public function decompose():lime.text.Font.NativeFontData
+	{
+		decomposed++;
+		return super.decompose();
+	}
+
+	override public function renderGlyph(glyph:lime.text.Glyph, fontSize:Int):lime.graphics.Image
+	{
+		rendered++;
+		return super.renderGlyph(glyph, fontSize);
+	}
+}
+#end

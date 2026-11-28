@@ -1,5 +1,6 @@
 package ui;
 
+import haxe.Timer;
 import lime.app.Application;
 import lime.graphics.Image;
 import lime.math.Rectangle;
@@ -8,8 +9,12 @@ import lime.ui.Window;
 import lime.ui.WindowAppearance;
 import lime.ui.WindowHandleType;
 import utest.Assert;
+import utest.Async;
 import utest.Test;
 
+#if (cpp && windows)
+@:cppFileCode("#include <windows.h>")
+#end
 /**
 	Windows are checked for what the platform made of them, as the attributes
 	only say what was asked for.
@@ -295,6 +300,172 @@ class WindowTest extends Test
 
 		Assert.equals("0,-1|0,-0.25", deltas.join("|"));
 	}
+
+	#if (cpp && windows)
+	@:timeout(5000)
+	public function testEachSizeTheWindowTakesWhileResizedIsDrawn(async:Async):Void
+	{
+		// Only a window that can be resized has a sizing loop
+		var window = Application.current.createWindow({width: 64, height: 64, hidden: true, resizable: true, title: "WindowTest"});
+		if (window == null) { canCreateWindows(); async.done(); return; }
+
+		// The sizing loop only draws once the application's own loop runs
+		Timer.delay(function()
+		{
+			var application = Application.current;
+			var backend = @:privateAccess application.__backend;
+			// Frames a second apart: none is due while the window is resized, so only resizing draws one
+			backend.configureFrameTiming(application.frameProfile, 1, application.frameOptions);
+
+			var reported = [], expected = [], drawn = [], renders = 0;
+			window.onResize.add(function(width, height) reported.push(width + "x" + height));
+			window.onRender.add(function(_) renders++);
+
+			var hwnd = window.nativeHandle.window;
+			sendWindowMessage(hwnd, 0x0231 /* WM_ENTERSIZEMOVE */);
+			for (step in 1...4)
+			{
+				var before = renders;
+				resizeWindow(hwnd, 320 + step * 40, 240 + step * 20);
+				expected.push(window.width + "x" + window.height);
+				drawn.push(renders > before);
+			}
+			sendWindowMessage(hwnd, 0x0232 /* WM_EXITSIZEMOVE */);
+			backend.configureFrameTiming(application.frameProfile, @:privateAccess application.__frameRate, application.frameOptions);
+
+			Assert.equals(expected.join(","), reported.join(","), "the window took " + expected.join(",") + " but reported " + reported.join(","));
+			Assert.equals("true,true,true", drawn.join(","), "sizes drawn before the next: " + drawn.join(","));
+			async.done();
+		}, 1);
+	}
+
+	// A frame drawn while the window is resized used to run inside SDL's event watch, with SDL's
+	// event lock held, so a thread pushing an event waited for the frame to end. native-ipc's
+	// threads push one to wake the application when a local socket's message is queued, and
+	// closing that socket joins its thread, so closing it in such a frame waited forever.
+	@:timeout(10000)
+	public function testClosingALocalSocketInAFrameDrawnWhileResizedReturns(async:Async):Void
+	{
+		var name = "lime-test-resize-" + Std.random(0x3FFFFFFF);
+		var server = new lime.net.LocalServer();
+		var taken:lime.net.LocalSocket = null;
+		server.onConnect.add(function(socket) taken = socket);
+		Assert.isTrue(server.listen(name), "the server did not listen: " + server.error);
+
+		var client = new lime.net.LocalSocket();
+		client.connect(name, 3000);
+
+		var window = Application.current.createWindow({width: 64, height: 64, hidden: true, resizable: true, title: "WindowTest"});
+		if (window == null)
+		{
+			canCreateWindows();
+			client.close();
+			server.close();
+			async.done();
+			return;
+		}
+
+		// The application's loop dispatches the connection, then the window is resized
+		var deadline = Timer.stamp() + 5;
+		var resize:Void->Void = null;
+		var wait:Void->Void = null;
+		wait = function()
+		{
+			if (taken != null && client.connected)
+			{
+				resize();
+			}
+			else if (Timer.stamp() > deadline)
+			{
+				Assert.fail("the local socket did not connect");
+				client.close();
+				server.close();
+				window.close();
+				async.done();
+			}
+			else
+			{
+				Timer.delay(wait, 10);
+			}
+		};
+
+		resize = function()
+		{
+			var application = Application.current;
+			var backend = @:privateAccess application.__backend;
+			// Frames a second apart: none is due while the window is resized, so only resizing draws one
+			backend.configureFrameTiming(application.frameProfile, 1, application.frameOptions);
+
+			var resizing = false;
+			var closed = false;
+			window.onRender.add(function(_)
+			{
+				if (!resizing || closed) return;
+
+				// The taken end's thread queues the message and wakes the application, then is joined
+				client.send(haxe.io.Bytes.ofString("wake"));
+				Sys.sleep(0.2);
+				taken.close();
+				closed = true;
+			});
+
+			var hwnd = window.nativeHandle.window;
+			resizing = true;
+			sendWindowMessage(hwnd, 0x0231 /* WM_ENTERSIZEMOVE */);
+			resizeWindow(hwnd, 360, 260);
+			sendWindowMessage(hwnd, 0x0232 /* WM_EXITSIZEMOVE */);
+			resizing = false;
+			backend.configureFrameTiming(application.frameProfile, @:privateAccess application.__frameRate, application.frameOptions);
+
+			Assert.isTrue(closed, "no frame was drawn while the window was resized");
+			client.close();
+			server.close();
+			window.close();
+			async.done();
+		};
+
+		Timer.delay(wait, 1);
+	}
+
+	@:timeout(5000)
+	public function testASizeOnlyProposedWhileResizedIsNotLaidOut(async:Async):Void
+	{
+		// Only a window that can be resized has a sizing loop
+		var window = Application.current.createWindow({width: 64, height: 64, hidden: true, resizable: true, title: "WindowTest"});
+		if (window == null) { canCreateWindows(); async.done(); return; }
+
+		Timer.delay(function()
+		{
+			var reported = [];
+			window.onResize.add(function(width, height) reported.push(width + "x" + height));
+
+			// Windows proposes a size with WM_SIZING before the window has it, and may change it before it does
+			var hwnd = window.nativeHandle.window;
+			sendWindowMessage(hwnd, 0x0231 /* WM_ENTERSIZEMOVE */);
+			proposeWindowSize(hwnd, 300, 200);
+			sendWindowMessage(hwnd, 0x0232 /* WM_EXITSIZEMOVE */);
+
+			Assert.equals("", reported.join(","), "a size Windows only proposed was reported: " + reported.join(","));
+			async.done();
+		}, 1);
+	}
+
+	private static function sendWindowMessage(hwnd:haxe.Int64, message:Int):Void
+	{
+		untyped __cpp__("SendMessageW ((HWND)(intptr_t){0}, (UINT){1}, 0, 0)", hwnd, message);
+	}
+
+	private static function resizeWindow(hwnd:haxe.Int64, width:Int, height:Int):Void
+	{
+		// As Windows does at each step of a resize: the window takes the size, and is sent WM_SIZE
+		untyped __cpp__("SetWindowPos ((HWND)(intptr_t){0}, NULL, 0, 0, {1}, {2}, SWP_NOMOVE | SWP_NOZORDER | SWP_NOACTIVATE)", hwnd, width, height);
+	}
+
+	private static function proposeWindowSize(hwnd:haxe.Int64, width:Int, height:Int):Void
+	{
+		untyped __cpp__("{ RECT proposed; GetWindowRect ((HWND)(intptr_t){0}, &proposed); proposed.right = proposed.left + {1}; proposed.bottom = proposed.top + {2}; SendMessageW ((HWND)(intptr_t){0}, WM_SIZING, WMSZ_BOTTOMRIGHT, (LPARAM)&proposed); }", hwnd, width, height);
+	}
+	#end
 
 	private static function wheel(window:Window, x:Float, y:Float, preciseX:Float, preciseY:Float):Void
 	{

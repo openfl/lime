@@ -1,0 +1,1050 @@
+package utils;
+
+import haxe.crypto.Adler32;
+import haxe.crypto.Base64;
+import haxe.crypto.Crc32;
+import haxe.io.Bytes;
+import haxe.io.BytesInput;
+import haxe.zip.InflateImpl;
+import lime.utils.Bytes as LimeBytes;
+import lime.utils.CompressionAlgorithm;
+import utest.Assert;
+import utest.Test;
+
+/**
+	`lime.utils.Bytes.compress()` and `decompress()` against the formats they're named for: raw DEFLATE
+	(RFC 1951), ZLIB (RFC 1950), GZIP (RFC 1952) and LZMA in the LZMA SDK's .lzma layout (a properties byte,
+	a 4-byte dictionary size and an 8-byte uncompressed size that is all ones when unknown, then the data).
+	Streams from other tools were written by Python's zlib, gzip and lzma modules.
+**/
+class CompressionTest extends Test
+{
+	private static var ALGORITHMS = [DEFLATE, GZIP, LZMA, ZLIB];
+	private static inline var FOX = "The quick brown fox jumps over the lazy dog";
+
+	private static inline var ZLIB_EMPTY = "eJwDAAAAAAE=";
+	private static inline var ZLIB_ONE = "eJxLBAAAYgBi";
+	private static inline var ZLIB_FOX = "eJwLyUhVKCzNTM5WSCrKL89TSMuvUMgqzS0oVsgvSy1SKMlIVchJrKpUSMlPBwBb3A/a";
+	// zlib level 0: one stored block
+	private static inline var ZLIB_FOX_STORED = "eAEBKwDU/1RoZSBxdWljayBicm93biBmb3gganVtcHMgb3ZlciB0aGUgbGF6eSBkb2db3A/a";
+	private static inline var DEFLATE_EMPTY = "AwA=";
+	private static inline var DEFLATE_FOX = "C8lIVSgszUzOVkgqyi/PU0jLr1DIKs0tKFbIL0stUigBSuckVlUqpOSnAwA=";
+	private static inline var GZIP_EMPTY = "H4sIAAAAAAAC/wMAAAAAAAAAAAA=";
+	// FNAME "fox.txt"
+	private static inline var GZIP_FOX = "H4sICAAAAAAA/2ZveC50eHQAC8lIVSgszUzOVkgqyi/PU0jLr1DIKs0tKFbIL0stUigBSuckVlUqpOSnAwA5o09BKwAAAA==";
+	// FEXTRA, FNAME, FCOMMENT and FHCRC
+	private static inline var GZIP_FOX_ALL_FIELDS = "H4sIHgAAAAAA/wYAQVACAGhpZm94LnR4dABhIGNvbW1lbnQAQo4LyUhVKCzNTM5WSCrKL89TSMuvUMgqzS0oVsgvSy1SKAFK5yRWVSqk5KcDADmjT0ErAAAA";
+	// "The quick brown " and "fox jumps over the lazy dog" as two members
+	private static inline var GZIP_FOX_TWO_MEMBERS = "H4sIAAAAAAAA/wvJSFUoLM1MzlZIKsovz1MAAHwqG8gQAAAAH4sIAAAAAAAA/0vLr1DIKs0tKFbIL0stUijJSFXISayqVEjJTwcAla+dlRsAAAA=";
+	// .lzma with an unknown size, so ending with an end marker
+	private static inline var LZMA_EMPTY = "XQAAgAD//////////wCD//v//8AAAAA=";
+	private static inline var LZMA_FOX = "XQAAgAD//////////wAqGgiiAyVm8Ut4xaIF/y7m2dIgGq00+OId6EE2+twGabs85BA0Jwnrs2bsGhcv//zOkAA=";
+	// 2 MiB of zeros
+	private static inline var LZMA_ZEROS = "XQAAgAD//////////wAAb/3//6O3/0c+SBVyOWFRuJIo5qOGB/nu5B6C0y/FOjwBS7F+yYqKTS+jDdl/puOMIxFT4FkYxXWK4nf4tpR/DGrA3nRJZOLpXFOyBNj3RAyrXw1tRunlw3aIt5ZXrLZN4Wkdb/tLiBBsQsuIP1wAj9BOryYolHEfPY8k4XCepyNf7CjLhdGVmIp+KpHyJ3X3GcAGmE2Y/div1ZAPxCVT+PWRNjEFpbDub8FwTUcM0ZERqq1gHbrOsScYXFmG6WZSWL7pdqxZ5OVbBQj5x9qt/PtSK3TNHlsgQvndUz34KWQJO4DLKmzftTvwxL0uX6oPPktmQpATDv8Qk/hxeFn4C83/lShGD6n8fN77mjAuVsCPhfODgcBlxCVT+PWRNjEFpbDub8FwTUcM0ZERqq1gHbrOsScYXFmG6WZSWL7pdqxZ5OVbBQj5x9qt/PtSK3TNHlsgQvndUz34KWQJO4DLKmzftTvwxLxkDSXSWP//mggAAA==";
+
+	private static inline var ZEROS_LENGTH = 2 * 1024 * 1024;
+
+	public function new()
+	{
+		super();
+	}
+
+	// Round trips
+
+	public function testEmptyBytesRoundTrip():Void
+	{
+		assertRoundTrips(Bytes.alloc(0));
+	}
+
+	public function testOneByteRoundTrips():Void
+	{
+		assertRoundTrips(Bytes.ofString("a"));
+		var zero = Bytes.alloc(1);
+		zero.set(0, 0);
+		assertRoundTrips(zero);
+	}
+
+	public function testEveryByteValueRoundTrips():Void
+	{
+		assertRoundTrips(everyByte());
+	}
+
+	public function testDataThatReadsAsUTF8RoundTrips():Void
+	{
+		// UTF-8 text, and overlong forms of "A" and of U+0000 that a decoder could read as text and re-encode shorter
+		assertRoundTrips(Bytes.ofString("héllo €"));
+		assertRoundTrips(bytesOf([0xC1, 0x81]));
+		assertRoundTrips(bytesOf([0x41, 0xC0, 0x80, 0x41]));
+		assertRoundTrips(bytesOf([0xE0, 0x81, 0x81]));
+	}
+
+	public function testHighlyCompressibleDataRoundTripsSmaller():Void
+	{
+		var data = repeated("abc", 1024 * 1024);
+
+		for (algorithm in ALGORITHMS)
+		{
+			var compressed = compressQuietly(data, algorithm);
+			Assert.isTrue(compressed != null && compressed.length < data.length / 50,
+				algorithm + " compressed 1 MiB of \"abcabc...\" to " + (compressed == null ? "null" : compressed.length + " bytes"));
+		}
+
+		assertRoundTrips(data);
+	}
+
+	public function testRandomDataRoundTrips():Void
+	{
+		assertRoundTrips(random(65536, 1));
+	}
+
+	public function testLargeDataRoundTrips():Void
+	{
+		// Over a megabyte each of random bytes, zeros and text
+		var data = Bytes.alloc(3 * 1024 * 1024 + 7);
+		data.blit(0, random(1024 * 1024, 2), 0, 1024 * 1024);
+		data.fill(1024 * 1024, 1024 * 1024, 0);
+		data.blit(2 * 1024 * 1024, repeated(FOX, 1024 * 1024 + 7), 0, 1024 * 1024 + 7);
+
+		assertRoundTrips(data);
+	}
+
+	public function testCompressingLeavesItsInputUnchanged():Void
+	{
+		var data = random(4096, 3);
+		var copy = data.sub(0, data.length);
+
+		for (algorithm in ALGORITHMS)
+		{
+			var compressed = compressQuietly(data, algorithm);
+			Assert.equals(-1, firstDifference(copy, data), algorithm + " changed what it compressed");
+
+			if (compressed != null)
+			{
+				var compressedCopy = compressed.sub(0, compressed.length);
+				decompressQuietly(compressed, algorithm);
+				Assert.equals(-1, firstDifference(compressedCopy, compressed), algorithm + " changed what it decompressed");
+			}
+		}
+	}
+
+	public function testCompressedBytesCompareEqualToACopy():Void
+	{
+		// Bytes.compare() gives 0 when the bytes are identical, and getData() holds the bytes
+		var data = random(1000, 12);
+
+		for (algorithm in ALGORITHMS)
+		{
+			var compressed = compressQuietly(data, algorithm);
+			Assert.notNull(compressed, Std.string(algorithm));
+			if (compressed == null) continue;
+
+			var decompressed = decompressQuietly(compressed, algorithm);
+			var copy = compressed.sub(0, compressed.length);
+			Assert.equals(0, compressed.compare(copy), algorithm + ": compressed bytes compare " + compressed.compare(copy) + " to their copy");
+			var comparison = (decompressed == null ? -2 : data.compare(decompressed));
+			Assert.equals(0, comparison, algorithm + ": decompressed bytes compare " + comparison + " to the original");
+			var dataLength = Bytes.ofData(compressed.getData()).length;
+			Assert.equals(compressed.length, dataLength, algorithm + ": getData() holds " + dataLength + " bytes for a length of " + compressed.length);
+		}
+	}
+
+	// Framing
+
+	public function testZlibStreamsStartWithAValidHeader():Void
+	{
+		// CMF holds CM 8 (deflate) and CINFO 7 or less; FLG has no preset dictionary, and CMF * 256 + FLG is a multiple of 31 (RFC 1950 §2.2)
+		for (data in [Bytes.alloc(0), Bytes.ofString(FOX), random(70000, 4)])
+		{
+			var compressed = compressQuietly(data, ZLIB);
+			Assert.notNull(compressed);
+			if (compressed == null || compressed.length < 6) continue;
+
+			var cmf = compressed.get(0);
+			var flg = compressed.get(1);
+			Assert.equals(8, cmf & 0x0F, "CM");
+			Assert.isTrue(cmf >> 4 <= 7, "CINFO is " + (cmf >> 4));
+			Assert.equals(0, flg & 0x20, "FDICT");
+			Assert.equals(0, (cmf * 256 + flg) % 31, "FCHECK");
+		}
+	}
+
+	public function testZlibStreamsEndWithTheirAdler32():Void
+	{
+		// The last four bytes are the Adler-32 of the uncompressed data, most significant byte first (RFC 1950 §2.2)
+		for (data in [Bytes.alloc(0), Bytes.ofString("a"), Bytes.ofString(FOX), random(70000, 5)])
+		{
+			var compressed = compressQuietly(data, ZLIB);
+			Assert.notNull(compressed);
+			if (compressed == null || compressed.length < 6) continue;
+
+			Assert.equals(hex(Adler32.make(data)), hexBigEndian(compressed, compressed.length - 4), data.length + " bytes");
+		}
+	}
+
+	#if flash
+	@Ignored("haxe.zip.InflateImpl can't read these streams on Flash, though Lime's own inflate reads them back")
+	#end
+	public function testZlibStreamsInflateWithAnotherDecoder():Void
+	{
+		// Haxe's own inflater checks the header and the Adler-32 too
+		for (data in [Bytes.alloc(0), Bytes.ofString(FOX), random(70000, 6), repeated("abc", 100000)])
+		{
+			var compressed = compressQuietly(data, ZLIB);
+			Assert.notNull(compressed);
+			if (compressed == null) continue;
+
+			var input = new BytesInput(compressed);
+			var inflated = inflate(input, true);
+			Assert.notNull(inflated, data.length + " bytes did not inflate");
+			if (inflated == null) continue;
+			Assert.equals(0, data.compare(inflated), data.length + " bytes inflated to " + (inflated == null ? "nothing" : inflated.length + " bytes"));
+			Assert.equals(compressed.length, input.position, "the stream doesn't end where its trailer does");
+		}
+	}
+
+	#if flash
+	@Ignored("haxe.zip.InflateImpl can't read these streams on Flash, though Lime's own inflate reads them back")
+	#end
+	public function testRawDeflateHasNoHeaderOrTrailer():Void
+	{
+		// A raw deflate stream is just its blocks (RFC 1951), so it inflates without a zlib header and ends with its last block
+		for (data in [Bytes.alloc(0), Bytes.ofString(FOX), random(70000, 7), repeated("abc", 100000)])
+		{
+			var compressed = compressQuietly(data, DEFLATE);
+			Assert.notNull(compressed);
+			if (compressed == null) continue;
+
+			var input = new BytesInput(compressed);
+			var inflated = inflate(input, false);
+			Assert.notNull(inflated, data.length + " bytes did not inflate");
+			if (inflated == null) continue;
+			Assert.equals(0, data.compare(inflated), data.length + " bytes inflated to " + (inflated == null ? "nothing" : inflated.length + " bytes"));
+			Assert.equals(compressed.length, input.position, data.length + " bytes: " + (compressed.length - input.position) + " bytes follow the last block");
+		}
+	}
+
+	public function testGZipStreamsHaveTheirMagicHeader():Void
+	{
+		// ID1 0x1f, ID2 0x8b, CM 8, and FLG's reserved bits clear (RFC 1952 §2.3.1)
+		for (data in [Bytes.alloc(0), Bytes.ofString(FOX)])
+		{
+			var compressed = compressQuietly(data, GZIP);
+			Assert.notNull(compressed);
+			if (compressed == null || compressed.length < 18) continue;
+
+			Assert.equals("1F8B08", hex(compressed.get(0), 2) + hex(compressed.get(1), 2) + hex(compressed.get(2), 2));
+			Assert.equals(0, compressed.get(3) & 0xE0, "FLG's reserved bits");
+		}
+	}
+
+	public function testGZipStreamsEndWithTheirCRC32AndSize():Void
+	{
+		// The member ends with the CRC-32 and the size of the uncompressed data, least significant byte first (RFC 1952 §2.3.1)
+		for (data in [Bytes.alloc(0), Bytes.ofString("a"), Bytes.ofString(FOX), random(70000, 8)])
+		{
+			var compressed = compressQuietly(data, GZIP);
+			Assert.notNull(compressed);
+			if (compressed == null || compressed.length < 18) continue;
+
+			Assert.equals(hex(Crc32.make(data)), hexLittleEndian(compressed, compressed.length - 8), data.length + " bytes: CRC32");
+			Assert.equals(hex(data.length), hexLittleEndian(compressed, compressed.length - 4), data.length + " bytes: ISIZE");
+
+			// What lies between the header and the trailer is a raw deflate stream
+			var input = new BytesInput(compressed, gzipHeaderLength(compressed));
+			var inflated = inflate(input, false);
+			Assert.notNull(inflated, data.length + " bytes did not inflate");
+			if (inflated == null) continue;
+			Assert.equals(0, data.compare(inflated), data.length + " bytes: the deflate stream");
+			Assert.equals(compressed.length - 8, input.position, data.length + " bytes: the trailer doesn't follow the deflate stream");
+		}
+	}
+
+	public function testLZMAStreamsStartWithTheirProperties():Void
+	{
+		// The properties byte is (pb * 5 + lp) * 9 + lc, below 225, and the size is the data's or unknown
+		for (data in [Bytes.alloc(0), Bytes.ofString(FOX), random(70000, 9)])
+		{
+			var compressed = compressQuietly(data, LZMA);
+			Assert.notNull(compressed);
+			if (compressed == null || compressed.length < 13) continue;
+
+			Assert.isTrue(compressed.get(0) < 225, "the properties byte is " + compressed.get(0));
+			var size = hexLittleEndian(compressed, 9) + hexLittleEndian(compressed, 5);
+			Assert.isTrue(size == "FFFFFFFFFFFFFFFF" || size == "00000000" + hex(data.length), data.length + " bytes gave the size " + size);
+		}
+	}
+
+	// Streams written by other tools
+
+	public function testZlibStreamsFromOtherToolsDecompress():Void
+	{
+		assertDecompresses(Bytes.alloc(0), ZLIB_EMPTY, ZLIB, "empty");
+		assertDecompresses(Bytes.ofString("a"), ZLIB_ONE, ZLIB, "one byte");
+		assertDecompresses(Bytes.ofString(FOX), ZLIB_FOX, ZLIB, "the fox");
+		assertDecompresses(Bytes.ofString(FOX), ZLIB_FOX_STORED, ZLIB, "the fox, stored");
+	}
+
+	public function testRawDeflateStreamsFromOtherToolsDecompress():Void
+	{
+		assertDecompresses(Bytes.alloc(0), DEFLATE_EMPTY, DEFLATE, "empty");
+		assertDecompresses(Bytes.ofString(FOX), DEFLATE_FOX, DEFLATE, "the fox");
+	}
+
+	public function testGZipStreamsFromOtherToolsDecompress():Void
+	{
+		assertDecompresses(Bytes.alloc(0), GZIP_EMPTY, GZIP, "empty");
+		assertDecompresses(Bytes.ofString(FOX), GZIP_FOX, GZIP, "the fox");
+	}
+
+	public function testGZipOptionalHeaderFieldsAreSkipped():Void
+	{
+		// A decompressor must skip FEXTRA, FNAME, FCOMMENT and FHCRC when they're there (RFC 1952 §2.3.1.2)
+		assertDecompresses(Bytes.ofString(FOX), GZIP_FOX_ALL_FIELDS, GZIP);
+	}
+
+	public function testConcatenatedGZipMembersDecompressToTheirConcatenation():Void
+	{
+		// A gzip file is a series of members (RFC 1952 §2.2)
+		assertDecompresses(Bytes.ofString(FOX), GZIP_FOX_TWO_MEMBERS, GZIP);
+	}
+
+	public function testTheHaxeLZMADecoderReadsStreamsOfEitherSize():Void
+	{
+		// Flash reads the .lzma streams it can't itself with this, so it is checked on every target
+		var decode = lime._internal.format.LZMADecoder.decode;
+
+		Assert.equals(0, decode(Base64.decode(LZMA_EMPTY)).length, "empty, size unknown");
+		Assert.equals(FOX, decode(Base64.decode(LZMA_FOX)).toString(), "the fox, size unknown");
+
+		var zeros = decode(Base64.decode(LZMA_ZEROS));
+		Assert.notNull(zeros, "2 MiB of zeros");
+		if (zeros != null)
+		{
+			Assert.equals(ZEROS_LENGTH, zeros.length);
+			var expected = Bytes.alloc(ZEROS_LENGTH);
+			expected.fill(0, ZEROS_LENGTH, 0);
+			Assert.equals(0, expected.compare(zeros), "2 MiB of zeros");
+		}
+
+		// The fox with its size in the header: its end marker is still read
+		var sized = Base64.decode(LZMA_FOX);
+		sized.setInt32(5, FOX.length);
+		sized.setInt32(9, 0);
+		Assert.equals(FOX, decode(sized).toString(), "the fox, size given");
+
+		// A wrong size is not the stream's
+		sized.setInt32(5, FOX.length + 1);
+		Assert.isNull(decode(sized), "the fox, a size too large");
+		sized.setInt32(5, FOX.length - 1);
+		Assert.isNull(decode(sized), "the fox, a size too small");
+
+		var fox = Base64.decode(LZMA_FOX);
+		Assert.isNull(decode(fox.sub(0, 12)), "shorter than the header");
+		Assert.isNull(decode(fox.sub(0, fox.length - 6)), "truncated");
+		Assert.isNull(decode(Bytes.ofString(FOX + FOX)), "text");
+	}
+
+	public function testLZMAStreamsFromOtherToolsDecompress():Void
+	{
+		assertDecompresses(Bytes.alloc(0), LZMA_EMPTY, LZMA, "empty");
+		assertDecompresses(Bytes.ofString(FOX), LZMA_FOX, LZMA, "the fox");
+	}
+
+	public function testStreamsThatExpandPastAMegabyteDecompress():Void
+	{
+		var zeros = Bytes.alloc(ZEROS_LENGTH);
+		zeros.fill(0, zeros.length, 0);
+
+		// About 2 KB each, expanding a thousand times over
+		assertDecompresses(zeros, zeroRun("78daedc13101000000c2a0f54f6d0c1fa0", 2032, "be0601e00001"), ZLIB, "zlib");
+		assertDecompresses(zeros, zeroRun("edc13101000000c2a0f54f6d0c1fa0", 2032, "be06"), DEFLATE, "deflate");
+		assertDecompresses(zeros, zeroRun("1f8b08000000000002ffedc13101000000c2a0f54f6d0c1fa0", 2032, "be067e87898d00002000"), GZIP, "gzip");
+		assertDecompresses(zeros, Base64.decode(LZMA_ZEROS), LZMA, "lzma");
+	}
+
+	// Input that isn't a stream
+
+	public function testGarbageFailsToDecompress():Void
+	{
+		var garbage = random(1024, 10);
+		// Not a valid block type, a zlib header or a gzip header
+		garbage.set(0, 0xFF);
+
+		for (algorithm in ALGORITHMS)
+		{
+			assertFails(garbage, algorithm, algorithm + ": random bytes");
+			assertFails(Bytes.ofString(FOX), algorithm, algorithm + ": text");
+		}
+	}
+
+	public function testEmptyInputFailsToDecompress():Void
+	{
+		// Every format has at least a header or a final block, so no bytes at all is not a stream
+		for (algorithm in ALGORITHMS)
+		{
+			assertFails(Bytes.alloc(0), algorithm, Std.string(algorithm));
+		}
+	}
+
+	public function testTruncatedStreamsFailToDecompress():Void
+	{
+		var data = random(20000, 11);
+
+		for (algorithm in ALGORITHMS)
+		{
+			var compressed = compressQuietly(data, algorithm);
+			Assert.notNull(compressed, Std.string(algorithm));
+			if (compressed == null) continue;
+
+			for (length in [1, Std.int(compressed.length / 2), compressed.length - 9])
+			{
+				assertFails(compressed.sub(0, length), algorithm, algorithm + ": the first " + length + " of " + compressed.length + " bytes");
+			}
+		}
+	}
+
+	public function testStreamsMissingTheirTrailerFailToDecompress():Void
+	{
+		// Without the Adler-32 (RFC 1950) or the CRC-32 and size (RFC 1952), the data can't be checked
+		var zlib = Base64.decode(ZLIB_FOX);
+		assertFails(zlib.sub(0, zlib.length - 4), ZLIB, "zlib without its Adler-32");
+
+		var gzip = Base64.decode(GZIP_FOX);
+		assertFails(gzip.sub(0, gzip.length - 8), GZIP, "gzip without its CRC-32 and size");
+	}
+
+	public function testZlibStreamWithAWrongAdler32FailsToDecompress():Void
+	{
+		var zlib = Base64.decode(ZLIB_FOX);
+		zlib.set(zlib.length - 1, zlib.get(zlib.length - 1) ^ 0x01);
+
+		assertFails(zlib, ZLIB, "a wrong Adler-32");
+	}
+
+	public function testZlibStreamWithABadHeaderFailsToDecompress():Void
+	{
+		// FCHECK no longer makes the header a multiple of 31
+		var zlib = Base64.decode(ZLIB_FOX);
+		zlib.set(1, zlib.get(1) ^ 0x01);
+		assertFails(zlib, ZLIB, "FCHECK");
+
+		// CM 7 is reserved
+		zlib = Base64.decode(ZLIB_FOX);
+		zlib.set(0, 0x77);
+		zlib.set(1, 0x01 + (31 - (0x7701 % 31)) % 31);
+		assertFails(zlib, ZLIB, "CM");
+	}
+
+	public function testGZipStreamWithAWrongCRC32OrSizeFailsToDecompress():Void
+	{
+		var gzip = Base64.decode(GZIP_FOX);
+		gzip.set(gzip.length - 8, gzip.get(gzip.length - 8) ^ 0x01);
+		assertFails(gzip, GZIP, "CRC-32");
+
+		gzip = Base64.decode(GZIP_FOX);
+		gzip.set(gzip.length - 4, gzip.get(gzip.length - 4) ^ 0x01);
+		assertFails(gzip, GZIP, "ISIZE");
+	}
+
+	public function testGZipStreamWithoutItsMagicFailsToDecompress():Void
+	{
+		var gzip = Base64.decode(GZIP_FOX);
+		gzip.set(1, 0x8c);
+
+		assertFails(gzip, GZIP, "ID2 0x8c");
+	}
+
+	public function testLZMAStreamClaimingMoreThanItHoldsFailsToDecompress():Void
+	{
+		// The size field says how much the stream decodes to, so a stream that ends sooner is corrupt
+		var lzma = compressQuietly(Bytes.ofString(FOX), LZMA);
+		Assert.notNull(lzma);
+		if (lzma == null || lzma.length < 13) return;
+
+		lzma.set(5 + 2, lzma.get(5 + 2) + 1);
+		assertFails(lzma, LZMA, "a size 64 KiB larger than the data");
+	}
+
+	public function testStreamsDecompressOnlyAsTheirOwnFormat():Void
+	{
+		// A zlib stream is not a gzip stream, and neither is a raw deflate stream
+		assertFails(Base64.decode(ZLIB_FOX), GZIP, "zlib as gzip");
+		assertFails(Base64.decode(GZIP_FOX), ZLIB, "gzip as zlib");
+		assertFails(Base64.decode(DEFLATE_FOX), ZLIB, "deflate as zlib");
+		assertFails(Base64.decode(ZLIB_FOX), LZMA, "zlib as lzma");
+	}
+
+	// Compression levels (#1311): 0 to 9 as zlib's levels for DEFLATE, GZIP and ZLIB and as the LZMA SDK's
+	// presets for LZMA, -1 for each algorithm's default as before, and anything else clamped to 0 to 9
+
+	public function testEveryLevelRoundTrips():Void
+	{
+		for (data in [Bytes.alloc(0), Bytes.ofString(FOX), random(70000, 20), words(100000, 21)])
+		{
+			for (algorithm in ALGORITHMS)
+			{
+				for (level in -1...10)
+				{
+					var name = algorithm + " at level " + level + " of " + data.length + " bytes";
+					var compressed:Bytes = null;
+					var result:Bytes = null;
+
+					try
+					{
+						compressed = compressAt(data, algorithm, level);
+						if (compressed != null) result = decompress(compressed, algorithm);
+					}
+					catch (e:Dynamic)
+					{
+						Assert.fail(name + " threw " + e);
+						continue;
+					}
+
+					Assert.notNull(compressed, name + ": compressing gave null");
+					if (compressed == null) continue;
+					Assert.notNull(result, name + ": decompressing gave null");
+					if (result == null) continue;
+
+					Assert.equals(-1, firstDifference(data, result), name + ": decompressed to " + result.length + " bytes, which differ at byte " + firstDifference(data, result));
+				}
+			}
+		}
+	}
+
+	#if flash
+	@Ignored("haxe.zip.InflateImpl can't read these streams on Flash, though Lime's own inflate reads them back")
+	#end
+	public function testEveryLevelInflatesWithAnotherDecoder():Void
+	{
+		// Each level is still a valid stream for any inflater, not only for Lime's own
+		for (data in [Bytes.ofString(FOX), words(100000, 22)])
+		{
+			for (level in 0...10)
+			{
+				var zlib = compressAtQuietly(data, ZLIB, level);
+				var deflate = compressAtQuietly(data, DEFLATE, level);
+				Assert.notNull(zlib, "ZLIB at level " + level);
+				Assert.notNull(deflate, "DEFLATE at level " + level);
+
+				if (zlib != null)
+				{
+					var inflated = inflate(new BytesInput(zlib), true);
+					Assert.isTrue(inflated != null && data.compare(inflated) == 0, "ZLIB at level " + level + " of " + data.length + " bytes did not inflate to them");
+				}
+
+				if (deflate != null)
+				{
+					var inflated = inflate(new BytesInput(deflate), false);
+					Assert.isTrue(inflated != null && data.compare(inflated) == 0, "DEFLATE at level " + level + " of " + data.length + " bytes did not inflate to them");
+				}
+			}
+		}
+	}
+
+	#if flash
+	@Ignored("Flash has no compression level, so it ignores the level")
+	#end
+	public function testLevelMinusOneKeepsTheOutputOfBefore():Void
+	{
+		// Leaving the level out and giving -1 are the same: each algorithm's default, as it was before levels
+		for (data in [Bytes.alloc(0), Bytes.ofString(FOX), random(70000, 23), words(100000, 24)])
+		{
+			for (algorithm in ALGORITHMS)
+			{
+				var before = compressQuietly(data, algorithm);
+				var minusOne = compressAtQuietly(data, algorithm, -1);
+				Assert.isTrue(before != null && minusOne != null && before.compare(minusOne) == 0,
+					algorithm + " of " + data.length + " bytes at level -1: " + describeDifference(before, minusOne));
+			}
+		}
+	}
+
+	#if flash
+	@Ignored("Flash has no compression level, so it ignores the level")
+	#end
+	public function testLevelZeroStoresTheData():Void
+	{
+		// zlib's level 0 writes stored blocks, BTYPE 00 (RFC 1951 §3.2.3), so data that would compress
+		// well comes out no smaller
+		var data = repeated("abc", 100000);
+
+		for (algorithm in [DEFLATE, GZIP, ZLIB])
+		{
+			var stored = compressAtQuietly(data, algorithm, 0);
+			Assert.notNull(stored, algorithm + " at level 0");
+			if (stored == null) continue;
+
+			Assert.isTrue(stored.length >= data.length, algorithm + " at level 0 gave " + stored.length + " bytes for " + data.length + " that compress well");
+
+			var start = switch (algorithm)
+			{
+				case ZLIB: 2;
+				case GZIP: gzipHeaderLength(stored);
+				default: 0;
+			}
+
+			if (stored.length > start)
+			{
+				Assert.equals(0, (stored.get(start) >> 1) & 3, algorithm + " at level 0 starts with a block of BTYPE " + ((stored.get(start) >> 1) & 3) + ", not a stored block");
+			}
+		}
+
+		// Data that doesn't compress doesn't get smaller at level 0 either, LZMA's preset 0 included
+		var noise = random(65536, 25);
+
+		for (algorithm in ALGORITHMS)
+		{
+			var stored = compressAtQuietly(noise, algorithm, 0);
+			Assert.notNull(stored, algorithm + " at level 0 of random bytes");
+			if (stored == null) continue;
+
+			Assert.isTrue(stored.length >= noise.length, algorithm + " at level 0 gave " + stored.length + " bytes for " + noise.length + " random bytes");
+		}
+	}
+
+	#if flash
+	@Ignored("Flash has no compression level, so it ignores the level")
+	#end
+	public function testHigherLevelsCompressTextNoLess():Void
+	{
+		// On data that compresses, level 9 is no larger than level 1, which is smaller than level 0's
+		// stored blocks. LZMA's presets trade speed for size without promising it, so they aren't compared.
+		var data = words(200000, 26);
+
+		for (algorithm in [DEFLATE, GZIP, ZLIB])
+		{
+			var stored = compressAtQuietly(data, algorithm, 0);
+			var fast = compressAtQuietly(data, algorithm, 1);
+			var best = compressAtQuietly(data, algorithm, 9);
+			Assert.isTrue(stored != null && fast != null && best != null, algorithm + " at level 0, 1 or 9 gave nothing");
+			if (stored == null || fast == null || best == null) continue;
+
+			Assert.isTrue(best.length <= fast.length, algorithm + ": level 9 gave " + best.length + " bytes and level 1 " + fast.length);
+			Assert.isTrue(fast.length < stored.length, algorithm + ": level 1 gave " + fast.length + " bytes and level 0 " + stored.length);
+		}
+	}
+
+	#if flash
+	@Ignored("Flash has no compression level, so it ignores the level")
+	#end
+	public function testLevelMinusOneIsTheDefaultOfBefore():Void
+	{
+		// The zlib formats were compressed at zlib's best natively, and at pako's default, 6, on HTML5
+		var data = words(20000, 32);
+		var level = #if (js && html5) 6 #else 9 #end;
+
+		for (algorithm in [DEFLATE, GZIP, ZLIB])
+		{
+			var minusOne = compressAtQuietly(data, algorithm, -1);
+			var leveled = compressAtQuietly(data, algorithm, level);
+			Assert.isTrue(minusOne != null && leveled != null && minusOne.compare(leveled) == 0,
+				algorithm + " at level -1 is not level " + level + ": " + describeDifference(leveled, minusOne));
+		}
+	}
+
+	#if flash
+	@Ignored("Flash has no compression level, so it ignores the level")
+	#end
+	public function testZlibHeaderSaysHowHardItCompressed():Void
+	{
+		// FLG's FLEVEL is 0 for the fastest algorithm and 3 for maximum compression (RFC 1950 §2.2)
+		var data = words(20000, 27);
+
+		var fastest = compressAtQuietly(data, ZLIB, 1);
+		Assert.notNull(fastest, "level 1");
+		if (fastest != null) Assert.equals(0, fastest.get(1) >> 6, "FLEVEL at level 1");
+
+		var best = compressAtQuietly(data, ZLIB, 9);
+		Assert.notNull(best, "level 9");
+		if (best != null) Assert.equals(3, best.get(1) >> 6, "FLEVEL at level 9");
+	}
+
+	#if flash
+	@Ignored("Flash has no compression level, so it ignores the level")
+	#end
+	public function testGZipHeaderSaysHowHardItCompressed():Void
+	{
+		// XFL is 2 for maximum compression and 4 for the fastest algorithm (RFC 1952 §2.3.1)
+		var data = words(20000, 28);
+
+		var fastest = compressAtQuietly(data, GZIP, 1);
+		Assert.notNull(fastest, "level 1");
+		if (fastest != null) Assert.equals(4, fastest.get(8), "XFL at level 1");
+
+		var best = compressAtQuietly(data, GZIP, 9);
+		Assert.notNull(best, "level 9");
+		if (best != null) Assert.equals(2, best.get(8), "XFL at level 9");
+	}
+
+	#if flash
+	@Ignored("Flash has no compression level, so it ignores the level")
+	#end
+	public function testLZMAPresetsReachTheEncoder():Void
+	{
+		// Preset 0 is a fast mode and preset 9 a thorough one, so they don't write the same stream
+		var data = words(100000, 29);
+		var fastest = compressAtQuietly(data, LZMA, 0);
+		var best = compressAtQuietly(data, LZMA, 9);
+
+		Assert.isTrue(fastest != null && best != null, "LZMA at preset 0 or 9 gave nothing");
+		if (fastest == null || best == null) return;
+
+		Assert.isFalse(fastest.compare(best) == 0, "LZMA wrote the same " + best.length + " bytes at presets 0 and 9");
+	}
+
+	public function testLevelsOutsideTheRangeAreClamped():Void
+	{
+		var data = words(20000, 30);
+
+		for (algorithm in ALGORITHMS)
+		{
+			var lowest = compressAtQuietly(data, algorithm, 0);
+			var highest = compressAtQuietly(data, algorithm, 9);
+
+			for (level in [10, 11, 100, 0x7FFFFFFF])
+			{
+				var clamped = compressAtQuietly(data, algorithm, level);
+				Assert.isTrue(highest != null && clamped != null && highest.compare(clamped) == 0,
+					algorithm + " at level " + level + " is not level 9: " + describeDifference(highest, clamped));
+			}
+
+			for (level in [-2, -10, -100, 0x80000000])
+			{
+				var clamped = compressAtQuietly(data, algorithm, level);
+				Assert.isTrue(lowest != null && clamped != null && lowest.compare(clamped) == 0,
+					algorithm + " at level " + level + " is not level 0: " + describeDifference(lowest, clamped));
+			}
+		}
+	}
+
+	#if flash
+	public function testFlashIgnoresTheLevel():Void
+	{
+		var data = words(20000, 31);
+
+		for (algorithm in ALGORITHMS)
+		{
+			var before = compressQuietly(data, algorithm);
+
+			for (level in [-1, 0, 1, 9])
+			{
+				var leveled = compressAtQuietly(data, algorithm, level);
+				Assert.isTrue(before != null && leveled != null && before.compare(leveled) == 0,
+					algorithm + " at level " + level + ": " + describeDifference(before, leveled));
+			}
+		}
+	}
+	#end
+
+	// Helpers
+
+	private static function compress(data:Bytes, algorithm:CompressionAlgorithm):Bytes
+	{
+		return (data : LimeBytes).compress(algorithm);
+	}
+
+	private static function decompress(data:Bytes, algorithm:CompressionAlgorithm):Bytes
+	{
+		return (data : LimeBytes).decompress(algorithm);
+	}
+
+	private static function compressAt(data:Bytes, algorithm:CompressionAlgorithm, level:Int):Bytes
+	{
+		return (data : LimeBytes).compress(algorithm, level);
+	}
+
+	private static function compressAtQuietly(data:Bytes, algorithm:CompressionAlgorithm, level:Int):Bytes
+	{
+		try
+		{
+			return compressAt(data, algorithm, level);
+		}
+		catch (e:Dynamic)
+		{
+			return null;
+		}
+	}
+
+	/** How two streams that should be the same differ, for a message **/
+	private static function describeDifference(expected:Bytes, actual:Bytes):String
+	{
+		if (expected == null) return "the stream to compare with is null";
+		if (actual == null) return "compressing gave null";
+		if (expected.compare(actual) == 0) return "the same";
+		return expected.length + " and " + actual.length + " bytes, which differ from byte " + firstDifference(expected, actual);
+	}
+
+	private static function compressQuietly(data:Bytes, algorithm:CompressionAlgorithm):Bytes
+	{
+		try
+		{
+			return compress(data, algorithm);
+		}
+		catch (e:Dynamic)
+		{
+			return null;
+		}
+	}
+
+	private static function decompressQuietly(data:Bytes, algorithm:CompressionAlgorithm):Bytes
+	{
+		try
+		{
+			return decompress(data, algorithm);
+		}
+		catch (e:Dynamic)
+		{
+			return null;
+		}
+	}
+
+	private static function assertFails(data:Bytes, algorithm:CompressionAlgorithm, name:String, ?pos:haxe.PosInfos):Void
+	{
+		var result = unexpectedResult(data, algorithm);
+		Assert.isNull(result, name + ": " + result, pos);
+	}
+
+	/** What decompressing gave when it should have failed, or null when it failed cleanly (null or an exception) **/
+	private static function unexpectedResult(data:Bytes, algorithm:CompressionAlgorithm):String
+	{
+		try
+		{
+			var result = decompress(data, algorithm);
+			return (result == null ? null : "decompressed to " + result.length + " bytes");
+		}
+		catch (e:Dynamic)
+		{
+			return null;
+		}
+	}
+
+	private static function assertRoundTrips(data:Bytes, ?pos:haxe.PosInfos):Void
+	{
+		for (algorithm in ALGORITHMS)
+		{
+			var name = algorithm + " of " + data.length + " bytes";
+			var compressed:Bytes = null;
+			var result:Bytes = null;
+
+			try
+			{
+				compressed = compress(data, algorithm);
+				if (compressed != null) result = decompress(compressed, algorithm);
+			}
+			catch (e:Dynamic)
+			{
+				Assert.fail(name + " threw " + e, pos);
+				continue;
+			}
+
+			Assert.notNull(compressed, name + ": compressing gave null", pos);
+			Assert.notNull(result, name + ": decompressing gave null", pos);
+			if (result == null) continue;
+
+			Assert.equals(data.length, result.length, name + ": decompressed to " + result.length + " bytes", pos);
+			var difference = firstDifference(data, result);
+			Assert.equals(-1, difference, name + ": byte " + difference + " differs", pos);
+		}
+	}
+
+	private static function assertDecompresses(expected:Bytes, stream:Dynamic, algorithm:CompressionAlgorithm, name:String = "", ?pos:haxe.PosInfos):Void
+	{
+		var bytes:Bytes = (Std.isOfType(stream, String) ? Base64.decode(stream) : stream);
+		name = algorithm + (name == "" ? "" : " (" + name + ")");
+		var result:Bytes = null;
+
+		try
+		{
+			result = decompress(bytes, algorithm);
+		}
+		catch (e:Dynamic)
+		{
+			Assert.fail(name + " threw " + e, pos);
+			return;
+		}
+
+		Assert.notNull(result, name + ": decompressing gave null", pos);
+		if (result == null) return;
+
+		Assert.equals(expected.length, result.length, name + ": decompressed to " + result.length + " bytes, not " + expected.length, pos);
+		var difference = firstDifference(expected, result);
+		Assert.equals(-1, difference, name + ": byte " + difference + " differs", pos);
+	}
+
+	/** Inflates with Haxe's own decoder, as a zlib stream when `zlibHeader`, or null if it can't **/
+	private static function inflate(input:BytesInput, zlibHeader:Bool):Bytes
+	{
+		try
+		{
+			var inflater = new InflateImpl(input, zlibHeader, zlibHeader);
+			var out = new haxe.io.BytesBuffer();
+			// Read in parts of 16 KB: InflateImpl copies up to a whole read of a stored block into its
+			// 64 KB window at once, and throws OutsideBounds when that is more than the 32 KB it slides
+			// by, as with zlib's level 0 blocks of 65535 bytes
+			var buffer = Bytes.alloc(16384);
+
+			while (true)
+			{
+				var length = inflater.readBytes(buffer, 0, buffer.length);
+				out.addBytes(buffer, 0, length);
+				if (length < buffer.length) break;
+			}
+
+			return out.getBytes();
+		}
+		catch (e:Dynamic)
+		{
+			return null;
+		}
+	}
+
+	/** The length of a gzip member's header, with its optional fields (RFC 1952 §2.3) **/
+	private static function gzipHeaderLength(bytes:Bytes):Int
+	{
+		var flags = bytes.get(3);
+		var position = 10;
+
+		if (flags & 0x04 != 0) position += 2 + bytes.getUInt16(position);
+		if (flags & 0x08 != 0)
+		{
+			while (bytes.get(position) != 0)
+				position++;
+			position++;
+		}
+		if (flags & 0x10 != 0)
+		{
+			while (bytes.get(position) != 0)
+				position++;
+			position++;
+		}
+		if (flags & 0x02 != 0) position += 2;
+
+		return position;
+	}
+
+	private static function firstDifference(expected:Bytes, actual:Bytes):Int
+	{
+		for (i in 0...Std.int(Math.min(expected.length, actual.length)))
+		{
+			if (expected.get(i) != actual.get(i)) return i;
+		}
+
+		return (expected.length == actual.length ? -1 : Std.int(Math.min(expected.length, actual.length)));
+	}
+
+	private static function hex(value:Int, digits:Int = 8):String
+	{
+		return StringTools.hex(value, digits);
+	}
+
+	private static function hexBigEndian(bytes:Bytes, position:Int):String
+	{
+		return [for (i in 0...4) hex(bytes.get(position + i), 2)].join("");
+	}
+
+	private static function hexLittleEndian(bytes:Bytes, position:Int):String
+	{
+		return [for (i in 0...4) hex(bytes.get(position + 3 - i), 2)].join("");
+	}
+
+	private static function everyByte():Bytes
+	{
+		var bytes = Bytes.alloc(512);
+		for (i in 0...bytes.length)
+		{
+			bytes.set(i, i & 0xFF);
+		}
+		return bytes;
+	}
+
+	private static function bytesOf(values:Array<Int>):Bytes
+	{
+		var bytes = Bytes.alloc(values.length);
+		for (i in 0...values.length)
+		{
+			bytes.set(i, values[i]);
+		}
+		return bytes;
+	}
+
+	private static function repeated(text:String, length:Int):Bytes
+	{
+		var bytes = Bytes.alloc(length);
+		for (i in 0...length)
+		{
+			bytes.set(i, text.charCodeAt(i % text.length));
+		}
+		return bytes;
+	}
+
+	/**
+		Words in an order from the xorshift generator, separated by spaces: text that compresses well,
+		but not so simply that how hard a compressor looks for matches makes no difference
+	**/
+	private static function words(length:Int, seed:Int):Bytes
+	{
+		var list = [
+			"the", "quick", "brown", "fox", "jumps", "over", "lazy", "dog", "and", "of", "to", "in", "is", "that", "it", "was", "for", "on",
+			"are", "with", "as", "they", "be", "at", "one", "have", "this", "from", "or", "had", "by", "word", "but", "what", "some", "we",
+			"can", "out", "other", "were", "all", "there", "when", "up", "use", "your", "how", "said", "each", "which", "do", "their",
+			"time", "if", "will", "way", "about", "many", "then", "them", "write", "would", "like", "so", "these", "long", "make", "thing",
+			"see", "two", "has", "look", "more", "day", "could", "go", "come", "did", "number", "sound", "no", "most", "people", "water"
+		];
+		var bytes = Bytes.alloc(length);
+		var state = 0x2545F491 ^ (seed << 8);
+		var position = 0;
+
+		while (position < length)
+		{
+			state ^= state << 13;
+			state ^= state >>> 17;
+			state ^= state << 5;
+
+			var word = list[(state >>> 8) % list.length] + " ";
+			for (i in 0...word.length)
+			{
+				if (position == length) break;
+				bytes.set(position++, word.charCodeAt(i));
+			}
+		}
+
+		return bytes;
+	}
+
+	/** Bytes from a 32-bit xorshift generator, the same for each seed on every target **/
+	private static function random(length:Int, seed:Int):Bytes
+	{
+		var bytes = Bytes.alloc(length);
+		var state = 0x2545F491 ^ (seed << 8);
+
+		for (i in 0...length)
+		{
+			state ^= state << 13;
+			state ^= state >>> 17;
+			state ^= state << 5;
+			bytes.set(i, (state >>> 24) & 0xFF);
+		}
+
+		return bytes;
+	}
+
+	/** A stream of `prefix`, `count` zero bytes, then `suffix`, as hex **/
+	private static function zeroRun(prefix:String, count:Int, suffix:String):Bytes
+	{
+		var bytes = Bytes.alloc(Std.int(prefix.length / 2) + count + Std.int(suffix.length / 2));
+		bytes.fill(0, bytes.length, 0);
+
+		for (i in 0...Std.int(prefix.length / 2))
+		{
+			bytes.set(i, Std.parseInt("0x" + prefix.substr(i * 2, 2)));
+		}
+
+		var start = bytes.length - Std.int(suffix.length / 2);
+		for (i in 0...Std.int(suffix.length / 2))
+		{
+			bytes.set(start + i, Std.parseInt("0x" + suffix.substr(i * 2, 2)));
+		}
+
+		return bytes;
+	}
+}

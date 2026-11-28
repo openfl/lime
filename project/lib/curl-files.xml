@@ -25,7 +25,7 @@
 		<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/custom/curl/lib/" />
 		<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/curl/include/" />
 		<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/curl/lib/" />
-		<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/zlib/" />
+		<compilerflag value="-I${NATIVE_TOOLKIT_PATH}/custom/zlib-ng/" />
 
 		<include name="${this_dir}/mbedtls-flags.xml" if="NATIVE_TOOLKIT_HAVE_MBEDTLS" />
 

@@ -1,7 +1,6 @@
 extern "C" {
 
 	#include <png.h>
-	#include <pngstruct.h>
 	#define PNG_SIG_SIZE 8
 
 }
@@ -43,7 +42,7 @@ namespace lime {
 
 	static void user_error_fn (png_structp png_ptr, png_const_charp error_msg) {
 
-		longjmp (png_ptr->jmp_buf_local, 1);
+		png_longjmp (png_ptr, 1);
 
 	}
 
@@ -79,7 +78,8 @@ namespace lime {
 		int bit_depth, color_type, interlace_type;
 
 		FILE_HANDLE* file = NULL;
-		Bytes* data = NULL;
+		// Set after setjmp, and read on the path libpng jumps back to, so volatile
+		Bytes* volatile data = NULL;
 		ReadBuffer buffer (NULL, 0);
 
 		if (resource->path) {
@@ -121,11 +121,27 @@ namespace lime {
 
 		}
 
+		if (!file) {
+
+			// A copy of the encoded bytes, so that nothing below reads Haxe memory
+			data = new Bytes ();
+			data->Resize (resource->data->length);
+			memcpy (data->b, resource->data->b, resource->data->length);
+
+		}
+
+		// libpng only reads the encoded bytes and writes the image's own buffer,
+		// so the collector needn't wait for this thread: a decode on a worker
+		// thread otherwise holds up every collection until it finishes
+		System::GCEnterBlocking ();
+
 		// sets the point which libpng will jump back to in the case of an error
 		if (setjmp (png_jmpbuf (png_ptr))) {
 
+			System::GCExitBlocking ();
 			png_destroy_read_struct (&png_ptr, &info_ptr, (png_infopp)NULL);
 			if (file) lime::fclose (file);
+			if (data) delete data;
 			return false;
 
 		}
@@ -148,13 +164,16 @@ namespace lime {
 
 		} else {
 
-			buffer = ReadBuffer (resource->data->b, resource->data->length);
+			buffer = ReadBuffer (data->b, data->length);
 			png_set_read_fn (png_ptr, &buffer, user_read_data_fn);
 
 		}
 
 		png_read_info (png_ptr, info_ptr);
 		png_get_IHDR (png_ptr, info_ptr, &width, &height, &bit_depth, &color_type, &interlace_type, NULL, NULL);
+
+		// Only the colour types with alpha, or any with a tRNS chunk, can be transparent
+		imageBuffer->transparent = (color_type & PNG_COLOR_MASK_ALPHA) != 0 || png_get_valid (png_ptr, info_ptr, PNG_INFO_tRNS) != 0;
 
 		if (decodeData) {
 
@@ -211,6 +230,8 @@ namespace lime {
 		if (file) lime::fclose (file);
 		if (data) delete data;
 
+		System::GCExitBlocking ();
+
 		return true;
 
 	}
@@ -236,8 +257,14 @@ namespace lime {
 
 		}
 
+		// Until png_write_end, libpng only reads the image's pixels and writes
+		// its own memory, so the collector needn't wait for this thread: an
+		// encode on a worker thread otherwise holds up every collection
+		System::GCEnterBlocking ();
+
 		if (setjmp (png_jmpbuf (png_ptr))) {
 
+			System::GCExitBlocking ();
 			png_destroy_write_struct (&png_ptr, &info_ptr);
 			return false;
 
@@ -295,6 +322,8 @@ namespace lime {
 		}
 
 		png_write_end (png_ptr, NULL);
+
+		System::GCExitBlocking ();
 
 		int size = out_buffer.size ();
 

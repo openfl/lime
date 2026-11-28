@@ -235,7 +235,20 @@ WQOQHOTFl2Yzx98B2h8ihoFcqdotqxGujzuyHLYU7BHEvpV/FTYy7Fbw
 
 		if (result.code == COULDNT_RESOLVE_HOST || result.code == COULDNT_CONNECT || result.code == OPERATION_TIMEDOUT)
 		{
-			Assert.warn("No network to check the system's certificates with: " + CURL.strerror(result.code));
+			// utest would take an Assert.warn as a failure, and a runner without a network is not
+			// a failure of Lime, so this is printed, as Undisturbed does
+			var message = "No network to check the system's certificates with: " + CURL.strerror(result.code);
+
+			if (Sys.getEnv("GITHUB_ACTIONS") == "true")
+			{
+				Sys.println("::warning title=Certificates not checked::" + message);
+			}
+			else
+			{
+				Sys.println("WARNING: Certificates not checked: " + message);
+			}
+
+			Assert.pass();
 			return;
 		}
 

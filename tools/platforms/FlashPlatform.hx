@@ -8,6 +8,7 @@ import hxp.Path;
 import hxp.System;
 import lime.tools.AssetHelper;
 import lime.tools.AssetType;
+import lime.tools.CommandHelper;
 import lime.tools.DeploymentHelper;
 import lime.tools.HXProject;
 import lime.tools.ProjectHelper;
@@ -89,7 +90,8 @@ class FlashPlatform extends PlatformTarget
 
 		for (i in 1...project.windows.length)
 		{
-			defaults.windows.push(defaults.window);
+			// A copy each, as merge() copies each project window into its own default
+			defaults.windows.push(hxp.ObjectTools.copyFields(defaults.window, {}));
 		}
 
 		defaults.merge(project);
@@ -201,7 +203,7 @@ class FlashPlatform extends PlatformTarget
 
 		if (project.app.url != null && project.app.url != "")
 		{
-			System.openURL(project.app.url);
+			CommandHelper.openURL(project.app.url);
 		}
 		else
 		{

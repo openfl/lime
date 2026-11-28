@@ -101,14 +101,22 @@ namespace lime {
 		static void my_skip_input_data (j_decompress_ptr cinfo, long num_bytes) {
 
 			MySrcManager *man = (MySrcManager *)cinfo->src;
-			man->pub.next_input_byte += num_bytes;
-			man->pub.bytes_in_buffer -= num_bytes;
 
-			// was < 0 and was always false PJK 16JUN12
-			if (man->pub.bytes_in_buffer == 0) {
+			if (num_bytes <= 0) return;
 
+			// A marker may claim more than is left, in a truncated or damaged
+			// file. The whole file is one buffer, so a skip to or past its end
+			// leaves only the end of image marker, as libjpeg's memory source does.
+			if ((size_t)num_bytes >= man->pub.bytes_in_buffer) {
+
+				man->mUsed = true;
 				man->pub.next_input_byte = man->mEOI;
 				man->pub.bytes_in_buffer = 2;
+
+			} else {
+
+				man->pub.next_input_byte += num_bytes;
+				man->pub.bytes_in_buffer -= num_bytes;
 
 			}
 
@@ -201,8 +209,9 @@ namespace lime {
 		jpegError.base.output_message = OnOutput;
 
 		FILE_HANDLE *file = NULL;
-		Bytes *data = NULL;
-		MySrcManager *manager = NULL;
+		// Set after setjmp, and read on the path libjpeg jumps back to, so volatile
+		Bytes* volatile data = NULL;
+		MySrcManager* volatile manager = NULL;
 
 		if (resource->path) {
 
@@ -214,9 +223,23 @@ namespace lime {
 
 			}
 
+		} else {
+
+			// A copy of the encoded bytes, so that nothing below reads Haxe memory
+			data = new Bytes ();
+			data->Resize (resource->data->length);
+			memcpy (data->b, resource->data->b, resource->data->length);
+
 		}
 
+		// libjpeg only reads the encoded bytes and writes the image's own buffer,
+		// so the collector needn't wait for this thread: a decode on a worker
+		// thread otherwise holds up every collection until it finishes
+		System::GCEnterBlocking ();
+
 		if (setjmp (jpegError.on_error)) {
+
+			System::GCExitBlocking ();
 
 			if (file) {
 
@@ -261,7 +284,7 @@ namespace lime {
 
 		} else {
 
-			manager = new MySrcManager (resource->data->b, resource->data->length);
+			manager = new MySrcManager (data->b, data->length);
 			cinfo.src = &manager->pub;
 
 		}
@@ -283,7 +306,9 @@ namespace lime {
 				case JCS_YCbCr:
 				default:
 
-					cinfo.out_color_space = JCS_RGB;
+					// libjpeg-turbo writes the image's 32-bit rows itself, with
+					// alpha at 0xFF
+					cinfo.out_color_space = JCS_EXT_RGBA;
 					break;
 
 				// case JCS_BG_RGB:
@@ -299,10 +324,14 @@ namespace lime {
 				int components = cinfo.output_components;
 				imageBuffer->Resize (cinfo.output_width, cinfo.output_height, 32);
 
+				// JPEG has no alpha
+				imageBuffer->transparent = false;
+
 				unsigned char *bytes = imageBuffer->data->buffer->b;
-				unsigned char *scanline = new unsigned char [imageBuffer->width * components];
 
 				if (cinfo.out_color_space == JCS_CMYK) {
+
+					unsigned char *scanline = new unsigned char [imageBuffer->width * components];
 
 					bool invert = false;
 					jpeg_saved_marker_ptr marker;
@@ -356,30 +385,20 @@ namespace lime {
 
 					}
 
+					delete[] scanline;
+
 				} else {
+
+					int stride = imageBuffer->Stride ();
 
 					while (cinfo.output_scanline < cinfo.output_height) {
 
-						jpeg_read_scanlines (&cinfo, &scanline, 1);
-
-						// convert 24-bit scanline to 32-bit
-						const unsigned char *line = scanline;
-						const unsigned char *const end = line + imageBuffer->width * components;
-
-						while (line < end) {
-
-							*bytes++ = *line++;
-							*bytes++ = *line++;
-							*bytes++ = *line++;
-							*bytes++ = 0xFF;
-
-						}
+						JSAMPROW row = bytes + cinfo.output_scanline * stride;
+						jpeg_read_scanlines (&cinfo, &row, 1);
 
 					}
 
 				}
-
-				delete[] scanline;
 
 				jpeg_finish_decompress (&cinfo);
 
@@ -413,6 +432,9 @@ namespace lime {
 		}
 
 		jpeg_destroy_decompress (&cinfo);
+
+		System::GCExitBlocking ();
+
 		return decoded;
 
 	}
@@ -435,8 +457,13 @@ namespace lime {
 
 		jpeg_create_compress (&cinfo);
 
+		// Until jpeg_finish_compress, libjpeg only reads the image's pixels and
+		// writes its own memory, so the collector needn't wait for this thread
+		System::GCEnterBlocking ();
+
 		if (setjmp (jpegError.on_error)) {
 
+			System::GCExitBlocking ();
 			jpeg_destroy_compress (&cinfo);
 			return false;
 
@@ -477,6 +504,8 @@ namespace lime {
 		}
 
 		jpeg_finish_compress (&cinfo);
+
+		System::GCExitBlocking ();
 
 		int size = dest.mOutput.size ();
 

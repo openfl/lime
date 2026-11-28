@@ -33,7 +33,13 @@ class HTML5Application
 	private var currentUpdate:Float;
 	private var deltaTime:Float;
 	private var framePeriod:Float;
+
+	// How early a frame may run, so animation frames at the rate asked for are never skipped
+	private static inline var FRAME_SLACK:Float = 2;
 	private var gameDeviceCache = new Map<Int, GameDeviceData>();
+	// Where the browser says when a pad connects, pads are read only while one is connected
+	private var gamepadEvents:Bool;
+	private var gamepadsConnected:Int = 0;
 	private var hidden:Bool;
 	private var lastUpdate:Float;
 	private var nextUpdate:Float;
@@ -308,7 +314,8 @@ class HTML5Application
 
 	public function configureFrameTiming(profile:FrameProfile, frameRate:Float, options:FrameOptions):Void
 	{
-		if (frameRate == 0 || frameRate >= 60)
+		// 0 runs a frame on every animation frame; any other rate is a cap, 60 and above too
+		if (frameRate == 0)
 		{
 			framePeriod = -1;
 		}
@@ -331,6 +338,24 @@ class HTML5Application
 		Browser.window.addEventListener("resize", handleWindowEvent, false);
 		Browser.window.addEventListener("beforeunload", handleWindowEvent, false);
 		Browser.document.addEventListener("visibilitychange", handleWindowEvent, false);
+
+		gamepadEvents = untyped #if haxe4 js.Syntax.code #else __js__ #end ("'ongamepadconnected' in window");
+
+		if (gamepadEvents)
+		{
+			Browser.window.addEventListener("gamepadconnected", handleGamepadEvent, false);
+			Browser.window.addEventListener("gamepaddisconnected", handleGamepadEvent, false);
+
+			// A pad the page saw before these listeners has no event to come
+			var devices = Joystick.__getDeviceData();
+			if (devices != null)
+			{
+				for (i in 0...devices.length)
+				{
+					if (devices[i] != null && devices[i].connected) gamepadsConnected++;
+				}
+			}
+		}
 
 		if (Reflect.hasField(Browser.window, "Accelerometer"))
 		{
@@ -425,20 +450,27 @@ class HTML5Application
 		return UNKNOWN;
 	}
 
-	private function handleApplicationEvent(?__):Void
+	private function handleApplicationEvent(?timestamp:Float):Void
 	{
 		// TODO: Support independent window frame rates
 
 		for (window in parent.__windows)
 		{
-			window.__backend.updateSize();
+			window.__backend.updateSizeForFrame();
 		}
 
-		updateGameDevices();
+		// navigator.getGamepads() makes a new snapshot each time, so it isn't called while no pad is
+		// connected, as browsers expose a pad only once it is used on the page and say so
+		if (!gamepadEvents || gamepadsConnected > 0)
+		{
+			updateGameDevices();
+		}
 
-		currentUpdate = Browser.window.performance.now();
+		// The time requestAnimationFrame gives is when the browser's frame began, which comes at
+		// even intervals where performance.now() in the callback doesn't
+		currentUpdate = (timestamp != null && timestamp > 0) ? timestamp : Browser.window.performance.now();
 
-		if (currentUpdate >= nextUpdate)
+		if (framePeriod < 0 || currentUpdate >= nextUpdate - FRAME_SLACK)
 		{
 			#if stats
 			stats.begin();
@@ -462,7 +494,11 @@ class HTML5Application
 			}
 			else
 			{
-				nextUpdate = currentUpdate - (currentUpdate % framePeriod) + framePeriod;
+				// From when this frame was due, so frames that come late keep the rate, or from when
+				// it came if that was earlier, so a display a little faster than the rate never
+				// builds up enough to skip one. A frame more than a period late starts afresh.
+				nextUpdate = Math.min(currentUpdate, nextUpdate) + framePeriod;
+				if (nextUpdate < currentUpdate) nextUpdate = currentUpdate + framePeriod;
 			}
 
 			lastUpdate = currentUpdate;
@@ -593,6 +629,30 @@ class HTML5Application
 
 					// 	}
 			}
+		}
+	}
+
+	private function handleGamepadEvent(event:Dynamic):Void
+	{
+		switch (event.type)
+		{
+			case "gamepadconnected":
+				gamepadsConnected++;
+
+			case "gamepaddisconnected":
+				if (gamepadsConnected > 0) gamepadsConnected--;
+
+				// Some browsers leave a pad out of getGamepads() once it's gone, so polling wouldn't see it go
+				var id:Int = event.gamepad != null ? event.gamepad.index : -1;
+				var cache = gameDeviceCache.get(id);
+				if (cache != null && cache.connected)
+				{
+					gameDeviceCache.remove(id);
+					Joystick.__disconnect(id);
+					Gamepad.__disconnect(id);
+				}
+
+			default:
 		}
 	}
 
@@ -732,7 +792,8 @@ class HTML5Application
 			}
 			else if (cache.connected)
 			{
-				cache.connected = false;
+				// Forgotten, so a pad that connects again at this index is connected again
+				gameDeviceCache.remove(id);
 
 				Joystick.__disconnect(id);
 				Gamepad.__disconnect(id);

@@ -20,6 +20,7 @@ class Dependency
 		var dependency = new Dependency(name, path);
 		dependency.embed = embed;
 		dependency.forceLoad = forceLoad;
+		dependency.allowWebWorkers = allowWebWorkers;
 		return dependency;
 	}
 }

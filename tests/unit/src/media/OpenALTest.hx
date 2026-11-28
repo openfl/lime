@@ -2,6 +2,7 @@ package media;
 
 #if (lime_cffi && lime_openal)
 import lime._internal.backend.native.NativeCFFI;
+import lime.media.AudioManager;
 import lime.media.openal.AL;
 import lime.media.openal.ALBuffer;
 import lime.media.openal.ALC;
@@ -265,6 +266,197 @@ class OpenALTest extends Test
 		Assert.equals(AL.NO_ERROR, AL.getError());
 	}
 
+	public function testDeletingNullDoesNothing():Void
+	{
+		if (!hasContext()) return;
+
+		// What the create functions give where OpenAL has no effects
+		AL.getError();
+		AL.deleteAux(null);
+		AL.deleteEffect(null);
+		AL.deleteFilter(null);
+
+		Assert.equals(AL.NO_ERROR, AL.getError());
+	}
+
+	public function testDeletedFilterIsNoLongerAFilter():Void
+	{
+		if (!hasEffects()) return;
+
+		var filter = AL.createFilter();
+		Assert.isTrue(AL.isFilter(filter));
+
+		AL.deleteFilter(filter);
+
+		Assert.equals(AL.NO_ERROR, AL.getError());
+		Assert.isFalse(AL.isFilter(filter));
+	}
+
+	public function testDeletedFilterNoLongerHasAType():Void
+	{
+		if (!hasEffects()) return;
+
+		var filter = AL.createFilter();
+		AL.filteri(filter, AL.FILTER_TYPE, AL.FILTER_LOWPASS);
+
+		Assert.equals(AL.FILTER_LOWPASS, AL.getFilteri(filter, AL.FILTER_TYPE));
+		Assert.equals(AL.NO_ERROR, AL.getError());
+
+		AL.deleteFilter(filter);
+		Assert.equals(AL.NO_ERROR, AL.getError());
+
+		// Its name is no longer known
+		AL.getFilteri(filter, AL.FILTER_TYPE);
+		Assert.equals(AL.INVALID_NAME, AL.getError());
+	}
+
+	public function testDeletedEffectIsNoLongerAnEffect():Void
+	{
+		if (!hasEffects()) return;
+
+		var effect = AL.createEffect();
+		Assert.isTrue(AL.isEffect(effect));
+
+		AL.deleteEffect(effect);
+
+		Assert.equals(AL.NO_ERROR, AL.getError());
+		Assert.isFalse(AL.isEffect(effect));
+	}
+
+	public function testDeletedEffectSlotIsNoLongerAnEffectSlot():Void
+	{
+		if (!hasEffects()) return;
+
+		var aux = AL.createAux();
+		Assert.isTrue(AL.isAux(aux));
+
+		AL.deleteAux(aux);
+
+		Assert.equals(AL.NO_ERROR, AL.getError());
+		Assert.isFalse(AL.isAux(aux));
+	}
+
+	public function testEffectSlotASourceSendsToIsNotDeleted():Void
+	{
+		if (!hasEffects()) return;
+
+		var source = AL.createSource();
+		var aux = AL.createAux();
+
+		AL.source3i(source, AL.AUXILIARY_SEND_FILTER, aux, 0, AL.FILTER_NULL);
+		Assert.equals(AL.NO_ERROR, AL.getError());
+
+		// A slot being fed can't be deleted at this time, so the deletion fails
+		AL.deleteAux(aux);
+
+		Assert.equals(AL.INVALID_OPERATION, AL.getError());
+		Assert.isTrue(AL.isAux(aux));
+
+		// Nothing feeds it once the send is taken off
+		AL.removeSend(source, 0);
+		AL.deleteAux(aux);
+
+		Assert.equals(AL.NO_ERROR, AL.getError());
+		Assert.isFalse(AL.isAux(aux));
+
+		AL.deleteSource(source);
+	}
+
+	public function testEffectsAndFiltersInUseCanBeDeleted():Void
+	{
+		if (!hasEffects()) return;
+
+		var source = AL.createSource();
+		var aux = AL.createAux();
+		var effect = AL.createEffect();
+		var filter = AL.createFilter();
+
+		AL.effecti(effect, AL.EFFECT_TYPE, AL.EFFECT_REVERB);
+		AL.auxi(aux, AL.EFFECTSLOT_EFFECT, effect);
+		AL.filteri(filter, AL.FILTER_TYPE, AL.FILTER_LOWPASS);
+		AL.sourcei(source, AL.DIRECT_FILTER, filter);
+		Assert.equals(AL.NO_ERROR, AL.getError());
+
+		// The slot has the settings of the effect and the source those of the
+		// filter, so changing or deleting either leaves them as they are
+		AL.deleteEffect(effect);
+		AL.deleteFilter(filter);
+
+		Assert.equals(AL.NO_ERROR, AL.getError());
+		Assert.isFalse(AL.isEffect(effect));
+		Assert.isFalse(AL.isFilter(filter));
+		Assert.isTrue(AL.isAux(aux));
+		Assert.isTrue(AL.isSource(source));
+
+		AL.deleteSource(source);
+		AL.deleteAux(aux);
+		Assert.equals(AL.NO_ERROR, AL.getError());
+	}
+
+	public function testDeletingAgainLeavesTheNextObjectsAlone():Void
+	{
+		if (!hasEffects()) return;
+
+		var filter = AL.createFilter();
+		var effect = AL.createEffect();
+		var aux = AL.createAux();
+
+		AL.deleteFilter(filter);
+		AL.deleteEffect(effect);
+		AL.deleteAux(aux);
+
+		// OpenAL can give the next objects the names the deleted ones had
+		var nextFilter = AL.createFilter();
+		var nextEffect = AL.createEffect();
+		var nextAux = AL.createAux();
+
+		AL.deleteFilter(filter);
+		AL.deleteEffect(effect);
+		AL.deleteAux(aux);
+		AL.getError();
+
+		Assert.isTrue(AL.isFilter(nextFilter));
+		Assert.isTrue(AL.isEffect(nextEffect));
+		Assert.isTrue(AL.isAux(nextAux));
+
+		AL.deleteFilter(nextFilter);
+		AL.deleteEffect(nextEffect);
+		AL.deleteAux(nextAux);
+	}
+
+	public function testDeletedObjectsCollectedLaterLeaveTheNextObjectsAlone():Void
+	{
+		if (!hasEffects()) return;
+
+		deleteEffects(32);
+
+		// They may have the names of the deleted objects, whose handles are
+		// collected after them
+		var filters = [for (i in 0...32) AL.createFilter()];
+		var effects = [for (i in 0...32) AL.createEffect()];
+		var slots = [for (i in 0...32) AL.createAux()];
+
+		release();
+		Assert.equals(AL.NO_ERROR, AL.getError());
+
+		for (i in 0...32)
+		{
+			Assert.isTrue(AL.isFilter(filters[i]));
+			Assert.isTrue(AL.isEffect(effects[i]));
+			Assert.isTrue(AL.isAux(slots[i]));
+
+		}
+
+		for (i in 0...32)
+		{
+			AL.deleteFilter(filters[i]);
+			AL.deleteEffect(effects[i]);
+			AL.deleteAux(slots[i]);
+		}
+
+		Assert.equals(AL.NO_ERROR, AL.getError());
+	}
+
 	public function testDroppedObjectsOfAClosedDeviceLeaveItsReplacementAlone():Void
 	{
 		if (!hasContext()) return;
@@ -376,6 +568,32 @@ class OpenALTest extends Test
 		}
 	}
 
+	private function deleteEffects(count:Int):Void
+	{
+		for (i in 0...count)
+		{
+			AL.deleteAux(AL.createAux());
+			AL.deleteEffect(AL.createEffect());
+			AL.deleteFilter(AL.createFilter());
+		}
+	}
+
+	private function hasEffects():Bool
+	{
+		if (!hasContext()) return false;
+
+		if (AL.createAux() == null)
+		{
+			Assert.pass("This OpenAL has no effects");
+			return false;
+		}
+
+		// Leaves no object dropped by an earlier test to be released during this one
+		release();
+		AL.getError();
+		return true;
+	}
+
 	private function queueDroppedBuffers(source:ALSource, count:Int):Void
 	{
 		var buffers = AL.genBuffers(count);
@@ -399,6 +617,100 @@ class OpenALTest extends Test
 		}
 
 		return highest;
+	}
+
+	public function testReopeningTheDeviceKeepsItsSourcesPlaying():Void
+	{
+		var source = createQueuedSource();
+		if (source == null) return;
+
+		var context = ALC.getCurrentContext();
+		var device = ALC.getContextsDevice(context);
+
+		if (!ALC.isExtensionPresent(device, "ALC_SOFT_reopen_device"))
+		{
+			Assert.warn("This OpenAL can't reopen a device");
+			deleteSource(source);
+			return;
+		}
+
+		AL.sourcePlay(source);
+		Assert.isTrue(ALC.reopenDevice(device));
+
+		// The same context, source and buffers carry on, on the new output
+		Assert.equals(AL.NO_ERROR, AL.getError());
+		Assert.isTrue(AL.isSource(source));
+		Assert.equals(AL.PLAYING, AL.getSourcei(source, AL.SOURCE_STATE));
+		Assert.equals(2, AL.getSourcei(source, AL.BUFFERS_QUEUED));
+		Assert.equals(ALC.TRUE, ALC.getIntegerv(device, ALC.CONNECTED, 1)[0]);
+
+		deleteSource(source);
+	}
+
+	public function testReopeningNoDeviceFails():Void
+	{
+		Assert.isFalse(ALC.reopenDevice(null));
+	}
+
+	public function testEachDeviceEventIsSupportedOrNot():Void
+	{
+		for (deviceType in [ALC.PLAYBACK_DEVICE_SOFT, ALC.CAPTURE_DEVICE_SOFT])
+		{
+			for (eventType in [
+				ALC.EVENT_TYPE_DEFAULT_DEVICE_CHANGED_SOFT,
+				ALC.EVENT_TYPE_DEVICE_ADDED_SOFT,
+				ALC.EVENT_TYPE_DEVICE_REMOVED_SOFT
+			])
+			{
+				var support = ALC.eventIsSupported(eventType, deviceType);
+				Assert.isTrue(support == ALC.EVENT_SUPPORTED_SOFT || support == ALC.EVENT_NOT_SUPPORTED_SOFT);
+			}
+		}
+	}
+
+	public function testSourcesAreHeldWhenTheOutputIsLost():Void
+	{
+		var context = ALC.getCurrentContext();
+
+		if (context == null || !AL.isExtensionPresent("AL_SOFTX_hold_on_disconnect")
+			|| !ALC.isExtensionPresent(ALC.getContextsDevice(context), "ALC_SOFT_reopen_device"))
+		{
+			Assert.pass("This OpenAL stops its sources when the output is lost");
+			return;
+		}
+
+		// Held sources carry on from where they were once the device is reopened,
+		// rather than stopping with the output (AL_STOP_SOURCES_ON_DISCONNECT_SOFT)
+		Assert.isFalse(AL.isEnabled(0x19AB));
+		Assert.equals(AL.NO_ERROR, AL.getError());
+	}
+
+	public function testRecoveringTheOutputKeepsTheOpenALObjects():Void
+	{
+		var source = createQueuedSource();
+		if (source == null) return;
+
+		var device = ALC.getContextsDevice(ALC.getCurrentContext());
+
+		if (!ALC.isExtensionPresent(device, "ALC_SOFT_reopen_device"))
+		{
+			Assert.warn("This OpenAL can't reopen a device, so Lime makes a new context instead");
+			deleteSource(source);
+			return;
+		}
+
+		// With OpenAL Soft the device is reopened in place, so nothing Lime made
+		// for the old output has to be made again
+		var generation = AudioManager.__contextGeneration;
+		AL.sourcePlay(source);
+		@:privateAccess AudioManager.recoverOutputDevice();
+
+		Assert.equals(generation, AudioManager.__contextGeneration);
+		Assert.isTrue(AL.isSource(source));
+		Assert.equals(AL.PLAYING, AL.getSourcei(source, AL.SOURCE_STATE));
+		Assert.equals(AL.NO_ERROR, AL.getError());
+
+		deleteSource(source);
 	}
 
 	private function hasContext():Bool

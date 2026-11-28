@@ -29,6 +29,7 @@
 #include <media/containers/OGG.h>
 #include <media/containers/WAV.h>
 #include <media/AudioBuffer.h>
+#include <media/AudioInputPermission.h>
 #include <system/CFFIPointer.h>
 #include <system/Clipboard.h>
 #include <system/ClipboardEvent.h>
@@ -42,6 +43,8 @@
 #include <text/Font.h>
 #include <ui/Cursor.h>
 #include <ui/DockIcon.h>
+#include <ui/DragDrop.h>
+#include <ui/DragEvent.h>
 #include <ui/DropEvent.h>
 #include <ui/FileDialog.h>
 #include <ui/Gamepad.h>
@@ -60,6 +63,7 @@
 #include <ui/TrayIconEvent.h>
 #include <ui/Window.h>
 #include <ui/WindowEvent.h>
+#include <utils/DataPointer.h>
 #include <utils/compress/LZMA.h>
 #include <utils/compress/Zlib.h>
 #include <vm/NekoVM.h>
@@ -173,9 +177,15 @@ namespace lime {
 	}
 
 
+	// Bumped when a device goes, so that the address each binding keeps for a
+	// device function is looked up again, should a new device reuse the address
+	static unsigned int managedVulkanDeviceGeneration = 1;
+
+
 	static void ClearManagedVulkanDeviceProcCache (VkDevice device) {
 
 		if (device) managedVulkanDeviceProcCache.erase ((uint64_t)(uintptr_t)device);
+		managedVulkanDeviceGeneration++;
 
 	}
 
@@ -419,12 +429,48 @@ namespace lime {
 	}
 
 
+	// A device function's address for one binding, so that recording a command
+	// doesn't look it up by name each time: the lookup builds a std::string and
+	// hashes it twice
+	struct ManagedVulkanDeviceProcSlot {
+
+		VkDevice device;
+		unsigned int generation;
+		PFN_vkVoidFunction proc;
+
+	};
+
+
+	static inline PFN_vkVoidFunction GetManagedVulkanDeviceProc (Window* targetWindow, VkInstance instance, VkDevice device, const char* name, ManagedVulkanDeviceProcSlot* slot) {
+
+		if (slot->proc && slot->device == device && slot->generation == managedVulkanDeviceGeneration) return slot->proc;
+
+		PFN_vkVoidFunction proc = GetManagedVulkanDeviceProc (targetWindow, instance, device, name);
+
+		if (proc) {
+
+			slot->device = device;
+			slot->generation = managedVulkanDeviceGeneration;
+			slot->proc = proc;
+
+		}
+
+		return proc;
+
+	}
+
+
+	// The device function name, with a slot of its own where it is used
+	#define LIME_VK_DEVICE_PROC(name) \
+		([&] () { static ManagedVulkanDeviceProcSlot slot = { 0, 0, 0 }; return (PFN_##name)GetManagedVulkanDeviceProc (targetWindow, instance, device, #name, &slot); } ())
+
+
 	static bool UpdateManagedVulkanDescriptorSets (Window* targetWindow, VkInstance instance, VkDevice device, const std::vector<int>& packed) {
 
 		if (packed.empty ()) return true;
 
 		PFN_vkUpdateDescriptorSets vkUpdateDescriptorSets =
-			(PFN_vkUpdateDescriptorSets)GetManagedVulkanDeviceProc (targetWindow, instance, device, "vkUpdateDescriptorSets");
+			LIME_VK_DEVICE_PROC (vkUpdateDescriptorSets);
 		if (!vkUpdateDescriptorSets) return false;
 
 		int writeCount = packed[0];
@@ -1188,10 +1234,8 @@ namespace lime {
 
 		}
 
-		PFN_vkCreateSwapchainKHR vkCreateSwapchainKHR = (PFN_vkCreateSwapchainKHR)GetManagedVulkanDeviceProc (targetWindow, instance, device,
-			"vkCreateSwapchainKHR");
-		PFN_vkGetSwapchainImagesKHR vkGetSwapchainImagesKHR = (PFN_vkGetSwapchainImagesKHR)GetManagedVulkanDeviceProc (targetWindow, instance, device,
-			"vkGetSwapchainImagesKHR");
+		PFN_vkCreateSwapchainKHR vkCreateSwapchainKHR = LIME_VK_DEVICE_PROC (vkCreateSwapchainKHR);
+		PFN_vkGetSwapchainImagesKHR vkGetSwapchainImagesKHR = LIME_VK_DEVICE_PROC (vkGetSwapchainImagesKHR);
 		if (!vkCreateSwapchainKHR || !vkGetSwapchainImagesKHR) return false;
 
 		VkSwapchainCreateInfoKHR createInfo;
@@ -1224,8 +1268,7 @@ namespace lime {
 		result = vkGetSwapchainImagesKHR (device, swapchain, &swapchainImageCount, 0);
 		if (result != VK_SUCCESS || swapchainImageCount == 0) {
 
-			PFN_vkDestroySwapchainKHR vkDestroySwapchainKHR = (PFN_vkDestroySwapchainKHR)GetManagedVulkanDeviceProc (targetWindow, instance, device,
-				"vkDestroySwapchainKHR");
+			PFN_vkDestroySwapchainKHR vkDestroySwapchainKHR = LIME_VK_DEVICE_PROC (vkDestroySwapchainKHR);
 			if (vkDestroySwapchainKHR) vkDestroySwapchainKHR (device, swapchain, 0);
 			lastVKError = "Failed to query Vulkan swapchain images";
 			return false;
@@ -1285,7 +1328,8 @@ namespace lime {
 
 		#ifdef LIME_FREETYPE
 		Font *font = (Font*)val_data (handle);
-		delete font;
+		// A HarfBuzz face made from it may still be reading its face
+		if (font) font->Release ();
 		#endif
 
 	}
@@ -1295,7 +1339,8 @@ namespace lime {
 
 		#ifdef LIME_FREETYPE
 		Font* font = (Font*)handle->ptr;
-		delete font;
+		// A HarfBuzz face made from it may still be reading its face
+		if (font) font->Release ();
 		#endif
 
 	}
@@ -1630,6 +1675,22 @@ namespace lime {
 	}
 
 
+	void lime_application_set_background_frame_rate (value application, double frameRate) {
+
+		Application* app = (Application*)val_data (application);
+		app->SetBackgroundFrameRate (frameRate);
+
+	}
+
+
+	HL_PRIM void HL_NAME(hl_application_set_background_frame_rate) (HL_CFFIPointer* application, double frameRate) {
+
+		Application* app = (Application*)application->ptr;
+		app->SetBackgroundFrameRate (frameRate);
+
+	}
+
+
 	void lime_application_set_vsync_mode (value application, int vsyncMode) {
 
 		Application* app = (Application*)val_data (application);
@@ -1814,7 +1875,7 @@ namespace lime {
 
 	value lime_bytes_from_data_pointer (double data, int length, value _bytes) {
 
-		uintptr_t ptr = (uintptr_t)data;
+		uintptr_t ptr = DataPointerToAddress (data);
 		Bytes bytes (_bytes);
 		bytes.Resize (length);
 
@@ -1831,7 +1892,7 @@ namespace lime {
 
 	HL_PRIM Bytes* HL_NAME(hl_bytes_from_data_pointer) (double data, int length, Bytes* bytes) {
 
-		uintptr_t ptr = (uintptr_t)data;
+		uintptr_t ptr = DataPointerToAddress (data);
 		bytes->Resize (length);
 
 		if (ptr) {
@@ -1848,14 +1909,14 @@ namespace lime {
 	double lime_bytes_get_data_pointer (value bytes) {
 
 		Bytes data = Bytes (bytes);
-		return (uintptr_t)data.b;
+		return DataPointerFromAddress ((uintptr_t)data.b);
 
 	}
 
 
 	HL_PRIM double HL_NAME(hl_bytes_get_data_pointer) (Bytes* bytes) {
 
-		return bytes ? (uintptr_t)bytes->b : 0;
+		return DataPointerFromAddress (bytes ? (uintptr_t)bytes->b : 0);
 
 	}
 
@@ -1865,7 +1926,7 @@ namespace lime {
 		if (val_is_null (bytes)) return 0;
 
 		Bytes data = Bytes (bytes);
-		return (uintptr_t)data.b + offset;
+		return DataPointerFromAddress ((uintptr_t)data.b + offset);
 
 	}
 
@@ -1873,7 +1934,7 @@ namespace lime {
 	HL_PRIM double HL_NAME(hl_bytes_get_data_pointer_offset) (Bytes* bytes, int offset) {
 
 		if (!bytes) return 0;
-		return (uintptr_t)bytes->b + offset;
+		return DataPointerFromAddress ((uintptr_t)bytes->b + offset);
 
 	}
 
@@ -1881,8 +1942,10 @@ namespace lime {
 	value lime_bytes_read_file (HxString path, value bytes) {
 
 		Bytes data (bytes);
-		data.ReadFile (hxs_utf8 (path, nullptr));
-		return data.Value (bytes);
+		if (!path.__s || !data.ReadFile (hxs_utf8 (path, nullptr))) return alloc_null ();
+
+		// Value () gives null without data, so an empty file is the empty Bytes given
+		return data.length > 0 ? data.Value (bytes) : bytes;
 
 	}
 
@@ -1890,22 +1953,21 @@ namespace lime {
 	HL_PRIM Bytes* HL_NAME(hl_bytes_read_file) (hl_vstring* path, Bytes* bytes) {
 
 		if (!path) return 0;
-		bytes->ReadFile (hl_to_utf8 ((const uchar*)path->bytes));
-		return bytes;
+		return bytes->ReadFile (hl_to_utf8 ((const uchar*)path->bytes)) ? bytes : 0;
 
 	}
 
 
 	double lime_cffi_get_native_pointer (value handle) {
 
-		return (uintptr_t)val_data (handle);
+		return DataPointerFromAddress ((uintptr_t)val_data (handle));
 
 	}
 
 
 	HL_PRIM double HL_NAME(hl_cffi_get_native_pointer) (HL_CFFIPointer* handle) {
 
-		return (uintptr_t)handle->ptr;
+		return DataPointerFromAddress ((uintptr_t)handle->ptr);
 
 	}
 
@@ -1979,6 +2041,289 @@ namespace lime {
 	}
 
 
+	// File paths, one to a line, as paths have no line breaks on the systems with these formats
+	static std::string JoinClipboardFiles (const std::vector<std::string>& files) {
+
+		std::string result;
+
+		for (size_t i = 0; i < files.size (); i++) {
+
+			if (i > 0) result += "\n";
+			result += files[i];
+
+		}
+
+		return result;
+
+	}
+
+
+	value lime_clipboard_get_files () {
+
+		std::vector<std::string> files;
+		if (!Clipboard::GetFiles (&files)) return alloc_null ();
+		return alloc_string (JoinClipboardFiles (files).c_str ());
+
+	}
+
+
+	HL_PRIM vbyte* HL_NAME(hl_clipboard_get_files) () {
+
+		std::vector<std::string> files;
+		if (!Clipboard::GetFiles (&files)) return NULL;
+
+		std::string text = JoinClipboardFiles (files);
+		vbyte* result = hl_alloc_bytes ((int)text.size () + 1);
+		memcpy (result, text.c_str (), text.size () + 1);
+		return result;
+
+	}
+
+
+	value lime_clipboard_get_format_text (int format) {
+
+		std::string text;
+		if (!Clipboard::GetFormatText (format, &text)) return alloc_null ();
+		return alloc_string_len (text.c_str (), (int)text.size ());
+
+	}
+
+
+	HL_PRIM vbyte* HL_NAME(hl_clipboard_get_format_text) (int format) {
+
+		std::string text;
+		if (!Clipboard::GetFormatText (format, &text)) return NULL;
+
+		vbyte* result = hl_alloc_bytes ((int)text.size () + 1);
+		memcpy (result, text.c_str (), text.size () + 1);
+		return result;
+
+	}
+
+
+	// The width and height as two Int32 values, then the pixels
+	value lime_clipboard_get_image (value data) {
+
+		std::vector<unsigned char> pixels;
+		int width = 0, height = 0;
+		if (!Clipboard::GetImage (&pixels, &width, &height)) return alloc_null ();
+
+		Bytes bytes (data);
+		bytes.Resize ((int)pixels.size () + 8);
+		memcpy (bytes.b, &width, 4);
+		memcpy (bytes.b + 4, &height, 4);
+		if (!pixels.empty ()) memcpy (bytes.b + 8, &pixels[0], pixels.size ());
+		return bytes.Value (data);
+
+	}
+
+
+	HL_PRIM Bytes* HL_NAME(hl_clipboard_get_image) (Bytes* data) {
+
+		std::vector<unsigned char> pixels;
+		int width = 0, height = 0;
+		if (!data || !Clipboard::GetImage (&pixels, &width, &height)) return NULL;
+
+		data->Resize ((int)pixels.size () + 8);
+		memcpy (data->b, &width, 4);
+		memcpy (data->b + 4, &height, 4);
+		if (!pixels.empty ()) memcpy (data->b + 8, &pixels[0], pixels.size ());
+		return data;
+
+	}
+
+
+	bool lime_clipboard_has_format (int format) {
+
+		return Clipboard::HasFormat (format);
+
+	}
+
+
+	HL_PRIM bool HL_NAME(hl_clipboard_has_format) (int format) {
+
+		return Clipboard::HasFormat (format);
+
+	}
+
+
+	bool lime_clipboard_set_items (value data) {
+
+		Bytes bytes (data);
+		return Clipboard::SetItems (bytes.b, bytes.length);
+
+	}
+
+
+	HL_PRIM bool HL_NAME(hl_clipboard_set_items) (Bytes* data) {
+
+		return data && Clipboard::SetItems (data->b, data->length);
+
+	}
+
+
+	value lime_drag_data_get_files () {
+
+		std::vector<std::string> files;
+		if (!DragDrop::GetFiles (&files)) return alloc_null ();
+		return alloc_string (JoinClipboardFiles (files).c_str ());
+
+	}
+
+
+	HL_PRIM vbyte* HL_NAME(hl_drag_data_get_files) () {
+
+		std::vector<std::string> files;
+		if (!DragDrop::GetFiles (&files)) return NULL;
+
+		std::string text = JoinClipboardFiles (files);
+		vbyte* result = hl_alloc_bytes ((int)text.size () + 1);
+		memcpy (result, text.c_str (), text.size () + 1);
+		return result;
+
+	}
+
+
+	value lime_drag_data_get_format_text (int format) {
+
+		std::string text;
+		if (!DragDrop::GetFormatText (format, &text)) return alloc_null ();
+		return alloc_string_len (text.c_str (), (int)text.size ());
+
+	}
+
+
+	HL_PRIM vbyte* HL_NAME(hl_drag_data_get_format_text) (int format) {
+
+		std::string text;
+		if (!DragDrop::GetFormatText (format, &text)) return NULL;
+
+		vbyte* result = hl_alloc_bytes ((int)text.size () + 1);
+		memcpy (result, text.c_str (), text.size () + 1);
+		return result;
+
+	}
+
+
+	// The width and height as two Int32 values, then the pixels, as for the clipboard
+	value lime_drag_data_get_image (value data) {
+
+		std::vector<unsigned char> pixels;
+		int width = 0, height = 0;
+		if (!DragDrop::GetImage (&pixels, &width, &height)) return alloc_null ();
+
+		Bytes bytes (data);
+		bytes.Resize ((int)pixels.size () + 8);
+		memcpy (bytes.b, &width, 4);
+		memcpy (bytes.b + 4, &height, 4);
+		if (!pixels.empty ()) memcpy (bytes.b + 8, &pixels[0], pixels.size ());
+		return bytes.Value (data);
+
+	}
+
+
+	HL_PRIM Bytes* HL_NAME(hl_drag_data_get_image) (Bytes* data) {
+
+		std::vector<unsigned char> pixels;
+		int width = 0, height = 0;
+		if (!data || !DragDrop::GetImage (&pixels, &width, &height)) return NULL;
+
+		data->Resize ((int)pixels.size () + 8);
+		memcpy (data->b, &width, 4);
+		memcpy (data->b + 4, &height, 4);
+		if (!pixels.empty ()) memcpy (data->b + 8, &pixels[0], pixels.size ());
+		return data;
+
+	}
+
+
+	bool lime_drag_data_has_format (int format) {
+
+		return DragDrop::HasFormat (format);
+
+	}
+
+
+	HL_PRIM bool HL_NAME(hl_drag_data_has_format) (int format) {
+
+		return DragDrop::HasFormat (format);
+
+	}
+
+
+	bool lime_drag_drop_is_supported () {
+
+		return DragDrop::IsSupported ();
+
+	}
+
+
+	HL_PRIM bool HL_NAME(hl_drag_drop_is_supported) () {
+
+		return DragDrop::IsSupported ();
+
+	}
+
+
+	void lime_drag_event_manager_register (value callback, value eventObject) {
+
+		DragEvent::callback = new ValuePointer (callback);
+		DragEvent::eventObject = new ValuePointer (eventObject);
+
+	}
+
+
+	HL_PRIM void HL_NAME(hl_drag_event_manager_register) (vclosure* callback, DragEvent* eventObject) {
+
+		DragEvent::callback = new ValuePointer (callback);
+		DragEvent::eventObject = new ValuePointer ((vobj*)eventObject);
+
+	}
+
+
+	bool lime_window_set_drag_target (value window, bool enabled) {
+
+		Window* targetWindow = (Window*)val_data (window);
+		return DragDrop::SetTarget (targetWindow, enabled);
+
+	}
+
+
+	HL_PRIM bool HL_NAME(hl_window_set_drag_target) (HL_CFFIPointer* window, bool enabled) {
+
+		Window* targetWindow = (Window*)window->ptr;
+		return DragDrop::SetTarget (targetWindow, enabled);
+
+	}
+
+
+	int lime_window_start_drag (value window, value items, value image, int offsetX, int offsetY, int actions, int id) {
+
+		Window* targetWindow = (Window*)val_data (window);
+		Bytes itemBytes (items);
+
+		if (val_is_null (image)) {
+
+			return DragDrop::StartDrag (targetWindow, itemBytes.b, itemBytes.length, NULL, 0, offsetX, offsetY, actions, id);
+
+		}
+
+		Bytes imageBytes (image);
+		return DragDrop::StartDrag (targetWindow, itemBytes.b, itemBytes.length, imageBytes.b, imageBytes.length, offsetX, offsetY, actions, id);
+
+	}
+
+
+	HL_PRIM int HL_NAME(hl_window_start_drag) (HL_CFFIPointer* window, Bytes* items, Bytes* image, int offsetX, int offsetY, int actions, int id) {
+
+		Window* targetWindow = (Window*)window->ptr;
+		if (!items) return 0;
+
+		return DragDrop::StartDrag (targetWindow, items->b, items->length, image ? image->b : NULL, image ? image->length : 0, offsetX, offsetY, actions, id);
+
+	}
+
+
 	void lime_clipboard_set_text (HxString text) {
 
 		Clipboard::SetText (hxs_utf8 (text, nullptr));
@@ -1995,25 +2340,25 @@ namespace lime {
 
 	double lime_data_pointer_offset (double pointer, int offset) {
 
-		return (uintptr_t)pointer + offset;
+		return DataPointerFromAddress (DataPointerToAddress (pointer) + offset);
 
 	}
 
 
 	HL_PRIM double HL_NAME(hl_data_pointer_offset) (double pointer, int offset) {
 
-		return (uintptr_t)pointer + offset;
+		return DataPointerFromAddress (DataPointerToAddress (pointer) + offset);
 
 	}
 
 
-	value lime_deflate_compress (value buffer, value bytes) {
+	value lime_deflate_compress_level (value buffer, value bytes, int level) {
 
 		#ifdef LIME_ZLIB
 		Bytes data (buffer);
 		Bytes result (bytes);
 
-		Zlib::Compress (DEFLATE, &data, &result);
+		Zlib::Compress (DEFLATE, &data, &result, level);
 
 		return result.Value (bytes);
 		#else
@@ -2023,14 +2368,29 @@ namespace lime {
 	}
 
 
-	HL_PRIM Bytes* HL_NAME(hl_deflate_compress) (Bytes* buffer, Bytes* bytes) {
+	HL_PRIM Bytes* HL_NAME(hl_deflate_compress_level) (Bytes* buffer, Bytes* bytes, int level) {
 
 		#ifdef LIME_ZLIB
-		Zlib::Compress (DEFLATE, buffer, bytes);
+		Zlib::Compress (DEFLATE, buffer, bytes, level);
 		return bytes;
 		#else
 		return 0;
 		#endif
+
+	}
+
+
+	// Without a level, as before levels could be chosen, for libraries built against an older Lime
+	value lime_deflate_compress (value buffer, value bytes) {
+
+		return lime_deflate_compress_level (buffer, bytes, -1);
+
+	}
+
+
+	HL_PRIM Bytes* HL_NAME(hl_deflate_compress) (Bytes* buffer, Bytes* bytes) {
+
+		return HL_NAME(hl_deflate_compress_level) (buffer, bytes, -1);
 
 	}
 
@@ -2041,9 +2401,10 @@ namespace lime {
 		Bytes data (buffer);
 		Bytes result (bytes);
 
-		Zlib::Decompress (DEFLATE, &data, &result);
+		if (!Zlib::Decompress (DEFLATE, &data, &result)) return alloc_null ();
 
-		return result.Value (bytes);
+		// Value () gives null without data, so an empty result is the empty Bytes given
+		return result.length > 0 ? result.Value (bytes) : bytes;
 		#else
 		return alloc_null ();
 		#endif
@@ -2054,8 +2415,7 @@ namespace lime {
 	HL_PRIM Bytes* HL_NAME(hl_deflate_decompress) (Bytes* buffer, Bytes* bytes) {
 
 		#ifdef LIME_ZLIB
-		Zlib::Decompress (DEFLATE, buffer, bytes);
-		return bytes;
+		return Zlib::Decompress (DEFLATE, buffer, bytes) ? bytes : 0;
 		#else
 		return 0;
 		#endif
@@ -2448,8 +2808,9 @@ namespace lime {
 		#ifdef LIME_FREETYPE
 		Font *font = (Font*)val_data (fontHandle);
 		wchar_t *name = font->GetFamilyName ();
+		if (!name) return alloc_null ();
 		value result = alloc_wstring (name);
-		delete name;
+		free (name);
 		return result;
 		#else
 		return alloc_null ();
@@ -2466,7 +2827,7 @@ namespace lime {
 		if (!name)
 			return nullptr;
 		vbyte* const result = hl_wstring_to_utf8_bytes (name);
-		delete name;
+		free (name);
 		return result;
 		#else
 		return 0;
@@ -3354,13 +3715,13 @@ namespace lime {
 	}
 
 
-	value lime_gzip_compress (value buffer, value bytes) {
+	value lime_gzip_compress_level (value buffer, value bytes, int level) {
 
 		#ifdef LIME_ZLIB
 		Bytes data (buffer);
 		Bytes result (bytes);
 
-		Zlib::Compress (GZIP, &data, &result);
+		Zlib::Compress (GZIP, &data, &result, level);
 
 		return result.Value (bytes);
 		#else
@@ -3370,14 +3731,29 @@ namespace lime {
 	}
 
 
-	HL_PRIM Bytes* HL_NAME(hl_gzip_compress) (Bytes* buffer, Bytes* bytes) {
+	HL_PRIM Bytes* HL_NAME(hl_gzip_compress_level) (Bytes* buffer, Bytes* bytes, int level) {
 
 		#ifdef LIME_ZLIB
-		Zlib::Compress (GZIP, buffer, bytes);
+		Zlib::Compress (GZIP, buffer, bytes, level);
 		return bytes;
 		#else
 		return 0;
 		#endif
+
+	}
+
+
+	// Without a level, as before levels could be chosen, for libraries built against an older Lime
+	value lime_gzip_compress (value buffer, value bytes) {
+
+		return lime_gzip_compress_level (buffer, bytes, -1);
+
+	}
+
+
+	HL_PRIM Bytes* HL_NAME(hl_gzip_compress) (Bytes* buffer, Bytes* bytes) {
+
+		return HL_NAME(hl_gzip_compress_level) (buffer, bytes, -1);
 
 	}
 
@@ -3388,9 +3764,10 @@ namespace lime {
 		Bytes data (buffer);
 		Bytes result (bytes);
 
-		Zlib::Decompress (GZIP, &data, &result);
+		if (!Zlib::Decompress (GZIP, &data, &result)) return alloc_null ();
 
-		return result.Value (bytes);
+		// Value () gives null without data, so an empty result is the empty Bytes given
+		return result.length > 0 ? result.Value (bytes) : bytes;
 		#else
 		return alloc_null ();
 		#endif
@@ -3401,8 +3778,7 @@ namespace lime {
 	HL_PRIM Bytes* HL_NAME(hl_gzip_decompress) (Bytes* buffer, Bytes* bytes) {
 
 		#ifdef LIME_ZLIB
-		Zlib::Decompress (GZIP, buffer, bytes);
-		return bytes;
+		return Zlib::Decompress (GZIP, buffer, bytes) ? bytes : 0;
 		#else
 		return 0;
 		#endif
@@ -3742,20 +4118,36 @@ namespace lime {
 	}
 
 
-	void lime_image_data_util_get_pixels (value image, value rect, int format, value bytes) {
+	void lime_image_data_util_get_pixels_endian (value image, value rect, int format, value bytes, int endian) {
 
 		Image _image = Image (image);
 		Rectangle _rect = Rectangle (rect);
 		PixelFormat _format = (PixelFormat)format;
 		Bytes pixels = Bytes (bytes);
-		ImageDataUtil::GetPixels (&_image, &_rect, _format, &pixels);
+		ImageDataUtil::GetPixels (&_image, &_rect, _format, &pixels, (Endian)endian);
+
+	}
+
+
+	HL_PRIM void HL_NAME(hl_image_data_util_get_pixels_endian) (Image* image, Rectangle* rect, PixelFormat format, Bytes* bytes, Endian endian) {
+
+		ImageDataUtil::GetPixels (image, rect, format, bytes, endian);
+
+	}
+
+
+	// In the order the format names its bytes, as before the order could be chosen, for libraries
+	// built against an older Lime
+	void lime_image_data_util_get_pixels (value image, value rect, int format, value bytes) {
+
+		lime_image_data_util_get_pixels_endian (image, rect, format, bytes, LIME_BIG_ENDIAN);
 
 	}
 
 
 	HL_PRIM void HL_NAME(hl_image_data_util_get_pixels) (Image* image, Rectangle* rect, PixelFormat format, Bytes* bytes) {
 
-		ImageDataUtil::GetPixels (image, rect, format, bytes);
+		HL_NAME(hl_image_data_util_get_pixels_endian) (image, rect, format, bytes, LIME_BIG_ENDIAN);
 
 	}
 
@@ -4173,13 +4565,13 @@ namespace lime {
 	}
 
 
-	value lime_lzma_compress (value buffer, value bytes) {
+	value lime_lzma_compress_level (value buffer, value bytes, int level) {
 
 		#ifdef LIME_LZMA
 		Bytes data (buffer);
 		Bytes result (bytes);
 
-		LZMA::Compress (&data, &result);
+		LZMA::Compress (&data, &result, level);
 
 		return result.Value (bytes);
 		#else
@@ -4189,14 +4581,29 @@ namespace lime {
 	}
 
 
-	HL_PRIM Bytes* HL_NAME(hl_lzma_compress) (Bytes* buffer, Bytes* bytes) {
+	HL_PRIM Bytes* HL_NAME(hl_lzma_compress_level) (Bytes* buffer, Bytes* bytes, int level) {
 
 		#ifdef LIME_LZMA
-		LZMA::Compress (buffer, bytes);
+		LZMA::Compress (buffer, bytes, level);
 		return bytes;
 		#else
 		return 0;
 		#endif
+
+	}
+
+
+	// Without a level, as before levels could be chosen, for libraries built against an older Lime
+	value lime_lzma_compress (value buffer, value bytes) {
+
+		return lime_lzma_compress_level (buffer, bytes, -1);
+
+	}
+
+
+	HL_PRIM Bytes* HL_NAME(hl_lzma_compress) (Bytes* buffer, Bytes* bytes) {
+
+		return HL_NAME(hl_lzma_compress_level) (buffer, bytes, -1);
 
 	}
 
@@ -4207,9 +4614,10 @@ namespace lime {
 		Bytes data (buffer);
 		Bytes result (bytes);
 
-		LZMA::Decompress (&data, &result);
+		if (!LZMA::Decompress (&data, &result)) return alloc_null ();
 
-		return result.Value (bytes);
+		// Value () gives null without data, so an empty result is the empty Bytes given
+		return result.length > 0 ? result.Value (bytes) : bytes;
 		#else
 		return alloc_null ();
 		#endif
@@ -4220,8 +4628,7 @@ namespace lime {
 	HL_PRIM Bytes* HL_NAME(hl_lzma_decompress) (Bytes* buffer, Bytes* bytes) {
 
 		#ifdef LIME_LZMA
-		LZMA::Decompress (buffer, bytes);
-		return bytes;
+		return LZMA::Decompress (buffer, bytes) ? bytes : 0;
 		#else
 		return 0;
 		#endif
@@ -4257,6 +4664,66 @@ namespace lime {
 	int lime_menu_get_support () {
 
 		return Menu::GetSupport ();
+
+	}
+
+
+	static ValuePointer* menuOpenCallback = 0;
+
+
+	static void CallMenuOpenCallback () {
+
+		menuOpenCallback->Call ();
+
+	}
+
+
+	// 0 is the window or tray icon ID, 1 the ID of the item whose submenu opens, or 0, and 2 where the menu belongs
+	int lime_menu_get_open_event (int index) {
+
+		int values[3];
+		Menu::GetOpenEvent (&values[0], &values[1], &values[2]);
+		return (index >= 0 && index < 3) ? values[index] : 0;
+
+	}
+
+
+	HL_PRIM int HL_NAME(hl_menu_get_open_event) (int index) {
+
+		return lime_menu_get_open_event (index);
+
+	}
+
+
+	void lime_menu_set_open_callback (value callback) {
+
+		if (menuOpenCallback) delete menuOpenCallback;
+		menuOpenCallback = new ValuePointer (callback);
+		Menu::SetOpenCallback (CallMenuOpenCallback);
+
+	}
+
+
+	HL_PRIM void HL_NAME(hl_menu_set_open_callback) (vclosure* callback) {
+
+		if (menuOpenCallback) delete menuOpenCallback;
+		menuOpenCallback = new ValuePointer (callback);
+		Menu::SetOpenCallback (CallMenuOpenCallback);
+
+	}
+
+
+	void lime_menu_set_open_items (value data) {
+
+		Bytes bytes (data);
+		Menu::SetOpenItems (bytes.b, bytes.length);
+
+	}
+
+
+	HL_PRIM void HL_NAME(hl_menu_set_open_items) (Bytes* data) {
+
+		if (data) Menu::SetOpenItems (data->b, data->length);
 
 	}
 
@@ -4627,6 +5094,34 @@ namespace lime {
 	}
 
 
+	int lime_audio_input_get_permission_status () {
+
+		return AudioInputPermission::GetStatus ();
+
+	}
+
+
+	HL_PRIM int HL_NAME(hl_audio_input_get_permission_status) () {
+
+		return AudioInputPermission::GetStatus ();
+
+	}
+
+
+	void lime_audio_input_request_permission () {
+
+		AudioInputPermission::Request ();
+
+	}
+
+
+	HL_PRIM void HL_NAME(hl_audio_input_request_permission) () {
+
+		AudioInputPermission::Request ();
+
+	}
+
+
 	value lime_system_get_platform_label () {
 
 		std::wstring* label = System::GetPlatformLabel ();
@@ -4802,9 +5297,78 @@ namespace lime {
 	}
 
 
+	double lime_system_get_free_space (HxString path) {
+
+		// hxcpp keeps strings with characters beyond ASCII as UTF-16, which hxs_utf8 converts
+		return System::GetAvailableSpace (hxs_utf8 (path, nullptr));
+
+	}
+
+
+	HL_PRIM double HL_NAME(hl_system_get_free_space) (hl_vstring* path) {
+
+		// HashLink strings are UTF-16
+		return System::GetAvailableSpace (path ? hl_to_utf8 ((const uchar*)path->bytes) : NULL);
+
+	}
+
+
+	bool lime_system_is_symbolic_link (HxString path) {
+
+		// hxcpp keeps strings with characters beyond ASCII as UTF-16, which hxs_utf8 converts
+		return System::IsSymbolicLink (hxs_utf8 (path, nullptr));
+
+	}
+
+
+	HL_PRIM bool HL_NAME(hl_system_is_symbolic_link) (hl_vstring* path) {
+
+		// HashLink strings are UTF-16
+		return System::IsSymbolicLink (path ? hl_to_utf8 ((const uchar*)path->bytes) : NULL);
+
+	}
+
+
+	bool lime_system_move_to_trash (HxString path) {
+
+		// hxcpp keeps strings with characters beyond ASCII as UTF-16, which hxs_utf8 converts
+		return System::MoveToTrash (hxs_utf8 (path, nullptr));
+
+	}
+
+
+	HL_PRIM bool HL_NAME(hl_system_move_to_trash) (hl_vstring* path) {
+
+		// HashLink strings are UTF-16
+		return path && System::MoveToTrash ((const char*)hl_to_utf8 ((const uchar*)path->bytes));
+
+	}
+
+
+	value lime_system_get_storage_volumes () {
+
+		std::string volumes;
+		if (!System::GetStorageVolumes (&volumes)) return alloc_null ();
+		return alloc_string_len (volumes.c_str (), (int)volumes.size ());
+
+	}
+
+
+	HL_PRIM vbyte* HL_NAME(hl_system_get_storage_volumes) () {
+
+		std::string volumes;
+		if (!System::GetStorageVolumes (&volumes)) return NULL;
+
+		vbyte* result = hl_alloc_bytes ((int)volumes.size () + 1);
+		memcpy (result, volumes.c_str (), volumes.size () + 1);
+		return result;
+
+	}
+
+
 	void lime_system_open_file (HxString path) {
 
-		#ifdef IPHONE
+		#if defined (IPHONE) || (defined (HX_WINDOWS) && !defined (HX_WINRT))
 		System::OpenFile (path.c_str ());
 		#endif
 
@@ -4813,7 +5377,7 @@ namespace lime {
 
 	HL_PRIM void HL_NAME(hl_system_open_file) (vbyte* path) {
 
-		#ifdef IPHONE
+		#if defined (IPHONE) || (defined (HX_WINDOWS) && !defined (HX_WINRT))
 		System::OpenFile ((char*)path);
 		#endif
 
@@ -4822,7 +5386,7 @@ namespace lime {
 
 	void lime_system_open_url (HxString url, HxString target) {
 
-		#ifdef IPHONE
+		#if defined (IPHONE) || (defined (HX_WINDOWS) && !defined (HX_WINRT))
 		System::OpenURL (url.c_str (), target.c_str ());
 		#endif
 
@@ -4831,7 +5395,7 @@ namespace lime {
 
 	HL_PRIM void HL_NAME(hl_system_open_url) (vbyte* url, vbyte* target) {
 
-		#ifdef IPHONE
+		#if defined (IPHONE) || (defined (HX_WINDOWS) && !defined (HX_WINRT))
 		System::OpenURL ((char*)url, (char*)target);
 		#endif
 
@@ -5061,18 +5625,34 @@ namespace lime {
 
 	void lime_window_alert (value window, HxString message, HxString title) {
 
-		Window* targetWindow = (Window*)val_data (window);
-		targetWindow->Alert (hxs_utf8 (message, nullptr), hxs_utf8 (title, nullptr));
+		Window* targetWindow = val_is_null (window) ? NULL : (Window*)val_data (window);
+		if (targetWindow) {
+
+			targetWindow->Alert (hxs_utf8 (message, nullptr), hxs_utf8 (title, nullptr));
+
+		} else {
+
+			AlertWindow (hxs_utf8 (message, nullptr), hxs_utf8 (title, nullptr));
+
+		}
 
 	}
 
 
 	HL_PRIM void HL_NAME(hl_window_alert) (HL_CFFIPointer* window, hl_vstring* message, hl_vstring* title) {
 
-		Window* targetWindow = (Window*)window->ptr;
+		Window* targetWindow = window ? (Window*)window->ptr : NULL;
 		const char *cmessage = message ? hl_to_utf8(message->bytes) : nullptr;
 		const char *ctitle = title ? hl_to_utf8(title->bytes) : nullptr;
-		targetWindow->Alert (cmessage, ctitle);
+		if (targetWindow) {
+
+			targetWindow->Alert (cmessage, ctitle);
+
+		} else {
+
+			AlertWindow (cmessage, ctitle);
+
+		}
 
 	}
 
@@ -5159,18 +5739,49 @@ namespace lime {
 	}
 
 
+	value lime_window_create_at (value application, int width, int height, int flags, HxString title, int x, int y, int display) {
+
+		Window* window = CreateWindow ((Application*)val_data (application), width, height, flags, hxs_utf8 (title, nullptr), x, y, display);
+		return CFFIPointer (window, gc_window);
+
+	}
+
+
+	value lime_window_get_creation_error () {
+
+		return alloc_string (GetWindowCreationError ());
+
+	}
+
+
+	HL_PRIM vbyte* HL_NAME(hl_window_get_creation_error) () {
+
+		const char* error = GetWindowCreationError ();
+		return hl_copy_bytes ((const vbyte*)error, (int)std::strlen (error) + 1);
+
+	}
+
+
+	HL_PRIM HL_CFFIPointer* HL_NAME(hl_window_create_at) (HL_CFFIPointer* application, int width, int height, int flags, hl_vstring* title, int x, int y, int display) {
+
+		Window* window = CreateWindow ((Application*)application->ptr, width, height, flags, (const char*)hl_to_utf8 ((const uchar*)title->bytes), x, y, display);
+		return HLCFFIPointer (window, (hl_finalizer)hl_gc_window);
+
+	}
+
+
+	// At SDL's own position on the first display, as before a position and display could be given,
+	// for libraries built against an older Lime
 	value lime_window_create (value application, int width, int height, int flags, HxString title) {
 
-		Window* window = CreateWindow ((Application*)val_data (application), width, height, flags, hxs_utf8 (title, nullptr));
-		return CFFIPointer (window, gc_window);
+		return lime_window_create_at (application, width, height, flags, title, 0, 0, 0);
 
 	}
 
 
 	HL_PRIM HL_CFFIPointer* HL_NAME(hl_window_create) (HL_CFFIPointer* application, int width, int height, int flags, hl_vstring* title) {
 
-		Window* window = CreateWindow ((Application*)application->ptr, width, height, flags, (const char*)hl_to_utf8 ((const uchar*)title->bytes));
-		return HLCFFIPointer (window, (hl_finalizer)hl_gc_window);
+		return HL_NAME(hl_window_create_at) (application, width, height, flags, title, 0, 0, 0);
 
 	}
 
@@ -5203,6 +5814,48 @@ namespace lime {
 
 		Window* targetWindow = (Window*)window->ptr;
 		targetWindow->Focus ();
+
+	}
+
+
+	bool lime_window_order_relative (value window, value other, bool above) {
+
+		return !val_is_null (other) && ((Window*)val_data (window))->OrderRelative ((Window*)val_data (other), above);
+
+	}
+
+
+	HL_PRIM bool HL_NAME(hl_window_order_relative) (HL_CFFIPointer* window, HL_CFFIPointer* other, bool above) {
+
+		return other && ((Window*)window->ptr)->OrderRelative ((Window*)other->ptr, above);
+
+	}
+
+
+	bool lime_window_order_to_back (value window) {
+
+		return ((Window*)val_data (window))->OrderToBack ();
+
+	}
+
+
+	HL_PRIM bool HL_NAME(hl_window_order_to_back) (HL_CFFIPointer* window) {
+
+		return ((Window*)window->ptr)->OrderToBack ();
+
+	}
+
+
+	bool lime_window_start_move_resize (value window, int edges) {
+
+		return ((Window*)val_data (window))->StartMoveResize (edges);
+
+	}
+
+
+	HL_PRIM bool HL_NAME(hl_window_start_move_resize) (HL_CFFIPointer* window, int edges) {
+
+		return ((Window*)window->ptr)->StartMoveResize (edges);
 
 	}
 
@@ -6183,8 +6836,7 @@ namespace lime {
 		Window* targetWindow = (Window*)val_data (window);
 		VkInstance instance = (VkInstance)(uintptr_t)CombineVulkanHandle (instanceHigh, instanceLow);
 		VkDevice device = (VkDevice)(uintptr_t)CombineVulkanHandle (deviceHigh, deviceLow);
-		PFN_vkCreateCommandPool vkCreateCommandPool = (PFN_vkCreateCommandPool)GetManagedVulkanDeviceProc (targetWindow, instance, device,
-			"vkCreateCommandPool");
+		PFN_vkCreateCommandPool vkCreateCommandPool = LIME_VK_DEVICE_PROC (vkCreateCommandPool);
 		if (!vkCreateCommandPool) return alloc_null ();
 
 		VkCommandPoolCreateInfo createInfo;
@@ -6219,8 +6871,7 @@ namespace lime {
 		Window* targetWindow = (Window*)window->ptr;
 		VkInstance instance = (VkInstance)(uintptr_t)CombineVulkanHandle (instanceHigh, instanceLow);
 		VkDevice device = (VkDevice)(uintptr_t)CombineVulkanHandle (deviceHigh, deviceLow);
-		PFN_vkCreateCommandPool vkCreateCommandPool = (PFN_vkCreateCommandPool)GetManagedVulkanDeviceProc (targetWindow, instance, device,
-			"vkCreateCommandPool");
+		PFN_vkCreateCommandPool vkCreateCommandPool = LIME_VK_DEVICE_PROC (vkCreateCommandPool);
 		if (!vkCreateCommandPool) return 0;
 
 		VkCommandPoolCreateInfo createInfo;
@@ -6257,8 +6908,7 @@ namespace lime {
 		VkInstance instance = (VkInstance)(uintptr_t)CombineVulkanHandle (instanceHigh, instanceLow);
 		VkDevice device = (VkDevice)(uintptr_t)CombineVulkanHandle (deviceHigh, deviceLow);
 		VkCommandPool commandPool = (VkCommandPool)(uintptr_t)CombineVulkanHandle (commandPoolHigh, commandPoolLow);
-		PFN_vkDestroyCommandPool vkDestroyCommandPool = (PFN_vkDestroyCommandPool)GetManagedVulkanDeviceProc (targetWindow, instance, device,
-			"vkDestroyCommandPool");
+		PFN_vkDestroyCommandPool vkDestroyCommandPool = LIME_VK_DEVICE_PROC (vkDestroyCommandPool);
 		if (vkDestroyCommandPool) vkDestroyCommandPool (device, commandPool, 0);
 #else
 		lastVKError = "Lime was built without lime-vulkan support";
@@ -6276,8 +6926,7 @@ namespace lime {
 		VkInstance instance = (VkInstance)(uintptr_t)CombineVulkanHandle (instanceHigh, instanceLow);
 		VkDevice device = (VkDevice)(uintptr_t)CombineVulkanHandle (deviceHigh, deviceLow);
 		VkCommandPool commandPool = (VkCommandPool)(uintptr_t)CombineVulkanHandle (commandPoolHigh, commandPoolLow);
-		PFN_vkDestroyCommandPool vkDestroyCommandPool = (PFN_vkDestroyCommandPool)GetManagedVulkanDeviceProc (targetWindow, instance, device,
-			"vkDestroyCommandPool");
+		PFN_vkDestroyCommandPool vkDestroyCommandPool = LIME_VK_DEVICE_PROC (vkDestroyCommandPool);
 		if (vkDestroyCommandPool) vkDestroyCommandPool (device, commandPool, 0);
 #else
 		lastVKError = "Lime was built without lime-vulkan support";
@@ -6294,8 +6943,7 @@ namespace lime {
 		VkInstance instance = (VkInstance)(uintptr_t)CombineVulkanHandle (instanceHigh, instanceLow);
 		VkDevice device = (VkDevice)(uintptr_t)CombineVulkanHandle (deviceHigh, deviceLow);
 		VkCommandPool commandPool = (VkCommandPool)(uintptr_t)CombineVulkanHandle (commandPoolHigh, commandPoolLow);
-		PFN_vkResetCommandPool vkResetCommandPool = (PFN_vkResetCommandPool)GetManagedVulkanDeviceProc (targetWindow, instance, device,
-			"vkResetCommandPool");
+		PFN_vkResetCommandPool vkResetCommandPool = LIME_VK_DEVICE_PROC (vkResetCommandPool);
 		if (!vkResetCommandPool) return false;
 
 		VkResult result = vkResetCommandPool (device, commandPool, flags);
@@ -6324,8 +6972,7 @@ namespace lime {
 		VkInstance instance = (VkInstance)(uintptr_t)CombineVulkanHandle (instanceHigh, instanceLow);
 		VkDevice device = (VkDevice)(uintptr_t)CombineVulkanHandle (deviceHigh, deviceLow);
 		VkCommandPool commandPool = (VkCommandPool)(uintptr_t)CombineVulkanHandle (commandPoolHigh, commandPoolLow);
-		PFN_vkResetCommandPool vkResetCommandPool = (PFN_vkResetCommandPool)GetManagedVulkanDeviceProc (targetWindow, instance, device,
-			"vkResetCommandPool");
+		PFN_vkResetCommandPool vkResetCommandPool = LIME_VK_DEVICE_PROC (vkResetCommandPool);
 		if (!vkResetCommandPool) return false;
 
 		VkResult result = vkResetCommandPool (device, commandPool, flags);
@@ -6354,8 +7001,7 @@ namespace lime {
 		VkInstance instance = (VkInstance)(uintptr_t)CombineVulkanHandle (instanceHigh, instanceLow);
 		VkDevice device = (VkDevice)(uintptr_t)CombineVulkanHandle (deviceHigh, deviceLow);
 		VkCommandPool commandPool = (VkCommandPool)(uintptr_t)CombineVulkanHandle (commandPoolHigh, commandPoolLow);
-		PFN_vkAllocateCommandBuffers vkAllocateCommandBuffers = (PFN_vkAllocateCommandBuffers)GetManagedVulkanDeviceProc (targetWindow, instance, device,
-			"vkAllocateCommandBuffers");
+		PFN_vkAllocateCommandBuffers vkAllocateCommandBuffers = LIME_VK_DEVICE_PROC (vkAllocateCommandBuffers);
 		if (!vkAllocateCommandBuffers) return alloc_null ();
 
 		VkCommandBufferAllocateInfo allocateInfo;
@@ -6392,8 +7038,7 @@ namespace lime {
 		VkInstance instance = (VkInstance)(uintptr_t)CombineVulkanHandle (instanceHigh, instanceLow);
 		VkDevice device = (VkDevice)(uintptr_t)CombineVulkanHandle (deviceHigh, deviceLow);
 		VkCommandPool commandPool = (VkCommandPool)(uintptr_t)CombineVulkanHandle (commandPoolHigh, commandPoolLow);
-		PFN_vkAllocateCommandBuffers vkAllocateCommandBuffers = (PFN_vkAllocateCommandBuffers)GetManagedVulkanDeviceProc (targetWindow, instance, device,
-			"vkAllocateCommandBuffers");
+		PFN_vkAllocateCommandBuffers vkAllocateCommandBuffers = LIME_VK_DEVICE_PROC (vkAllocateCommandBuffers);
 		if (!vkAllocateCommandBuffers) return 0;
 
 		VkCommandBufferAllocateInfo allocateInfo;
@@ -6432,8 +7077,7 @@ namespace lime {
 		VkDevice device = (VkDevice)(uintptr_t)CombineVulkanHandle (deviceHigh, deviceLow);
 		VkCommandPool commandPool = (VkCommandPool)(uintptr_t)CombineVulkanHandle (commandPoolHigh, commandPoolLow);
 		VkCommandBuffer commandBuffer = (VkCommandBuffer)(uintptr_t)CombineVulkanHandle (commandBufferHigh, commandBufferLow);
-		PFN_vkFreeCommandBuffers vkFreeCommandBuffers = (PFN_vkFreeCommandBuffers)GetManagedVulkanDeviceProc (targetWindow, instance, device,
-			"vkFreeCommandBuffers");
+		PFN_vkFreeCommandBuffers vkFreeCommandBuffers = LIME_VK_DEVICE_PROC (vkFreeCommandBuffers);
 		if (vkFreeCommandBuffers) vkFreeCommandBuffers (device, commandPool, 1, &commandBuffer);
 #else
 		lastVKError = "Lime was built without lime-vulkan support";
@@ -6452,8 +7096,7 @@ namespace lime {
 		VkDevice device = (VkDevice)(uintptr_t)CombineVulkanHandle (deviceHigh, deviceLow);
 		VkCommandPool commandPool = (VkCommandPool)(uintptr_t)CombineVulkanHandle (commandPoolHigh, commandPoolLow);
 		VkCommandBuffer commandBuffer = (VkCommandBuffer)(uintptr_t)CombineVulkanHandle (commandBufferHigh, commandBufferLow);
-		PFN_vkFreeCommandBuffers vkFreeCommandBuffers = (PFN_vkFreeCommandBuffers)GetManagedVulkanDeviceProc (targetWindow, instance, device,
-			"vkFreeCommandBuffers");
+		PFN_vkFreeCommandBuffers vkFreeCommandBuffers = LIME_VK_DEVICE_PROC (vkFreeCommandBuffers);
 		if (vkFreeCommandBuffers) vkFreeCommandBuffers (device, commandPool, 1, &commandBuffer);
 #else
 		lastVKError = "Lime was built without lime-vulkan support";
@@ -6470,8 +7113,7 @@ namespace lime {
 		VkInstance instance = (VkInstance)(uintptr_t)CombineVulkanHandle (instanceHigh, instanceLow);
 		VkDevice device = (VkDevice)(uintptr_t)CombineVulkanHandle (deviceHigh, deviceLow);
 		VkCommandBuffer commandBuffer = (VkCommandBuffer)(uintptr_t)CombineVulkanHandle (commandBufferHigh, commandBufferLow);
-		PFN_vkBeginCommandBuffer vkBeginCommandBuffer = (PFN_vkBeginCommandBuffer)GetManagedVulkanDeviceProc (targetWindow, instance, device,
-			"vkBeginCommandBuffer");
+		PFN_vkBeginCommandBuffer vkBeginCommandBuffer = LIME_VK_DEVICE_PROC (vkBeginCommandBuffer);
 		if (!vkBeginCommandBuffer) return false;
 
 		VkCommandBufferBeginInfo beginInfo;
@@ -6505,8 +7147,7 @@ namespace lime {
 		VkInstance instance = (VkInstance)(uintptr_t)CombineVulkanHandle (instanceHigh, instanceLow);
 		VkDevice device = (VkDevice)(uintptr_t)CombineVulkanHandle (deviceHigh, deviceLow);
 		VkCommandBuffer commandBuffer = (VkCommandBuffer)(uintptr_t)CombineVulkanHandle (commandBufferHigh, commandBufferLow);
-		PFN_vkBeginCommandBuffer vkBeginCommandBuffer = (PFN_vkBeginCommandBuffer)GetManagedVulkanDeviceProc (targetWindow, instance, device,
-			"vkBeginCommandBuffer");
+		PFN_vkBeginCommandBuffer vkBeginCommandBuffer = LIME_VK_DEVICE_PROC (vkBeginCommandBuffer);
 		if (!vkBeginCommandBuffer) return false;
 
 		VkCommandBufferBeginInfo beginInfo;
@@ -6540,8 +7181,7 @@ namespace lime {
 		VkInstance instance = (VkInstance)(uintptr_t)CombineVulkanHandle (instanceHigh, instanceLow);
 		VkDevice device = (VkDevice)(uintptr_t)CombineVulkanHandle (deviceHigh, deviceLow);
 		VkCommandBuffer commandBuffer = (VkCommandBuffer)(uintptr_t)CombineVulkanHandle (commandBufferHigh, commandBufferLow);
-		PFN_vkEndCommandBuffer vkEndCommandBuffer = (PFN_vkEndCommandBuffer)GetManagedVulkanDeviceProc (targetWindow, instance, device,
-			"vkEndCommandBuffer");
+		PFN_vkEndCommandBuffer vkEndCommandBuffer = LIME_VK_DEVICE_PROC (vkEndCommandBuffer);
 		if (!vkEndCommandBuffer) return false;
 
 		VkResult result = vkEndCommandBuffer (commandBuffer);
@@ -6570,8 +7210,7 @@ namespace lime {
 		VkInstance instance = (VkInstance)(uintptr_t)CombineVulkanHandle (instanceHigh, instanceLow);
 		VkDevice device = (VkDevice)(uintptr_t)CombineVulkanHandle (deviceHigh, deviceLow);
 		VkCommandBuffer commandBuffer = (VkCommandBuffer)(uintptr_t)CombineVulkanHandle (commandBufferHigh, commandBufferLow);
-		PFN_vkEndCommandBuffer vkEndCommandBuffer = (PFN_vkEndCommandBuffer)GetManagedVulkanDeviceProc (targetWindow, instance, device,
-			"vkEndCommandBuffer");
+		PFN_vkEndCommandBuffer vkEndCommandBuffer = LIME_VK_DEVICE_PROC (vkEndCommandBuffer);
 		if (!vkEndCommandBuffer) return false;
 
 		VkResult result = vkEndCommandBuffer (commandBuffer);
@@ -6600,8 +7239,7 @@ namespace lime {
 		VkInstance instance = (VkInstance)(uintptr_t)CombineVulkanHandle (instanceHigh, instanceLow);
 		VkDevice device = (VkDevice)(uintptr_t)CombineVulkanHandle (deviceHigh, deviceLow);
 		VkCommandBuffer commandBuffer = (VkCommandBuffer)(uintptr_t)CombineVulkanHandle (commandBufferHigh, commandBufferLow);
-		PFN_vkResetCommandBuffer vkResetCommandBuffer = (PFN_vkResetCommandBuffer)GetManagedVulkanDeviceProc (targetWindow, instance, device,
-			"vkResetCommandBuffer");
+		PFN_vkResetCommandBuffer vkResetCommandBuffer = LIME_VK_DEVICE_PROC (vkResetCommandBuffer);
 		if (!vkResetCommandBuffer) return false;
 
 		VkResult result = vkResetCommandBuffer (commandBuffer, flags);
@@ -6630,8 +7268,7 @@ namespace lime {
 		VkInstance instance = (VkInstance)(uintptr_t)CombineVulkanHandle (instanceHigh, instanceLow);
 		VkDevice device = (VkDevice)(uintptr_t)CombineVulkanHandle (deviceHigh, deviceLow);
 		VkCommandBuffer commandBuffer = (VkCommandBuffer)(uintptr_t)CombineVulkanHandle (commandBufferHigh, commandBufferLow);
-		PFN_vkResetCommandBuffer vkResetCommandBuffer = (PFN_vkResetCommandBuffer)GetManagedVulkanDeviceProc (targetWindow, instance, device,
-			"vkResetCommandBuffer");
+		PFN_vkResetCommandBuffer vkResetCommandBuffer = LIME_VK_DEVICE_PROC (vkResetCommandBuffer);
 		if (!vkResetCommandBuffer) return false;
 
 		VkResult result = vkResetCommandBuffer (commandBuffer, flags);
@@ -6658,8 +7295,7 @@ namespace lime {
 		Window* targetWindow = (Window*)val_data (window);
 		VkInstance instance = (VkInstance)(uintptr_t)CombineVulkanHandle (instanceHigh, instanceLow);
 		VkDevice device = (VkDevice)(uintptr_t)CombineVulkanHandle (deviceHigh, deviceLow);
-		PFN_vkCreateSemaphore vkCreateSemaphore = (PFN_vkCreateSemaphore)GetManagedVulkanDeviceProc (targetWindow, instance, device,
-			"vkCreateSemaphore");
+		PFN_vkCreateSemaphore vkCreateSemaphore = LIME_VK_DEVICE_PROC (vkCreateSemaphore);
 		if (!vkCreateSemaphore) return alloc_null ();
 
 		VkSemaphoreCreateInfo createInfo;
@@ -6691,8 +7327,7 @@ namespace lime {
 		Window* targetWindow = (Window*)window->ptr;
 		VkInstance instance = (VkInstance)(uintptr_t)CombineVulkanHandle (instanceHigh, instanceLow);
 		VkDevice device = (VkDevice)(uintptr_t)CombineVulkanHandle (deviceHigh, deviceLow);
-		PFN_vkCreateSemaphore vkCreateSemaphore = (PFN_vkCreateSemaphore)GetManagedVulkanDeviceProc (targetWindow, instance, device,
-			"vkCreateSemaphore");
+		PFN_vkCreateSemaphore vkCreateSemaphore = LIME_VK_DEVICE_PROC (vkCreateSemaphore);
 		if (!vkCreateSemaphore) return 0;
 
 		VkSemaphoreCreateInfo createInfo;
@@ -6727,8 +7362,7 @@ namespace lime {
 		VkInstance instance = (VkInstance)(uintptr_t)CombineVulkanHandle (instanceHigh, instanceLow);
 		VkDevice device = (VkDevice)(uintptr_t)CombineVulkanHandle (deviceHigh, deviceLow);
 		VkSemaphore semaphore = (VkSemaphore)(uintptr_t)CombineVulkanHandle (semaphoreHigh, semaphoreLow);
-		PFN_vkDestroySemaphore vkDestroySemaphore = (PFN_vkDestroySemaphore)GetManagedVulkanDeviceProc (targetWindow, instance, device,
-			"vkDestroySemaphore");
+		PFN_vkDestroySemaphore vkDestroySemaphore = LIME_VK_DEVICE_PROC (vkDestroySemaphore);
 		if (vkDestroySemaphore) vkDestroySemaphore (device, semaphore, 0);
 #else
 		lastVKError = "Lime was built without lime-vulkan support";
@@ -6746,8 +7380,7 @@ namespace lime {
 		VkInstance instance = (VkInstance)(uintptr_t)CombineVulkanHandle (instanceHigh, instanceLow);
 		VkDevice device = (VkDevice)(uintptr_t)CombineVulkanHandle (deviceHigh, deviceLow);
 		VkSemaphore semaphore = (VkSemaphore)(uintptr_t)CombineVulkanHandle (semaphoreHigh, semaphoreLow);
-		PFN_vkDestroySemaphore vkDestroySemaphore = (PFN_vkDestroySemaphore)GetManagedVulkanDeviceProc (targetWindow, instance, device,
-			"vkDestroySemaphore");
+		PFN_vkDestroySemaphore vkDestroySemaphore = LIME_VK_DEVICE_PROC (vkDestroySemaphore);
 		if (vkDestroySemaphore) vkDestroySemaphore (device, semaphore, 0);
 #else
 		lastVKError = "Lime was built without lime-vulkan support";
@@ -6762,7 +7395,7 @@ namespace lime {
 		Window* targetWindow = (Window*)val_data (window);
 		VkInstance instance = (VkInstance)(uintptr_t)CombineVulkanHandle (instanceHigh, instanceLow);
 		VkDevice device = (VkDevice)(uintptr_t)CombineVulkanHandle (deviceHigh, deviceLow);
-		PFN_vkCreateFence vkCreateFence = (PFN_vkCreateFence)GetManagedVulkanDeviceProc (targetWindow, instance, device, "vkCreateFence");
+		PFN_vkCreateFence vkCreateFence = LIME_VK_DEVICE_PROC (vkCreateFence);
 		if (!vkCreateFence) return alloc_null ();
 
 		VkFenceCreateInfo createInfo;
@@ -6796,7 +7429,7 @@ namespace lime {
 		Window* targetWindow = (Window*)window->ptr;
 		VkInstance instance = (VkInstance)(uintptr_t)CombineVulkanHandle (instanceHigh, instanceLow);
 		VkDevice device = (VkDevice)(uintptr_t)CombineVulkanHandle (deviceHigh, deviceLow);
-		PFN_vkCreateFence vkCreateFence = (PFN_vkCreateFence)GetManagedVulkanDeviceProc (targetWindow, instance, device, "vkCreateFence");
+		PFN_vkCreateFence vkCreateFence = LIME_VK_DEVICE_PROC (vkCreateFence);
 		if (!vkCreateFence) return 0;
 
 		VkFenceCreateInfo createInfo;
@@ -6831,7 +7464,7 @@ namespace lime {
 		VkInstance instance = (VkInstance)(uintptr_t)CombineVulkanHandle (instanceHigh, instanceLow);
 		VkDevice device = (VkDevice)(uintptr_t)CombineVulkanHandle (deviceHigh, deviceLow);
 		VkFence fence = (VkFence)(uintptr_t)CombineVulkanHandle (fenceHigh, fenceLow);
-		PFN_vkDestroyFence vkDestroyFence = (PFN_vkDestroyFence)GetManagedVulkanDeviceProc (targetWindow, instance, device, "vkDestroyFence");
+		PFN_vkDestroyFence vkDestroyFence = LIME_VK_DEVICE_PROC (vkDestroyFence);
 		if (vkDestroyFence) vkDestroyFence (device, fence, 0);
 #else
 		lastVKError = "Lime was built without lime-vulkan support";
@@ -6849,7 +7482,7 @@ namespace lime {
 		VkInstance instance = (VkInstance)(uintptr_t)CombineVulkanHandle (instanceHigh, instanceLow);
 		VkDevice device = (VkDevice)(uintptr_t)CombineVulkanHandle (deviceHigh, deviceLow);
 		VkFence fence = (VkFence)(uintptr_t)CombineVulkanHandle (fenceHigh, fenceLow);
-		PFN_vkDestroyFence vkDestroyFence = (PFN_vkDestroyFence)GetManagedVulkanDeviceProc (targetWindow, instance, device, "vkDestroyFence");
+		PFN_vkDestroyFence vkDestroyFence = LIME_VK_DEVICE_PROC (vkDestroyFence);
 		if (vkDestroyFence) vkDestroyFence (device, fence, 0);
 #else
 		lastVKError = "Lime was built without lime-vulkan support";
@@ -6867,7 +7500,7 @@ namespace lime {
 		VkDevice device = (VkDevice)(uintptr_t)CombineVulkanHandle (deviceHigh, deviceLow);
 		VkFence fence = (VkFence)(uintptr_t)CombineVulkanHandle (fenceHigh, fenceLow);
 		uint64_t timeout = CombineVulkanHandle (timeoutHigh, timeoutLow);
-		PFN_vkWaitForFences vkWaitForFences = (PFN_vkWaitForFences)GetManagedVulkanDeviceProc (targetWindow, instance, device, "vkWaitForFences");
+		PFN_vkWaitForFences vkWaitForFences = LIME_VK_DEVICE_PROC (vkWaitForFences);
 		if (!vkWaitForFences) return false;
 
 		VkResult result = vkWaitForFences (device, 1, &fence, VK_TRUE, timeout);
@@ -6897,7 +7530,7 @@ namespace lime {
 		VkDevice device = (VkDevice)(uintptr_t)CombineVulkanHandle (deviceHigh, deviceLow);
 		VkFence fence = (VkFence)(uintptr_t)CombineVulkanHandle (fenceHigh, fenceLow);
 		uint64_t timeout = CombineVulkanHandle (timeoutHigh, timeoutLow);
-		PFN_vkWaitForFences vkWaitForFences = (PFN_vkWaitForFences)GetManagedVulkanDeviceProc (targetWindow, instance, device, "vkWaitForFences");
+		PFN_vkWaitForFences vkWaitForFences = LIME_VK_DEVICE_PROC (vkWaitForFences);
 		if (!vkWaitForFences) return false;
 
 		VkResult result = vkWaitForFences (device, 1, &fence, VK_TRUE, timeout);
@@ -6925,7 +7558,7 @@ namespace lime {
 		VkInstance instance = (VkInstance)(uintptr_t)CombineVulkanHandle (instanceHigh, instanceLow);
 		VkDevice device = (VkDevice)(uintptr_t)CombineVulkanHandle (deviceHigh, deviceLow);
 		VkFence fence = (VkFence)(uintptr_t)CombineVulkanHandle (fenceHigh, fenceLow);
-		PFN_vkResetFences vkResetFences = (PFN_vkResetFences)GetManagedVulkanDeviceProc (targetWindow, instance, device, "vkResetFences");
+		PFN_vkResetFences vkResetFences = LIME_VK_DEVICE_PROC (vkResetFences);
 		if (!vkResetFences) return false;
 
 		VkResult result = vkResetFences (device, 1, &fence);
@@ -6954,7 +7587,7 @@ namespace lime {
 		VkInstance instance = (VkInstance)(uintptr_t)CombineVulkanHandle (instanceHigh, instanceLow);
 		VkDevice device = (VkDevice)(uintptr_t)CombineVulkanHandle (deviceHigh, deviceLow);
 		VkFence fence = (VkFence)(uintptr_t)CombineVulkanHandle (fenceHigh, fenceLow);
-		PFN_vkResetFences vkResetFences = (PFN_vkResetFences)GetManagedVulkanDeviceProc (targetWindow, instance, device, "vkResetFences");
+		PFN_vkResetFences vkResetFences = LIME_VK_DEVICE_PROC (vkResetFences);
 		if (!vkResetFences) return false;
 
 		VkResult result = vkResetFences (device, 1, &fence);
@@ -6985,7 +7618,7 @@ namespace lime {
 		VkQueue queue = (VkQueue)(uintptr_t)CombineVulkanHandle (queueHigh, queueLow);
 		VkCommandBuffer commandBuffer = (VkCommandBuffer)(uintptr_t)CombineVulkanHandle (commandBufferHigh, commandBufferLow);
 		VkFence fence = (VkFence)(uintptr_t)CombineVulkanHandle (fenceHigh, fenceLow);
-		PFN_vkQueueSubmit vkQueueSubmit = (PFN_vkQueueSubmit)GetManagedVulkanDeviceProc (targetWindow, instance, device, "vkQueueSubmit");
+		PFN_vkQueueSubmit vkQueueSubmit = LIME_VK_DEVICE_PROC (vkQueueSubmit);
 		if (!vkQueueSubmit) return false;
 
 		VkSubmitInfo submitInfo;
@@ -7024,7 +7657,7 @@ namespace lime {
 		VkQueue queue = (VkQueue)(uintptr_t)CombineVulkanHandle (queueHigh, queueLow);
 		VkCommandBuffer commandBuffer = (VkCommandBuffer)(uintptr_t)CombineVulkanHandle (commandBufferHigh, commandBufferLow);
 		VkFence fence = (VkFence)(uintptr_t)CombineVulkanHandle (fenceHigh, fenceLow);
-		PFN_vkQueueSubmit vkQueueSubmit = (PFN_vkQueueSubmit)GetManagedVulkanDeviceProc (targetWindow, instance, device, "vkQueueSubmit");
+		PFN_vkQueueSubmit vkQueueSubmit = LIME_VK_DEVICE_PROC (vkQueueSubmit);
 		if (!vkQueueSubmit) return false;
 
 		VkSubmitInfo submitInfo;
@@ -7070,7 +7703,7 @@ namespace lime {
 
 		}
 
-		PFN_vkAllocateMemory vkAllocateMemory = (PFN_vkAllocateMemory)GetManagedVulkanDeviceProc (targetWindow, instance, device, "vkAllocateMemory");
+		PFN_vkAllocateMemory vkAllocateMemory = LIME_VK_DEVICE_PROC (vkAllocateMemory);
 		if (!vkAllocateMemory) return alloc_null ();
 
 		VkMemoryAllocateInfo allocateInfo;
@@ -7115,7 +7748,7 @@ namespace lime {
 
 		}
 
-		PFN_vkAllocateMemory vkAllocateMemory = (PFN_vkAllocateMemory)GetManagedVulkanDeviceProc (targetWindow, instance, device, "vkAllocateMemory");
+		PFN_vkAllocateMemory vkAllocateMemory = LIME_VK_DEVICE_PROC (vkAllocateMemory);
 		if (!vkAllocateMemory) return 0;
 
 		VkMemoryAllocateInfo allocateInfo;
@@ -7151,14 +7784,14 @@ namespace lime {
 		VkInstance instance = (VkInstance)(uintptr_t)CombineVulkanHandle (instanceHigh, instanceLow);
 		VkDevice device = (VkDevice)(uintptr_t)CombineVulkanHandle (deviceHigh, deviceLow);
 		VkDeviceMemory memory = (VkDeviceMemory)(uintptr_t)CombineVulkanHandle (memoryHigh, memoryLow);
-		PFN_vkFreeMemory vkFreeMemory = (PFN_vkFreeMemory)GetManagedVulkanDeviceProc (targetWindow, instance, device, "vkFreeMemory");
+		PFN_vkFreeMemory vkFreeMemory = LIME_VK_DEVICE_PROC (vkFreeMemory);
 		if (vkFreeMemory) {
 
 			uint64_t mapKey = GetManagedVulkanMappedMemoryKey (memory);
 			std::unordered_map<uint64_t, ManagedVulkanMappedMemory>::iterator mapped = mappedVulkanMemory.find (mapKey);
 			if (mapped != mappedVulkanMemory.end ()) {
 
-				PFN_vkUnmapMemory vkUnmapMemory = (PFN_vkUnmapMemory)GetManagedVulkanDeviceProc (targetWindow, instance, device, "vkUnmapMemory");
+				PFN_vkUnmapMemory vkUnmapMemory = LIME_VK_DEVICE_PROC (vkUnmapMemory);
 				if (vkUnmapMemory) vkUnmapMemory (device, memory);
 				mappedVulkanMemory.erase (mapped);
 
@@ -7184,14 +7817,14 @@ namespace lime {
 		VkInstance instance = (VkInstance)(uintptr_t)CombineVulkanHandle (instanceHigh, instanceLow);
 		VkDevice device = (VkDevice)(uintptr_t)CombineVulkanHandle (deviceHigh, deviceLow);
 		VkDeviceMemory memory = (VkDeviceMemory)(uintptr_t)CombineVulkanHandle (memoryHigh, memoryLow);
-		PFN_vkFreeMemory vkFreeMemory = (PFN_vkFreeMemory)GetManagedVulkanDeviceProc (targetWindow, instance, device, "vkFreeMemory");
+		PFN_vkFreeMemory vkFreeMemory = LIME_VK_DEVICE_PROC (vkFreeMemory);
 		if (vkFreeMemory) {
 
 			uint64_t mapKey = GetManagedVulkanMappedMemoryKey (memory);
 			std::unordered_map<uint64_t, ManagedVulkanMappedMemory>::iterator mapped = mappedVulkanMemory.find (mapKey);
 			if (mapped != mappedVulkanMemory.end ()) {
 
-				PFN_vkUnmapMemory vkUnmapMemory = (PFN_vkUnmapMemory)GetManagedVulkanDeviceProc (targetWindow, instance, device, "vkUnmapMemory");
+				PFN_vkUnmapMemory vkUnmapMemory = LIME_VK_DEVICE_PROC (vkUnmapMemory);
 				if (vkUnmapMemory) vkUnmapMemory (device, memory);
 				mappedVulkanMemory.erase (mapped);
 
@@ -7225,8 +7858,8 @@ namespace lime {
 
 		}
 
-		PFN_vkMapMemory vkMapMemory = (PFN_vkMapMemory)GetManagedVulkanDeviceProc (targetWindow, instance, device, "vkMapMemory");
-		PFN_vkUnmapMemory vkUnmapMemory = (PFN_vkUnmapMemory)GetManagedVulkanDeviceProc (targetWindow, instance, device, "vkUnmapMemory");
+		PFN_vkMapMemory vkMapMemory = LIME_VK_DEVICE_PROC (vkMapMemory);
+		PFN_vkUnmapMemory vkUnmapMemory = LIME_VK_DEVICE_PROC (vkUnmapMemory);
 		if (!vkMapMemory || !vkUnmapMemory) return false;
 
 		void* mappedData = 0;
@@ -7266,8 +7899,8 @@ namespace lime {
 
 		}
 
-		PFN_vkMapMemory vkMapMemory = (PFN_vkMapMemory)GetManagedVulkanDeviceProc (targetWindow, instance, device, "vkMapMemory");
-		PFN_vkUnmapMemory vkUnmapMemory = (PFN_vkUnmapMemory)GetManagedVulkanDeviceProc (targetWindow, instance, device, "vkUnmapMemory");
+		PFN_vkMapMemory vkMapMemory = LIME_VK_DEVICE_PROC (vkMapMemory);
+		PFN_vkUnmapMemory vkUnmapMemory = LIME_VK_DEVICE_PROC (vkUnmapMemory);
 		if (!vkMapMemory || !vkUnmapMemory) return false;
 
 		void* mappedData = 0;
@@ -7308,8 +7941,8 @@ namespace lime {
 
 		}
 
-		PFN_vkMapMemory vkMapMemory = (PFN_vkMapMemory)GetManagedVulkanDeviceProc (targetWindow, instance, device, "vkMapMemory");
-		PFN_vkUnmapMemory vkUnmapMemory = (PFN_vkUnmapMemory)GetManagedVulkanDeviceProc (targetWindow, instance, device, "vkUnmapMemory");
+		PFN_vkMapMemory vkMapMemory = LIME_VK_DEVICE_PROC (vkMapMemory);
+		PFN_vkUnmapMemory vkUnmapMemory = LIME_VK_DEVICE_PROC (vkUnmapMemory);
 		if (!vkMapMemory || !vkUnmapMemory) return false;
 
 		void* mappedData = 0;
@@ -7349,8 +7982,8 @@ namespace lime {
 
 		}
 
-		PFN_vkMapMemory vkMapMemory = (PFN_vkMapMemory)GetManagedVulkanDeviceProc (targetWindow, instance, device, "vkMapMemory");
-		PFN_vkUnmapMemory vkUnmapMemory = (PFN_vkUnmapMemory)GetManagedVulkanDeviceProc (targetWindow, instance, device, "vkUnmapMemory");
+		PFN_vkMapMemory vkMapMemory = LIME_VK_DEVICE_PROC (vkMapMemory);
+		PFN_vkUnmapMemory vkUnmapMemory = LIME_VK_DEVICE_PROC (vkUnmapMemory);
 		if (!vkMapMemory || !vkUnmapMemory) return false;
 
 		void* mappedData = 0;
@@ -7394,7 +8027,7 @@ namespace lime {
 
 		}
 
-		PFN_vkMapMemory vkMapMemory = (PFN_vkMapMemory)GetManagedVulkanDeviceProc (targetWindow, instance, device, "vkMapMemory");
+		PFN_vkMapMemory vkMapMemory = LIME_VK_DEVICE_PROC (vkMapMemory);
 		if (!vkMapMemory) return false;
 
 		void* mappedData = 0;
@@ -7443,7 +8076,7 @@ namespace lime {
 
 		}
 
-		PFN_vkMapMemory vkMapMemory = (PFN_vkMapMemory)GetManagedVulkanDeviceProc (targetWindow, instance, device, "vkMapMemory");
+		PFN_vkMapMemory vkMapMemory = LIME_VK_DEVICE_PROC (vkMapMemory);
 		if (!vkMapMemory) return false;
 
 		void* mappedData = 0;
@@ -7483,7 +8116,7 @@ namespace lime {
 		std::unordered_map<uint64_t, ManagedVulkanMappedMemory>::iterator mapped = mappedVulkanMemory.find (mapKey);
 		if (mapped == mappedVulkanMemory.end ()) return;
 
-		PFN_vkUnmapMemory vkUnmapMemory = (PFN_vkUnmapMemory)GetManagedVulkanDeviceProc (targetWindow, instance, device, "vkUnmapMemory");
+		PFN_vkUnmapMemory vkUnmapMemory = LIME_VK_DEVICE_PROC (vkUnmapMemory);
 		if (!vkUnmapMemory) return;
 
 		vkUnmapMemory (device, memory);
@@ -7508,7 +8141,7 @@ namespace lime {
 		std::unordered_map<uint64_t, ManagedVulkanMappedMemory>::iterator mapped = mappedVulkanMemory.find (mapKey);
 		if (mapped == mappedVulkanMemory.end ()) return;
 
-		PFN_vkUnmapMemory vkUnmapMemory = (PFN_vkUnmapMemory)GetManagedVulkanDeviceProc (targetWindow, instance, device, "vkUnmapMemory");
+		PFN_vkUnmapMemory vkUnmapMemory = LIME_VK_DEVICE_PROC (vkUnmapMemory);
 		if (!vkUnmapMemory) return;
 
 		vkUnmapMemory (device, memory);
@@ -7625,7 +8258,7 @@ namespace lime {
 		VkDevice device = (VkDevice)(uintptr_t)CombineVulkanHandle (deviceHigh, deviceLow);
 		VkDeviceMemory memory = (VkDeviceMemory)(uintptr_t)CombineVulkanHandle (memoryHigh, memoryLow);
 		PFN_vkFlushMappedMemoryRanges vkFlushMappedMemoryRanges =
-			(PFN_vkFlushMappedMemoryRanges)GetManagedVulkanDeviceProc (targetWindow, instance, device, "vkFlushMappedMemoryRanges");
+			LIME_VK_DEVICE_PROC (vkFlushMappedMemoryRanges);
 		if (!vkFlushMappedMemoryRanges || !memory) return false;
 
 		VkMappedMemoryRange range;
@@ -7661,7 +8294,7 @@ namespace lime {
 		VkDevice device = (VkDevice)(uintptr_t)CombineVulkanHandle (deviceHigh, deviceLow);
 		VkDeviceMemory memory = (VkDeviceMemory)(uintptr_t)CombineVulkanHandle (memoryHigh, memoryLow);
 		PFN_vkFlushMappedMemoryRanges vkFlushMappedMemoryRanges =
-			(PFN_vkFlushMappedMemoryRanges)GetManagedVulkanDeviceProc (targetWindow, instance, device, "vkFlushMappedMemoryRanges");
+			LIME_VK_DEVICE_PROC (vkFlushMappedMemoryRanges);
 		if (!vkFlushMappedMemoryRanges || !memory) return false;
 
 		VkMappedMemoryRange range;
@@ -7697,7 +8330,7 @@ namespace lime {
 		VkDevice device = (VkDevice)(uintptr_t)CombineVulkanHandle (deviceHigh, deviceLow);
 		VkDeviceMemory memory = (VkDeviceMemory)(uintptr_t)CombineVulkanHandle (memoryHigh, memoryLow);
 		PFN_vkInvalidateMappedMemoryRanges vkInvalidateMappedMemoryRanges =
-			(PFN_vkInvalidateMappedMemoryRanges)GetManagedVulkanDeviceProc (targetWindow, instance, device, "vkInvalidateMappedMemoryRanges");
+			LIME_VK_DEVICE_PROC (vkInvalidateMappedMemoryRanges);
 		if (!vkInvalidateMappedMemoryRanges || !memory) return false;
 
 		VkMappedMemoryRange range;
@@ -7733,7 +8366,7 @@ namespace lime {
 		VkDevice device = (VkDevice)(uintptr_t)CombineVulkanHandle (deviceHigh, deviceLow);
 		VkDeviceMemory memory = (VkDeviceMemory)(uintptr_t)CombineVulkanHandle (memoryHigh, memoryLow);
 		PFN_vkInvalidateMappedMemoryRanges vkInvalidateMappedMemoryRanges =
-			(PFN_vkInvalidateMappedMemoryRanges)GetManagedVulkanDeviceProc (targetWindow, instance, device, "vkInvalidateMappedMemoryRanges");
+			LIME_VK_DEVICE_PROC (vkInvalidateMappedMemoryRanges);
 		if (!vkInvalidateMappedMemoryRanges || !memory) return false;
 
 		VkMappedMemoryRange range;
@@ -7766,7 +8399,7 @@ namespace lime {
 		Window* targetWindow = (Window*)val_data (window);
 		VkInstance instance = (VkInstance)(uintptr_t)CombineVulkanHandle (instanceHigh, instanceLow);
 		VkDevice device = (VkDevice)(uintptr_t)CombineVulkanHandle (deviceHigh, deviceLow);
-		PFN_vkCreateBuffer vkCreateBuffer = (PFN_vkCreateBuffer)GetManagedVulkanDeviceProc (targetWindow, instance, device, "vkCreateBuffer");
+		PFN_vkCreateBuffer vkCreateBuffer = LIME_VK_DEVICE_PROC (vkCreateBuffer);
 		if (!vkCreateBuffer) return alloc_null ();
 
 		VkBufferCreateInfo createInfo;
@@ -7802,7 +8435,7 @@ namespace lime {
 		Window* targetWindow = (Window*)window->ptr;
 		VkInstance instance = (VkInstance)(uintptr_t)CombineVulkanHandle (instanceHigh, instanceLow);
 		VkDevice device = (VkDevice)(uintptr_t)CombineVulkanHandle (deviceHigh, deviceLow);
-		PFN_vkCreateBuffer vkCreateBuffer = (PFN_vkCreateBuffer)GetManagedVulkanDeviceProc (targetWindow, instance, device, "vkCreateBuffer");
+		PFN_vkCreateBuffer vkCreateBuffer = LIME_VK_DEVICE_PROC (vkCreateBuffer);
 		if (!vkCreateBuffer) return 0;
 
 		VkBufferCreateInfo createInfo;
@@ -7839,7 +8472,7 @@ namespace lime {
 		VkInstance instance = (VkInstance)(uintptr_t)CombineVulkanHandle (instanceHigh, instanceLow);
 		VkDevice device = (VkDevice)(uintptr_t)CombineVulkanHandle (deviceHigh, deviceLow);
 		VkBuffer buffer = (VkBuffer)(uintptr_t)CombineVulkanHandle (bufferHigh, bufferLow);
-		PFN_vkDestroyBuffer vkDestroyBuffer = (PFN_vkDestroyBuffer)GetManagedVulkanDeviceProc (targetWindow, instance, device, "vkDestroyBuffer");
+		PFN_vkDestroyBuffer vkDestroyBuffer = LIME_VK_DEVICE_PROC (vkDestroyBuffer);
 		if (vkDestroyBuffer) {
 
 			vkDestroyBuffer (device, buffer, 0);
@@ -7862,7 +8495,7 @@ namespace lime {
 		VkInstance instance = (VkInstance)(uintptr_t)CombineVulkanHandle (instanceHigh, instanceLow);
 		VkDevice device = (VkDevice)(uintptr_t)CombineVulkanHandle (deviceHigh, deviceLow);
 		VkBuffer buffer = (VkBuffer)(uintptr_t)CombineVulkanHandle (bufferHigh, bufferLow);
-		PFN_vkDestroyBuffer vkDestroyBuffer = (PFN_vkDestroyBuffer)GetManagedVulkanDeviceProc (targetWindow, instance, device, "vkDestroyBuffer");
+		PFN_vkDestroyBuffer vkDestroyBuffer = LIME_VK_DEVICE_PROC (vkDestroyBuffer);
 		if (vkDestroyBuffer) {
 
 			vkDestroyBuffer (device, buffer, 0);
@@ -7885,7 +8518,7 @@ namespace lime {
 		VkDevice device = (VkDevice)(uintptr_t)CombineVulkanHandle (deviceHigh, deviceLow);
 		VkBuffer buffer = (VkBuffer)(uintptr_t)CombineVulkanHandle (bufferHigh, bufferLow);
 		PFN_vkGetBufferMemoryRequirements vkGetBufferMemoryRequirements =
-			(PFN_vkGetBufferMemoryRequirements)GetManagedVulkanDeviceProc (targetWindow, instance, device, "vkGetBufferMemoryRequirements");
+			LIME_VK_DEVICE_PROC (vkGetBufferMemoryRequirements);
 		if (!vkGetBufferMemoryRequirements || !buffer) return alloc_null ();
 
 		VkMemoryRequirements requirements;
@@ -7910,7 +8543,7 @@ namespace lime {
 		VkDevice device = (VkDevice)(uintptr_t)CombineVulkanHandle (deviceHigh, deviceLow);
 		VkBuffer buffer = (VkBuffer)(uintptr_t)CombineVulkanHandle (bufferHigh, bufferLow);
 		PFN_vkGetBufferMemoryRequirements vkGetBufferMemoryRequirements =
-			(PFN_vkGetBufferMemoryRequirements)GetManagedVulkanDeviceProc (targetWindow, instance, device, "vkGetBufferMemoryRequirements");
+			LIME_VK_DEVICE_PROC (vkGetBufferMemoryRequirements);
 		if (!vkGetBufferMemoryRequirements || !buffer) return 0;
 
 		VkMemoryRequirements requirements;
@@ -7935,8 +8568,7 @@ namespace lime {
 		VkDevice device = (VkDevice)(uintptr_t)CombineVulkanHandle (deviceHigh, deviceLow);
 		VkBuffer buffer = (VkBuffer)(uintptr_t)CombineVulkanHandle (bufferHigh, bufferLow);
 		VkDeviceMemory memory = (VkDeviceMemory)(uintptr_t)CombineVulkanHandle (memoryHigh, memoryLow);
-		PFN_vkBindBufferMemory vkBindBufferMemory = (PFN_vkBindBufferMemory)GetManagedVulkanDeviceProc (targetWindow, instance, device,
-			"vkBindBufferMemory");
+		PFN_vkBindBufferMemory vkBindBufferMemory = LIME_VK_DEVICE_PROC (vkBindBufferMemory);
 		if (!vkBindBufferMemory || !buffer || !memory) return false;
 
 		VkResult result = vkBindBufferMemory (device, buffer, memory, (VkDeviceSize)CombineVulkanHandle (offsetHigh, offsetLow));
@@ -7966,8 +8598,7 @@ namespace lime {
 		VkDevice device = (VkDevice)(uintptr_t)CombineVulkanHandle (deviceHigh, deviceLow);
 		VkBuffer buffer = (VkBuffer)(uintptr_t)CombineVulkanHandle (bufferHigh, bufferLow);
 		VkDeviceMemory memory = (VkDeviceMemory)(uintptr_t)CombineVulkanHandle (memoryHigh, memoryLow);
-		PFN_vkBindBufferMemory vkBindBufferMemory = (PFN_vkBindBufferMemory)GetManagedVulkanDeviceProc (targetWindow, instance, device,
-			"vkBindBufferMemory");
+		PFN_vkBindBufferMemory vkBindBufferMemory = LIME_VK_DEVICE_PROC (vkBindBufferMemory);
 		if (!vkBindBufferMemory || !buffer || !memory) return false;
 
 		VkResult result = vkBindBufferMemory (device, buffer, memory, (VkDeviceSize)CombineVulkanHandle (offsetHigh, offsetLow));
@@ -7995,7 +8626,7 @@ namespace lime {
 		Window* targetWindow = (Window*)val_data (window);
 		VkInstance instance = (VkInstance)(uintptr_t)CombineVulkanHandle (instanceHigh, instanceLow);
 		VkDevice device = (VkDevice)(uintptr_t)CombineVulkanHandle (deviceHigh, deviceLow);
-		PFN_vkCreateImage vkCreateImage = (PFN_vkCreateImage)GetManagedVulkanDeviceProc (targetWindow, instance, device, "vkCreateImage");
+		PFN_vkCreateImage vkCreateImage = LIME_VK_DEVICE_PROC (vkCreateImage);
 		if (!vkCreateImage) return alloc_null ();
 
 		VkImageCreateInfo createInfo;
@@ -8045,7 +8676,7 @@ namespace lime {
 		Window* targetWindow = (Window*)window->ptr;
 		VkInstance instance = (VkInstance)(uintptr_t)CombineVulkanHandle (instanceHigh, instanceLow);
 		VkDevice device = (VkDevice)(uintptr_t)CombineVulkanHandle (deviceHigh, deviceLow);
-		PFN_vkCreateImage vkCreateImage = (PFN_vkCreateImage)GetManagedVulkanDeviceProc (targetWindow, instance, device, "vkCreateImage");
+		PFN_vkCreateImage vkCreateImage = LIME_VK_DEVICE_PROC (vkCreateImage);
 		if (!vkCreateImage) return 0;
 
 		VkImageCreateInfo createInfo;
@@ -8096,7 +8727,7 @@ namespace lime {
 		VkInstance instance = (VkInstance)(uintptr_t)CombineVulkanHandle (instanceHigh, instanceLow);
 		VkDevice device = (VkDevice)(uintptr_t)CombineVulkanHandle (deviceHigh, deviceLow);
 		VkImage image = (VkImage)(uintptr_t)CombineVulkanHandle (imageHigh, imageLow);
-		PFN_vkDestroyImage vkDestroyImage = (PFN_vkDestroyImage)GetManagedVulkanDeviceProc (targetWindow, instance, device, "vkDestroyImage");
+		PFN_vkDestroyImage vkDestroyImage = LIME_VK_DEVICE_PROC (vkDestroyImage);
 		if (vkDestroyImage) {
 
 			vkDestroyImage (device, image, 0);
@@ -8119,7 +8750,7 @@ namespace lime {
 		VkInstance instance = (VkInstance)(uintptr_t)CombineVulkanHandle (instanceHigh, instanceLow);
 		VkDevice device = (VkDevice)(uintptr_t)CombineVulkanHandle (deviceHigh, deviceLow);
 		VkImage image = (VkImage)(uintptr_t)CombineVulkanHandle (imageHigh, imageLow);
-		PFN_vkDestroyImage vkDestroyImage = (PFN_vkDestroyImage)GetManagedVulkanDeviceProc (targetWindow, instance, device, "vkDestroyImage");
+		PFN_vkDestroyImage vkDestroyImage = LIME_VK_DEVICE_PROC (vkDestroyImage);
 		if (vkDestroyImage) {
 
 			vkDestroyImage (device, image, 0);
@@ -8142,7 +8773,7 @@ namespace lime {
 		VkDevice device = (VkDevice)(uintptr_t)CombineVulkanHandle (deviceHigh, deviceLow);
 		VkImage image = (VkImage)(uintptr_t)CombineVulkanHandle (imageHigh, imageLow);
 		PFN_vkGetImageMemoryRequirements vkGetImageMemoryRequirements =
-			(PFN_vkGetImageMemoryRequirements)GetManagedVulkanDeviceProc (targetWindow, instance, device, "vkGetImageMemoryRequirements");
+			LIME_VK_DEVICE_PROC (vkGetImageMemoryRequirements);
 		if (!vkGetImageMemoryRequirements || !image) return alloc_null ();
 
 		VkMemoryRequirements requirements;
@@ -8167,7 +8798,7 @@ namespace lime {
 		VkDevice device = (VkDevice)(uintptr_t)CombineVulkanHandle (deviceHigh, deviceLow);
 		VkImage image = (VkImage)(uintptr_t)CombineVulkanHandle (imageHigh, imageLow);
 		PFN_vkGetImageMemoryRequirements vkGetImageMemoryRequirements =
-			(PFN_vkGetImageMemoryRequirements)GetManagedVulkanDeviceProc (targetWindow, instance, device, "vkGetImageMemoryRequirements");
+			LIME_VK_DEVICE_PROC (vkGetImageMemoryRequirements);
 		if (!vkGetImageMemoryRequirements || !image) return 0;
 
 		VkMemoryRequirements requirements;
@@ -8192,8 +8823,7 @@ namespace lime {
 		VkDevice device = (VkDevice)(uintptr_t)CombineVulkanHandle (deviceHigh, deviceLow);
 		VkImage image = (VkImage)(uintptr_t)CombineVulkanHandle (imageHigh, imageLow);
 		VkDeviceMemory memory = (VkDeviceMemory)(uintptr_t)CombineVulkanHandle (memoryHigh, memoryLow);
-		PFN_vkBindImageMemory vkBindImageMemory = (PFN_vkBindImageMemory)GetManagedVulkanDeviceProc (targetWindow, instance, device,
-			"vkBindImageMemory");
+		PFN_vkBindImageMemory vkBindImageMemory = LIME_VK_DEVICE_PROC (vkBindImageMemory);
 		if (!vkBindImageMemory || !image || !memory) return false;
 
 		VkResult result = vkBindImageMemory (device, image, memory, (VkDeviceSize)CombineVulkanHandle (offsetHigh, offsetLow));
@@ -8223,8 +8853,7 @@ namespace lime {
 		VkDevice device = (VkDevice)(uintptr_t)CombineVulkanHandle (deviceHigh, deviceLow);
 		VkImage image = (VkImage)(uintptr_t)CombineVulkanHandle (imageHigh, imageLow);
 		VkDeviceMemory memory = (VkDeviceMemory)(uintptr_t)CombineVulkanHandle (memoryHigh, memoryLow);
-		PFN_vkBindImageMemory vkBindImageMemory = (PFN_vkBindImageMemory)GetManagedVulkanDeviceProc (targetWindow, instance, device,
-			"vkBindImageMemory");
+		PFN_vkBindImageMemory vkBindImageMemory = LIME_VK_DEVICE_PROC (vkBindImageMemory);
 		if (!vkBindImageMemory || !image || !memory) return false;
 
 		VkResult result = vkBindImageMemory (device, image, memory, (VkDeviceSize)CombineVulkanHandle (offsetHigh, offsetLow));
@@ -8311,8 +8940,7 @@ namespace lime {
 		VkInstance instance = (VkInstance)(uintptr_t)CombineVulkanHandle (instanceHigh, instanceLow);
 		VkDevice device = (VkDevice)(uintptr_t)CombineVulkanHandle (deviceHigh, deviceLow);
 		VkSwapchainKHR swapchain = (VkSwapchainKHR)(uintptr_t)CombineVulkanHandle (swapchainHigh, swapchainLow);
-		PFN_vkDestroySwapchainKHR vkDestroySwapchainKHR = (PFN_vkDestroySwapchainKHR)GetManagedVulkanDeviceProc (targetWindow, instance, device,
-			"vkDestroySwapchainKHR");
+		PFN_vkDestroySwapchainKHR vkDestroySwapchainKHR = LIME_VK_DEVICE_PROC (vkDestroySwapchainKHR);
 		if (vkDestroySwapchainKHR) {
 
 			vkDestroySwapchainKHR (device, swapchain, 0);
@@ -8335,8 +8963,7 @@ namespace lime {
 		VkInstance instance = (VkInstance)(uintptr_t)CombineVulkanHandle (instanceHigh, instanceLow);
 		VkDevice device = (VkDevice)(uintptr_t)CombineVulkanHandle (deviceHigh, deviceLow);
 		VkSwapchainKHR swapchain = (VkSwapchainKHR)(uintptr_t)CombineVulkanHandle (swapchainHigh, swapchainLow);
-		PFN_vkDestroySwapchainKHR vkDestroySwapchainKHR = (PFN_vkDestroySwapchainKHR)GetManagedVulkanDeviceProc (targetWindow, instance, device,
-			"vkDestroySwapchainKHR");
+		PFN_vkDestroySwapchainKHR vkDestroySwapchainKHR = LIME_VK_DEVICE_PROC (vkDestroySwapchainKHR);
 		if (vkDestroySwapchainKHR) {
 
 			vkDestroySwapchainKHR (device, swapchain, 0);
@@ -8358,8 +8985,7 @@ namespace lime {
 		VkInstance instance = (VkInstance)(uintptr_t)CombineVulkanHandle (instanceHigh, instanceLow);
 		VkDevice device = (VkDevice)(uintptr_t)CombineVulkanHandle (deviceHigh, deviceLow);
 		VkSwapchainKHR swapchain = (VkSwapchainKHR)(uintptr_t)CombineVulkanHandle (swapchainHigh, swapchainLow);
-		PFN_vkGetSwapchainImagesKHR vkGetSwapchainImagesKHR = (PFN_vkGetSwapchainImagesKHR)GetManagedVulkanDeviceProc (targetWindow, instance, device,
-			"vkGetSwapchainImagesKHR");
+		PFN_vkGetSwapchainImagesKHR vkGetSwapchainImagesKHR = LIME_VK_DEVICE_PROC (vkGetSwapchainImagesKHR);
 		if (!vkGetSwapchainImagesKHR || !swapchain) return alloc_null ();
 
 		uint32_t imageCount = 0;
@@ -8412,8 +9038,7 @@ namespace lime {
 		VkInstance instance = (VkInstance)(uintptr_t)CombineVulkanHandle (instanceHigh, instanceLow);
 		VkDevice device = (VkDevice)(uintptr_t)CombineVulkanHandle (deviceHigh, deviceLow);
 		VkSwapchainKHR swapchain = (VkSwapchainKHR)(uintptr_t)CombineVulkanHandle (swapchainHigh, swapchainLow);
-		PFN_vkGetSwapchainImagesKHR vkGetSwapchainImagesKHR = (PFN_vkGetSwapchainImagesKHR)GetManagedVulkanDeviceProc (targetWindow, instance, device,
-			"vkGetSwapchainImagesKHR");
+		PFN_vkGetSwapchainImagesKHR vkGetSwapchainImagesKHR = LIME_VK_DEVICE_PROC (vkGetSwapchainImagesKHR);
 		if (!vkGetSwapchainImagesKHR || !swapchain) return 0;
 
 		uint32_t imageCount = 0;
@@ -8477,8 +9102,7 @@ namespace lime {
 
 		}
 
-		PFN_vkAcquireNextImageKHR vkAcquireNextImageKHR = (PFN_vkAcquireNextImageKHR)GetManagedVulkanDeviceProc (targetWindow, instance, device,
-			"vkAcquireNextImageKHR");
+		PFN_vkAcquireNextImageKHR vkAcquireNextImageKHR = LIME_VK_DEVICE_PROC (vkAcquireNextImageKHR);
 		if (!vkAcquireNextImageKHR || !swapchain) return CreateVulkanAcquireValue (VK_ERROR_INITIALIZATION_FAILED, -1);
 
 		uint32_t imageIndex = 0;
@@ -8518,8 +9142,7 @@ namespace lime {
 
 		}
 
-		PFN_vkAcquireNextImageKHR vkAcquireNextImageKHR = (PFN_vkAcquireNextImageKHR)GetManagedVulkanDeviceProc (targetWindow, instance, device,
-			"vkAcquireNextImageKHR");
+		PFN_vkAcquireNextImageKHR vkAcquireNextImageKHR = LIME_VK_DEVICE_PROC (vkAcquireNextImageKHR);
 		if (!vkAcquireNextImageKHR || !swapchain) return HLCreateVulkanAcquireValue (VK_ERROR_INITIALIZATION_FAILED, -1);
 
 		uint32_t imageIndex = 0;
@@ -8551,8 +9174,7 @@ namespace lime {
 		VkQueue queue = (VkQueue)(uintptr_t)CombineVulkanHandle (queueHigh, queueLow);
 		VkSwapchainKHR swapchain = (VkSwapchainKHR)(uintptr_t)CombineVulkanHandle (swapchainHigh, swapchainLow);
 		VkSemaphore waitSemaphore = (VkSemaphore)(uintptr_t)CombineVulkanHandle (waitSemaphoreHigh, waitSemaphoreLow);
-		PFN_vkQueuePresentKHR vkQueuePresentKHR = (PFN_vkQueuePresentKHR)GetManagedVulkanDeviceProc (targetWindow, instance, device,
-			"vkQueuePresentKHR");
+		PFN_vkQueuePresentKHR vkQueuePresentKHR = LIME_VK_DEVICE_PROC (vkQueuePresentKHR);
 		if (!vkQueuePresentKHR || !queue || !swapchain) return VK_ERROR_INITIALIZATION_FAILED;
 
 		VkPresentInfoKHR presentInfo;
@@ -8568,6 +9190,8 @@ namespace lime {
 		VkResult result = vkQueuePresentKHR (queue, &presentInfo);
 		if (result == VK_SUCCESS || result == VK_SUBOPTIMAL_KHR) {
 
+			// A swap for the frame loop, which waits for the next frame as it does after a swap otherwise
+			if (targetWindow) targetWindow->NoteVulkanPresent ();
 			lastVKError.clear ();
 
 		} else {
@@ -8595,8 +9219,7 @@ namespace lime {
 		VkQueue queue = (VkQueue)(uintptr_t)CombineVulkanHandle (queueHigh, queueLow);
 		VkSwapchainKHR swapchain = (VkSwapchainKHR)(uintptr_t)CombineVulkanHandle (swapchainHigh, swapchainLow);
 		VkSemaphore waitSemaphore = (VkSemaphore)(uintptr_t)CombineVulkanHandle (waitSemaphoreHigh, waitSemaphoreLow);
-		PFN_vkQueuePresentKHR vkQueuePresentKHR = (PFN_vkQueuePresentKHR)GetManagedVulkanDeviceProc (targetWindow, instance, device,
-			"vkQueuePresentKHR");
+		PFN_vkQueuePresentKHR vkQueuePresentKHR = LIME_VK_DEVICE_PROC (vkQueuePresentKHR);
 		if (!vkQueuePresentKHR || !queue || !swapchain) return VK_ERROR_INITIALIZATION_FAILED;
 
 		VkPresentInfoKHR presentInfo;
@@ -8612,6 +9235,8 @@ namespace lime {
 		VkResult result = vkQueuePresentKHR (queue, &presentInfo);
 		if (result == VK_SUCCESS || result == VK_SUBOPTIMAL_KHR) {
 
+			// A swap for the frame loop, which waits for the next frame as it does after a swap otherwise
+			if (targetWindow) targetWindow->NoteVulkanPresent ();
 			lastVKError.clear ();
 
 		} else {
@@ -8644,7 +9269,7 @@ namespace lime {
 
 		}
 
-		PFN_vkCreateImageView vkCreateImageView = (PFN_vkCreateImageView)GetManagedVulkanDeviceProc (targetWindow, instance, device, "vkCreateImageView");
+		PFN_vkCreateImageView vkCreateImageView = LIME_VK_DEVICE_PROC (vkCreateImageView);
 		if (!vkCreateImageView) return alloc_null ();
 
 		VkImageViewCreateInfo createInfo;
@@ -8693,7 +9318,7 @@ namespace lime {
 
 		}
 
-		PFN_vkCreateImageView vkCreateImageView = (PFN_vkCreateImageView)GetManagedVulkanDeviceProc (targetWindow, instance, device, "vkCreateImageView");
+		PFN_vkCreateImageView vkCreateImageView = LIME_VK_DEVICE_PROC (vkCreateImageView);
 		if (!vkCreateImageView) return 0;
 
 		VkImageViewCreateInfo createInfo;
@@ -8736,8 +9361,7 @@ namespace lime {
 		VkInstance instance = (VkInstance)(uintptr_t)CombineVulkanHandle (instanceHigh, instanceLow);
 		VkDevice device = (VkDevice)(uintptr_t)CombineVulkanHandle (deviceHigh, deviceLow);
 		VkImageView imageView = (VkImageView)(uintptr_t)CombineVulkanHandle (imageViewHigh, imageViewLow);
-		PFN_vkDestroyImageView vkDestroyImageView = (PFN_vkDestroyImageView)GetManagedVulkanDeviceProc (targetWindow, instance, device,
-			"vkDestroyImageView");
+		PFN_vkDestroyImageView vkDestroyImageView = LIME_VK_DEVICE_PROC (vkDestroyImageView);
 		if (vkDestroyImageView) {
 
 			vkDestroyImageView (device, imageView, 0);
@@ -8760,8 +9384,7 @@ namespace lime {
 		VkInstance instance = (VkInstance)(uintptr_t)CombineVulkanHandle (instanceHigh, instanceLow);
 		VkDevice device = (VkDevice)(uintptr_t)CombineVulkanHandle (deviceHigh, deviceLow);
 		VkImageView imageView = (VkImageView)(uintptr_t)CombineVulkanHandle (imageViewHigh, imageViewLow);
-		PFN_vkDestroyImageView vkDestroyImageView = (PFN_vkDestroyImageView)GetManagedVulkanDeviceProc (targetWindow, instance, device,
-			"vkDestroyImageView");
+		PFN_vkDestroyImageView vkDestroyImageView = LIME_VK_DEVICE_PROC (vkDestroyImageView);
 		if (vkDestroyImageView) {
 
 			vkDestroyImageView (device, imageView, 0);
@@ -8790,7 +9413,7 @@ namespace lime {
 
 		}
 
-		PFN_vkCreateImageView vkCreateImageView = (PFN_vkCreateImageView)GetManagedVulkanDeviceProc (targetWindow, instance, device, "vkCreateImageView");
+		PFN_vkCreateImageView vkCreateImageView = LIME_VK_DEVICE_PROC (vkCreateImageView);
 		if (!vkCreateImageView) return alloc_null ();
 
 		VkImageViewCreateInfo createInfo;
@@ -8840,7 +9463,7 @@ namespace lime {
 
 		}
 
-		PFN_vkCreateImageView vkCreateImageView = (PFN_vkCreateImageView)GetManagedVulkanDeviceProc (targetWindow, instance, device, "vkCreateImageView");
+		PFN_vkCreateImageView vkCreateImageView = LIME_VK_DEVICE_PROC (vkCreateImageView);
 		if (!vkCreateImageView) return 0;
 
 		VkImageViewCreateInfo createInfo;
@@ -8880,8 +9503,7 @@ namespace lime {
 		Window* targetWindow = (Window*)val_data (window);
 		VkInstance instance = (VkInstance)(uintptr_t)CombineVulkanHandle (instanceHigh, instanceLow);
 		VkDevice device = (VkDevice)(uintptr_t)CombineVulkanHandle (deviceHigh, deviceLow);
-		PFN_vkCreateRenderPass vkCreateRenderPass = (PFN_vkCreateRenderPass)GetManagedVulkanDeviceProc (targetWindow, instance, device,
-			"vkCreateRenderPass");
+		PFN_vkCreateRenderPass vkCreateRenderPass = LIME_VK_DEVICE_PROC (vkCreateRenderPass);
 		if (!vkCreateRenderPass) return alloc_null ();
 		std::vector<int> packed = GetVulkanIntVector (state);
 		if (packed.size () < 16) return alloc_null ();
@@ -9015,8 +9637,7 @@ namespace lime {
 		Window* targetWindow = (Window*)window->ptr;
 		VkInstance instance = (VkInstance)(uintptr_t)CombineVulkanHandle (instanceHigh, instanceLow);
 		VkDevice device = (VkDevice)(uintptr_t)CombineVulkanHandle (deviceHigh, deviceLow);
-		PFN_vkCreateRenderPass vkCreateRenderPass = (PFN_vkCreateRenderPass)GetManagedVulkanDeviceProc (targetWindow, instance, device,
-			"vkCreateRenderPass");
+		PFN_vkCreateRenderPass vkCreateRenderPass = LIME_VK_DEVICE_PROC (vkCreateRenderPass);
 		if (!vkCreateRenderPass) return 0;
 		std::vector<int> packed = GetHLVulkanIntVector (state);
 		if (packed.size () < 16) return 0;
@@ -9158,8 +9779,7 @@ namespace lime {
 		VkInstance instance = (VkInstance)(uintptr_t)CombineVulkanHandle (instanceHigh, instanceLow);
 		VkDevice device = (VkDevice)(uintptr_t)CombineVulkanHandle (deviceHigh, deviceLow);
 		VkRenderPass renderPass = (VkRenderPass)(uintptr_t)CombineVulkanHandle (renderPassHigh, renderPassLow);
-		PFN_vkDestroyRenderPass vkDestroyRenderPass = (PFN_vkDestroyRenderPass)GetManagedVulkanDeviceProc (targetWindow, instance, device,
-			"vkDestroyRenderPass");
+		PFN_vkDestroyRenderPass vkDestroyRenderPass = LIME_VK_DEVICE_PROC (vkDestroyRenderPass);
 		if (vkDestroyRenderPass) {
 
 			vkDestroyRenderPass (device, renderPass, 0);
@@ -9182,8 +9802,7 @@ namespace lime {
 		VkInstance instance = (VkInstance)(uintptr_t)CombineVulkanHandle (instanceHigh, instanceLow);
 		VkDevice device = (VkDevice)(uintptr_t)CombineVulkanHandle (deviceHigh, deviceLow);
 		VkRenderPass renderPass = (VkRenderPass)(uintptr_t)CombineVulkanHandle (renderPassHigh, renderPassLow);
-		PFN_vkDestroyRenderPass vkDestroyRenderPass = (PFN_vkDestroyRenderPass)GetManagedVulkanDeviceProc (targetWindow, instance, device,
-			"vkDestroyRenderPass");
+		PFN_vkDestroyRenderPass vkDestroyRenderPass = LIME_VK_DEVICE_PROC (vkDestroyRenderPass);
 		if (vkDestroyRenderPass) {
 
 			vkDestroyRenderPass (device, renderPass, 0);
@@ -9221,8 +9840,7 @@ namespace lime {
 
 		}
 
-		PFN_vkCreateFramebuffer vkCreateFramebuffer = (PFN_vkCreateFramebuffer)GetManagedVulkanDeviceProc (targetWindow, instance, device,
-			"vkCreateFramebuffer");
+		PFN_vkCreateFramebuffer vkCreateFramebuffer = LIME_VK_DEVICE_PROC (vkCreateFramebuffer);
 		if (!vkCreateFramebuffer || !renderPass) return alloc_null ();
 
 		VkFramebufferCreateInfo createInfo;
@@ -9278,8 +9896,7 @@ namespace lime {
 
 		}
 
-		PFN_vkCreateFramebuffer vkCreateFramebuffer = (PFN_vkCreateFramebuffer)GetManagedVulkanDeviceProc (targetWindow, instance, device,
-			"vkCreateFramebuffer");
+		PFN_vkCreateFramebuffer vkCreateFramebuffer = LIME_VK_DEVICE_PROC (vkCreateFramebuffer);
 		if (!vkCreateFramebuffer || !renderPass) return 0;
 
 		VkFramebufferCreateInfo createInfo;
@@ -9320,8 +9937,7 @@ namespace lime {
 		VkInstance instance = (VkInstance)(uintptr_t)CombineVulkanHandle (instanceHigh, instanceLow);
 		VkDevice device = (VkDevice)(uintptr_t)CombineVulkanHandle (deviceHigh, deviceLow);
 		VkFramebuffer framebuffer = (VkFramebuffer)(uintptr_t)CombineVulkanHandle (framebufferHigh, framebufferLow);
-		PFN_vkDestroyFramebuffer vkDestroyFramebuffer = (PFN_vkDestroyFramebuffer)GetManagedVulkanDeviceProc (targetWindow, instance, device,
-			"vkDestroyFramebuffer");
+		PFN_vkDestroyFramebuffer vkDestroyFramebuffer = LIME_VK_DEVICE_PROC (vkDestroyFramebuffer);
 		if (vkDestroyFramebuffer) {
 
 			vkDestroyFramebuffer (device, framebuffer, 0);
@@ -9344,8 +9960,7 @@ namespace lime {
 		VkInstance instance = (VkInstance)(uintptr_t)CombineVulkanHandle (instanceHigh, instanceLow);
 		VkDevice device = (VkDevice)(uintptr_t)CombineVulkanHandle (deviceHigh, deviceLow);
 		VkFramebuffer framebuffer = (VkFramebuffer)(uintptr_t)CombineVulkanHandle (framebufferHigh, framebufferLow);
-		PFN_vkDestroyFramebuffer vkDestroyFramebuffer = (PFN_vkDestroyFramebuffer)GetManagedVulkanDeviceProc (targetWindow, instance, device,
-			"vkDestroyFramebuffer");
+		PFN_vkDestroyFramebuffer vkDestroyFramebuffer = LIME_VK_DEVICE_PROC (vkDestroyFramebuffer);
 		if (vkDestroyFramebuffer) {
 
 			vkDestroyFramebuffer (device, framebuffer, 0);
@@ -9374,8 +9989,7 @@ namespace lime {
 
 		}
 
-		PFN_vkCreateShaderModule vkCreateShaderModule = (PFN_vkCreateShaderModule)GetManagedVulkanDeviceProc (targetWindow, instance, device,
-			"vkCreateShaderModule");
+		PFN_vkCreateShaderModule vkCreateShaderModule = LIME_VK_DEVICE_PROC (vkCreateShaderModule);
 		if (!vkCreateShaderModule) return alloc_null ();
 
 		VkShaderModuleCreateInfo createInfo;
@@ -9417,8 +10031,7 @@ namespace lime {
 
 		}
 
-		PFN_vkCreateShaderModule vkCreateShaderModule = (PFN_vkCreateShaderModule)GetManagedVulkanDeviceProc (targetWindow, instance, device,
-			"vkCreateShaderModule");
+		PFN_vkCreateShaderModule vkCreateShaderModule = LIME_VK_DEVICE_PROC (vkCreateShaderModule);
 		if (!vkCreateShaderModule) return 0;
 
 		VkShaderModuleCreateInfo createInfo;
@@ -9455,8 +10068,7 @@ namespace lime {
 		VkInstance instance = (VkInstance)(uintptr_t)CombineVulkanHandle (instanceHigh, instanceLow);
 		VkDevice device = (VkDevice)(uintptr_t)CombineVulkanHandle (deviceHigh, deviceLow);
 		VkShaderModule shaderModule = (VkShaderModule)(uintptr_t)CombineVulkanHandle (shaderModuleHigh, shaderModuleLow);
-		PFN_vkDestroyShaderModule vkDestroyShaderModule = (PFN_vkDestroyShaderModule)GetManagedVulkanDeviceProc (targetWindow, instance, device,
-			"vkDestroyShaderModule");
+		PFN_vkDestroyShaderModule vkDestroyShaderModule = LIME_VK_DEVICE_PROC (vkDestroyShaderModule);
 		if (vkDestroyShaderModule) {
 
 			vkDestroyShaderModule (device, shaderModule, 0);
@@ -9479,8 +10091,7 @@ namespace lime {
 		VkInstance instance = (VkInstance)(uintptr_t)CombineVulkanHandle (instanceHigh, instanceLow);
 		VkDevice device = (VkDevice)(uintptr_t)CombineVulkanHandle (deviceHigh, deviceLow);
 		VkShaderModule shaderModule = (VkShaderModule)(uintptr_t)CombineVulkanHandle (shaderModuleHigh, shaderModuleLow);
-		PFN_vkDestroyShaderModule vkDestroyShaderModule = (PFN_vkDestroyShaderModule)GetManagedVulkanDeviceProc (targetWindow, instance, device,
-			"vkDestroyShaderModule");
+		PFN_vkDestroyShaderModule vkDestroyShaderModule = LIME_VK_DEVICE_PROC (vkDestroyShaderModule);
 		if (vkDestroyShaderModule) {
 
 			vkDestroyShaderModule (device, shaderModule, 0);
@@ -9501,7 +10112,7 @@ namespace lime {
 		Window* targetWindow = (Window*)val_data (window);
 		VkInstance instance = (VkInstance)(uintptr_t)CombineVulkanHandle (instanceHigh, instanceLow);
 		VkDevice device = (VkDevice)(uintptr_t)CombineVulkanHandle (deviceHigh, deviceLow);
-		PFN_vkCreateSampler vkCreateSampler = (PFN_vkCreateSampler)GetManagedVulkanDeviceProc (targetWindow, instance, device, "vkCreateSampler");
+		PFN_vkCreateSampler vkCreateSampler = LIME_VK_DEVICE_PROC (vkCreateSampler);
 		if (!vkCreateSampler) return alloc_null ();
 
 		VkSamplerCreateInfo createInfo;
@@ -9547,7 +10158,7 @@ namespace lime {
 		Window* targetWindow = (Window*)window->ptr;
 		VkInstance instance = (VkInstance)(uintptr_t)CombineVulkanHandle (instanceHigh, instanceLow);
 		VkDevice device = (VkDevice)(uintptr_t)CombineVulkanHandle (deviceHigh, deviceLow);
-		PFN_vkCreateSampler vkCreateSampler = (PFN_vkCreateSampler)GetManagedVulkanDeviceProc (targetWindow, instance, device, "vkCreateSampler");
+		PFN_vkCreateSampler vkCreateSampler = LIME_VK_DEVICE_PROC (vkCreateSampler);
 		if (!vkCreateSampler) return 0;
 
 		VkSamplerCreateInfo createInfo;
@@ -9594,7 +10205,7 @@ namespace lime {
 		VkInstance instance = (VkInstance)(uintptr_t)CombineVulkanHandle (instanceHigh, instanceLow);
 		VkDevice device = (VkDevice)(uintptr_t)CombineVulkanHandle (deviceHigh, deviceLow);
 		VkSampler sampler = (VkSampler)(uintptr_t)CombineVulkanHandle (samplerHigh, samplerLow);
-		PFN_vkDestroySampler vkDestroySampler = (PFN_vkDestroySampler)GetManagedVulkanDeviceProc (targetWindow, instance, device, "vkDestroySampler");
+		PFN_vkDestroySampler vkDestroySampler = LIME_VK_DEVICE_PROC (vkDestroySampler);
 		if (vkDestroySampler) {
 
 			vkDestroySampler (device, sampler, 0);
@@ -9617,7 +10228,7 @@ namespace lime {
 		VkInstance instance = (VkInstance)(uintptr_t)CombineVulkanHandle (instanceHigh, instanceLow);
 		VkDevice device = (VkDevice)(uintptr_t)CombineVulkanHandle (deviceHigh, deviceLow);
 		VkSampler sampler = (VkSampler)(uintptr_t)CombineVulkanHandle (samplerHigh, samplerLow);
-		PFN_vkDestroySampler vkDestroySampler = (PFN_vkDestroySampler)GetManagedVulkanDeviceProc (targetWindow, instance, device, "vkDestroySampler");
+		PFN_vkDestroySampler vkDestroySampler = LIME_VK_DEVICE_PROC (vkDestroySampler);
 		if (vkDestroySampler) {
 
 			vkDestroySampler (device, sampler, 0);
@@ -9656,7 +10267,7 @@ namespace lime {
 		}
 
 		PFN_vkCreateDescriptorSetLayout vkCreateDescriptorSetLayout =
-			(PFN_vkCreateDescriptorSetLayout)GetManagedVulkanDeviceProc (targetWindow, instance, device, "vkCreateDescriptorSetLayout");
+			LIME_VK_DEVICE_PROC (vkCreateDescriptorSetLayout);
 		if (!vkCreateDescriptorSetLayout) return alloc_null ();
 
 		VkDescriptorSetLayoutCreateInfo createInfo;
@@ -9711,7 +10322,7 @@ namespace lime {
 		}
 
 		PFN_vkCreateDescriptorSetLayout vkCreateDescriptorSetLayout =
-			(PFN_vkCreateDescriptorSetLayout)GetManagedVulkanDeviceProc (targetWindow, instance, device, "vkCreateDescriptorSetLayout");
+			LIME_VK_DEVICE_PROC (vkCreateDescriptorSetLayout);
 		if (!vkCreateDescriptorSetLayout) return 0;
 
 		VkDescriptorSetLayoutCreateInfo createInfo;
@@ -9750,7 +10361,7 @@ namespace lime {
 		VkDevice device = (VkDevice)(uintptr_t)CombineVulkanHandle (deviceHigh, deviceLow);
 		VkDescriptorSetLayout layout = (VkDescriptorSetLayout)(uintptr_t)CombineVulkanHandle (layoutHigh, layoutLow);
 		PFN_vkDestroyDescriptorSetLayout vkDestroyDescriptorSetLayout =
-			(PFN_vkDestroyDescriptorSetLayout)GetManagedVulkanDeviceProc (targetWindow, instance, device, "vkDestroyDescriptorSetLayout");
+			LIME_VK_DEVICE_PROC (vkDestroyDescriptorSetLayout);
 		if (vkDestroyDescriptorSetLayout) {
 
 			vkDestroyDescriptorSetLayout (device, layout, 0);
@@ -9774,7 +10385,7 @@ namespace lime {
 		VkDevice device = (VkDevice)(uintptr_t)CombineVulkanHandle (deviceHigh, deviceLow);
 		VkDescriptorSetLayout layout = (VkDescriptorSetLayout)(uintptr_t)CombineVulkanHandle (layoutHigh, layoutLow);
 		PFN_vkDestroyDescriptorSetLayout vkDestroyDescriptorSetLayout =
-			(PFN_vkDestroyDescriptorSetLayout)GetManagedVulkanDeviceProc (targetWindow, instance, device, "vkDestroyDescriptorSetLayout");
+			LIME_VK_DEVICE_PROC (vkDestroyDescriptorSetLayout);
 		if (vkDestroyDescriptorSetLayout) {
 
 			vkDestroyDescriptorSetLayout (device, layout, 0);
@@ -9810,7 +10421,7 @@ namespace lime {
 		}
 
 		PFN_vkCreateDescriptorPool vkCreateDescriptorPool =
-			(PFN_vkCreateDescriptorPool)GetManagedVulkanDeviceProc (targetWindow, instance, device, "vkCreateDescriptorPool");
+			LIME_VK_DEVICE_PROC (vkCreateDescriptorPool);
 		if (!vkCreateDescriptorPool) return alloc_null ();
 
 		VkDescriptorPoolCreateInfo createInfo;
@@ -9863,7 +10474,7 @@ namespace lime {
 		}
 
 		PFN_vkCreateDescriptorPool vkCreateDescriptorPool =
-			(PFN_vkCreateDescriptorPool)GetManagedVulkanDeviceProc (targetWindow, instance, device, "vkCreateDescriptorPool");
+			LIME_VK_DEVICE_PROC (vkCreateDescriptorPool);
 		if (!vkCreateDescriptorPool) return 0;
 
 		VkDescriptorPoolCreateInfo createInfo;
@@ -9908,7 +10519,7 @@ namespace lime {
 		VkDevice device = (VkDevice)(uintptr_t)CombineVulkanHandle (deviceHigh, deviceLow);
 		VkDescriptorPool pool = (VkDescriptorPool)(uintptr_t)CombineVulkanHandle (poolHigh, poolLow);
 		PFN_vkDestroyDescriptorPool vkDestroyDescriptorPool =
-			(PFN_vkDestroyDescriptorPool)GetManagedVulkanDeviceProc (targetWindow, instance, device, "vkDestroyDescriptorPool");
+			LIME_VK_DEVICE_PROC (vkDestroyDescriptorPool);
 		if (vkDestroyDescriptorPool) {
 
 			vkDestroyDescriptorPool (device, pool, 0);
@@ -9932,7 +10543,7 @@ namespace lime {
 		VkDevice device = (VkDevice)(uintptr_t)CombineVulkanHandle (deviceHigh, deviceLow);
 		VkDescriptorPool pool = (VkDescriptorPool)(uintptr_t)CombineVulkanHandle (poolHigh, poolLow);
 		PFN_vkDestroyDescriptorPool vkDestroyDescriptorPool =
-			(PFN_vkDestroyDescriptorPool)GetManagedVulkanDeviceProc (targetWindow, instance, device, "vkDestroyDescriptorPool");
+			LIME_VK_DEVICE_PROC (vkDestroyDescriptorPool);
 		if (vkDestroyDescriptorPool) {
 
 			vkDestroyDescriptorPool (device, pool, 0);
@@ -9955,7 +10566,7 @@ namespace lime {
 		VkDevice device = (VkDevice)(uintptr_t)CombineVulkanHandle (deviceHigh, deviceLow);
 		VkDescriptorPool pool = (VkDescriptorPool)(uintptr_t)CombineVulkanHandle (poolHigh, poolLow);
 		PFN_vkResetDescriptorPool vkResetDescriptorPool =
-			(PFN_vkResetDescriptorPool)GetManagedVulkanDeviceProc (targetWindow, instance, device, "vkResetDescriptorPool");
+			LIME_VK_DEVICE_PROC (vkResetDescriptorPool);
 		if (!vkResetDescriptorPool || !pool) return false;
 
 		VkResult result = vkResetDescriptorPool (device, pool, (VkDescriptorPoolResetFlags)flags);
@@ -9985,7 +10596,7 @@ namespace lime {
 		VkDevice device = (VkDevice)(uintptr_t)CombineVulkanHandle (deviceHigh, deviceLow);
 		VkDescriptorPool pool = (VkDescriptorPool)(uintptr_t)CombineVulkanHandle (poolHigh, poolLow);
 		PFN_vkResetDescriptorPool vkResetDescriptorPool =
-			(PFN_vkResetDescriptorPool)GetManagedVulkanDeviceProc (targetWindow, instance, device, "vkResetDescriptorPool");
+			LIME_VK_DEVICE_PROC (vkResetDescriptorPool);
 		if (!vkResetDescriptorPool || !pool) return false;
 
 		VkResult result = vkResetDescriptorPool (device, pool, (VkDescriptorPoolResetFlags)flags);
@@ -10016,7 +10627,7 @@ namespace lime {
 		VkDescriptorPool pool = (VkDescriptorPool)(uintptr_t)CombineVulkanHandle (poolHigh, poolLow);
 		VkDescriptorSetLayout layout = (VkDescriptorSetLayout)(uintptr_t)CombineVulkanHandle (layoutHigh, layoutLow);
 		PFN_vkAllocateDescriptorSets vkAllocateDescriptorSets =
-			(PFN_vkAllocateDescriptorSets)GetManagedVulkanDeviceProc (targetWindow, instance, device, "vkAllocateDescriptorSets");
+			LIME_VK_DEVICE_PROC (vkAllocateDescriptorSets);
 		if (!vkAllocateDescriptorSets || !pool || !layout) return alloc_null ();
 
 		VkDescriptorSetAllocateInfo allocateInfo;
@@ -10055,7 +10666,7 @@ namespace lime {
 		VkDescriptorPool pool = (VkDescriptorPool)(uintptr_t)CombineVulkanHandle (poolHigh, poolLow);
 		VkDescriptorSetLayout layout = (VkDescriptorSetLayout)(uintptr_t)CombineVulkanHandle (layoutHigh, layoutLow);
 		PFN_vkAllocateDescriptorSets vkAllocateDescriptorSets =
-			(PFN_vkAllocateDescriptorSets)GetManagedVulkanDeviceProc (targetWindow, instance, device, "vkAllocateDescriptorSets");
+			LIME_VK_DEVICE_PROC (vkAllocateDescriptorSets);
 		if (!vkAllocateDescriptorSets || !pool || !layout) return 0;
 
 		VkDescriptorSetAllocateInfo allocateInfo;
@@ -10093,7 +10704,7 @@ namespace lime {
 		VkDevice device = (VkDevice)(uintptr_t)CombineVulkanHandle (deviceHigh, deviceLow);
 		VkDescriptorSet descriptorSet = (VkDescriptorSet)(uintptr_t)CombineVulkanHandle (setHigh, setLow);
 		PFN_vkUpdateDescriptorSets vkUpdateDescriptorSets =
-			(PFN_vkUpdateDescriptorSets)GetManagedVulkanDeviceProc (targetWindow, instance, device, "vkUpdateDescriptorSets");
+			LIME_VK_DEVICE_PROC (vkUpdateDescriptorSets);
 		if (!vkUpdateDescriptorSets || !descriptorSet) return false;
 
 		VkDescriptorImageInfo imageInfo;
@@ -10131,7 +10742,7 @@ namespace lime {
 		VkDevice device = (VkDevice)(uintptr_t)CombineVulkanHandle (deviceHigh, deviceLow);
 		VkDescriptorSet descriptorSet = (VkDescriptorSet)(uintptr_t)CombineVulkanHandle (setHigh, setLow);
 		PFN_vkUpdateDescriptorSets vkUpdateDescriptorSets =
-			(PFN_vkUpdateDescriptorSets)GetManagedVulkanDeviceProc (targetWindow, instance, device, "vkUpdateDescriptorSets");
+			LIME_VK_DEVICE_PROC (vkUpdateDescriptorSets);
 		if (!vkUpdateDescriptorSets || !descriptorSet) return false;
 
 		VkDescriptorImageInfo imageInfo;
@@ -10187,7 +10798,7 @@ namespace lime {
 		VkDevice device = (VkDevice)(uintptr_t)CombineVulkanHandle (deviceHigh, deviceLow);
 		VkDescriptorSet descriptorSet = (VkDescriptorSet)(uintptr_t)CombineVulkanHandle (setHigh, setLow);
 		PFN_vkUpdateDescriptorSets vkUpdateDescriptorSets =
-			(PFN_vkUpdateDescriptorSets)GetManagedVulkanDeviceProc (targetWindow, instance, device, "vkUpdateDescriptorSets");
+			LIME_VK_DEVICE_PROC (vkUpdateDescriptorSets);
 		if (!vkUpdateDescriptorSets || !descriptorSet) return false;
 
 		VkDescriptorBufferInfo bufferInfo;
@@ -10224,7 +10835,7 @@ namespace lime {
 		VkDevice device = (VkDevice)(uintptr_t)CombineVulkanHandle (deviceHigh, deviceLow);
 		VkDescriptorSet descriptorSet = (VkDescriptorSet)(uintptr_t)CombineVulkanHandle (setHigh, setLow);
 		PFN_vkUpdateDescriptorSets vkUpdateDescriptorSets =
-			(PFN_vkUpdateDescriptorSets)GetManagedVulkanDeviceProc (targetWindow, instance, device, "vkUpdateDescriptorSets");
+			LIME_VK_DEVICE_PROC (vkUpdateDescriptorSets);
 		if (!vkUpdateDescriptorSets || !descriptorSet) return false;
 
 		VkDescriptorBufferInfo bufferInfo;
@@ -10308,7 +10919,7 @@ namespace lime {
 		pushRange.size = (uint32_t)pushConstantSize;
 
 		PFN_vkCreatePipelineLayout vkCreatePipelineLayout =
-			(PFN_vkCreatePipelineLayout)GetManagedVulkanDeviceProc (targetWindow, instance, device, "vkCreatePipelineLayout");
+			LIME_VK_DEVICE_PROC (vkCreatePipelineLayout);
 		if (!vkCreatePipelineLayout) return alloc_null ();
 
 		VkPipelineLayoutCreateInfo createInfo;
@@ -10363,7 +10974,7 @@ namespace lime {
 		pushRange.size = (uint32_t)pushConstantSize;
 
 		PFN_vkCreatePipelineLayout vkCreatePipelineLayout =
-			(PFN_vkCreatePipelineLayout)GetManagedVulkanDeviceProc (targetWindow, instance, device, "vkCreatePipelineLayout");
+			LIME_VK_DEVICE_PROC (vkCreatePipelineLayout);
 		if (!vkCreatePipelineLayout) return 0;
 
 		VkPipelineLayoutCreateInfo createInfo;
@@ -10422,7 +11033,7 @@ namespace lime {
 		VkDevice device = (VkDevice)(uintptr_t)CombineVulkanHandle (deviceHigh, deviceLow);
 		VkPipelineLayout layout = (VkPipelineLayout)(uintptr_t)CombineVulkanHandle (layoutHigh, layoutLow);
 		PFN_vkDestroyPipelineLayout vkDestroyPipelineLayout =
-			(PFN_vkDestroyPipelineLayout)GetManagedVulkanDeviceProc (targetWindow, instance, device, "vkDestroyPipelineLayout");
+			LIME_VK_DEVICE_PROC (vkDestroyPipelineLayout);
 		if (vkDestroyPipelineLayout) {
 
 			vkDestroyPipelineLayout (device, layout, 0);
@@ -10446,7 +11057,7 @@ namespace lime {
 		VkDevice device = (VkDevice)(uintptr_t)CombineVulkanHandle (deviceHigh, deviceLow);
 		VkPipelineLayout layout = (VkPipelineLayout)(uintptr_t)CombineVulkanHandle (layoutHigh, layoutLow);
 		PFN_vkDestroyPipelineLayout vkDestroyPipelineLayout =
-			(PFN_vkDestroyPipelineLayout)GetManagedVulkanDeviceProc (targetWindow, instance, device, "vkDestroyPipelineLayout");
+			LIME_VK_DEVICE_PROC (vkDestroyPipelineLayout);
 		if (vkDestroyPipelineLayout) {
 
 			vkDestroyPipelineLayout (device, layout, 0);
@@ -10468,7 +11079,7 @@ namespace lime {
 		VkInstance instance = (VkInstance)(uintptr_t)CombineVulkanHandle (instanceHigh, instanceLow);
 		VkDevice device = (VkDevice)(uintptr_t)CombineVulkanHandle (deviceHigh, deviceLow);
 		PFN_vkCreatePipelineCache vkCreatePipelineCache =
-			(PFN_vkCreatePipelineCache)GetManagedVulkanDeviceProc (targetWindow, instance, device, "vkCreatePipelineCache");
+			LIME_VK_DEVICE_PROC (vkCreatePipelineCache);
 		if (!vkCreatePipelineCache) return alloc_null ();
 
 		VkPipelineCacheCreateInfo createInfo;
@@ -10516,7 +11127,7 @@ namespace lime {
 		VkInstance instance = (VkInstance)(uintptr_t)CombineVulkanHandle (instanceHigh, instanceLow);
 		VkDevice device = (VkDevice)(uintptr_t)CombineVulkanHandle (deviceHigh, deviceLow);
 		PFN_vkCreatePipelineCache vkCreatePipelineCache =
-			(PFN_vkCreatePipelineCache)GetManagedVulkanDeviceProc (targetWindow, instance, device, "vkCreatePipelineCache");
+			LIME_VK_DEVICE_PROC (vkCreatePipelineCache);
 		if (!vkCreatePipelineCache) return 0;
 
 		VkPipelineCacheCreateInfo createInfo;
@@ -10564,7 +11175,7 @@ namespace lime {
 		VkDevice device = (VkDevice)(uintptr_t)CombineVulkanHandle (deviceHigh, deviceLow);
 		VkPipelineCache cache = (VkPipelineCache)(uintptr_t)CombineVulkanHandle (cacheHigh, cacheLow);
 		PFN_vkGetPipelineCacheData vkGetPipelineCacheData =
-			(PFN_vkGetPipelineCacheData)GetManagedVulkanDeviceProc (targetWindow, instance, device, "vkGetPipelineCacheData");
+			LIME_VK_DEVICE_PROC (vkGetPipelineCacheData);
 		if (!vkGetPipelineCacheData || !cache) return false;
 
 		size_t size = 0;
@@ -10608,7 +11219,7 @@ namespace lime {
 		VkDevice device = (VkDevice)(uintptr_t)CombineVulkanHandle (deviceHigh, deviceLow);
 		VkPipelineCache cache = (VkPipelineCache)(uintptr_t)CombineVulkanHandle (cacheHigh, cacheLow);
 		PFN_vkGetPipelineCacheData vkGetPipelineCacheData =
-			(PFN_vkGetPipelineCacheData)GetManagedVulkanDeviceProc (targetWindow, instance, device, "vkGetPipelineCacheData");
+			LIME_VK_DEVICE_PROC (vkGetPipelineCacheData);
 		if (!vkGetPipelineCacheData || !cache || !bytes) return false;
 
 		size_t size = 0;
@@ -10651,7 +11262,7 @@ namespace lime {
 		VkDevice device = (VkDevice)(uintptr_t)CombineVulkanHandle (deviceHigh, deviceLow);
 		VkPipelineCache cache = (VkPipelineCache)(uintptr_t)CombineVulkanHandle (cacheHigh, cacheLow);
 		PFN_vkDestroyPipelineCache vkDestroyPipelineCache =
-			(PFN_vkDestroyPipelineCache)GetManagedVulkanDeviceProc (targetWindow, instance, device, "vkDestroyPipelineCache");
+			LIME_VK_DEVICE_PROC (vkDestroyPipelineCache);
 		if (vkDestroyPipelineCache) {
 
 			vkDestroyPipelineCache (device, cache, 0);
@@ -10675,7 +11286,7 @@ namespace lime {
 		VkDevice device = (VkDevice)(uintptr_t)CombineVulkanHandle (deviceHigh, deviceLow);
 		VkPipelineCache cache = (VkPipelineCache)(uintptr_t)CombineVulkanHandle (cacheHigh, cacheLow);
 		PFN_vkDestroyPipelineCache vkDestroyPipelineCache =
-			(PFN_vkDestroyPipelineCache)GetManagedVulkanDeviceProc (targetWindow, instance, device, "vkDestroyPipelineCache");
+			LIME_VK_DEVICE_PROC (vkDestroyPipelineCache);
 		if (vkDestroyPipelineCache) {
 
 			vkDestroyPipelineCache (device, cache, 0);
@@ -10792,7 +11403,7 @@ namespace lime {
 		}
 
 		PFN_vkCreateGraphicsPipelines vkCreateGraphicsPipelines =
-			(PFN_vkCreateGraphicsPipelines)GetManagedVulkanDeviceProc (targetWindow, instance, device, "vkCreateGraphicsPipelines");
+			LIME_VK_DEVICE_PROC (vkCreateGraphicsPipelines);
 		if (!vkCreateGraphicsPipelines) return VK_NULL_HANDLE;
 
 		VkPipelineShaderStageCreateInfo stages[2];
@@ -10994,8 +11605,7 @@ namespace lime {
 		VkInstance instance = (VkInstance)(uintptr_t)CombineVulkanHandle (instanceHigh, instanceLow);
 		VkDevice device = (VkDevice)(uintptr_t)CombineVulkanHandle (deviceHigh, deviceLow);
 		VkPipeline pipeline = (VkPipeline)(uintptr_t)CombineVulkanHandle (pipelineHigh, pipelineLow);
-		PFN_vkDestroyPipeline vkDestroyPipeline = (PFN_vkDestroyPipeline)GetManagedVulkanDeviceProc (targetWindow, instance, device,
-			"vkDestroyPipeline");
+		PFN_vkDestroyPipeline vkDestroyPipeline = LIME_VK_DEVICE_PROC (vkDestroyPipeline);
 		if (vkDestroyPipeline) {
 
 			vkDestroyPipeline (device, pipeline, 0);
@@ -11018,8 +11628,7 @@ namespace lime {
 		VkInstance instance = (VkInstance)(uintptr_t)CombineVulkanHandle (instanceHigh, instanceLow);
 		VkDevice device = (VkDevice)(uintptr_t)CombineVulkanHandle (deviceHigh, deviceLow);
 		VkPipeline pipeline = (VkPipeline)(uintptr_t)CombineVulkanHandle (pipelineHigh, pipelineLow);
-		PFN_vkDestroyPipeline vkDestroyPipeline = (PFN_vkDestroyPipeline)GetManagedVulkanDeviceProc (targetWindow, instance, device,
-			"vkDestroyPipeline");
+		PFN_vkDestroyPipeline vkDestroyPipeline = LIME_VK_DEVICE_PROC (vkDestroyPipeline);
 		if (vkDestroyPipeline) {
 
 			vkDestroyPipeline (device, pipeline, 0);
@@ -11058,7 +11667,7 @@ namespace lime {
 		VkPipelineStageFlags waitStage = (VkPipelineStageFlags)packed[2];
 		VkSemaphore signalSemaphore = (VkSemaphore)(uintptr_t)CombineVulkanHandle (packed[3], packed[4]);
 		VkFence fence = (VkFence)(uintptr_t)CombineVulkanHandle (packed[5], packed[6]);
-		PFN_vkQueueSubmit vkQueueSubmit = (PFN_vkQueueSubmit)GetManagedVulkanDeviceProc (targetWindow, instance, device, "vkQueueSubmit");
+		PFN_vkQueueSubmit vkQueueSubmit = LIME_VK_DEVICE_PROC (vkQueueSubmit);
 		if (!vkQueueSubmit || !queue || !commandBuffer) return false;
 
 		VkSubmitInfo submitInfo;
@@ -11108,7 +11717,7 @@ namespace lime {
 		VkPipelineStageFlags waitStage = (VkPipelineStageFlags)packed[2];
 		VkSemaphore signalSemaphore = (VkSemaphore)(uintptr_t)CombineVulkanHandle (packed[3], packed[4]);
 		VkFence fence = (VkFence)(uintptr_t)CombineVulkanHandle (packed[5], packed[6]);
-		PFN_vkQueueSubmit vkQueueSubmit = (PFN_vkQueueSubmit)GetManagedVulkanDeviceProc (targetWindow, instance, device, "vkQueueSubmit");
+		PFN_vkQueueSubmit vkQueueSubmit = LIME_VK_DEVICE_PROC (vkQueueSubmit);
 		if (!vkQueueSubmit || !queue || !commandBuffer) return false;
 
 		VkSubmitInfo submitInfo;
@@ -11149,8 +11758,7 @@ namespace lime {
 		Window* targetWindow = (Window*)val_data (window);
 		VkInstance instance = (VkInstance)(uintptr_t)CombineVulkanHandle (instanceHigh, instanceLow);
 		VkDevice device = (VkDevice)(uintptr_t)CombineVulkanHandle (deviceHigh, deviceLow);
-		PFN_vkCmdBeginRenderPass vkCmdBeginRenderPass = (PFN_vkCmdBeginRenderPass)GetManagedVulkanDeviceProc (targetWindow, instance, device,
-			"vkCmdBeginRenderPass");
+		PFN_vkCmdBeginRenderPass vkCmdBeginRenderPass = LIME_VK_DEVICE_PROC (vkCmdBeginRenderPass);
 		VkCommandBuffer commandBuffer = (VkCommandBuffer)(uintptr_t)CombineVulkanHandle (commandBufferHigh, commandBufferLow);
 		std::vector<int> packed = GetVulkanIntVector (state);
 		std::vector<double> clearValues = GetVulkanDoubleVector (clear);
@@ -11198,8 +11806,7 @@ namespace lime {
 		Window* targetWindow = (Window*)window->ptr;
 		VkInstance instance = (VkInstance)(uintptr_t)CombineVulkanHandle (instanceHigh, instanceLow);
 		VkDevice device = (VkDevice)(uintptr_t)CombineVulkanHandle (deviceHigh, deviceLow);
-		PFN_vkCmdBeginRenderPass vkCmdBeginRenderPass = (PFN_vkCmdBeginRenderPass)GetManagedVulkanDeviceProc (targetWindow, instance, device,
-			"vkCmdBeginRenderPass");
+		PFN_vkCmdBeginRenderPass vkCmdBeginRenderPass = LIME_VK_DEVICE_PROC (vkCmdBeginRenderPass);
 		VkCommandBuffer commandBuffer = (VkCommandBuffer)(uintptr_t)CombineVulkanHandle (commandBufferHigh, commandBufferLow);
 		std::vector<int> packed = GetHLVulkanIntVector (state);
 		std::vector<double> clearValues = GetHLVulkanDoubleVector (clear);
@@ -11246,8 +11853,7 @@ namespace lime {
 		Window* targetWindow = (Window*)val_data (window);
 		VkInstance instance = (VkInstance)(uintptr_t)CombineVulkanHandle (instanceHigh, instanceLow);
 		VkDevice device = (VkDevice)(uintptr_t)CombineVulkanHandle (deviceHigh, deviceLow);
-		PFN_vkCmdEndRenderPass vkCmdEndRenderPass = (PFN_vkCmdEndRenderPass)GetManagedVulkanDeviceProc (targetWindow, instance, device,
-			"vkCmdEndRenderPass");
+		PFN_vkCmdEndRenderPass vkCmdEndRenderPass = LIME_VK_DEVICE_PROC (vkCmdEndRenderPass);
 		VkCommandBuffer commandBuffer = (VkCommandBuffer)(uintptr_t)CombineVulkanHandle (commandBufferHigh, commandBufferLow);
 		if (!vkCmdEndRenderPass || !commandBuffer) return false;
 		vkCmdEndRenderPass (commandBuffer);
@@ -11267,8 +11873,7 @@ namespace lime {
 		Window* targetWindow = (Window*)window->ptr;
 		VkInstance instance = (VkInstance)(uintptr_t)CombineVulkanHandle (instanceHigh, instanceLow);
 		VkDevice device = (VkDevice)(uintptr_t)CombineVulkanHandle (deviceHigh, deviceLow);
-		PFN_vkCmdEndRenderPass vkCmdEndRenderPass = (PFN_vkCmdEndRenderPass)GetManagedVulkanDeviceProc (targetWindow, instance, device,
-			"vkCmdEndRenderPass");
+		PFN_vkCmdEndRenderPass vkCmdEndRenderPass = LIME_VK_DEVICE_PROC (vkCmdEndRenderPass);
 		VkCommandBuffer commandBuffer = (VkCommandBuffer)(uintptr_t)CombineVulkanHandle (commandBufferHigh, commandBufferLow);
 		if (!vkCmdEndRenderPass || !commandBuffer) return false;
 		vkCmdEndRenderPass (commandBuffer);
@@ -11288,8 +11893,7 @@ namespace lime {
 		Window* targetWindow = (Window*)val_data (window);
 		VkInstance instance = (VkInstance)(uintptr_t)CombineVulkanHandle (instanceHigh, instanceLow);
 		VkDevice device = (VkDevice)(uintptr_t)CombineVulkanHandle (deviceHigh, deviceLow);
-		PFN_vkCmdBindPipeline vkCmdBindPipeline = (PFN_vkCmdBindPipeline)GetManagedVulkanDeviceProc (targetWindow, instance, device,
-			"vkCmdBindPipeline");
+		PFN_vkCmdBindPipeline vkCmdBindPipeline = LIME_VK_DEVICE_PROC (vkCmdBindPipeline);
 		VkCommandBuffer commandBuffer = (VkCommandBuffer)(uintptr_t)CombineVulkanHandle (commandBufferHigh, commandBufferLow);
 		VkPipeline pipeline = (VkPipeline)(uintptr_t)CombineVulkanHandle (pipelineHigh, pipelineLow);
 		if (!vkCmdBindPipeline || !commandBuffer || !pipeline) return false;
@@ -11310,8 +11914,7 @@ namespace lime {
 		Window* targetWindow = (Window*)window->ptr;
 		VkInstance instance = (VkInstance)(uintptr_t)CombineVulkanHandle (instanceHigh, instanceLow);
 		VkDevice device = (VkDevice)(uintptr_t)CombineVulkanHandle (deviceHigh, deviceLow);
-		PFN_vkCmdBindPipeline vkCmdBindPipeline = (PFN_vkCmdBindPipeline)GetManagedVulkanDeviceProc (targetWindow, instance, device,
-			"vkCmdBindPipeline");
+		PFN_vkCmdBindPipeline vkCmdBindPipeline = LIME_VK_DEVICE_PROC (vkCmdBindPipeline);
 		VkCommandBuffer commandBuffer = (VkCommandBuffer)(uintptr_t)CombineVulkanHandle (commandBufferHigh, commandBufferLow);
 		VkPipeline pipeline = (VkPipeline)(uintptr_t)CombineVulkanHandle (pipelineHigh, pipelineLow);
 		if (!vkCmdBindPipeline || !commandBuffer || !pipeline) return false;
@@ -11333,7 +11936,7 @@ namespace lime {
 		VkInstance instance = (VkInstance)(uintptr_t)CombineVulkanHandle (instanceHigh, instanceLow);
 		VkDevice device = (VkDevice)(uintptr_t)CombineVulkanHandle (deviceHigh, deviceLow);
 		PFN_vkCmdBindDescriptorSets vkCmdBindDescriptorSets =
-			(PFN_vkCmdBindDescriptorSets)GetManagedVulkanDeviceProc (targetWindow, instance, device, "vkCmdBindDescriptorSets");
+			LIME_VK_DEVICE_PROC (vkCmdBindDescriptorSets);
 		VkCommandBuffer commandBuffer = (VkCommandBuffer)(uintptr_t)CombineVulkanHandle (commandBufferHigh, commandBufferLow);
 		VkPipelineLayout layout = (VkPipelineLayout)(uintptr_t)CombineVulkanHandle (layoutHigh, layoutLow);
 		VkDescriptorSet descriptorSet = (VkDescriptorSet)(uintptr_t)CombineVulkanHandle (setHigh, setLow);
@@ -11357,7 +11960,7 @@ namespace lime {
 		VkInstance instance = (VkInstance)(uintptr_t)CombineVulkanHandle (instanceHigh, instanceLow);
 		VkDevice device = (VkDevice)(uintptr_t)CombineVulkanHandle (deviceHigh, deviceLow);
 		PFN_vkCmdBindDescriptorSets vkCmdBindDescriptorSets =
-			(PFN_vkCmdBindDescriptorSets)GetManagedVulkanDeviceProc (targetWindow, instance, device, "vkCmdBindDescriptorSets");
+			LIME_VK_DEVICE_PROC (vkCmdBindDescriptorSets);
 		VkCommandBuffer commandBuffer = (VkCommandBuffer)(uintptr_t)CombineVulkanHandle (commandBufferHigh, commandBufferLow);
 		VkPipelineLayout layout = (VkPipelineLayout)(uintptr_t)CombineVulkanHandle (layoutHigh, layoutLow);
 		VkDescriptorSet descriptorSet = (VkDescriptorSet)(uintptr_t)CombineVulkanHandle (setHigh, setLow);
@@ -11379,7 +11982,7 @@ namespace lime {
 		VkInstance instance = (VkInstance)(uintptr_t)CombineVulkanHandle (instanceHigh, instanceLow);
 		VkDevice device = (VkDevice)(uintptr_t)CombineVulkanHandle (deviceHigh, deviceLow);
 		PFN_vkCmdBindDescriptorSets vkCmdBindDescriptorSets =
-			(PFN_vkCmdBindDescriptorSets)GetManagedVulkanDeviceProc (targetWindow, instance, device, "vkCmdBindDescriptorSets");
+			LIME_VK_DEVICE_PROC (vkCmdBindDescriptorSets);
 		VkCommandBuffer commandBuffer = (VkCommandBuffer)(uintptr_t)CombineVulkanHandle (commandBufferHigh, commandBufferLow);
 		VkPipelineLayout layout = (VkPipelineLayout)(uintptr_t)CombineVulkanHandle (layoutHigh, layoutLow);
 		VkDescriptorSet descriptorSet = (VkDescriptorSet)(uintptr_t)CombineVulkanHandle (setHigh, setLow);
@@ -11411,7 +12014,7 @@ namespace lime {
 		VkInstance instance = (VkInstance)(uintptr_t)CombineVulkanHandle (instanceHigh, instanceLow);
 		VkDevice device = (VkDevice)(uintptr_t)CombineVulkanHandle (deviceHigh, deviceLow);
 		PFN_vkCmdBindDescriptorSets vkCmdBindDescriptorSets =
-			(PFN_vkCmdBindDescriptorSets)GetManagedVulkanDeviceProc (targetWindow, instance, device, "vkCmdBindDescriptorSets");
+			LIME_VK_DEVICE_PROC (vkCmdBindDescriptorSets);
 		VkCommandBuffer commandBuffer = (VkCommandBuffer)(uintptr_t)CombineVulkanHandle (commandBufferHigh, commandBufferLow);
 		VkPipelineLayout layout = (VkPipelineLayout)(uintptr_t)CombineVulkanHandle (layoutHigh, layoutLow);
 		VkDescriptorSet descriptorSet = (VkDescriptorSet)(uintptr_t)CombineVulkanHandle (setHigh, setLow);
@@ -11444,7 +12047,7 @@ namespace lime {
 		VkInstance instance = (VkInstance)(uintptr_t)CombineVulkanHandle (instanceHigh, instanceLow);
 		VkDevice device = (VkDevice)(uintptr_t)CombineVulkanHandle (deviceHigh, deviceLow);
 		PFN_vkCmdBindDescriptorSets vkCmdBindDescriptorSets =
-			(PFN_vkCmdBindDescriptorSets)GetManagedVulkanDeviceProc (targetWindow, instance, device, "vkCmdBindDescriptorSets");
+			LIME_VK_DEVICE_PROC (vkCmdBindDescriptorSets);
 		VkCommandBuffer commandBuffer = (VkCommandBuffer)(uintptr_t)CombineVulkanHandle (commandBufferHigh, commandBufferLow);
 		VkPipelineLayout layout = (VkPipelineLayout)(uintptr_t)CombineVulkanHandle (layoutHigh, layoutLow);
 		VkDescriptorSet descriptorSet = (VkDescriptorSet)(uintptr_t)CombineVulkanHandle (setHigh, setLow);
@@ -11469,7 +12072,7 @@ namespace lime {
 		VkInstance instance = (VkInstance)(uintptr_t)CombineVulkanHandle (instanceHigh, instanceLow);
 		VkDevice device = (VkDevice)(uintptr_t)CombineVulkanHandle (deviceHigh, deviceLow);
 		PFN_vkCmdBindDescriptorSets vkCmdBindDescriptorSets =
-			(PFN_vkCmdBindDescriptorSets)GetManagedVulkanDeviceProc (targetWindow, instance, device, "vkCmdBindDescriptorSets");
+			LIME_VK_DEVICE_PROC (vkCmdBindDescriptorSets);
 		VkCommandBuffer commandBuffer = (VkCommandBuffer)(uintptr_t)CombineVulkanHandle (commandBufferHigh, commandBufferLow);
 		VkPipelineLayout layout = (VkPipelineLayout)(uintptr_t)CombineVulkanHandle (layoutHigh, layoutLow);
 		VkDescriptorSet descriptorSet = (VkDescriptorSet)(uintptr_t)CombineVulkanHandle (setHigh, setLow);
@@ -11502,7 +12105,7 @@ namespace lime {
 		VkInstance instance = (VkInstance)(uintptr_t)CombineVulkanHandle (instanceHigh, instanceLow);
 		VkDevice device = (VkDevice)(uintptr_t)CombineVulkanHandle (deviceHigh, deviceLow);
 		PFN_vkCmdBindVertexBuffers vkCmdBindVertexBuffers =
-			(PFN_vkCmdBindVertexBuffers)GetManagedVulkanDeviceProc (targetWindow, instance, device, "vkCmdBindVertexBuffers");
+			LIME_VK_DEVICE_PROC (vkCmdBindVertexBuffers);
 		VkCommandBuffer commandBuffer = (VkCommandBuffer)(uintptr_t)CombineVulkanHandle (commandBufferHigh, commandBufferLow);
 		VkBuffer buffer = (VkBuffer)(uintptr_t)CombineVulkanHandle (bufferHigh, bufferLow);
 		VkDeviceSize offset = (VkDeviceSize)CombineVulkanHandle (offsetHigh, offsetLow);
@@ -11525,7 +12128,7 @@ namespace lime {
 		VkInstance instance = (VkInstance)(uintptr_t)CombineVulkanHandle (instanceHigh, instanceLow);
 		VkDevice device = (VkDevice)(uintptr_t)CombineVulkanHandle (deviceHigh, deviceLow);
 		PFN_vkCmdBindVertexBuffers vkCmdBindVertexBuffers =
-			(PFN_vkCmdBindVertexBuffers)GetManagedVulkanDeviceProc (targetWindow, instance, device, "vkCmdBindVertexBuffers");
+			LIME_VK_DEVICE_PROC (vkCmdBindVertexBuffers);
 		VkCommandBuffer commandBuffer = (VkCommandBuffer)(uintptr_t)CombineVulkanHandle (commandBufferHigh, commandBufferLow);
 		VkBuffer buffer = (VkBuffer)(uintptr_t)CombineVulkanHandle (bufferHigh, bufferLow);
 		VkDeviceSize offset = (VkDeviceSize)CombineVulkanHandle (offsetHigh, offsetLow);
@@ -11548,7 +12151,7 @@ namespace lime {
 		VkInstance instance = (VkInstance)(uintptr_t)CombineVulkanHandle (instanceHigh, instanceLow);
 		VkDevice device = (VkDevice)(uintptr_t)CombineVulkanHandle (deviceHigh, deviceLow);
 		PFN_vkCmdBindIndexBuffer vkCmdBindIndexBuffer =
-			(PFN_vkCmdBindIndexBuffer)GetManagedVulkanDeviceProc (targetWindow, instance, device, "vkCmdBindIndexBuffer");
+			LIME_VK_DEVICE_PROC (vkCmdBindIndexBuffer);
 		VkCommandBuffer commandBuffer = (VkCommandBuffer)(uintptr_t)CombineVulkanHandle (commandBufferHigh, commandBufferLow);
 		VkBuffer buffer = (VkBuffer)(uintptr_t)CombineVulkanHandle (bufferHigh, bufferLow);
 		if (!vkCmdBindIndexBuffer || !commandBuffer || !buffer) return false;
@@ -11570,7 +12173,7 @@ namespace lime {
 		VkInstance instance = (VkInstance)(uintptr_t)CombineVulkanHandle (instanceHigh, instanceLow);
 		VkDevice device = (VkDevice)(uintptr_t)CombineVulkanHandle (deviceHigh, deviceLow);
 		PFN_vkCmdBindIndexBuffer vkCmdBindIndexBuffer =
-			(PFN_vkCmdBindIndexBuffer)GetManagedVulkanDeviceProc (targetWindow, instance, device, "vkCmdBindIndexBuffer");
+			LIME_VK_DEVICE_PROC (vkCmdBindIndexBuffer);
 		VkCommandBuffer commandBuffer = (VkCommandBuffer)(uintptr_t)CombineVulkanHandle (commandBufferHigh, commandBufferLow);
 		VkBuffer buffer = (VkBuffer)(uintptr_t)CombineVulkanHandle (bufferHigh, bufferLow);
 		if (!vkCmdBindIndexBuffer || !commandBuffer || !buffer) return false;
@@ -11591,8 +12194,7 @@ namespace lime {
 		Window* targetWindow = (Window*)val_data (window);
 		VkInstance instance = (VkInstance)(uintptr_t)CombineVulkanHandle (instanceHigh, instanceLow);
 		VkDevice device = (VkDevice)(uintptr_t)CombineVulkanHandle (deviceHigh, deviceLow);
-		PFN_vkCmdSetViewport vkCmdSetViewport = (PFN_vkCmdSetViewport)GetManagedVulkanDeviceProc (targetWindow, instance, device,
-			"vkCmdSetViewport");
+		PFN_vkCmdSetViewport vkCmdSetViewport = LIME_VK_DEVICE_PROC (vkCmdSetViewport);
 		VkCommandBuffer commandBuffer = (VkCommandBuffer)(uintptr_t)CombineVulkanHandle (commandBufferHigh, commandBufferLow);
 		if (!vkCmdSetViewport || !commandBuffer) return false;
 		VkViewport viewport;
@@ -11619,8 +12221,7 @@ namespace lime {
 		Window* targetWindow = (Window*)window->ptr;
 		VkInstance instance = (VkInstance)(uintptr_t)CombineVulkanHandle (instanceHigh, instanceLow);
 		VkDevice device = (VkDevice)(uintptr_t)CombineVulkanHandle (deviceHigh, deviceLow);
-		PFN_vkCmdSetViewport vkCmdSetViewport = (PFN_vkCmdSetViewport)GetManagedVulkanDeviceProc (targetWindow, instance, device,
-			"vkCmdSetViewport");
+		PFN_vkCmdSetViewport vkCmdSetViewport = LIME_VK_DEVICE_PROC (vkCmdSetViewport);
 		VkCommandBuffer commandBuffer = (VkCommandBuffer)(uintptr_t)CombineVulkanHandle (commandBufferHigh, commandBufferLow);
 		if (!vkCmdSetViewport || !commandBuffer) return false;
 		VkViewport viewport;
@@ -11655,7 +12256,7 @@ namespace lime {
 		Window* targetWindow = (Window*)val_data (window);
 		VkInstance instance = (VkInstance)(uintptr_t)CombineVulkanHandle (instanceHigh, instanceLow);
 		VkDevice device = (VkDevice)(uintptr_t)CombineVulkanHandle (deviceHigh, deviceLow);
-		PFN_vkCmdSetScissor vkCmdSetScissor = (PFN_vkCmdSetScissor)GetManagedVulkanDeviceProc (targetWindow, instance, device, "vkCmdSetScissor");
+		PFN_vkCmdSetScissor vkCmdSetScissor = LIME_VK_DEVICE_PROC (vkCmdSetScissor);
 		VkCommandBuffer commandBuffer = (VkCommandBuffer)(uintptr_t)CombineVulkanHandle (commandBufferHigh, commandBufferLow);
 		if (!vkCmdSetScissor || !commandBuffer) return false;
 		VkRect2D scissor;
@@ -11680,7 +12281,7 @@ namespace lime {
 		Window* targetWindow = (Window*)window->ptr;
 		VkInstance instance = (VkInstance)(uintptr_t)CombineVulkanHandle (instanceHigh, instanceLow);
 		VkDevice device = (VkDevice)(uintptr_t)CombineVulkanHandle (deviceHigh, deviceLow);
-		PFN_vkCmdSetScissor vkCmdSetScissor = (PFN_vkCmdSetScissor)GetManagedVulkanDeviceProc (targetWindow, instance, device, "vkCmdSetScissor");
+		PFN_vkCmdSetScissor vkCmdSetScissor = LIME_VK_DEVICE_PROC (vkCmdSetScissor);
 		VkCommandBuffer commandBuffer = (VkCommandBuffer)(uintptr_t)CombineVulkanHandle (commandBufferHigh, commandBufferLow);
 		if (!vkCmdSetScissor || !commandBuffer) return false;
 		VkRect2D scissor;
@@ -11705,7 +12306,7 @@ namespace lime {
 		Window* targetWindow = (Window*)val_data (window);
 		VkInstance instance = (VkInstance)(uintptr_t)CombineVulkanHandle (instanceHigh, instanceLow);
 		VkDevice device = (VkDevice)(uintptr_t)CombineVulkanHandle (deviceHigh, deviceLow);
-		PFN_vkCmdDraw vkCmdDraw = (PFN_vkCmdDraw)GetManagedVulkanDeviceProc (targetWindow, instance, device, "vkCmdDraw");
+		PFN_vkCmdDraw vkCmdDraw = LIME_VK_DEVICE_PROC (vkCmdDraw);
 		VkCommandBuffer commandBuffer = (VkCommandBuffer)(uintptr_t)CombineVulkanHandle (commandBufferHigh, commandBufferLow);
 		if (!vkCmdDraw || !commandBuffer) return false;
 		vkCmdDraw (commandBuffer, (uint32_t)vertexCount, (uint32_t)instanceCount, (uint32_t)firstVertex, (uint32_t)firstInstance);
@@ -11725,7 +12326,7 @@ namespace lime {
 		Window* targetWindow = (Window*)window->ptr;
 		VkInstance instance = (VkInstance)(uintptr_t)CombineVulkanHandle (instanceHigh, instanceLow);
 		VkDevice device = (VkDevice)(uintptr_t)CombineVulkanHandle (deviceHigh, deviceLow);
-		PFN_vkCmdDraw vkCmdDraw = (PFN_vkCmdDraw)GetManagedVulkanDeviceProc (targetWindow, instance, device, "vkCmdDraw");
+		PFN_vkCmdDraw vkCmdDraw = LIME_VK_DEVICE_PROC (vkCmdDraw);
 		VkCommandBuffer commandBuffer = (VkCommandBuffer)(uintptr_t)CombineVulkanHandle (commandBufferHigh, commandBufferLow);
 		if (!vkCmdDraw || !commandBuffer) return false;
 		vkCmdDraw (commandBuffer, (uint32_t)vertexCount, (uint32_t)instanceCount, (uint32_t)firstVertex, (uint32_t)firstInstance);
@@ -11745,8 +12346,7 @@ namespace lime {
 		Window* targetWindow = (Window*)val_data (window);
 		VkInstance instance = (VkInstance)(uintptr_t)CombineVulkanHandle (instanceHigh, instanceLow);
 		VkDevice device = (VkDevice)(uintptr_t)CombineVulkanHandle (deviceHigh, deviceLow);
-		PFN_vkCmdDrawIndexed vkCmdDrawIndexed = (PFN_vkCmdDrawIndexed)GetManagedVulkanDeviceProc (targetWindow, instance, device,
-			"vkCmdDrawIndexed");
+		PFN_vkCmdDrawIndexed vkCmdDrawIndexed = LIME_VK_DEVICE_PROC (vkCmdDrawIndexed);
 		VkCommandBuffer commandBuffer = (VkCommandBuffer)(uintptr_t)CombineVulkanHandle (commandBufferHigh, commandBufferLow);
 		if (!vkCmdDrawIndexed || !commandBuffer) return false;
 		vkCmdDrawIndexed (commandBuffer, (uint32_t)indexCount, (uint32_t)instanceCount, (uint32_t)firstIndex, vertexOffset, (uint32_t)firstInstance);
@@ -11766,8 +12366,7 @@ namespace lime {
 		Window* targetWindow = (Window*)window->ptr;
 		VkInstance instance = (VkInstance)(uintptr_t)CombineVulkanHandle (instanceHigh, instanceLow);
 		VkDevice device = (VkDevice)(uintptr_t)CombineVulkanHandle (deviceHigh, deviceLow);
-		PFN_vkCmdDrawIndexed vkCmdDrawIndexed = (PFN_vkCmdDrawIndexed)GetManagedVulkanDeviceProc (targetWindow, instance, device,
-			"vkCmdDrawIndexed");
+		PFN_vkCmdDrawIndexed vkCmdDrawIndexed = LIME_VK_DEVICE_PROC (vkCmdDrawIndexed);
 		VkCommandBuffer commandBuffer = (VkCommandBuffer)(uintptr_t)CombineVulkanHandle (commandBufferHigh, commandBufferLow);
 		if (!vkCmdDrawIndexed || !commandBuffer) return false;
 		vkCmdDrawIndexed (commandBuffer, (uint32_t)indexCount, (uint32_t)instanceCount, (uint32_t)firstIndex, vertexOffset, (uint32_t)firstInstance);
@@ -11787,8 +12386,7 @@ namespace lime {
 		Window* targetWindow = (Window*)val_data (window);
 		VkInstance instance = (VkInstance)(uintptr_t)CombineVulkanHandle (instanceHigh, instanceLow);
 		VkDevice device = (VkDevice)(uintptr_t)CombineVulkanHandle (deviceHigh, deviceLow);
-		PFN_vkCmdDrawIndirect vkCmdDrawIndirect = (PFN_vkCmdDrawIndirect)GetManagedVulkanDeviceProc (targetWindow, instance, device,
-			"vkCmdDrawIndirect");
+		PFN_vkCmdDrawIndirect vkCmdDrawIndirect = LIME_VK_DEVICE_PROC (vkCmdDrawIndirect);
 		VkCommandBuffer commandBuffer = (VkCommandBuffer)(uintptr_t)CombineVulkanHandle (commandBufferHigh, commandBufferLow);
 		VkBuffer buffer = (VkBuffer)(uintptr_t)CombineVulkanHandle (bufferHigh, bufferLow);
 		if (!vkCmdDrawIndirect || !commandBuffer || !buffer) return false;
@@ -11810,8 +12408,7 @@ namespace lime {
 		Window* targetWindow = (Window*)window->ptr;
 		VkInstance instance = (VkInstance)(uintptr_t)CombineVulkanHandle (instanceHigh, instanceLow);
 		VkDevice device = (VkDevice)(uintptr_t)CombineVulkanHandle (deviceHigh, deviceLow);
-		PFN_vkCmdDrawIndirect vkCmdDrawIndirect = (PFN_vkCmdDrawIndirect)GetManagedVulkanDeviceProc (targetWindow, instance, device,
-			"vkCmdDrawIndirect");
+		PFN_vkCmdDrawIndirect vkCmdDrawIndirect = LIME_VK_DEVICE_PROC (vkCmdDrawIndirect);
 		VkCommandBuffer commandBuffer = (VkCommandBuffer)(uintptr_t)CombineVulkanHandle (commandBufferHigh, commandBufferLow);
 		VkBuffer buffer = (VkBuffer)(uintptr_t)CombineVulkanHandle (bufferHigh, bufferLow);
 		if (!vkCmdDrawIndirect || !commandBuffer || !buffer) return false;
@@ -11834,7 +12431,7 @@ namespace lime {
 		VkInstance instance = (VkInstance)(uintptr_t)CombineVulkanHandle (instanceHigh, instanceLow);
 		VkDevice device = (VkDevice)(uintptr_t)CombineVulkanHandle (deviceHigh, deviceLow);
 		PFN_vkCmdDrawIndexedIndirect vkCmdDrawIndexedIndirect =
-			(PFN_vkCmdDrawIndexedIndirect)GetManagedVulkanDeviceProc (targetWindow, instance, device, "vkCmdDrawIndexedIndirect");
+			LIME_VK_DEVICE_PROC (vkCmdDrawIndexedIndirect);
 		VkCommandBuffer commandBuffer = (VkCommandBuffer)(uintptr_t)CombineVulkanHandle (commandBufferHigh, commandBufferLow);
 		VkBuffer buffer = (VkBuffer)(uintptr_t)CombineVulkanHandle (bufferHigh, bufferLow);
 		if (!vkCmdDrawIndexedIndirect || !commandBuffer || !buffer) return false;
@@ -11858,7 +12455,7 @@ namespace lime {
 		VkInstance instance = (VkInstance)(uintptr_t)CombineVulkanHandle (instanceHigh, instanceLow);
 		VkDevice device = (VkDevice)(uintptr_t)CombineVulkanHandle (deviceHigh, deviceLow);
 		PFN_vkCmdDrawIndexedIndirect vkCmdDrawIndexedIndirect =
-			(PFN_vkCmdDrawIndexedIndirect)GetManagedVulkanDeviceProc (targetWindow, instance, device, "vkCmdDrawIndexedIndirect");
+			LIME_VK_DEVICE_PROC (vkCmdDrawIndexedIndirect);
 		VkCommandBuffer commandBuffer = (VkCommandBuffer)(uintptr_t)CombineVulkanHandle (commandBufferHigh, commandBufferLow);
 		VkBuffer buffer = (VkBuffer)(uintptr_t)CombineVulkanHandle (bufferHigh, bufferLow);
 		if (!vkCmdDrawIndexedIndirect || !commandBuffer || !buffer) return false;
@@ -11886,7 +12483,7 @@ namespace lime {
 		Window* targetWindow = (Window*)val_data (window);
 		VkInstance instance = (VkInstance)(uintptr_t)CombineVulkanHandle (instanceHigh, instanceLow);
 		VkDevice device = (VkDevice)(uintptr_t)CombineVulkanHandle (deviceHigh, deviceLow);
-		PFN_vkCmdCopyBuffer vkCmdCopyBuffer = (PFN_vkCmdCopyBuffer)GetManagedVulkanDeviceProc (targetWindow, instance, device, "vkCmdCopyBuffer");
+		PFN_vkCmdCopyBuffer vkCmdCopyBuffer = LIME_VK_DEVICE_PROC (vkCmdCopyBuffer);
 		VkCommandBuffer commandBuffer = (VkCommandBuffer)(uintptr_t)CombineVulkanHandle (commandBufferHigh, commandBufferLow);
 		std::vector<int> packed = GetVulkanIntVector (state);
 		if (!vkCmdCopyBuffer || !commandBuffer || packed.size () < 6) return false;
@@ -11913,7 +12510,7 @@ namespace lime {
 		Window* targetWindow = (Window*)window->ptr;
 		VkInstance instance = (VkInstance)(uintptr_t)CombineVulkanHandle (instanceHigh, instanceLow);
 		VkDevice device = (VkDevice)(uintptr_t)CombineVulkanHandle (deviceHigh, deviceLow);
-		PFN_vkCmdCopyBuffer vkCmdCopyBuffer = (PFN_vkCmdCopyBuffer)GetManagedVulkanDeviceProc (targetWindow, instance, device, "vkCmdCopyBuffer");
+		PFN_vkCmdCopyBuffer vkCmdCopyBuffer = LIME_VK_DEVICE_PROC (vkCmdCopyBuffer);
 		VkCommandBuffer commandBuffer = (VkCommandBuffer)(uintptr_t)CombineVulkanHandle (commandBufferHigh, commandBufferLow);
 		std::vector<int> packed = GetHLVulkanIntVector (state);
 		if (!vkCmdCopyBuffer || !commandBuffer || packed.size () < 6) return false;
@@ -11940,7 +12537,7 @@ namespace lime {
 		VkInstance instance = (VkInstance)(uintptr_t)CombineVulkanHandle (instanceHigh, instanceLow);
 		VkDevice device = (VkDevice)(uintptr_t)CombineVulkanHandle (deviceHigh, deviceLow);
 		PFN_vkCmdCopyBufferToImage vkCmdCopyBufferToImage =
-			(PFN_vkCmdCopyBufferToImage)GetManagedVulkanDeviceProc (targetWindow, instance, device, "vkCmdCopyBufferToImage");
+			LIME_VK_DEVICE_PROC (vkCmdCopyBufferToImage);
 		VkCommandBuffer commandBuffer = (VkCommandBuffer)(uintptr_t)CombineVulkanHandle (commandBufferHigh, commandBufferLow);
 		std::vector<int> packed = GetVulkanIntVector (state);
 		if (!vkCmdCopyBufferToImage || !commandBuffer || packed.size () < 15) return false;
@@ -11979,7 +12576,7 @@ namespace lime {
 		VkInstance instance = (VkInstance)(uintptr_t)CombineVulkanHandle (instanceHigh, instanceLow);
 		VkDevice device = (VkDevice)(uintptr_t)CombineVulkanHandle (deviceHigh, deviceLow);
 		PFN_vkCmdCopyBufferToImage vkCmdCopyBufferToImage =
-			(PFN_vkCmdCopyBufferToImage)GetManagedVulkanDeviceProc (targetWindow, instance, device, "vkCmdCopyBufferToImage");
+			LIME_VK_DEVICE_PROC (vkCmdCopyBufferToImage);
 		VkCommandBuffer commandBuffer = (VkCommandBuffer)(uintptr_t)CombineVulkanHandle (commandBufferHigh, commandBufferLow);
 		std::vector<int> packed = GetHLVulkanIntVector (state);
 		if (!vkCmdCopyBufferToImage || !commandBuffer || packed.size () < 15) return false;
@@ -12018,7 +12615,7 @@ namespace lime {
 		VkInstance instance = (VkInstance)(uintptr_t)CombineVulkanHandle (instanceHigh, instanceLow);
 		VkDevice device = (VkDevice)(uintptr_t)CombineVulkanHandle (deviceHigh, deviceLow);
 		PFN_vkCmdCopyImageToBuffer vkCmdCopyImageToBuffer =
-			(PFN_vkCmdCopyImageToBuffer)GetManagedVulkanDeviceProc (targetWindow, instance, device, "vkCmdCopyImageToBuffer");
+			LIME_VK_DEVICE_PROC (vkCmdCopyImageToBuffer);
 		VkCommandBuffer commandBuffer = (VkCommandBuffer)(uintptr_t)CombineVulkanHandle (commandBufferHigh, commandBufferLow);
 		std::vector<int> packed = GetVulkanIntVector (state);
 		if (!vkCmdCopyImageToBuffer || !commandBuffer || packed.size () < 15) return false;
@@ -12057,7 +12654,7 @@ namespace lime {
 		VkInstance instance = (VkInstance)(uintptr_t)CombineVulkanHandle (instanceHigh, instanceLow);
 		VkDevice device = (VkDevice)(uintptr_t)CombineVulkanHandle (deviceHigh, deviceLow);
 		PFN_vkCmdCopyImageToBuffer vkCmdCopyImageToBuffer =
-			(PFN_vkCmdCopyImageToBuffer)GetManagedVulkanDeviceProc (targetWindow, instance, device, "vkCmdCopyImageToBuffer");
+			LIME_VK_DEVICE_PROC (vkCmdCopyImageToBuffer);
 		VkCommandBuffer commandBuffer = (VkCommandBuffer)(uintptr_t)CombineVulkanHandle (commandBufferHigh, commandBufferLow);
 		std::vector<int> packed = GetHLVulkanIntVector (state);
 		if (!vkCmdCopyImageToBuffer || !commandBuffer || packed.size () < 15) return false;
@@ -12102,7 +12699,7 @@ namespace lime {
 		VkInstance instance = (VkInstance)(uintptr_t)CombineVulkanHandle (instanceHigh, instanceLow);
 		VkDevice device = (VkDevice)(uintptr_t)CombineVulkanHandle (deviceHigh, deviceLow);
 		PFN_vkCmdPipelineBarrier vkCmdPipelineBarrier =
-			(PFN_vkCmdPipelineBarrier)GetManagedVulkanDeviceProc (targetWindow, instance, device, "vkCmdPipelineBarrier");
+			LIME_VK_DEVICE_PROC (vkCmdPipelineBarrier);
 		VkCommandBuffer commandBuffer = (VkCommandBuffer)(uintptr_t)CombineVulkanHandle (commandBufferHigh, commandBufferLow);
 		std::vector<int> packed = GetVulkanIntVector (state);
 		if (!vkCmdPipelineBarrier || !commandBuffer || packed.size () < 11) return false;
@@ -12141,7 +12738,7 @@ namespace lime {
 		VkInstance instance = (VkInstance)(uintptr_t)CombineVulkanHandle (instanceHigh, instanceLow);
 		VkDevice device = (VkDevice)(uintptr_t)CombineVulkanHandle (deviceHigh, deviceLow);
 		PFN_vkCmdPipelineBarrier vkCmdPipelineBarrier =
-			(PFN_vkCmdPipelineBarrier)GetManagedVulkanDeviceProc (targetWindow, instance, device, "vkCmdPipelineBarrier");
+			LIME_VK_DEVICE_PROC (vkCmdPipelineBarrier);
 		VkCommandBuffer commandBuffer = (VkCommandBuffer)(uintptr_t)CombineVulkanHandle (commandBufferHigh, commandBufferLow);
 		std::vector<int> packed = GetHLVulkanIntVector (state);
 		if (!vkCmdPipelineBarrier || !commandBuffer || packed.size () < 11) return false;
@@ -12180,7 +12777,7 @@ namespace lime {
 		VkInstance instance = (VkInstance)(uintptr_t)CombineVulkanHandle (instanceHigh, instanceLow);
 		VkDevice device = (VkDevice)(uintptr_t)CombineVulkanHandle (deviceHigh, deviceLow);
 		PFN_vkCmdClearColorImage vkCmdClearColorImage =
-			(PFN_vkCmdClearColorImage)GetManagedVulkanDeviceProc (targetWindow, instance, device, "vkCmdClearColorImage");
+			LIME_VK_DEVICE_PROC (vkCmdClearColorImage);
 		VkCommandBuffer commandBuffer = (VkCommandBuffer)(uintptr_t)CombineVulkanHandle (commandBufferHigh, commandBufferLow);
 		std::vector<double> clearValues = GetVulkanDoubleVector (clear);
 		if (!vkCmdClearColorImage || !commandBuffer || clearValues.size () < 4) return false;
@@ -12213,7 +12810,7 @@ namespace lime {
 		VkInstance instance = (VkInstance)(uintptr_t)CombineVulkanHandle (instanceHigh, instanceLow);
 		VkDevice device = (VkDevice)(uintptr_t)CombineVulkanHandle (deviceHigh, deviceLow);
 		PFN_vkCmdClearColorImage vkCmdClearColorImage =
-			(PFN_vkCmdClearColorImage)GetManagedVulkanDeviceProc (targetWindow, instance, device, "vkCmdClearColorImage");
+			LIME_VK_DEVICE_PROC (vkCmdClearColorImage);
 		VkCommandBuffer commandBuffer = (VkCommandBuffer)(uintptr_t)CombineVulkanHandle (commandBufferHigh, commandBufferLow);
 		std::vector<double> clearValues = GetHLVulkanDoubleVector (clear);
 		if (!vkCmdClearColorImage || !commandBuffer || clearValues.size () < 4) return false;
@@ -12246,7 +12843,7 @@ namespace lime {
 		VkInstance instance = (VkInstance)(uintptr_t)CombineVulkanHandle (instanceHigh, instanceLow);
 		VkDevice device = (VkDevice)(uintptr_t)CombineVulkanHandle (deviceHigh, deviceLow);
 		PFN_vkCmdClearDepthStencilImage vkCmdClearDepthStencilImage =
-			(PFN_vkCmdClearDepthStencilImage)GetManagedVulkanDeviceProc (targetWindow, instance, device, "vkCmdClearDepthStencilImage");
+			LIME_VK_DEVICE_PROC (vkCmdClearDepthStencilImage);
 		VkCommandBuffer commandBuffer = (VkCommandBuffer)(uintptr_t)CombineVulkanHandle (commandBufferHigh, commandBufferLow);
 		std::vector<int> packed = GetVulkanIntVector (state);
 		std::vector<double> clearValues = GetVulkanDoubleVector (clear);
@@ -12281,7 +12878,7 @@ namespace lime {
 		VkInstance instance = (VkInstance)(uintptr_t)CombineVulkanHandle (instanceHigh, instanceLow);
 		VkDevice device = (VkDevice)(uintptr_t)CombineVulkanHandle (deviceHigh, deviceLow);
 		PFN_vkCmdClearDepthStencilImage vkCmdClearDepthStencilImage =
-			(PFN_vkCmdClearDepthStencilImage)GetManagedVulkanDeviceProc (targetWindow, instance, device, "vkCmdClearDepthStencilImage");
+			LIME_VK_DEVICE_PROC (vkCmdClearDepthStencilImage);
 		VkCommandBuffer commandBuffer = (VkCommandBuffer)(uintptr_t)CombineVulkanHandle (commandBufferHigh, commandBufferLow);
 		std::vector<int> packed = GetHLVulkanIntVector (state);
 		std::vector<double> clearValues = GetHLVulkanDoubleVector (clear);
@@ -12316,7 +12913,7 @@ namespace lime {
 		VkInstance instance = (VkInstance)(uintptr_t)CombineVulkanHandle (instanceHigh, instanceLow);
 		VkDevice device = (VkDevice)(uintptr_t)CombineVulkanHandle (deviceHigh, deviceLow);
 		PFN_vkCmdClearAttachments vkCmdClearAttachments =
-			(PFN_vkCmdClearAttachments)GetManagedVulkanDeviceProc (targetWindow, instance, device, "vkCmdClearAttachments");
+			LIME_VK_DEVICE_PROC (vkCmdClearAttachments);
 		VkCommandBuffer commandBuffer = (VkCommandBuffer)(uintptr_t)CombineVulkanHandle (commandBufferHigh, commandBufferLow);
 		std::vector<int> packed = GetVulkanIntVector (state);
 		std::vector<double> clearValues = GetVulkanDoubleVector (clear);
@@ -12377,7 +12974,7 @@ namespace lime {
 		VkInstance instance = (VkInstance)(uintptr_t)CombineVulkanHandle (instanceHigh, instanceLow);
 		VkDevice device = (VkDevice)(uintptr_t)CombineVulkanHandle (deviceHigh, deviceLow);
 		PFN_vkCmdClearAttachments vkCmdClearAttachments =
-			(PFN_vkCmdClearAttachments)GetManagedVulkanDeviceProc (targetWindow, instance, device, "vkCmdClearAttachments");
+			LIME_VK_DEVICE_PROC (vkCmdClearAttachments);
 		VkCommandBuffer commandBuffer = (VkCommandBuffer)(uintptr_t)CombineVulkanHandle (commandBufferHigh, commandBufferLow);
 		std::vector<int> packed = GetHLVulkanIntVector (state);
 		std::vector<double> clearValues = GetHLVulkanDoubleVector (clear);
@@ -12437,7 +13034,7 @@ namespace lime {
 		Window* targetWindow = (Window*)val_data (window);
 		VkInstance instance = (VkInstance)(uintptr_t)CombineVulkanHandle (instanceHigh, instanceLow);
 		VkDevice device = (VkDevice)(uintptr_t)CombineVulkanHandle (deviceHigh, deviceLow);
-		PFN_vkCmdBlitImage vkCmdBlitImage = (PFN_vkCmdBlitImage)GetManagedVulkanDeviceProc (targetWindow, instance, device, "vkCmdBlitImage");
+		PFN_vkCmdBlitImage vkCmdBlitImage = LIME_VK_DEVICE_PROC (vkCmdBlitImage);
 		VkCommandBuffer commandBuffer = (VkCommandBuffer)(uintptr_t)CombineVulkanHandle (commandBufferHigh, commandBufferLow);
 		std::vector<int> packed = GetVulkanIntVector (state);
 		if (!vkCmdBlitImage || !commandBuffer || packed.size () < 21) return false;
@@ -12486,7 +13083,7 @@ namespace lime {
 		Window* targetWindow = (Window*)window->ptr;
 		VkInstance instance = (VkInstance)(uintptr_t)CombineVulkanHandle (instanceHigh, instanceLow);
 		VkDevice device = (VkDevice)(uintptr_t)CombineVulkanHandle (deviceHigh, deviceLow);
-		PFN_vkCmdBlitImage vkCmdBlitImage = (PFN_vkCmdBlitImage)GetManagedVulkanDeviceProc (targetWindow, instance, device, "vkCmdBlitImage");
+		PFN_vkCmdBlitImage vkCmdBlitImage = LIME_VK_DEVICE_PROC (vkCmdBlitImage);
 		VkCommandBuffer commandBuffer = (VkCommandBuffer)(uintptr_t)CombineVulkanHandle (commandBufferHigh, commandBufferLow);
 		std::vector<int> packed = GetHLVulkanIntVector (state);
 		if (!vkCmdBlitImage || !commandBuffer || packed.size () < 21) return false;
@@ -12536,7 +13133,7 @@ namespace lime {
 		VkInstance instance = (VkInstance)(uintptr_t)CombineVulkanHandle (instanceHigh, instanceLow);
 		VkDevice device = (VkDevice)(uintptr_t)CombineVulkanHandle (deviceHigh, deviceLow);
 		PFN_vkCmdPushConstants vkCmdPushConstants =
-			(PFN_vkCmdPushConstants)GetManagedVulkanDeviceProc (targetWindow, instance, device, "vkCmdPushConstants");
+			LIME_VK_DEVICE_PROC (vkCmdPushConstants);
 		VkCommandBuffer commandBuffer = (VkCommandBuffer)(uintptr_t)CombineVulkanHandle (commandBufferHigh, commandBufferLow);
 		VkPipelineLayout layout = (VkPipelineLayout)(uintptr_t)CombineVulkanHandle (layoutHigh, layoutLow);
 		std::vector<int> packed = GetVulkanIntVector (state);
@@ -12562,7 +13159,7 @@ namespace lime {
 		VkInstance instance = (VkInstance)(uintptr_t)CombineVulkanHandle (instanceHigh, instanceLow);
 		VkDevice device = (VkDevice)(uintptr_t)CombineVulkanHandle (deviceHigh, deviceLow);
 		PFN_vkCmdPushConstants vkCmdPushConstants =
-			(PFN_vkCmdPushConstants)GetManagedVulkanDeviceProc (targetWindow, instance, device, "vkCmdPushConstants");
+			LIME_VK_DEVICE_PROC (vkCmdPushConstants);
 		VkCommandBuffer commandBuffer = (VkCommandBuffer)(uintptr_t)CombineVulkanHandle (commandBufferHigh, commandBufferLow);
 		VkPipelineLayout layout = (VkPipelineLayout)(uintptr_t)CombineVulkanHandle (layoutHigh, layoutLow);
 		std::vector<int> packed = GetHLVulkanIntVector (state);
@@ -13414,6 +14011,38 @@ namespace lime {
 	}
 
 
+	bool lime_window_get_fullscreen (value window) {
+
+		Window* targetWindow = (Window*)val_data (window);
+		return targetWindow->GetFullscreen ();
+
+	}
+
+
+	HL_PRIM bool HL_NAME(hl_window_get_fullscreen) (HL_CFFIPointer* window) {
+
+		Window* targetWindow = (Window*)window->ptr;
+		return targetWindow->GetFullscreen ();
+
+	}
+
+
+	bool lime_window_get_minimize_on_focus_loss (value window) {
+
+		Window* targetWindow = (Window*)val_data (window);
+		return targetWindow->GetMinimizeOnFocusLoss ();
+
+	}
+
+
+	HL_PRIM bool HL_NAME(hl_window_get_minimize_on_focus_loss) (HL_CFFIPointer* window) {
+
+		Window* targetWindow = (Window*)window->ptr;
+		return targetWindow->GetMinimizeOnFocusLoss ();
+
+	}
+
+
 	bool lime_window_get_mouse_lock (value window) {
 
 		Window* targetWindow = (Window*)val_data (window);
@@ -13715,6 +14344,16 @@ namespace lime {
 	value lime_window_set_display_mode (value window, value displayMode) {
 
 		Window* targetWindow = (Window*)val_data (window);
+
+		if (val_is_null (displayMode)) {
+
+			targetWindow->SetDisplayMode (0);
+			DisplayMode _displayMode;
+			targetWindow->GetDisplayMode (&_displayMode);
+			return (value)_displayMode.Value ();
+
+		}
+
 		DisplayMode _displayMode (displayMode);
 		targetWindow->SetDisplayMode (&_displayMode);
 		targetWindow->GetDisplayMode (&_displayMode);
@@ -13727,8 +14366,7 @@ namespace lime {
 
 		Window* targetWindow = (Window*)window->ptr;
 		targetWindow->SetDisplayMode (displayMode);
-		targetWindow->GetDisplayMode (displayMode);
-		result->CopyFrom(displayMode);
+		targetWindow->GetDisplayMode (result);
 
 	}
 
@@ -13965,6 +14603,22 @@ namespace lime {
 	}
 
 
+	void lime_window_set_minimize_on_focus_loss (value window, bool value) {
+
+		Window* targetWindow = (Window*)val_data (window);
+		targetWindow->SetMinimizeOnFocusLoss (value);
+
+	}
+
+
+	HL_PRIM void HL_NAME(hl_window_set_minimize_on_focus_loss) (HL_CFFIPointer* window, bool value) {
+
+		Window* targetWindow = (Window*)window->ptr;
+		targetWindow->SetMinimizeOnFocusLoss (value);
+
+	}
+
+
 	void lime_window_set_mouse_lock (value window, bool mouseLock) {
 
 		Window* targetWindow = (Window*)val_data (window);
@@ -14155,13 +14809,13 @@ namespace lime {
 	}
 
 
-	value lime_zlib_compress (value buffer, value bytes) {
+	value lime_zlib_compress_level (value buffer, value bytes, int level) {
 
 		#ifdef LIME_ZLIB
 		Bytes data (buffer);
 		Bytes result (bytes);
 
-		Zlib::Compress (ZLIB, &data, &result);
+		Zlib::Compress (ZLIB, &data, &result, level);
 
 		return result.Value (bytes);
 		#else
@@ -14171,14 +14825,29 @@ namespace lime {
 	}
 
 
-	HL_PRIM Bytes* HL_NAME(hl_zlib_compress) (Bytes* buffer, Bytes* bytes) {
+	HL_PRIM Bytes* HL_NAME(hl_zlib_compress_level) (Bytes* buffer, Bytes* bytes, int level) {
 
 		#ifdef LIME_ZLIB
-		Zlib::Compress (ZLIB, buffer, bytes);
+		Zlib::Compress (ZLIB, buffer, bytes, level);
 		return bytes;
 		#else
 		return 0;
 		#endif
+
+	}
+
+
+	// Without a level, as before levels could be chosen, for libraries built against an older Lime
+	value lime_zlib_compress (value buffer, value bytes) {
+
+		return lime_zlib_compress_level (buffer, bytes, -1);
+
+	}
+
+
+	HL_PRIM Bytes* HL_NAME(hl_zlib_compress) (Bytes* buffer, Bytes* bytes) {
+
+		return HL_NAME(hl_zlib_compress_level) (buffer, bytes, -1);
 
 	}
 
@@ -14189,9 +14858,10 @@ namespace lime {
 		Bytes data (buffer);
 		Bytes result (bytes);
 
-		Zlib::Decompress (ZLIB, &data, &result);
+		if (!Zlib::Decompress (ZLIB, &data, &result)) return alloc_null ();
 
-		return result.Value (bytes);
+		// Value () gives null without data, so an empty result is the empty Bytes given
+		return result.length > 0 ? result.Value (bytes) : bytes;
 		#else
 		return alloc_null ();
 		#endif
@@ -14202,8 +14872,7 @@ namespace lime {
 	HL_PRIM Bytes* HL_NAME(hl_zlib_decompress) (Bytes* buffer, Bytes* bytes) {
 
 		#ifdef LIME_ZLIB
-		Zlib::Decompress (ZLIB, buffer, bytes);
-		return bytes;
+		return Zlib::Decompress (ZLIB, buffer, bytes) ? bytes : 0;
 		#else
 		return 0;
 		#endif
@@ -14219,6 +14888,7 @@ namespace lime {
 	DEFINE_PRIME1 (lime_application_quit);
 	DEFINE_PRIME2v (lime_application_set_idle_events);
 	DEFINE_PRIME6v (lime_application_set_main_loop);
+	DEFINE_PRIME2v (lime_application_set_background_frame_rate);
 	DEFINE_PRIME2v (lime_application_set_frame_rate);
 	DEFINE_PRIME5v (lime_application_set_modal_callbacks);
 	DEFINE_PRIME1v (lime_application_defer_modal_exception);
@@ -14236,14 +14906,26 @@ namespace lime {
 	DEFINE_PRIME1 (lime_cffi_set_finalizer);
 	DEFINE_PRIME2v (lime_clipboard_event_manager_register);
 	DEFINE_PRIME0 (lime_clipboard_get_text);
+	DEFINE_PRIME0 (lime_clipboard_get_files);
+	DEFINE_PRIME1 (lime_clipboard_get_format_text);
+	DEFINE_PRIME1 (lime_clipboard_get_image);
+	DEFINE_PRIME1 (lime_clipboard_has_format);
+	DEFINE_PRIME1 (lime_clipboard_set_items);
 	DEFINE_PRIME1v (lime_clipboard_set_text);
 	DEFINE_PRIME2 (lime_data_pointer_offset);
 	DEFINE_PRIME2 (lime_deflate_compress);
+	DEFINE_PRIME3 (lime_deflate_compress_level);
 	DEFINE_PRIME2 (lime_deflate_decompress);
 	DEFINE_PRIME1v (lime_dock_icon_bounce);
 	DEFINE_PRIME0 (lime_dock_icon_is_supported);
 	DEFINE_PRIME1v (lime_dock_icon_set_icon);
 	DEFINE_PRIME1 (lime_dock_icon_set_menu);
+	DEFINE_PRIME0 (lime_drag_data_get_files);
+	DEFINE_PRIME1 (lime_drag_data_get_format_text);
+	DEFINE_PRIME1 (lime_drag_data_get_image);
+	DEFINE_PRIME1 (lime_drag_data_has_format);
+	DEFINE_PRIME0 (lime_drag_drop_is_supported);
+	DEFINE_PRIME2v (lime_drag_event_manager_register);
 	DEFINE_PRIME2v (lime_drop_event_manager_register);
 	DEFINE_PRIME3 (lime_file_dialog_open_directory);
 	DEFINE_PRIME3 (lime_file_dialog_open_file);
@@ -14297,6 +14979,7 @@ namespace lime {
 	DEFINE_PRIME4 (lime_gamepad_set_led);
 	DEFINE_PRIME3 (lime_gamepad_set_sensor_enabled);
 	DEFINE_PRIME2 (lime_gzip_compress);
+	DEFINE_PRIME3 (lime_gzip_compress_level);
 	DEFINE_PRIME2 (lime_gzip_decompress);
 	DEFINE_PRIME2v (lime_haptic_vibrate);
 	DEFINE_PRIME3v (lime_image_data_util_color_transform);
@@ -14305,6 +14988,7 @@ namespace lime {
 	DEFINE_PRIME4v (lime_image_data_util_fill_rect);
 	DEFINE_PRIME5v (lime_image_data_util_flood_fill);
 	DEFINE_PRIME4v (lime_image_data_util_get_pixels);
+	DEFINE_PRIME5v (lime_image_data_util_get_pixels_endian);
 	DEFINE_PRIME8v (lime_image_data_util_merge);
 	DEFINE_PRIME1v (lime_image_data_util_multiply_alpha);
 	DEFINE_PRIME4v (lime_image_data_util_resize);
@@ -14331,10 +15015,14 @@ namespace lime {
 	DEFINE_PRIME0 (lime_locale_get_preferred_locales);
 	DEFINE_PRIME0 (lime_locale_get_system_locale);
 	DEFINE_PRIME2 (lime_lzma_compress);
+	DEFINE_PRIME3 (lime_lzma_compress_level);
 	DEFINE_PRIME2 (lime_lzma_decompress);
 	DEFINE_PRIME2v (lime_menu_event_manager_register);
 	DEFINE_PRIME1 (lime_menu_get_application_menu);
 	DEFINE_PRIME0 (lime_menu_get_support);
+	DEFINE_PRIME1 (lime_menu_get_open_event);
+	DEFINE_PRIME1v (lime_menu_set_open_callback);
+	DEFINE_PRIME1v (lime_menu_set_open_items);
 	DEFINE_PRIME2v (lime_mouse_event_manager_register);
 	DEFINE_PRIME1v (lime_neko_execute);
 	DEFINE_PRIME2v (lime_orientation_event_manager_register);
@@ -14350,12 +15038,18 @@ namespace lime {
 	DEFINE_PRIME0 (lime_system_get_ios_tablet);
 	DEFINE_PRIME0 (lime_system_get_num_displays);
 	DEFINE_PRIME0 (lime_system_get_device_orientation);
+	DEFINE_PRIME0 (lime_audio_input_get_permission_status);
+	DEFINE_PRIME0v (lime_audio_input_request_permission);
 	DEFINE_PRIME0 (lime_system_get_platform_label);
 	DEFINE_PRIME0 (lime_system_get_platform_name);
 	DEFINE_PRIME0 (lime_system_get_platform_version);
 	DEFINE_PRIME3 (lime_system_get_secure_random_bytes);
 	DEFINE_PRIME0 (lime_system_get_timer);
 	DEFINE_PRIME1 (lime_system_get_windows_console_mode);
+	DEFINE_PRIME1 (lime_system_get_free_space);
+	DEFINE_PRIME1 (lime_system_is_symbolic_link);
+	DEFINE_PRIME1 (lime_system_move_to_trash);
+	DEFINE_PRIME0 (lime_system_get_storage_volumes);
 	DEFINE_PRIME1v (lime_system_open_file);
 	DEFINE_PRIME2v (lime_system_open_url);
 	DEFINE_PRIME1 (lime_system_set_allow_screen_timeout);
@@ -14372,21 +15066,30 @@ namespace lime {
 	DEFINE_PRIME2 (lime_tray_icon_set_menu);
 	DEFINE_PRIME2v (lime_tray_icon_set_tooltip);
 	DEFINE_PRIME3v (lime_window_alert);
+	DEFINE_PRIME2 (lime_window_set_drag_target);
+	DEFINE_PRIME7 (lime_window_start_drag);
 	DEFINE_PRIME1v (lime_window_close);
 	DEFINE_PRIME1v (lime_window_context_flip);
 	DEFINE_PRIME1 (lime_window_context_lock);
 	DEFINE_PRIME1v (lime_window_context_make_current);
 	DEFINE_PRIME1v (lime_window_context_unlock);
 	DEFINE_PRIME5 (lime_window_create);
+	DEFINE_PRIME8 (lime_window_create_at);
+	DEFINE_PRIME0 (lime_window_get_creation_error);
 	DEFINE_PRIME2v (lime_window_event_manager_register);
 	DEFINE_PRIME1v (lime_window_focus);
+	DEFINE_PRIME3 (lime_window_order_relative);
+	DEFINE_PRIME1 (lime_window_order_to_back);
+	DEFINE_PRIME2 (lime_window_start_move_resize);
 	DEFINE_PRIME1 (lime_window_get_context);
 	DEFINE_PRIME1 (lime_window_get_context_type);
 	DEFINE_PRIME3 (lime_window_create_vulkan_surface);
 	DEFINE_PRIME1 (lime_window_get_display);
 	DEFINE_PRIME1 (lime_window_get_display_mode);
 	DEFINE_PRIME1 (lime_window_get_height);
+	DEFINE_PRIME1 (lime_window_get_fullscreen);
 	DEFINE_PRIME1 (lime_window_get_id);
+	DEFINE_PRIME1 (lime_window_get_minimize_on_focus_loss);
 	DEFINE_PRIME1 (lime_window_get_mouse_lock);
 	DEFINE_PRIME1 (lime_window_get_transparent);
 	DEFINE_PRIME1 (lime_window_get_scale);
@@ -14522,6 +15225,7 @@ namespace lime {
 	DEFINE_PRIME1 (lime_window_get_mouse_rect);
 	DEFINE_PRIME1 (lime_window_get_native_handle);
 	DEFINE_PRIME2v (lime_window_set_keyboard_grab);
+	DEFINE_PRIME2v (lime_window_set_minimize_on_focus_loss);
 	DEFINE_PRIME2v (lime_window_set_mouse_lock);
 	DEFINE_PRIME5v (lime_window_set_mouse_rect);
 	DEFINE_PRIME2 (lime_window_set_resizable);
@@ -14536,6 +15240,7 @@ namespace lime {
 	DEFINE_PRIME1 (lime_window_get_opacity);
 	DEFINE_PRIME2v (lime_window_set_opacity);
 	DEFINE_PRIME2 (lime_zlib_compress);
+	DEFINE_PRIME3 (lime_zlib_compress_level);
 	DEFINE_PRIME2 (lime_zlib_decompress);
 
 
@@ -14546,19 +15251,20 @@ namespace lime {
 	#define _TCFFIPOINTER _DYN
 	#define _TCLIPBOARD_EVENT _OBJ (_I32)
 	#define _TDISPLAYMODE _OBJ (_I32 _I32 _I32 _I32)
-	#define _TDROP_EVENT _OBJ (_BYTES _I32)
+	#define _TDRAG_EVENT _OBJ (_I32 _I32 _I32 _I32 _F64 _F64)
+	#define _TDROP_EVENT _OBJ (_BYTES _I32 _I32)
 	#define _TGAMEPAD_EVENT _OBJ (_I32 _I32 _I32 _I32 _F64 _I32 _F64 _F64 _F64)
 	#define _TJOYSTICK_EVENT _OBJ (_I32 _I32 _I32 _I32 _F64 _F64)
 	#define _TKEY_EVENT _OBJ (_F64 _I32 _I32 _I32 _I32)
 	#define _TMENU_EVENT _OBJ (_I32 _I32 _I32)
-	#define _TMOUSE_EVENT _OBJ (_I32 _F64 _F64 _I32 _I32 _F64 _F64 _I32)
+	#define _TMOUSE_EVENT _OBJ (_I32 _F64 _F64 _I32 _I32 _F64 _F64 _I32 _I32)
 	#define _TORIENTATION_EVENT _OBJ (_I32 _I32 _I32)
 	#define _TRECTANGLE _OBJ (_F64 _F64 _F64 _F64)
 	#define _TRENDER_EVENT _OBJ (_I32)
 	#define _TSENSOR_EVENT _OBJ (_I32 _F64 _F64 _F64 _I32)
 	#define _TTEXT_EVENT _OBJ (_I32 _I32 _I32 _BYTES _I32 _I32)
-	#define _TTOUCH_EVENT _OBJ (_I32 _F64 _F64 _I32 _F64 _I32 _F64 _F64)
-	#define _TTRAY_ICON_EVENT _OBJ (_I32 _I32 _I32)
+	#define _TTOUCH_EVENT _OBJ (_I32 _F64 _F64 _I32 _F64 _I32 _F64 _F64 _I32)
+	#define _TTRAY_ICON_EVENT _OBJ (_I32 _I32 _I32 _I32 _I32)
 	#define _TVECTOR2 _OBJ (_F64 _F64)
 	#define _TVORBISFILE _OBJ (_I32 _DYN _TBYTES)
 	#define _TWINDOW_EVENT _OBJ (_I32 _I32 _I32 _I32 _I32 _I32)
@@ -14581,6 +15287,7 @@ namespace lime {
 	DEFINE_HL_PRIM (_I32, hl_application_quit, _TCFFIPOINTER);
 	DEFINE_HL_PRIM (_VOID, hl_application_set_idle_events, _TCFFIPOINTER _BOOL);
 	DEFINE_HL_PRIM (_VOID, hl_application_set_main_loop, _TCFFIPOINTER _I32 _F64 _I32 _I32 _I32);
+	DEFINE_HL_PRIM (_VOID, hl_application_set_background_frame_rate, _TCFFIPOINTER _F64);
 	DEFINE_HL_PRIM (_VOID, hl_application_set_frame_rate, _TCFFIPOINTER _F64);
 	DEFINE_HL_PRIM (_VOID, hl_application_set_modal_callbacks, _TCFFIPOINTER _FUN(_VOID, _NO_ARG) _FUN(_VOID, _NO_ARG) _FUN(_VOID, _NO_ARG) _FUN(_VOID, _NO_ARG));
 	DEFINE_HL_PRIM (_VOID, hl_application_defer_modal_exception, _TCFFIPOINTER);
@@ -14598,13 +15305,25 @@ namespace lime {
 	DEFINE_HL_PRIM (_VOID, hl_clipboard_event_manager_register, _FUN(_VOID, _NO_ARG) _TCLIPBOARD_EVENT);
 	DEFINE_HL_PRIM (_BYTES, hl_clipboard_get_text, _NO_ARG);
 	DEFINE_HL_PRIM (_VOID, hl_clipboard_set_text, _STRING);
+	DEFINE_HL_PRIM (_BYTES, hl_clipboard_get_files, _NO_ARG);
+	DEFINE_HL_PRIM (_BYTES, hl_clipboard_get_format_text, _I32);
+	DEFINE_HL_PRIM (_TBYTES, hl_clipboard_get_image, _TBYTES);
+	DEFINE_HL_PRIM (_BOOL, hl_clipboard_has_format, _I32);
+	DEFINE_HL_PRIM (_BOOL, hl_clipboard_set_items, _TBYTES);
 	DEFINE_HL_PRIM (_F64, hl_data_pointer_offset, _F64 _I32);
 	DEFINE_HL_PRIM (_TBYTES, hl_deflate_compress, _TBYTES _TBYTES);
+	DEFINE_HL_PRIM (_TBYTES, hl_deflate_compress_level, _TBYTES _TBYTES _I32);
 	DEFINE_HL_PRIM (_TBYTES, hl_deflate_decompress, _TBYTES _TBYTES);
 	DEFINE_HL_PRIM (_VOID, hl_dock_icon_bounce, _BOOL);
 	DEFINE_HL_PRIM (_BOOL, hl_dock_icon_is_supported, _NO_ARG);
 	DEFINE_HL_PRIM (_VOID, hl_dock_icon_set_icon, _TIMAGEBUFFER);
 	DEFINE_HL_PRIM (_BOOL, hl_dock_icon_set_menu, _TBYTES);
+	DEFINE_HL_PRIM (_BYTES, hl_drag_data_get_files, _NO_ARG);
+	DEFINE_HL_PRIM (_BYTES, hl_drag_data_get_format_text, _I32);
+	DEFINE_HL_PRIM (_TBYTES, hl_drag_data_get_image, _TBYTES);
+	DEFINE_HL_PRIM (_BOOL, hl_drag_data_has_format, _I32);
+	DEFINE_HL_PRIM (_BOOL, hl_drag_drop_is_supported, _NO_ARG);
+	DEFINE_HL_PRIM (_VOID, hl_drag_event_manager_register, _FUN(_VOID, _NO_ARG) _TDRAG_EVENT);
 	DEFINE_HL_PRIM (_VOID, hl_drop_event_manager_register, _FUN(_VOID, _NO_ARG) _TDROP_EVENT);
 	DEFINE_HL_PRIM (_BYTES, hl_file_dialog_open_directory, _STRING _STRING _STRING);
 	DEFINE_HL_PRIM (_BYTES, hl_file_dialog_open_file, _STRING _STRING _STRING);
@@ -14658,6 +15377,7 @@ namespace lime {
 	DEFINE_HL_PRIM (_BOOL, hl_gamepad_set_led, _I32 _I32 _I32 _I32);
 	DEFINE_HL_PRIM (_BOOL, hl_gamepad_set_sensor_enabled, _I32 _I32 _BOOL);
 	DEFINE_HL_PRIM (_TBYTES, hl_gzip_compress, _TBYTES _TBYTES);
+	DEFINE_HL_PRIM (_TBYTES, hl_gzip_compress_level, _TBYTES _TBYTES _I32);
 	DEFINE_HL_PRIM (_TBYTES, hl_gzip_decompress, _TBYTES _TBYTES);
 	DEFINE_HL_PRIM (_VOID, hl_haptic_vibrate, _I32 _I32);
 	DEFINE_HL_PRIM (_VOID, hl_image_data_util_color_transform, _TIMAGE _TRECTANGLE _TARRAYBUFFERVIEW);
@@ -14666,6 +15386,7 @@ namespace lime {
 	DEFINE_HL_PRIM (_VOID, hl_image_data_util_fill_rect, _TIMAGE _TRECTANGLE _I32 _I32);
 	DEFINE_HL_PRIM (_VOID, hl_image_data_util_flood_fill, _TIMAGE _I32 _I32 _I32 _I32);
 	DEFINE_HL_PRIM (_VOID, hl_image_data_util_get_pixels, _TIMAGE _TRECTANGLE _I32 _TBYTES);
+	DEFINE_HL_PRIM (_VOID, hl_image_data_util_get_pixels_endian, _TIMAGE _TRECTANGLE _I32 _TBYTES _I32);
 	DEFINE_HL_PRIM (_VOID, hl_image_data_util_merge, _TIMAGE _TIMAGE _TRECTANGLE _TVECTOR2 _I32 _I32 _I32 _I32);
 	DEFINE_HL_PRIM (_VOID, hl_image_data_util_multiply_alpha, _TIMAGE);
 	DEFINE_HL_PRIM (_VOID, hl_image_data_util_resize, _TIMAGE _TIMAGEBUFFER _I32 _I32);
@@ -14692,10 +15413,14 @@ namespace lime {
 	DEFINE_HL_PRIM (_BYTES, hl_locale_get_preferred_locales, _NO_ARG);
 	DEFINE_HL_PRIM (_BYTES, hl_locale_get_system_locale, _NO_ARG);
 	DEFINE_HL_PRIM (_TBYTES, hl_lzma_compress, _TBYTES _TBYTES);
+	DEFINE_HL_PRIM (_TBYTES, hl_lzma_compress_level, _TBYTES _TBYTES _I32);
 	DEFINE_HL_PRIM (_TBYTES, hl_lzma_decompress, _TBYTES _TBYTES);
 	DEFINE_HL_PRIM (_VOID, hl_menu_event_manager_register, _FUN (_VOID, _NO_ARG) _TMENU_EVENT);
 	DEFINE_HL_PRIM (_TBYTES, hl_menu_get_application_menu, _TBYTES);
 	DEFINE_HL_PRIM (_I32, hl_menu_get_support, _NO_ARG);
+	DEFINE_HL_PRIM (_I32, hl_menu_get_open_event, _I32);
+	DEFINE_HL_PRIM (_VOID, hl_menu_set_open_callback, _FUN (_VOID, _NO_ARG));
+	DEFINE_HL_PRIM (_VOID, hl_menu_set_open_items, _TBYTES);
 	DEFINE_HL_PRIM (_VOID, hl_mouse_event_manager_register, _FUN (_VOID, _NO_ARG) _TMOUSE_EVENT);
 	// DEFINE_PRIME1v (lime_neko_execute);
 	DEFINE_HL_PRIM (_VOID, hl_orientation_event_manager_register, _FUN (_VOID, _NO_ARG) _TORIENTATION_EVENT);
@@ -14711,12 +15436,18 @@ namespace lime {
 	DEFINE_HL_PRIM (_BOOL, hl_system_get_ios_tablet, _NO_ARG);
 	DEFINE_HL_PRIM (_I32, hl_system_get_num_displays, _NO_ARG);
 	DEFINE_HL_PRIM (_I32, hl_system_get_device_orientation, _NO_ARG);
+	DEFINE_HL_PRIM (_I32, hl_audio_input_get_permission_status, _NO_ARG);
+	DEFINE_HL_PRIM (_VOID, hl_audio_input_request_permission, _NO_ARG);
 	DEFINE_HL_PRIM (_BYTES, hl_system_get_platform_label, _NO_ARG);
 	DEFINE_HL_PRIM (_BYTES, hl_system_get_platform_name, _NO_ARG);
 	DEFINE_HL_PRIM (_BYTES, hl_system_get_platform_version, _NO_ARG);
 	DEFINE_HL_PRIM (_BOOL, hl_system_get_secure_random_bytes, _TBYTES _I32 _I32);
 	DEFINE_HL_PRIM (_F64, hl_system_get_timer, _NO_ARG);
 	DEFINE_HL_PRIM (_I32, hl_system_get_windows_console_mode, _I32);
+	DEFINE_HL_PRIM (_F64, hl_system_get_free_space, _STRING);
+	DEFINE_HL_PRIM (_BOOL, hl_system_is_symbolic_link, _STRING);
+	DEFINE_HL_PRIM (_BOOL, hl_system_move_to_trash, _STRING);
+	DEFINE_HL_PRIM (_BYTES, hl_system_get_storage_volumes, _NO_ARG);
 	DEFINE_HL_PRIM (_VOID, hl_system_open_file, _STRING);
 	DEFINE_HL_PRIM (_VOID, hl_system_open_url, _STRING _STRING);
 	DEFINE_HL_PRIM (_BOOL, hl_system_set_allow_screen_timeout, _BOOL);
@@ -14733,21 +15464,30 @@ namespace lime {
 	DEFINE_HL_PRIM (_BOOL, hl_tray_icon_set_menu, _TCFFIPOINTER _TBYTES);
 	DEFINE_HL_PRIM (_VOID, hl_tray_icon_set_tooltip, _TCFFIPOINTER _STRING);
 	DEFINE_HL_PRIM (_VOID, hl_window_alert, _TCFFIPOINTER _STRING _STRING);
+	DEFINE_HL_PRIM (_BOOL, hl_window_set_drag_target, _TCFFIPOINTER _BOOL);
+	DEFINE_HL_PRIM (_I32, hl_window_start_drag, _TCFFIPOINTER _TBYTES _TBYTES _I32 _I32 _I32 _I32);
 	DEFINE_HL_PRIM (_VOID, hl_window_close, _TCFFIPOINTER);
 	DEFINE_HL_PRIM (_VOID, hl_window_context_flip, _TCFFIPOINTER);
 	DEFINE_HL_PRIM (_DYN, hl_window_context_lock, _TCFFIPOINTER);
 	DEFINE_HL_PRIM (_VOID, hl_window_context_make_current, _TCFFIPOINTER);
 	DEFINE_HL_PRIM (_VOID, hl_window_context_unlock, _TCFFIPOINTER);
 	DEFINE_HL_PRIM (_TCFFIPOINTER, hl_window_create, _TCFFIPOINTER _I32 _I32 _I32 _STRING);
+	DEFINE_HL_PRIM (_TCFFIPOINTER, hl_window_create_at, _TCFFIPOINTER _I32 _I32 _I32 _STRING _I32 _I32 _I32);
 	DEFINE_HL_PRIM (_VOID, hl_window_event_manager_register, _FUN (_VOID, _NO_ARG) _TWINDOW_EVENT);
 	DEFINE_HL_PRIM (_VOID, hl_window_focus, _TCFFIPOINTER);
+	DEFINE_HL_PRIM (_BOOL, hl_window_order_relative, _TCFFIPOINTER _TCFFIPOINTER _BOOL);
+	DEFINE_HL_PRIM (_BOOL, hl_window_order_to_back, _TCFFIPOINTER);
+	DEFINE_HL_PRIM (_BOOL, hl_window_start_move_resize, _TCFFIPOINTER _I32);
 	DEFINE_HL_PRIM (_F64, hl_window_get_context, _TCFFIPOINTER);
 	DEFINE_HL_PRIM (_BYTES, hl_window_get_context_type, _TCFFIPOINTER);
+	DEFINE_HL_PRIM (_BYTES, hl_window_get_creation_error, _NO_ARG);
 	DEFINE_HL_PRIM (_DYN, hl_window_create_vulkan_surface, _TCFFIPOINTER _I32 _I32);
 	DEFINE_HL_PRIM (_I32, hl_window_get_display, _TCFFIPOINTER);
 	DEFINE_HL_PRIM (_VOID, hl_window_get_display_mode, _TCFFIPOINTER _TDISPLAYMODE);
 	DEFINE_HL_PRIM (_I32, hl_window_get_height, _TCFFIPOINTER);
+	DEFINE_HL_PRIM (_BOOL, hl_window_get_fullscreen, _TCFFIPOINTER);
 	DEFINE_HL_PRIM (_I32, hl_window_get_id, _TCFFIPOINTER);
+	DEFINE_HL_PRIM (_BOOL, hl_window_get_minimize_on_focus_loss, _TCFFIPOINTER);
 	DEFINE_HL_PRIM (_BOOL, hl_window_get_mouse_lock, _TCFFIPOINTER);
 	DEFINE_HL_PRIM (_BOOL, hl_window_get_transparent, _TCFFIPOINTER);
 	DEFINE_HL_PRIM (_F64, hl_window_get_scale, _TCFFIPOINTER);
@@ -14883,6 +15623,7 @@ namespace lime {
 	DEFINE_HL_PRIM (_DYN, hl_window_get_mouse_rect, _TCFFIPOINTER);
 	DEFINE_HL_PRIM (_DYN, hl_window_get_native_handle, _TCFFIPOINTER);
 	DEFINE_HL_PRIM (_VOID, hl_window_set_keyboard_grab, _TCFFIPOINTER _BOOL);
+	DEFINE_HL_PRIM (_VOID, hl_window_set_minimize_on_focus_loss, _TCFFIPOINTER _BOOL);
 	DEFINE_HL_PRIM (_VOID, hl_window_set_mouse_lock, _TCFFIPOINTER _BOOL);
 	DEFINE_HL_PRIM (_VOID, hl_window_set_mouse_rect, _TCFFIPOINTER _I32 _I32 _I32 _I32);
 	DEFINE_HL_PRIM (_BOOL, hl_window_set_resizable, _TCFFIPOINTER _BOOL);
@@ -14897,6 +15638,7 @@ namespace lime {
 	DEFINE_HL_PRIM (_F64, hl_window_get_opacity, _TCFFIPOINTER);
 	DEFINE_HL_PRIM (_VOID, hl_window_set_opacity, _TCFFIPOINTER _F64);
 	DEFINE_HL_PRIM (_TBYTES, hl_zlib_compress, _TBYTES _TBYTES);
+	DEFINE_HL_PRIM (_TBYTES, hl_zlib_compress_level, _TBYTES _TBYTES _I32);
 	DEFINE_HL_PRIM (_TBYTES, hl_zlib_decompress, _TBYTES _TBYTES);
 
 
@@ -14939,8 +15681,11 @@ extern "C" int lime_sdl_sound_register_prims ();
 extern "C" int lime_sdl_sound_register_prims () { return 0; }
 #endif
 
+extern "C" int lime_camera_capture_register_prims ();
 extern "C" int lime_local_socket_register_prims ();
+extern "C" int lime_network_interface_register_prims ();
 extern "C" int lime_video_register_prims ();
+extern "C" int lime_voice_capture_register_prims ();
 extern "C" int lime_web_view_register_prims ();
 
 #ifdef LIME_VORBIS
@@ -14953,13 +15698,16 @@ extern "C" int lime_vorbis_register_prims () { return 0; }
 extern "C" int lime_register_prims () {
 
 	lime_cairo_register_prims ();
+	lime_camera_capture_register_prims ();
 	lime_curl_register_prims ();
 	lime_harfbuzz_register_prims ();
 	lime_local_socket_register_prims ();
+	lime_network_interface_register_prims ();
 	lime_openal_register_prims ();
 	lime_opengl_register_prims ();
 	lime_sdl_sound_register_prims ();
 	lime_video_register_prims ();
+	lime_voice_capture_register_prims ();
 	lime_vorbis_register_prims ();
 	lime_web_view_register_prims ();
 

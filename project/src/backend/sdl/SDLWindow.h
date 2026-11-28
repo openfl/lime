@@ -16,7 +16,7 @@ namespace lime {
 
 		public:
 
-			SDLWindow (Application* application, int width, int height, int flags, const char* title);
+			SDLWindow (Application* application, int width, int height, int flags, const char* title, int x = 0, int y = 0, int display = 0);
 			~SDLWindow ();
 
 			virtual void Alert (const char* message, const char* title);
@@ -29,6 +29,9 @@ namespace lime {
 			bool TestContextReplacement (bool create);
 			#endif
 			virtual void Focus ();
+			virtual bool OrderRelative (Window* other, bool above);
+			virtual bool OrderToBack ();
+			virtual bool StartMoveResize (int edges);
 			virtual void* GetContext ();
 			virtual const char* GetContextType ();
 			// virtual Cursor GetCursor ();
@@ -37,7 +40,9 @@ namespace lime {
 			virtual int GetHeight ();
 			virtual uint32_t GetID ();
 			virtual bool Flash (int mode);
+			virtual bool GetFullscreen ();
 			virtual bool GetKeyboardGrab ();
+			virtual bool GetMinimizeOnFocusLoss ();
 			virtual bool GetMouseLock ();
 			virtual bool GetMouseRect (int* x, int* y, int* width, int* height);
 			virtual int GetNativeHandle (void** handle, void** display);
@@ -65,6 +70,7 @@ namespace lime {
 			virtual bool SetMenu (const unsigned char* data, int length);
 			virtual bool SetMinimized (bool minimized);
 			virtual void SetKeyboardGrab (bool keyboardGrab);
+			virtual void SetMinimizeOnFocusLoss (bool value);
 			virtual void SetMouseLock (bool mouseLock);
 			virtual void SetMouseRect (int x, int y, int width, int height);
 			virtual void SetOpacity (float opacity);
@@ -83,6 +89,7 @@ namespace lime {
 			virtual void GetVulkanDrawableSize (int* width, int* height);
 			virtual bool GetVulkanInstanceExtensions (unsigned int* count, const char** names);
 			virtual void* GetVulkanInstanceProcAddr ();
+			virtual void NoteVulkanPresent ();
 			SDL_Renderer* sdlRenderer;
 			SDL_Texture* sdlTexture;
 			SDL_Window* sdlWindow;
@@ -95,6 +102,7 @@ namespace lime {
 			SDL_GLContext context;
 			int contextHeight;
 			int contextWidth;
+			bool displayModeSet;
 			int requestedVSyncMode;
 			bool transparent;
 			bool useVulkan;

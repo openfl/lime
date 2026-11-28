@@ -19,6 +19,7 @@ import lime.tools.HXProject;
 import lime.tools.Icon;
 import lime.tools.IconHelper;
 import lime.tools.JavaHelper;
+import lime.tools.NativeSourcesHelper;
 import lime.tools.NekoHelper;
 import lime.tools.NodeJSHelper;
 import lime.tools.Orientation;
@@ -101,7 +102,8 @@ class MacPlatform extends PlatformTarget
 
 		for (i in 1...project.windows.length)
 		{
-			defaults.windows.push(defaults.window);
+			// A copy each, as merge() copies each project window into its own default
+			defaults.windows.push(hxp.ObjectTools.copyFields(defaults.window, {}));
 		}
 
 		defaults.merge(project);
@@ -410,9 +412,15 @@ class MacPlatform extends PlatformTarget
 		context.CPP_DIR = targetDirectory + "/obj/";
 		context.BUILD_DIR = project.app.path + "/mac" + dirSuffix.toLowerCase();
 
+		if (project.config.exists("mac.camera-usage-description"))
+		{
+			context.MAC_CAMERA_USAGE_DESCRIPTION = StringTools.htmlEscape(project.config.getString("mac.camera-usage-description"), true);
+		}
+
 		if (project.config.exists("mac.microphone-usage-description"))
 		{
-			context.MAC_MICROPHONE_USAGE_DESCRIPTION = project.config.getString("mac.microphone-usage-description");
+			// Info.plist is XML, so a description with & or < would break it
+			context.MAC_MICROPHONE_USAGE_DESCRIPTION = StringTools.htmlEscape(project.config.getString("mac.microphone-usage-description"), true);
 		}
 
 		return context;
@@ -575,6 +583,7 @@ class MacPlatform extends PlatformTarget
 				if (ndll.path == null || ndll.path == "")
 				{
 					context.ndlls[i].path = NDLL.getLibraryPath(ndll, "Mac" + dirSuffix, "lib", ".a", project.debug);
+					NativeSourcesHelper.checkLibrary(context.ndlls[i].path);
 				}
 			}
 		}
@@ -604,14 +613,14 @@ class MacPlatform extends PlatformTarget
 
 		var icons = project.icons;
 
-		if (icons.length == 0)
+		if (!IconHelper.hasIcons(icons))
 		{
 			icons = [new Icon(System.findTemplate(project.templatePaths, "default/icon.svg"))];
 		}
 
 		context.HAS_ICON = IconHelper.createMacIcon(icons, Path.combine(contentDirectory, "icon.icns"));
 
-		copyProjectAssets(targetDirectory, contentDirectory);
+		copyProjectAssets(targetDirectory, contentDirectory, context);
 	}
 
 	@ignore public override function install():Void {}

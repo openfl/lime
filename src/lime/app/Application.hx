@@ -149,6 +149,7 @@ class Application extends Module
 	@:noCompletion private var __preloader:Preloader;
 	@:noCompletion private var __vsyncMode:VSyncMode;
 	@:noCompletion private var __window:Window;
+	@:noCompletion private var __windowCreationError:String;
 	@:noCompletion private var __windowByID:Map<Int, Window>;
 	@:noCompletion private var __windows:Array<Window>;
 
@@ -190,7 +191,8 @@ class Application extends Module
 			{
 				timePrecision: TimePrecision.AUTO,
 				busyWait: BusyWaitMode.AUTO,
-				uncapMode: UncapMode.OFF
+				uncapMode: UncapMode.OFF,
+				backgroundFrameRate: 30
 			};
 		__frameProfile = FrameProfile.BALANCED;
 		__windowByID = new Map();
@@ -221,6 +223,7 @@ class Application extends Module
 	/**
 		Creates a new Window and adds it to the Application
 		@param	attributes	A set of parameters to initialize the window
+		@return	The new Window, or null if it could not be created
 	**/
 	public function createWindow(attributes:WindowAttributes):Window
 	{
@@ -597,6 +600,7 @@ class Application extends Module
 
 	@:noCompletion private function __createWindow(attributes:WindowAttributes):Window
 	{
+		__windowCreationError = null;
 		var window = new Window(this, attributes);
 		if (window.id == -1) return null;
 		__seedFrameConfiguration(attributes);
@@ -842,14 +846,16 @@ class Application extends Module
 			return {
 				timePrecision: TimePrecision.AUTO,
 				busyWait: BusyWaitMode.AUTO,
-				uncapMode: UncapMode.OFF
+				uncapMode: UncapMode.OFF,
+				backgroundFrameRate: 30
 			};
 		}
 
 		return {
 			timePrecision: value.timePrecision,
 			busyWait: value.busyWait,
-			uncapMode: value.uncapMode
+			uncapMode: value.uncapMode,
+			backgroundFrameRate: Reflect.hasField(value, "backgroundFrameRate") ? value.backgroundFrameRate : 30
 		};
 	}
 
@@ -865,6 +871,7 @@ class Application extends Module
 		if (Reflect.hasField(value, "timePrecision")) base.timePrecision = value.timePrecision;
 		if (Reflect.hasField(value, "busyWait")) base.busyWait = value.busyWait;
 		if (Reflect.hasField(value, "uncapMode")) base.uncapMode = value.uncapMode;
+		if (Reflect.hasField(value, "backgroundFrameRate")) base.backgroundFrameRate = value.backgroundFrameRate;
 
 		return base;
 	}
@@ -958,7 +965,15 @@ class Application extends Module
 
 	@:noCompletion private function __setFrameRateFromWindow(value:Float):Float
 	{
-		__frameRate = __normalizeFrameRate(value);
+		var frameRate = __normalizeFrameRate(value);
+
+		// Setting the frame rate it has, as applications that set it often do, changes nothing
+		if (frameRate == __frameRate && __frameConfigured)
+		{
+			return __frameRate;
+		}
+
+		__frameRate = frameRate;
 		__applyFrameConfiguration(__frameProfile, __frameOptions, __vsyncMode, true);
 		return __frameRate;
 	}

@@ -1,9 +1,74 @@
 #include "media/SDLSound.h"
 #include <limits.h>
+#include <system/Mutex.h>
 #include <system/System.h>
 
 
 namespace lime {
+
+
+	// Calls into SDL_sound register here, so Quit can wait for the ones under
+	// way and refuse later ones before Sound_Quit frees every sample: the
+	// stream thread may be decoding when the application exits.
+	static Mutex sdlSoundMutex;
+	static bool sdlSoundQuit = false;
+	static int sdlSoundCalls = 0;
+
+
+	struct SDLSoundCall {
+
+		bool entered;
+
+		SDLSoundCall () {
+
+			sdlSoundMutex.Lock ();
+			entered = !sdlSoundQuit;
+			if (entered) sdlSoundCalls++;
+			sdlSoundMutex.Unlock ();
+
+		}
+
+		~SDLSoundCall () {
+
+			if (!entered) return;
+			sdlSoundMutex.Lock ();
+			sdlSoundCalls--;
+			sdlSoundMutex.Unlock ();
+
+		}
+
+	};
+
+
+	void SDLSound::Quit () {
+
+		sdlSoundMutex.Lock ();
+		bool quit = sdlSoundQuit;
+		sdlSoundQuit = true;
+		sdlSoundMutex.Unlock ();
+
+		if (quit) return;
+
+		// A refill takes milliseconds; the thread waiting lets the collector run
+		System::GCEnterBlocking ();
+
+		for (;;) {
+
+			sdlSoundMutex.Lock ();
+			int calls = sdlSoundCalls;
+			sdlSoundMutex.Unlock ();
+
+			if (calls == 0) break;
+			SDL_Delay (1);
+
+		}
+
+		System::GCExitBlocking ();
+
+		Sound_Quit ();
+
+	}
+
 
 
 	static const Uint32 SDL_SOUND_BUFFER_SIZE = 64 * 1024;
@@ -205,7 +270,27 @@ namespace lime {
 	}
 
 
+	static bool DecodeSample (Resource* resource, AudioBuffer* audioBuffer);
+
+
 	bool SDLSound::Decode (Resource* resource, AudioBuffer* audioBuffer) {
+
+		SDLSoundCall call;
+		if (!call.entered) return false;
+
+		// SDL_sound only reads the encoded sound and writes the buffer's own
+		// memory, so the collector needn't wait for this thread: a decode on a
+		// worker thread otherwise holds up every collection until it finishes
+		System::GCEnterBlocking ();
+		bool decoded = DecodeSample (resource, audioBuffer);
+		System::GCExitBlocking ();
+
+		return decoded;
+
+	}
+
+
+	static bool DecodeSample (Resource* resource, AudioBuffer* audioBuffer) {
 
 		Sound_Sample* sample = CreateSample (resource);
 
@@ -232,7 +317,9 @@ namespace lime {
 
 		if (streamInfo.duration > 0) {
 
-			Uint64 estimatedSize = (((Uint64)streamInfo.duration * (Uint64)audioBuffer->sampleRate * (Uint64)audioBuffer->channels
+			// The duration is in whole milliseconds, rounded down, so a millisecond
+			// more keeps the last chunk from doubling the buffer
+			Uint64 estimatedSize = (((Uint64)(streamInfo.duration + 1) * (Uint64)audioBuffer->sampleRate * (Uint64)audioBuffer->channels
 				* (Uint64)(audioBuffer->bitsPerSample / 8)) + 999) / 1000;
 
 			if (estimatedSize > 0 && estimatedSize <= INT_MAX) {
@@ -373,6 +460,9 @@ namespace lime {
 
 	bool SDLSound::GetStreamInfo (Resource* resource, SDLSoundStreamInfo* streamInfo) {
 
+		SDLSoundCall call;
+		if (!call.entered) return false;
+
 		if (!streamInfo) {
 
 			return false;
@@ -403,6 +493,9 @@ namespace lime {
 
 	SDLSoundStream* SDLSound::OpenStream (Resource* resource) {
 
+		SDLSoundCall call;
+		if (!call.entered) return NULL;
+
 		Sound_Sample* sample = CreateSample (resource);
 
 		if (!sample) {
@@ -427,6 +520,9 @@ namespace lime {
 
 	int SDLSound::ReadStream (SDLSoundStream* stream, unsigned char* buffer, int length) {
 
+		SDLSoundCall call;
+		if (!call.entered) return -1;
+
 		if (!stream || !stream->sample || !buffer || length <= 0) {
 
 			return -1;
@@ -443,22 +539,31 @@ namespace lime {
 
 		}
 
-		Uint32 decodeBufferSize = AlignBufferSize ((Uint32)length, output.channels * (bitsPerSample / 8));
+		int frameSize = output.channels * (bitsPerSample / 8);
 
-		if (decodeBufferSize > (Uint32)length) {
+		// SDL_sound decodes whole sample frames only (a converting stream refuses a partial one, and that error
+		// ends the sample), so a request too short for one frame reads nothing rather than asking for a partial one
+		if (frameSize > 0 && length < frameSize) {
 
-			decodeBufferSize = (Uint32)length;
+			return 0;
 
 		}
 
-		if (decodeBufferSize != sample->buffer_size && !Sound_SetBufferSize (sample, decodeBufferSize)) {
+		Uint32 decodeBufferSize = AlignBufferSize ((Uint32)length, frameSize);
+
+		// SDL_sound decodes into the sample's own buffer, and only the copy out
+		// writes Haxe memory, so the collector can run while it decodes
+		System::GCEnterBlocking ();
+		bool sized = (decodeBufferSize == sample->buffer_size || Sound_SetBufferSize (sample, decodeBufferSize));
+		Uint32 decoded = sized ? Sound_Decode (sample) : 0;
+		System::GCExitBlocking ();
+
+		if (!sized) {
 
 			printf ("SDL_sound stream error: %s\n", Sound_GetError ());
 			return -1;
 
 		}
-
-		Uint32 decoded = Sound_Decode (sample);
 
 		if (sample->flags & SOUND_SAMPLEFLAG_ERROR) {
 
@@ -488,18 +593,28 @@ namespace lime {
 
 	bool SDLSound::RewindStream (SDLSoundStream* stream) {
 
+		SDLSoundCall call;
+		if (!call.entered) return false;
+
 		if (!stream || !stream->sample) {
 
 			return false;
 
 		}
 
-		return (Sound_Rewind (stream->sample) != 0);
+		System::GCEnterBlocking ();
+		bool rewound = (Sound_Rewind (stream->sample) != 0);
+		System::GCExitBlocking ();
+
+		return rewound;
 
 	}
 
 
 	bool SDLSound::SeekStream (SDLSoundStream* stream, int ms) {
+
+		SDLSoundCall call;
+		if (!call.entered) return false;
 
 		if (!stream || !stream->sample || ms < 0) {
 
@@ -507,7 +622,12 @@ namespace lime {
 
 		}
 
-		return (Sound_Seek (stream->sample, (Uint32)ms) != 0);
+		// An MP3 seek decodes from the start of the sound, so it can take a while
+		System::GCEnterBlocking ();
+		bool sought = (Sound_Seek (stream->sample, (Uint32)ms) != 0);
+		System::GCExitBlocking ();
+
+		return sought;
 
 	}
 
@@ -520,7 +640,10 @@ namespace lime {
 
 		}
 
-		if (stream->sample) {
+		// After Quit, Sound_Quit has freed every sample
+		SDLSoundCall call;
+
+		if (stream->sample && call.entered) {
 
 			Sound_FreeSample (stream->sample);
 			stream->sample = NULL;

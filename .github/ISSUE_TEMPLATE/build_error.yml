@@ -1,0 +1,66 @@
+name: Build error
+description: Report an error from the Haxe compiler or a Lime build command
+title: "[Build]: "
+labels: []
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Use this form when a build fails: a compiler error in Lime's sources, or an error from `lime build`, `lime test`, `lime rebuild` or a Lime setup command. For a problem in a running application, use the bug report form.
+
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Preflight Checklist
+      options:
+        - label: I searched existing open and closed issues for duplicates.
+          required: true
+
+  - type: textarea
+    id: versions
+    attributes:
+      label: Version Information
+      description: Include exact versions. Do not write "latest" by itself. For a library installed from git, also give its commit (`git rev-parse HEAD` in its folder).
+      value: |
+        Lime version, and git commit if from git:
+        Haxe version:
+        Target:
+        Host OS:
+    validations:
+      required: true
+
+  - type: textarea
+    id: command
+    attributes:
+      label: Command
+      description: The command you ran, with its defines, or the hxml or project settings that produce the error.
+      placeholder: lime build hl -D doc_gen
+      render: shell
+    validations:
+      required: true
+
+  - type: textarea
+    id: output
+    attributes:
+      label: Error Output
+      description: Paste the error with the output around it. For a native build, run the command with `-verbose` and paste all of it.
+      render: text
+    validations:
+      required: true
+
+  - type: textarea
+    id: diagnose
+    attributes:
+      label: lime diagnose Output
+      description: For native targets, run `lime diagnose` (Lime 8.4.0 and later) and paste what it prints.
+      render: text
+    validations:
+      required: false
+
+  - type: textarea
+    id: additional
+    attributes:
+      label: Additional Context
+      description: A project.xml, a small project or anything else the error needs to reproduce.
+    validations:
+      required: false
