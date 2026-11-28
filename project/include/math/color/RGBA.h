@@ -13,8 +13,6 @@ namespace lime {
 
 	int __alpha16[0xFF + 1];
 	int __clamp[0xFF + 0xFF + 1];
-	static int a16;
-	static double unmult;
 
 	int initValues () {
 
