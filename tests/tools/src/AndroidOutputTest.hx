@@ -471,6 +471,27 @@ class AndroidOutputTest extends Test
 		Assert.equals("productivity", manifest().node.application.x.get("android:appCategory"));
 	}
 
+	// From Android 11, the heap tags the top byte of the addresses it gives an app that targets
+	// API 30 or later, and Lime keeps every bit of a tagged address. A project whose own native
+	// code can't take tagged addresses can still turn tagging off
+	public function testHeapPointerTaggingStaysOnUnlessTheProjectTurnsItOff():Void
+	{
+		output.update('<project>
+			<app main="Main" file="MyApplication" />
+		</project>');
+
+		Assert.isFalse(manifest().node.application.x.exists("android:allowNativeHeapPointerTagging"));
+
+		output.update('<project>
+			<app main="Main" file="MyApplication" />
+			<config:android>
+				<application android:allowNativeHeapPointerTagging="false" />
+			</config:android>
+		</project>');
+
+		Assert.equals("false", manifest().node.application.x.get("android:allowNativeHeapPointerTagging"));
+	}
+
 	// From API 36, Android 16 gives back presses only to an OnBackInvokedCallback. The class is
 	// only in API 33 and later, so a project that compiles against an older one doesn't name it
 	public function testBackReachesTheApplicationThroughAnOnBackInvokedCallback():Void

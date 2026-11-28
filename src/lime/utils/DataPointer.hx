@@ -8,6 +8,7 @@ import lime.utils.Bytes as LimeBytes;
 import cpp.Char;
 import cpp.Pointer;
 import cpp.UInt8;
+import haxe.io.FPHelper;
 #end
 #if (lime_cffi && !macro)
 import lime._internal.backend.native.NativeCFFI;
@@ -44,18 +45,44 @@ abstract DataPointer(DataPointerType) to DataPointerType
 	#if (haxe_ver < 4)
 	@:from @:noCompletion public static inline function fromCharPointer(pointer:Pointer<Char>):DataPointer
 	{
-		return untyped __cpp__('(uintptr_t){0}', pointer.ptr);
+		var high:Int = untyped __cpp__('(int)((unsigned long long)(uintptr_t){0} >> 32)', pointer.ptr);
+		var low:Int = untyped __cpp__('(int)(unsigned int)(uintptr_t){0}', pointer.ptr);
+		return __fromAddress(high, low);
 	}
 
 	@:from @:noCompletion public static inline function fromUint8Pointer(pointer:Pointer<UInt8>):DataPointer
 	{
-		return untyped __cpp__('(uintptr_t){0}', pointer.ptr);
+		var high:Int = untyped __cpp__('(int)((unsigned long long)(uintptr_t){0} >> 32)', pointer.ptr);
+		var low:Int = untyped __cpp__('(int)(unsigned int)(uintptr_t){0}', pointer.ptr);
+		return __fromAddress(high, low);
 	}
 	#end
 
 	@:generic @:from @:noCompletion public static inline function fromPointer<T>(pointer:Pointer<T>):DataPointer
 	{
-		return untyped __cpp__('(uintptr_t){0}', pointer.ptr);
+		var high:Int = untyped __cpp__('(int)((unsigned long long)(uintptr_t){0} >> 32)', pointer.ptr);
+		var low:Int = untyped __cpp__('(int)(unsigned int)(uintptr_t){0}', pointer.ptr);
+		return __fromAddress(high, low);
+	}
+
+	/**
+		The value an address has as a DataPointer, as project/include/utils/DataPointer.h
+		gives it: the address itself below 2^53, and for an address with its top byte set,
+		as the heap gives on 64-bit Android from Android 11, the bits of a double from 2^53
+		up that keep every bit of it.
+	**/
+	@:noCompletion private static function __fromAddress(high:Int, low:Int):DataPointer
+	{
+		var lowValue:Float = low < 0 ? low + 4294967296.0 : low;
+
+		if ((high >>> 21) == 0 || ((high >>> 20) & 0xF) != 0)
+		{
+			var highValue:Float = high < 0 ? high + 4294967296.0 : high;
+			return new DataPointer(highValue * 4294967296.0 + lowValue);
+		}
+
+		// The top byte moves down to bits 52 to 59, over the bits of the double 2^53
+		return new DataPointer(FPHelper.i64ToDouble(low, 0x43400000 + (((high >>> 24) << 20) | (high & 0xFFFFF))));
 	}
 	#end
 

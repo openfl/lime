@@ -139,6 +139,7 @@ class TestMain extends Application
 		runner.addCase(new utils.BytesTest());
 		runner.addCase(new utils.CompressionTest());
 		runner.addCase(new utils.CompressionOutputTest());
+		runner.addCase(new utils.DataPointerTest());
 		runner.addCase(new utils.Float32ArrayTest());
 		runner.addCase(new utils.HTML5BytesTest());
 		runner.addCase(new utils.Float64ArrayTest());
