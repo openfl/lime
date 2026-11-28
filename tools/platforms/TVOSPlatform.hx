@@ -628,6 +628,9 @@ class TVOSPlatform extends PlatformTarget
 			}
 		}
 
+		// The Xcode project names the assets folder among its resources, and Xcode 27 fails a build
+		// whose folder isn't there, which it isn't with no assets to copy
+		System.mkdir(Path.combine(projectDirectory, "assets"));
 		copyProjectAssets(projectDirectory, "assets", context);
 
 		if (project.targetFlags.exists("xcode") && System.hostPlatform == MAC && command == "update")
