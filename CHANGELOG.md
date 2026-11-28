@@ -160,6 +160,7 @@ Changelog
 - Changed `lime test ios -simulator` to run on an iOS simulator that is already running, as one opened in the Simulator app, when no device is named on the command line. An iPad is still used when one is asked for.
 - Changed `Image.getColorBoundsRect()` to read the rows in the order the buffer holds them, and between the first and last rows that match, so trimming an image that is mostly empty around its content reads far fewer pixels. With a mask of the alpha alone, it compares the alpha byte, so a premultiplied image is not unmultiplied.
 - Changed the Android Gradle templates to assign `namespace`, `ndkPath`, `ndkVersion` and `signingConfig` with `=`, which Gradle 10 requires.
+- Changed Cairo's `fill()`, `fillPreserve()`, `stroke()`, `strokePreserve()`, `paint()`, `paintWithAlpha()`, `mask()` and `maskSurface()` on native targets to let the garbage collector run while they draw, so drawing on another thread no longer holds up every collection until it finishes.
 - Updated HashLink to 1.16.
 - Updated the macOS `webify`, which converts fonts for HTML5, to 0.1.10.0, and `ios-deploy` to 1.12.2, each with an arm64 build alongside x86_64, so neither needs Rosetta on Apple silicon Macs, and removed the unused `fruitstrap`.
 - Fixed an asset embedding regression.
@@ -307,6 +308,8 @@ Changelog
 - Fixed documentation builds that define `doc_gen` without `lime-doc-gen`, as flixel-doc's does, failing for HashLink on `GLShader.fromInt`.
 - Fixed `Window.fullscreen` reading `false` while a window is still fullscreen: after it is minimized and restored, as with Alt+Tab, when macOS enters fullscreen with a maximize, and when a maximized window goes fullscreen. It now reads SDL's own state at those events.
 - Fixed iOS simulators whose names hold parentheses, such as "iPad Air 11-inch (M2)", getting the wrong ID and name, so `lime test ios -simulator` could not start them.
+- Fixed `Image.colorTransform()` on native targets giving the wrong colors when two threads transform images at once.
+- Fixed a native window's size and position reading uninitialised memory when SDL can't read the window.
 
 8.3.2 (05/13/2026)
 ------------------
