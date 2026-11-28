@@ -11,6 +11,7 @@
 
 #ifdef HX_MACOS
 #include <CoreFoundation/CoreFoundation.h>
+#include <dispatch/dispatch.h>
 #endif
 
 #if defined(HX_WINDOWS) && !defined(HX_WINRT)
@@ -88,6 +89,42 @@ namespace lime
 	// Pushed from another thread to end SDL's wait, one at a time
 	static Uint32 s_wakeEventType = 0;
 	static SDL_atomic_t s_wakeQueued;
+#endif
+
+#ifdef HX_MACOS
+	// Ends the wait for a frame when it is due, which macOS doesn't hold SDL's wait to. See WaitEvent.
+	static dispatch_source_t s_strictTimer = NULL;
+	// How long after the strict timer SDL's own wait ends, in milliseconds, in case it didn't
+	static const int STRICT_TIMER_LATE = 2;
+
+	static void StrictTimerFired(void *)
+	{
+		SDLApplication::Wake();
+	}
+
+	// Sets the strict timer to fire once, the milliseconds given from now, or stops it for less than 0
+	static void SetStrictTimer(double ms)
+	{
+		if (!s_strictTimer)
+		{
+			if (ms < 0.0)
+				return;
+
+			s_strictTimer = dispatch_source_create(DISPATCH_SOURCE_TYPE_TIMER, 0, DISPATCH_TIMER_STRICT,
+				dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0));
+			if (!s_strictTimer)
+				return;
+
+			dispatch_source_set_event_handler_f(s_strictTimer, StrictTimerFired);
+			dispatch_source_set_timer(s_strictTimer, DISPATCH_TIME_FOREVER, DISPATCH_TIME_FOREVER, 0);
+			dispatch_resume(s_strictTimer);
+		}
+
+		if (ms < 0.0)
+			dispatch_source_set_timer(s_strictTimer, DISPATCH_TIME_FOREVER, DISPATCH_TIME_FOREVER, 0);
+		else
+			dispatch_source_set_timer(s_strictTimer, dispatch_time(DISPATCH_TIME_NOW, (int64_t)(ms * 1000000.0) + 1000), DISPATCH_TIME_FOREVER, 0);
+	}
 #endif
 
 	// Pushed from native-ipc's threads when local socket events wait, so a loop
@@ -2898,6 +2935,42 @@ namespace lime
 					return WAIT_EVENT;
 				return pumped ? WAIT_PUMPED : WAIT_NONE;
 			}
+
+#ifdef HX_MACOS
+			{
+				// macOS lets the timers of an application that isn't in front run late, by
+				// several times what was asked of them, and SDL's wait ends on one. A strict
+				// timer is held to its time, so one ends the wait when a frame at a rate that
+				// was asked for is due, or an idle event or a timer before any frame. SDL's
+				// own time is a little later, in case it doesn't. An idle frame is waited for
+				// as before: late is as good for it.
+				double until = nextUpdate;
+
+				if (idleEvents && idleArmed && nextIdle > now && nextIdle < until && nextUpdate - nextIdle >= IDLE_MIN_REMAINING)
+					until = nextIdle;
+
+				double timerAt = NextTimerTime();
+				if (timerAt >= 0.0 && timerAt < until)
+					until = timerAt;
+
+				if (nextUpdate <= earliestUpdate || until < nextUpdate)
+				{
+					SetStrictTimer(until - now);
+
+					System::GCEnterBlocking();
+					SDL_AtomicSet(&s_waitEventBlocking, 1);
+					int result = SDL_WaitEventTimeout(event, (int)(until - now + 0.999) + STRICT_TIMER_LATE);
+					SDL_AtomicSet(&s_waitEventBlocking, 0);
+					System::GCExitBlocking();
+
+					SetStrictTimer(-1.0);
+
+					if (result == 1)
+						return WAIT_EVENT;
+					continue;
+				}
+			}
+#endif
 
 			int waitMs = (int)(remaining + 0.999);
 			if (waitMs < 1)
