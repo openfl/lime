@@ -364,19 +364,22 @@ class ImageDataUtil
 							for (x in 0...destView.width)
 							{
 								sourcePixel.readUInt8(sourceData, sourcePosition, sourceFormat, sourcePremultiplied);
-								destPixel.readUInt8(destData, destPosition, destFormat, destPremultiplied);
 
-								sourceAlpha = sourcePixel.a / 255.0;
-								destAlpha = destPixel.a / 255.0;
-								oneMinusSourceAlpha = 1 - sourceAlpha;
-								blendAlpha = sourceAlpha + (destAlpha * oneMinusSourceAlpha);
-
-								if (blendAlpha == 0)
+								// An opaque pixel blends to itself, and a transparent one leaves
+								// the destination as it is, so only the others are blended
+								if (sourcePixel.a == 0xFF)
 								{
-									destPixel = 0;
+									sourcePixel.writeUInt8(destData, destPosition, destFormat, destPremultiplied);
 								}
-								else
+								else if (sourcePixel.a != 0)
 								{
+									destPixel.readUInt8(destData, destPosition, destFormat, destPremultiplied);
+
+									sourceAlpha = sourcePixel.a / 255.0;
+									destAlpha = destPixel.a / 255.0;
+									oneMinusSourceAlpha = 1 - sourceAlpha;
+									blendAlpha = sourceAlpha + (destAlpha * oneMinusSourceAlpha);
+
 									destPixel.r = RGBA.__clamp[
 										Math.round((sourcePixel.r * sourceAlpha + destPixel.r * destAlpha * oneMinusSourceAlpha) / blendAlpha)
 									];
@@ -387,9 +390,9 @@ class ImageDataUtil
 										Math.round((sourcePixel.b * sourceAlpha + destPixel.b * destAlpha * oneMinusSourceAlpha) / blendAlpha)
 									];
 									destPixel.a = RGBA.__clamp[Math.round(blendAlpha * 255.0)];
-								}
 
-								destPixel.writeUInt8(destData, destPosition, destFormat, destPremultiplied);
+									destPixel.writeUInt8(destData, destPosition, destFormat, destPremultiplied);
+								}
 
 								sourcePosition += 4;
 								destPosition += 4;
@@ -654,12 +657,15 @@ class ImageDataUtil
 	}
 
 	public static function gaussianBlur(image:Image, sourceImage:Image, sourceRect:Rectangle, destPoint:Vector2, blurX:Float = 4, blurY:Float = 4,
-			quality:Int = 1, strength:Float = 1, color:Null<Int> = null):Image
+			quality:Int = 1, strength:Float = 1, color:Null<Int> = null, alphaOnly:Bool = false):Image
 	{
 		// TODO: Support sourceRect better, do not modify sourceImage, create C++ implementation for native
 
 		// TODO: Faster approach
-		var imagePremultiplied = image.premultiplied;
+		// With alphaOnly, for a caller that then gives every pixel one color (a glow, a
+		// drop shadow): the alpha is the same premultiplied or not, and the other
+		// channels are set to 0
+		var imagePremultiplied = !alphaOnly && image.premultiplied;
 		if (imagePremultiplied) image.premultiplied = false;
 
 		// TODO: Use ImageDataView
@@ -670,7 +676,14 @@ class ImageDataUtil
 
 		// }
 
-		StackBlur.blur(image, sourceImage, sourceRect, destPoint, blurX, blurY, quality);
+		if (alphaOnly)
+		{
+			StackBlur.blurAlpha(image, sourceImage, sourceRect, destPoint, blurX, blurY, quality);
+		}
+		else
+		{
+			StackBlur.blur(image, sourceImage, sourceRect, destPoint, blurX, blurY, quality);
+		}
 
 		if (strength != 1)
 		{
@@ -737,104 +750,105 @@ class ImageDataUtil
 		var originY = image.offsetY;
 		var read:RGBA = 0;
 
+		var width = image.width;
+		var height = image.height;
+		var origin = originY * stride + originX;
+		var m:Int = _mask;
+		var c:Int = _color;
+		// Alpha is the low byte of an RGBA value, and is the same premultiplied or not
+		var alphaOnly = (m & 0xFFFFFF00) == 0;
+		var alphaOffset = sourceFormat == ARGB32 ? 0 : 3;
 		var pixel:Int;
-		var hit:Bool;
+		var row:Int;
+		var hit = false;
 
-		for (x in 0...image.width)
+		inline function readPixel(offset:Int):Int
 		{
-			hit = false;
-
-			for (y in 0...image.height)
+			if (alphaOnly)
 			{
-				read.readUInt8(data, (y + originY) * stride + originX + x * 4, sourceFormat, premultiplied);
-				pixel = read;
-				hit = findColor ? (pixel & _mask) == _color : (pixel & _mask) != _color;
+				return data[offset + alphaOffset];
+			}
+			else
+			{
+				read.readUInt8(data, offset, sourceFormat, premultiplied);
+				return read;
+			}
+		}
 
-				if (hit)
-				{
-					if (x < left) left = x;
-					break;
-				}
+		// The rows are read in the order the buffer holds them: the first and the last
+		// row with a hit, then between them the first and the last column, each row
+		// stopping where another one already went further
+		for (y in 0...height)
+		{
+			row = origin + y * stride;
+
+			for (x in 0...width)
+			{
+				pixel = readPixel(row + x * 4);
+				hit = findColor ? (pixel & m) == c : (pixel & m) != c;
+
+				if (hit) break;
 			}
 
 			if (hit)
 			{
+				top = y;
 				break;
 			}
 		}
 
-		var ix;
-
-		for (x in 0...image.width)
+		if (hit)
 		{
-			ix = (image.width - 1) - x;
+			var y = height;
 			hit = false;
 
-			for (y in 0...image.height)
+			while (!hit && --y >= top)
 			{
-				read.readUInt8(data, (y + originY) * stride + originX + ix * 4, sourceFormat, premultiplied);
-				pixel = read;
-				hit = findColor ? (pixel & _mask) == _color : (pixel & _mask) != _color;
+				row = origin + y * stride;
 
-				if (hit)
+				for (x in 0...width)
 				{
-					if (ix > right) right = ix;
-					break;
+					pixel = readPixel(row + x * 4);
+					hit = findColor ? (pixel & m) == c : (pixel & m) != c;
+
+					if (hit)
+					{
+						bottom = y;
+						break;
+					}
 				}
 			}
 
-			if (hit)
+			left = width;
+			right = -1;
+
+			for (y in top...bottom + 1)
 			{
-				break;
-			}
-		}
+				row = origin + y * stride;
 
-		for (y in 0...image.height)
-		{
-			hit = false;
-
-			for (x in 0...image.width)
-			{
-				read.readUInt8(data, (y + originY) * stride + originX + x * 4, sourceFormat, premultiplied);
-				pixel = read;
-				hit = findColor ? (pixel & _mask) == _color : (pixel & _mask) != _color;
-
-				if (hit)
+				for (x in 0...left)
 				{
-					if (y < top) top = y;
-					break;
+					pixel = readPixel(row + x * 4);
+
+					if (findColor ? (pixel & m) == c : (pixel & m) != c)
+					{
+						left = x;
+						break;
+					}
 				}
-			}
 
-			if (hit)
-			{
-				break;
-			}
-		}
+				var x = width;
 
-		var iy;
-
-		for (y in 0...image.height)
-		{
-			iy = (image.height - 1) - y;
-			hit = false;
-
-			for (x in 0...image.width)
-			{
-				read.readUInt8(data, (iy + originY) * stride + originX + x * 4, sourceFormat, premultiplied);
-				pixel = read;
-				hit = findColor ? (pixel & _mask) == _color : (pixel & _mask) != _color;
-
-				if (hit)
+				while (--x > right)
 				{
-					if (iy > bottom) bottom = iy;
-					break;
-				}
-			}
+					pixel = readPixel(row + x * 4);
 
-			if (hit)
-			{
-				break;
+					if (findColor ? (pixel & m) == c : (pixel & m) != c)
+					{
+						right = x;
+						break;
+					}
+				}
 			}
 		}
 
@@ -893,15 +907,17 @@ class ImageDataUtil
 		}
 	}
 
-	public static function getPixels(image:Image, rect:Rectangle, format:PixelFormat):Bytes
+	public static function getPixels(image:Image, rect:Rectangle, format:PixelFormat, endian:Endian = null):Bytes
 	{
 		if (image.buffer.data == null) return null;
 
 		var length = Std.int(rect.width * rect.height);
 		var bytes = Bytes.alloc(length * 4);
+		// Little endian is each pixel's bytes in reverse, as setPixels() reads them
+		var littleEndian = (endian == LITTLE_ENDIAN);
 
 		#if (lime_cffi && !disable_cffi && !macro)
-		if (CFFI.enabled) NativeCFFI.lime_image_data_util_get_pixels(image, rect, format, bytes);
+		if (CFFI.enabled) NativeCFFI.lime_image_data_util_get_pixels_endian(image, rect, format, bytes, littleEndian ? 0 : 1);
 		else
 		#end
 		{
@@ -935,10 +951,20 @@ class ImageDataUtil
 						default:
 					}
 
-					bytes.set(destPosition++, pixel.r);
-					bytes.set(destPosition++, pixel.g);
-					bytes.set(destPosition++, pixel.b);
-					bytes.set(destPosition++, pixel.a);
+					if (littleEndian)
+					{
+						bytes.set(destPosition++, pixel.a);
+						bytes.set(destPosition++, pixel.b);
+						bytes.set(destPosition++, pixel.g);
+						bytes.set(destPosition++, pixel.r);
+					}
+					else
+					{
+						bytes.set(destPosition++, pixel.r);
+						bytes.set(destPosition++, pixel.g);
+						bytes.set(destPosition++, pixel.b);
+						bytes.set(destPosition++, pixel.a);
+					}
 
 					position += 4;
 				}
@@ -1251,15 +1277,12 @@ class ImageDataUtil
 				pixel = color;
 		}
 
-		// TODO: Write only RGB instead?
+		var offset = 4 * (y + image.offsetY) * image.buffer.width + (x + image.offsetX) * 4;
 
-		var source = new RGBA();
-		source.readUInt8(image.buffer.data, (4 * (y + image.offsetY) * image.buffer.width + (x + image.offsetX) * 4), image.buffer.format,
-			image.buffer.premultiplied);
-
-		pixel.a = source.a;
-		pixel.writeUInt8(image.buffer.data, (4 * (y + image.offsetY) * image.buffer.width + (x + image.offsetX) * 4), image.buffer.format,
-			image.buffer.premultiplied);
+		// The pixel keeps its alpha, which is read on its own: unmultiplying
+		// a premultiplied pixel never changes its alpha
+		pixel.a = image.buffer.data[offset + (image.buffer.format == ARGB32 ? 0 : 3)];
+		pixel.writeUInt8(image.buffer.data, offset, image.buffer.format, image.buffer.premultiplied);
 
 		image.dirty = true;
 		image.version++;

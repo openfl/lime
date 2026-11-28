@@ -432,6 +432,24 @@ class System
 	}
 
 	/**
+		Whether the file or folder at `path` is hidden. On Windows, that is
+		whether it has the hidden attribute. Elsewhere, it is whether its name
+		starts with a dot, and on macOS and iOS also whether it has the hidden
+		flag that `chflags hidden` sets. A path that does not exist is not
+		hidden.
+
+		Available on native targets.
+	**/
+	public static function isHidden(path:String):Bool
+	{
+		#if (lime_cffi && !macro)
+		if (path != null && path != "") return NativeCFFI.lime_system_is_hidden(path);
+		#end
+
+		return false;
+	}
+
+	/**
 		Whether `path` is a symbolic link, without following it. On Windows,
 		junctions and other reparse points count too, as they do for AIR's
 		`File.isSymbolicLink`. A path that does not exist is not a link.
@@ -487,7 +505,10 @@ class System
 	{
 		if (path != null)
 		{
-			#if (sys && windows)
+			#if (windows && lime_cffi && !macro)
+			// Through the shell, as cmd's start would without the console window cmd shows for a moment
+			NativeCFFI.lime_system_open_file(path);
+			#elseif (sys && windows)
 			Sys.command("start", ["", path]);
 			#elseif mac
 			Sys.command("/usr/bin/open", [path]);

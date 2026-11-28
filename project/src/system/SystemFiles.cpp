@@ -6,6 +6,7 @@
 #else
 #include <sys/stat.h>
 #include <sys/statvfs.h>
+#include <string>
 #endif
 
 
@@ -61,6 +62,34 @@ namespace lime {
 		struct statvfs info;
 		if (statvfs (path, &info) != 0) return -1;
 		return (double)info.f_bavail * (double)info.f_frsize;
+		#endif
+
+	}
+
+
+	bool System::IsHidden (const char* path) {
+
+		if (!path || !path[0]) return false;
+
+		#if defined (HX_WINDOWS)
+		// What Explorer hides. A name that starts with a dot is shown there
+		DWORD attributes = GetFileAttributesW (ToWide (path).c_str ());
+		return attributes != INVALID_FILE_ATTRIBUTES && (attributes & FILE_ATTRIBUTE_HIDDEN) != 0;
+		#else
+		struct stat info;
+		if (lstat (path, &info) != 0) return false;
+
+		#if defined (__APPLE__)
+		// The Finder also hides what has the hidden flag
+		if (info.st_flags & UF_HIDDEN) return true;
+		#endif
+
+		// A name that starts with a dot, other than . and .., as ls and file managers leave out
+		std::string name (path);
+		while (name.size () > 1 && name[name.size () - 1] == '/') name.erase (name.size () - 1);
+		size_t separator = name.find_last_of ('/');
+		std::string base = separator == std::string::npos ? name : name.substr (separator + 1);
+		return base.size () > 0 && base[0] == '.' && base != "." && base != "..";
 		#endif
 
 	}

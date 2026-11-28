@@ -49,7 +49,9 @@ namespace lime {
 			virtual int GetHeight () = 0;
 			virtual uint32_t GetID () = 0;
 			virtual bool Flash (int mode) { return false; }
+			virtual bool GetFullscreen () { return false; }
 			virtual bool GetKeyboardGrab () { return false; }
+			virtual bool GetMinimizeOnFocusLoss () { return true; }
 			virtual bool GetMouseLock () = 0;
 			virtual bool GetMouseRect (int* x, int* y, int* width, int* height) { return false; }
 			virtual int GetNativeHandle (void** handle, void** display) { return 0; }
@@ -68,6 +70,7 @@ namespace lime {
 			virtual void SetMaximumSize (int width, int height) = 0;
 			virtual bool SetBorderless (bool borderless) = 0;
 			virtual void SetCursor (Cursor cursor) = 0;
+			virtual bool SetCustomCursor (ImageBuffer *imageBuffer, int hotSpotX, int hotSpotY) { return false; }
 			virtual void SetDisplayMode (DisplayMode* displayMode) = 0;
 			virtual bool SetFullscreen (bool fullscreen) = 0;
 			virtual void SetIcon (ImageBuffer *imageBuffer) = 0;
@@ -75,6 +78,7 @@ namespace lime {
 			virtual bool SetMenu (const unsigned char* data, int length) { return false; }
 			virtual bool SetMinimized (bool minimized) = 0;
 			virtual void SetKeyboardGrab (bool keyboardGrab) {}
+			virtual void SetMinimizeOnFocusLoss (bool value) {}
 			virtual void SetMouseLock (bool mouseLock) = 0;
 			virtual void SetMouseRect (int x, int y, int width, int height) {}
 			virtual void SetOpacity (float opacity) = 0;
@@ -108,7 +112,7 @@ namespace lime {
 	};
 
 
-	Window* CreateWindow (Application* application, int width, int height, int flags, const char* title);
+	Window* CreateWindow (Application* application, int width, int height, int flags, const char* title, int x = 0, int y = 0, int display = 0);
 	const char* GetWindowCreationError ();
 	void AlertWindow (const char* message, const char* title);
 	void SetWindowAppearance (Window* window, int appearance);
@@ -136,7 +140,9 @@ namespace lime {
 		WINDOW_FLAG_COLOR_DEPTH_32_BIT = 0x00010000,
 		WINDOW_FLAG_VULKAN = 0x00020000,
 		WINDOW_FLAG_TRANSPARENT = 0x00040000,
-		WINDOW_FLAG_SOFTWARE_OPENGL = 0x00080000
+		WINDOW_FLAG_SOFTWARE_OPENGL = 0x00080000,
+		WINDOW_FLAG_POSITION_X = 0x00100000,
+		WINDOW_FLAG_POSITION_Y = 0x00200000
 
 	};
 

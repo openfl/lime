@@ -3,10 +3,16 @@ package lime.app;
 /**
 	Built-in frame pacing profiles for Lime applications.
 
-	A profile chooses how the native main loop waits between frames: which
-	timer it uses and whether it may busy-wait. The `timePrecision` and
-	`busyWait` fields of `FrameOptions` override those choices, and its
-	`uncapMode` overrides how the `UNCAPPED` profile uncaps the loop.
+	A profile chooses how the native main loop waits between frames: whether
+	it may busy-wait and, on Windows, how often a stream of input may wake
+	it. Mouse moves, touches and raw input are such a stream. A key, a mouse
+	button and a message another program waits on always wake it at once. The
+	`timePrecision` and `busyWait` fields of `FrameOptions` override its timer
+	and its busy-waiting, and its `uncapMode` overrides how the `UNCAPPED`
+	profile uncaps the loop.
+
+	In every profile, the events that reached the application before a frame
+	are handled before it.
 
 	The frame rate cap is `Window.frameRate`. Vertical sync, set with
 	`Application.vsyncMode`, still holds each frame to the display when it
@@ -17,13 +23,24 @@ package lime.app;
 **/
 #if (haxe_ver >= 4.0) enum #else @:enum #end abstract FrameProfile(String) to String
 {
-	/** A balanced default profile that preserves Lime's existing pacing behavior. **/
+	/**
+		The default profile. The application sleeps until each frame is due. On
+		Windows, a stream of input that comes while it does wakes it at most once
+		every 2 milliseconds.
+	**/
 	var BALANCED = "balanced";
 
-	/** A profile that favors tighter pacing, using the high-resolution timer. **/
+	/**
+		A profile that favors the tightest pacing. It busy-waits for the last
+		millisecond before each frame, and input wakes it as it comes.
+	**/
 	var PRECISION = "precision";
 
-	/** A profile that favors lower CPU usage over the tightest pacing, never busy-waiting. **/
+	/**
+		A profile that favors lower CPU usage over the tightest pacing. It never
+		busy-waits, and on Windows a stream of input wakes it at most once every 8
+		milliseconds.
+	**/
 	var LOW_ENERGY = "lowEnergy";
 
 	/**

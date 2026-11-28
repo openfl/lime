@@ -13,7 +13,9 @@ namespace lime {
 
 		UPDATE,
 		EXIT,
-		IDLE
+		IDLE,
+		// Timers are due, between two updates
+		TIMER
 
 	};
 

@@ -121,9 +121,24 @@ namespace lime {
 
 		}
 
+		if (!file) {
+
+			// A copy of the encoded bytes, so that nothing below reads Haxe memory
+			data = new Bytes ();
+			data->Resize (resource->data->length);
+			memcpy (data->b, resource->data->b, resource->data->length);
+
+		}
+
+		// libpng only reads the encoded bytes and writes the image's own buffer,
+		// so the collector needn't wait for this thread: a decode on a worker
+		// thread otherwise holds up every collection until it finishes
+		System::GCEnterBlocking ();
+
 		// sets the point which libpng will jump back to in the case of an error
 		if (setjmp (png_jmpbuf (png_ptr))) {
 
+			System::GCExitBlocking ();
 			png_destroy_read_struct (&png_ptr, &info_ptr, (png_infopp)NULL);
 			if (file) lime::fclose (file);
 			if (data) delete data;
@@ -149,7 +164,7 @@ namespace lime {
 
 		} else {
 
-			buffer = ReadBuffer (resource->data->b, resource->data->length);
+			buffer = ReadBuffer (data->b, data->length);
 			png_set_read_fn (png_ptr, &buffer, user_read_data_fn);
 
 		}
@@ -214,6 +229,8 @@ namespace lime {
 
 		if (file) lime::fclose (file);
 		if (data) delete data;
+
+		System::GCExitBlocking ();
 
 		return true;
 

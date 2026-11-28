@@ -778,7 +778,7 @@ namespace lime {
 
 			menuEventType = SDL_RegisterEvents (1);
 
-			// SDLApplication treats SDL_USEREVENT as a frame request, so never share it.
+			// The first type registered is SDL_USEREVENT, which other code may push by name
 			if (menuEventType == SDL_USEREVENT) menuEventType = SDL_RegisterEvents (1);
 
 			if (menuEventType == (Uint32)-1) {

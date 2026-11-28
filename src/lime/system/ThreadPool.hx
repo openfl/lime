@@ -74,6 +74,7 @@ import haxe.Exception;
 #if !lime_debug
 @:fileXml('tags="haxe,release"')
 @:noDebug
+@:access(lime.app.Application)
 #end
 class ThreadPool extends WorkOutput
 {
@@ -469,7 +470,13 @@ class ThreadPool extends WorkOutput
 		if (Application.current != null && !Application.current.onUpdate.has(__update))
 		{
 			Application.current.onUpdate.add(__update);
+			Application.current.__onDeliver.add(__deliver);
 		}
+
+		// The pool's own work is done in updates: a job on the main thread is run there, and
+		// one for a thread may be handed to it there. With an idle frame rate the next may be
+		// a long way off, so it is asked to be done between frames.
+		if (Application.current != null) Application.current.__requestDelivery();
 
 		return job.id;
 	}
@@ -832,12 +839,24 @@ class ThreadPool extends WorkOutput
 		__exitIdleThreads();
 		#end
 
+		// A job on the main thread is run a part at a time, an update after another
+		if (__singleThreadedJobs.length > 0 && Application.current != null) Application.current.__requestDelivery();
+
 		// Keep updating while idle threads wait out `idleTimeout`
 		if (activeJobs #if lime_threads + __queuedExitEvents #if lime_threads_deque + __queuedWorkEvents #end #end
 			<= 0 #if lime_threads && idleThreads <= minThreads #end && Application.current != null)
 		{
 			Application.current.onUpdate.remove(__update);
+			Application.current.__onDeliver.remove(__deliver);
 		}
+	}
+
+	/**
+		The same between frames, where they come at an idle rate.
+	**/
+	private function __deliver():Void
+	{
+		__update(0);
 	}
 
 	private function __runSingleThreadedJobs():Void

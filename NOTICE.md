@@ -38,7 +38,7 @@ This product bundles Mozilla's CA certificate list, as published by curl,
 which is available under an "MPL 2.0" license. For details, see
 [project/lib/custom/curl/ca_certificates.h](project/lib/custom/curl/ca_certificates.h).
 
-This product bundles native-desktop 1.2.1, which is available under an
+This product bundles native-desktop 1.2.2, which is available under an
 "MIT" license. For details, see [DimensionscapeOrg/native-desktop](https://github.com/DimensionscapeOrg/native-desktop).
 
 This product bundles native-ipc 1.0.0, which is available under an
@@ -46,13 +46,13 @@ This product bundles native-ipc 1.0.0, which is available under an
 
 _native-desktop and native-ipc are only included in Windows, macOS and Linux builds._
 
-This product bundles StageWebView 1.1.0, which is available under an
+This product bundles StageWebView 1.1.1, which is available under an
 "Apache 2.0" license. For details, see [DimensionscapeOrg/stagewebview](https://github.com/DimensionscapeOrg/stagewebview).
 It includes webview, under an "MIT" license, and headers from the WebView2 SDK, under a "BSD" license.
 
 _StageWebView is only included in Windows, macOS and iOS builds, in Android applications as Java, and beside Linux applications as a library that they open when a `WebView` is created._
 
-This product bundles wsproto 1.0.0, which is available under an
+This product bundles wsproto 1.1.2, which is available under an
 "Apache 2.0" license. For details, see [DimensionscapeOrg/wsproto](https://github.com/DimensionscapeOrg/wsproto).
 
 _wsproto is only included in native applications that use `WebSocket` or `WebSocketServer`._
@@ -99,8 +99,8 @@ This product bundles libvorbis 1.3.3, which is available under a
 This product bundles libwebm 1.0.0.28, which is available under a
 "BSD" license. For details, see [project/lib/webm/](project/lib).
 
-This product bundles zlib 1.2.8, which is available under a
-"zlib" (BSD-style) license. For details, see [project/lib/zlib/](project/lib).
+This product bundles zlib-ng 2.3.3, which is available under a
+"zlib" (BSD-style) license. For details, see [project/lib/zlib-ng/](project/lib).
 
 -------
 

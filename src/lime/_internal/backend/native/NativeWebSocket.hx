@@ -5,6 +5,7 @@ import lime.net.WebSocket;
 import lime.net.WebSocketError;
 #if (haxe4 && (cpp || hl || neko))
 import wsproto.socket.Connection;
+import wsproto.socket.ConnectionError;
 import wsproto.socket.Loop;
 #end
 
@@ -16,7 +17,8 @@ import wsproto.socket.Loop;
 	Every connection and server is on one loop of Lime's, which the
 	application's loop polls once a frame (`__update`) from the first one
 	on: what has arrived is read and delivered there, and what waits to go
-	is written. A client's connect runs on a thread of wsproto's, so the
+	is written. With `FrameOptions.idleFrameRate` it is polled between
+	frames as well, as often as frames would have come, while any is open. A client's connect runs on a thread of wsproto's, so the
 	loop never waits on the network. wsproto needs Haxe 4.
 **/
 #if !lime_debug
@@ -258,8 +260,23 @@ class NativeWebSocket
 		connection.onOpen = function() parent.onConnect.dispatch();
 		connection.onText = function(text) parent.onText.dispatch(text);
 		connection.onBinary = function(data) parent.onData.dispatch(data);
-		connection.onError = function(error, message) parent.onError.dispatch((error : Int), message);
+		connection.onError = function(error, message) parent.onError.dispatch(toWebSocketError(error), message);
 		connection.onClose = function(code, reason) parent.onClose.dispatch(code, reason);
+	}
+
+	// wsproto's reason as Lime's. They are numbered alike up to OVERFLOW, but
+	// wsproto's CERTIFICATE_REJECTED is 5, which Lime's LISTEN_FAILED has.
+	private static function toWebSocketError(error:ConnectionError):WebSocketError
+	{
+		return switch (error)
+		{
+			case ConnectionError.CONNECT_FAILED: WebSocketError.CONNECT_FAILED;
+			case ConnectionError.TIMEOUT: WebSocketError.TIMEOUT;
+			case ConnectionError.REFUSED: WebSocketError.REFUSED;
+			case ConnectionError.OVERFLOW: WebSocketError.OVERFLOW;
+			case ConnectionError.CERTIFICATE_REJECTED: WebSocketError.CERTIFICATE_REJECTED;
+			default: WebSocketError.CONNECT_FAILED;
+		}
 	}
 
 	private static function getLoop():Loop
@@ -268,6 +285,7 @@ class NativeWebSocket
 		{
 			loop = new Loop();
 			NativeApplication.__updateWebSockets = __update;
+			NativeApplication.__webSocketsActive = function() return loop.active;
 
 			#if (!macro && lime_cffi)
 			// Haxe's standard library has no secure source for a client's

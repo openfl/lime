@@ -1,0 +1,100 @@
+<xml>
+
+<pragma once="true" />
+
+<set name="MBEDTLS_DIR" value="${HXCPP}/project/thirdparty/mbedtls-2.9.0" />
+
+<files id="hxcpp_ssl" >
+	<depend files="hxcpp-depends"/>
+	<depend name="${this_dir}/Build.xml" dateOnly="true" />
+	<cache value="true" asLibrary="true" />
+	<compilerflag value="-I${MBEDTLS_DIR}/include"/>
+
+	<file name="${this_dir}/SSL.cpp"/>
+
+	<file name="${MBEDTLS_DIR}/library/aes.c"/>
+	<file name="${MBEDTLS_DIR}/library/aesni.c"/>
+	<file name="${MBEDTLS_DIR}/library/arc4.c"/>
+	<file name="${MBEDTLS_DIR}/library/asn1parse.c"/>
+	<file name="${MBEDTLS_DIR}/library/asn1write.c"/>
+	<file name="${MBEDTLS_DIR}/library/base64.c"/>
+	<file name="${MBEDTLS_DIR}/library/bignum.c"/>
+	<file name="${MBEDTLS_DIR}/library/blowfish.c"/>
+	<file name="${MBEDTLS_DIR}/library/camellia.c"/>
+	<file name="${MBEDTLS_DIR}/library/ccm.c"/>
+	<file name="${MBEDTLS_DIR}/library/cipher.c"/>
+	<file name="${MBEDTLS_DIR}/library/cipher_wrap.c"/>
+	<file name="${MBEDTLS_DIR}/library/cmac.c"/>
+	<file name="${MBEDTLS_DIR}/library/ctr_drbg.c"/>
+	<file name="${MBEDTLS_DIR}/library/des.c"/>
+	<file name="${MBEDTLS_DIR}/library/dhm.c"/>
+	<file name="${MBEDTLS_DIR}/library/ecdh.c"/>
+	<file name="${MBEDTLS_DIR}/library/ecdsa.c"/>
+	<file name="${MBEDTLS_DIR}/library/ecjpake.c"/>
+	<file name="${MBEDTLS_DIR}/library/ecp.c"/>
+	<file name="${MBEDTLS_DIR}/library/ecp_curves.c"/>
+	<file name="${MBEDTLS_DIR}/library/entropy.c"/>
+	<file name="${MBEDTLS_DIR}/library/entropy_poll.c"/>
+	<file name="${MBEDTLS_DIR}/library/error.c"/>
+	<file name="${MBEDTLS_DIR}/library/gcm.c"/>
+	<file name="${MBEDTLS_DIR}/library/havege.c"/>
+	<file name="${MBEDTLS_DIR}/library/hmac_drbg.c"/>
+	<file name="${MBEDTLS_DIR}/library/md.c"/>
+	<file name="${MBEDTLS_DIR}/library/md5.c"/>
+	<file name="${MBEDTLS_DIR}/library/md_wrap.c"/>
+	<file name="${MBEDTLS_DIR}/library/memory_buffer_alloc.c"/>
+	<file name="${MBEDTLS_DIR}/library/oid.c"/>
+	<file name="${MBEDTLS_DIR}/library/padlock.c"/>
+	<file name="${MBEDTLS_DIR}/library/pem.c"/>
+	<file name="${MBEDTLS_DIR}/library/pk.c"/>
+	<file name="${MBEDTLS_DIR}/library/pk_wrap.c"/>
+	<file name="${MBEDTLS_DIR}/library/pkcs12.c"/>
+	<file name="${MBEDTLS_DIR}/library/pkcs5.c"/>
+	<file name="${MBEDTLS_DIR}/library/pkparse.c"/>
+	<file name="${MBEDTLS_DIR}/library/pkwrite.c"/>
+	<file name="${MBEDTLS_DIR}/library/platform.c"/>
+	<file name="${MBEDTLS_DIR}/library/ripemd160.c"/>
+	<file name="${MBEDTLS_DIR}/library/rsa.c"/>
+	<file name="${MBEDTLS_DIR}/library/rsa_internal.c"/>
+	<file name="${MBEDTLS_DIR}/library/sha1.c"/>
+	<file name="${MBEDTLS_DIR}/library/sha256.c"/>
+	<file name="${MBEDTLS_DIR}/library/sha512.c"/>
+	<file name="${MBEDTLS_DIR}/library/threading.c"/>
+	<file name="${MBEDTLS_DIR}/library/timing.c"/>
+	<file name="${MBEDTLS_DIR}/library/version.c"/>
+	<file name="${MBEDTLS_DIR}/library/version_features.c"/>
+	<file name="${MBEDTLS_DIR}/library/xtea.c"/>
+
+	<file name="${MBEDTLS_DIR}/library/certs.c"/>
+	<file name="${MBEDTLS_DIR}/library/pkcs11.c"/>
+	<file name="${MBEDTLS_DIR}/library/x509.c"/>
+	<file name="${MBEDTLS_DIR}/library/x509_create.c"/>
+	<file name="${MBEDTLS_DIR}/library/x509_crl.c"/>
+	<file name="${MBEDTLS_DIR}/library/x509_crt.c"/>
+	<file name="${MBEDTLS_DIR}/library/x509_csr.c"/>
+	<file name="${MBEDTLS_DIR}/library/x509write_crt.c"/>
+	<file name="${MBEDTLS_DIR}/library/x509write_csr.c"/>
+
+	<file name="${MBEDTLS_DIR}/library/debug.c"/>
+	<file name="${MBEDTLS_DIR}/library/net_sockets.c"/>
+	<file name="${MBEDTLS_DIR}/library/ssl_cache.c"/>
+	<file name="${MBEDTLS_DIR}/library/ssl_ciphersuites.c"/>
+	<file name="${MBEDTLS_DIR}/library/ssl_cli.c"/>
+	<file name="${MBEDTLS_DIR}/library/ssl_cookie.c"/>
+	<file name="${MBEDTLS_DIR}/library/ssl_srv.c"/>
+	<file name="${MBEDTLS_DIR}/library/ssl_ticket.c"/>
+	<file name="${MBEDTLS_DIR}/library/ssl_tls.c"/>
+</files>
+
+<target id="haxe">
+	<files id="hxcpp_ssl" />
+
+	<lib name="advapi32.lib" if="windows" unless="static_link" />
+	<lib name="crypt32.lib" if="windows" unless="static_link" />
+	<lib name="ws2_32.lib" if="windows" unless="static_link" />
+
+	<flag value="-framework" if="macos"/>
+	<flag value="Security" if="macos"/>
+</target>
+
+</xml>

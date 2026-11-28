@@ -17,6 +17,8 @@ class ApplicationTest extends Test
 	private var idleTimeChanged:Bool = false;
 	// The window events that came while counting, which the failures give
 	private var windowEvents:String = "";
+	// The share of a processor the application used while its minimised updates were counted
+	private var minimisedProcessorUse:Float = 0;
 	private var previousIdleCallback:Void->Void;
 
 	public function teardown():Void
@@ -89,6 +91,29 @@ class ApplicationTest extends Test
 			// above what testABackgroundFrameRateOfItsOwnIsKept allows a cap of 10.
 			var floor = #if mac 20 #else 36 #end;
 			if (count >= 0) Assert.isTrue(count >= floor, "with a background frame rate of 0, a minimised application asking for 120 frames a second updated " + count + " times in a second");
+			async.done();
+		});
+	}
+
+	// The uncap modes start each frame as the last one ends, which uses a whole processor. A
+	// minimised application's frames are still held to its background frame rate, and between them
+	// it sleeps as any other does. Five frames a second, so that what the frames themselves cost
+	// is little beside the waits between them.
+	@:timeout(15000)
+	public function testAMinimisedApplicationWaitsForItsFramesInTheHardUncapMode(async:Async):Void
+	{
+		var options = withBackgroundFrameRate(5);
+		options.uncapMode = lime.app.UncapMode.HARD;
+
+		countMinimisedUpdates(options, function(count)
+		{
+			if (count >= 0)
+			{
+				Assert.isTrue(count >= 2 && count <= 8, "with a background frame rate of 5, a minimised application in the hard uncap mode updated " + count + " times in a second; window events:" + windowEvents);
+				Assert.isTrue(minimisedProcessorUse < 0.6, "a minimised application in the hard uncap mode, updating " + count + " times a second, used "
+					+ Math.round(minimisedProcessorUse * 100) + "% of a processor");
+			}
+
 			async.done();
 		});
 	}
@@ -202,6 +227,7 @@ class ApplicationTest extends Test
 				var count = 0;
 				var listener = function(_:Int) count++;
 				var countStart = Timer.stamp();
+				var processorStart = Sys.cpuTime();
 				note("count");
 				application.onUpdate.add(listener);
 
@@ -209,6 +235,7 @@ class ApplicationTest extends Test
 				{
 					application.onUpdate.remove(listener);
 					var rate = Math.round(count / (Timer.stamp() - countStart));
+					minimisedProcessorUse = (Sys.cpuTime() - processorStart) / (Timer.stamp() - countStart);
 					restore();
 
 					// The tests go on once the windows are back

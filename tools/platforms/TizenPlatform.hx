@@ -226,7 +226,7 @@ class TizenPlatform extends PlatformTarget
 
 		var icons = project.icons;
 
-		if (icons.length == 0)
+		if (!IconHelper.hasIcons(icons))
 		{
 			icons = [new Icon(System.findTemplate(project.templatePaths, "default/icon.svg"))];
 		}
@@ -241,7 +241,7 @@ class TizenPlatform extends PlatformTarget
 		ProjectHelper.recursiveSmartCopyTemplate(project, "tizen/hxml", targetDirectory + "/haxe", context);
 
 		// going to root directory now, but should it be a forced "assets" folder later?
-		copyProjectAssets(destination + "res/", "");
+		copyProjectAssets(destination + "res/", "", context);
 		// copyProjectAssets(destination + "res/", "assets");
 	}
 

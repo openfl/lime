@@ -5,11 +5,13 @@ import lime.app.Event;
 import lime.app.Future;
 import lime.app.VSyncMode;
 import lime.graphics.Image;
+import lime.graphics.ImageBuffer;
 import lime.graphics.RenderContext;
 import lime.graphics.RenderContextAttributes;
 import lime.math.Rectangle;
 import lime.system.Display;
 import lime.system.DisplayMode;
+import lime.utils.UInt8Array;
 #if (js && html5)
 import js.html.Element;
 #end
@@ -147,6 +149,24 @@ class Window
 	public var minHeight(get, set):Int;
 	public var minimized(get, set):Bool;
 	public var minWidth(get, set):Int;
+
+	/**
+		Whether the window minimizes when it loses focus while it is in exclusive fullscreen, at a
+		display mode set with `displayMode`, which gives the display back its own mode. `true` by
+		default. Set it to `false` to keep the window in fullscreen while another window, perhaps on
+		another display, has focus. Borderless fullscreen windows never minimize when they lose
+		focus. Desktop native targets only.
+	**/
+	public var minimizeOnFocusLoss(get, set):Bool;
+
+	/**
+		Whether the mouse is locked to the window. While it is, the cursor is hidden and stays
+		where it was, and `onMouseMoveRelative` reports how far the mouse moves.
+
+		On HTML5 this is the browser's pointer lock, which browsers only grant from a user input
+		event, such as a mouse button press, and which the user can leave with Escape. The browser
+		grants it after the event, so `mouseLock` reads `true` once the pointer is locked.
+	**/
 	public var mouseLock(get, set):Bool;
 
 	/**
@@ -401,6 +421,7 @@ class Window
 				"minHeight": {get: p.get_minHeight, set: p.set_minHeight},
 				"minimized": {get: p.get_minimized, set: p.set_minimized},
 				"minWidth": {get: p.get_minWidth, set: p.set_minWidth},
+				"minimizeOnFocusLoss": {get: p.get_minimizeOnFocusLoss, set: p.set_minimizeOnFocusLoss},
 				"mouseLock": {get: p.get_mouseLock, set: p.set_mouseLock},
 				"mouseRect": {get: p.get_mouseRect, set: p.set_mouseRect},
 				"nativeHandle": {get: p.get_nativeHandle},
@@ -415,8 +436,8 @@ class Window
 				"vsyncMode": {get: p.get_vsyncMode, set: p.set_vsyncMode},
 				"visible": {get: p.get_visible, set: p.set_visible},
 				"width": {get: p.get_width, set: p.set_width},
-				"x": {get: p.get_x, set: p.set_y},
-				"y": {get: p.get_x, set: p.set_y}
+				"x": {get: p.get_x, set: p.set_x},
+				"y": {get: p.get_y, set: p.set_y}
 			});
 	}
 	#end
@@ -2890,6 +2911,36 @@ class Window
 		__backend.setIcon(image);
 	}
 
+	/**
+		Shows an image as the mouse cursor over this window. `cursor` is then
+		`CUSTOM`, until it is set to another cursor; setting it back to `CUSTOM`
+		shows the last image set here again.
+
+		Supported on native desktop targets and HTML5. Most platforms show a
+		cursor up to 32×32 pixels as it is, and may scale a larger one.
+		@param image The cursor's pixels.
+		@param hotSpotX The horizontal position, in the image, of the point that
+		clicks.
+		@param hotSpotY The vertical position, in the image, of the point that
+		clicks.
+		@return Whether the cursor could be made.
+	**/
+	public function setCustomCursor(image:Image, hotSpotX:Int = 0, hotSpotY:Int = 0):Bool
+	{
+		if (image == null || image.buffer == null || hotSpotX < 0 || hotSpotY < 0 || hotSpotX >= image.width || hotSpotY >= image.height)
+		{
+			return false;
+		}
+
+		// The image alone, where it is part of a larger buffer, as a cursor is made from a whole buffer
+		if (image.offsetX != 0 || image.offsetY != 0 || image.width != image.buffer.width || image.height != image.buffer.height)
+		{
+			image = new Image(new ImageBuffer(UInt8Array.fromBytes(image.getPixels(image.rect, RGBA32)), image.width, image.height, 32, RGBA32));
+		}
+
+		return __backend.setCustomCursor(image, hotSpotX, hotSpotY);
+	}
+
 	public function toString():String
 	{
 		return "[object Window]";
@@ -3081,6 +3132,16 @@ class Window
 	{
 		setMinSize(value, __minHeight);
 		return __minWidth;
+	}
+
+	@:noCompletion private function get_minimizeOnFocusLoss():Bool
+	{
+		return __backend.getMinimizeOnFocusLoss();
+	}
+
+	@:noCompletion private function set_minimizeOnFocusLoss(value:Bool):Bool
+	{
+		return __backend.setMinimizeOnFocusLoss(value);
 	}
 
 	@:noCompletion private function get_mouseLock():Bool

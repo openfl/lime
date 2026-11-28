@@ -16,6 +16,7 @@ RUN apt-get update -yqq && apt-get install -yq \
 	libxi-dev \
 	libxrandr-dev \
 	libxinerama-dev \
+	libxcursor-dev \
 	libgc1c2 \
 	git \
 	vim

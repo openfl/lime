@@ -33,10 +33,20 @@ class HTML5Application
 	private var currentUpdate:Float;
 	private var deltaTime:Float;
 	private var framePeriod:Float;
+	// A frame was asked for, which brings the next one forward from the idle rate
+	private var frameRequested:Bool = false;
+	// The time between frames while none is asked for, or 0 where frames always come
+	private var idlePeriod:Float = 0;
+	// Something waits to be handed over on the main thread, and when that was last done
+	private var deliveryRequested:Bool = false;
+	private var lastDelivery:Float = 0;
 
 	// How early a frame may run, so animation frames at the rate asked for are never skipped
 	private static inline var FRAME_SLACK:Float = 2;
 	private var gameDeviceCache = new Map<Int, GameDeviceData>();
+	// Where the browser says when a pad connects, pads are read only while one is connected
+	private var gamepadEvents:Bool;
+	private var gamepadsConnected:Int = 0;
 	private var hidden:Bool;
 	private var lastUpdate:Float;
 	private var nextUpdate:Float;
@@ -324,6 +334,21 @@ class HTML5Application
 		{
 			framePeriod = 1000;
 		}
+
+		var idleFrameRate:Null<Float> = Reflect.hasField(options, "idleFrameRate") ? options.idleFrameRate : null;
+		idlePeriod = (idleFrameRate != null && idleFrameRate > 0) ? 1000.0 / idleFrameRate : 0;
+	}
+
+	public function requestFrame():Void
+	{
+		// Taken on the browser's next animation frame
+		frameRequested = true;
+	}
+
+	public function requestDelivery():Void
+	{
+		// Taken on the browser's next animation frame, by its update if one is due
+		deliveryRequested = true;
 	}
 
 	public function exec():Int
@@ -335,6 +360,24 @@ class HTML5Application
 		Browser.window.addEventListener("resize", handleWindowEvent, false);
 		Browser.window.addEventListener("beforeunload", handleWindowEvent, false);
 		Browser.document.addEventListener("visibilitychange", handleWindowEvent, false);
+
+		gamepadEvents = untyped #if haxe4 js.Syntax.code #else __js__ #end ("'ongamepadconnected' in window");
+
+		if (gamepadEvents)
+		{
+			Browser.window.addEventListener("gamepadconnected", handleGamepadEvent, false);
+			Browser.window.addEventListener("gamepaddisconnected", handleGamepadEvent, false);
+
+			// A pad the page saw before these listeners has no event to come
+			var devices = Joystick.__getDeviceData();
+			if (devices != null)
+			{
+				for (i in 0...devices.length)
+				{
+					if (devices[i] != null && devices[i].connected) gamepadsConnected++;
+				}
+			}
+		}
 
 		if (Reflect.hasField(Browser.window, "Accelerometer"))
 		{
@@ -435,22 +478,41 @@ class HTML5Application
 
 		for (window in parent.__windows)
 		{
-			window.__backend.updateSize();
+			window.__backend.updateSizeForFrame();
 		}
 
-		updateGameDevices();
+		// navigator.getGamepads() makes a new snapshot each time, so it isn't called while no pad is
+		// connected, as browsers expose a pad only once it is used on the page and say so
+		if (!gamepadEvents || gamepadsConnected > 0)
+		{
+			updateGameDevices();
+		}
 
 		// The time requestAnimationFrame gives is when the browser's frame began, which comes at
 		// even intervals where performance.now() in the callback doesn't
 		currentUpdate = (timestamp != null && timestamp > 0) ? timestamp : Browser.window.performance.now();
 
-		if (framePeriod < 0 || currentUpdate >= nextUpdate - FRAME_SLACK)
+		var due = framePeriod < 0 || currentUpdate >= nextUpdate - FRAME_SLACK;
+
+		// While no frame is asked for, frames come at the idle rate where that is the slower
+		if (due && idlePeriod > 0 && idlePeriod > framePeriod && !frameRequested)
+		{
+			due = currentUpdate >= lastUpdate + idlePeriod - FRAME_SLACK;
+		}
+
+		if (due)
 		{
 			#if stats
 			stats.begin();
 			#end
 
+			// This frame is the one that was asked for. One asked for while it runs comes after it.
+			frameRequested = false;
+			// And its update hands over what waits for the main thread
+			deliveryRequested = false;
+			lastDelivery = currentUpdate;
 			deltaTime = currentUpdate - lastUpdate;
+			parent.frameDeltaTime = deltaTime;
 
 			for (window in parent.__windows)
 			{
@@ -476,6 +538,14 @@ class HTML5Application
 			}
 
 			lastUpdate = currentUpdate;
+		}
+		else if (deliveryRequested && (framePeriod < 0 || currentUpdate >= lastDelivery + framePeriod - FRAME_SLACK))
+		{
+			// Between frames, where they come at an idle rate: what waits for the main thread is
+			// handed over as often as updates would have done it, with no update or render
+			deliveryRequested = false;
+			lastDelivery = currentUpdate;
+			parent.__onDeliver.dispatch();
 		}
 
 		Browser.window.requestAnimationFrame(cast handleApplicationEvent);
@@ -603,6 +673,30 @@ class HTML5Application
 
 					// 	}
 			}
+		}
+	}
+
+	private function handleGamepadEvent(event:Dynamic):Void
+	{
+		switch (event.type)
+		{
+			case "gamepadconnected":
+				gamepadsConnected++;
+
+			case "gamepaddisconnected":
+				if (gamepadsConnected > 0) gamepadsConnected--;
+
+				// Some browsers leave a pad out of getGamepads() once it's gone, so polling wouldn't see it go
+				var id:Int = event.gamepad != null ? event.gamepad.index : -1;
+				var cache = gameDeviceCache.get(id);
+				if (cache != null && cache.connected)
+				{
+					gameDeviceCache.remove(id);
+					Joystick.__disconnect(id);
+					Gamepad.__disconnect(id);
+				}
+
+			default:
 		}
 	}
 
@@ -742,7 +836,8 @@ class HTML5Application
 			}
 			else if (cache.connected)
 			{
-				cache.connected = false;
+				// Forgotten, so a pad that connects again at this index is connected again
+				gameDeviceCache.remove(id);
 
 				Joystick.__disconnect(id);
 				Gamepad.__disconnect(id);

@@ -1654,7 +1654,23 @@ class ProjectXMLParser extends HXProject
 						}
 					}
 
-					icons.push(icon);
+					var knownLayer = true;
+
+					if (element.has.adaptive)
+					{
+						var layer = substitute(element.att.adaptive);
+						switch (layer)
+						{
+							case "foreground", "background", "monochrome":
+								icon.adaptive = layer;
+							default:
+								// Not taken as the application's icon, which a mistyped layer isn't meant to be
+								Log.warn("Ignoring an icon with unknown adaptive=\"" + element.att.adaptive + "\", which can be foreground, background or monochrome");
+								knownLayer = false;
+						}
+					}
+
+					if (knownLayer) icons.push(icon);
 
 				case "source", "classpath":
 					var path = "";

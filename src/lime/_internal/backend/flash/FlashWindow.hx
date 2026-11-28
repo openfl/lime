@@ -44,6 +44,7 @@ class FlashWindow
 	private static var windowID = 0;
 
 	private var cacheMouseX:Float;
+	private var minimizeOnFocusLoss = true;
 	private var cacheMouseY:Float;
 	private var cacheTime:Int;
 	private var currentTouches = new Map<Int, Touch>();
@@ -334,6 +335,7 @@ class FlashWindow
 		var deltaTime = currentTime - cacheTime;
 		cacheTime = currentTime;
 
+		parent.application.frameDeltaTime = deltaTime;
 		parent.application.onUpdate.dispatch(deltaTime);
 		parent.onRender.dispatch(parent.context);
 	}
@@ -580,6 +582,11 @@ class FlashWindow
 		return cursor;
 	}
 
+	public function setCustomCursor(image:Image, hotSpotX:Int, hotSpotY:Int):Bool
+	{
+		return false;
+	}
+
 	public function setDisplayMode(value:DisplayMode):DisplayMode
 	{
 		return value;
@@ -603,6 +610,11 @@ class FlashWindow
 	public function getKeyboardGrab():Bool
 	{
 		return false;
+	}
+
+	public function getMinimizeOnFocusLoss():Bool
+	{
+		return minimizeOnFocusLoss;
 	}
 
 	public function getMouseLock():Bool
@@ -685,6 +697,12 @@ class FlashWindow
 	public function doDragDrop(data:DragData, image:Image, offsetX:Int, offsetY:Int, actions:DropAction):Future<DropAction>
 	{
 		return Future.withValue(DropAction.NONE);
+	}
+
+	// Nothing here minimizes a window when it loses focus, so the value is only kept
+	public function setMinimizeOnFocusLoss(value:Bool):Bool
+	{
+		return minimizeOnFocusLoss = value;
 	}
 
 	public function setMouseLock(value:Bool):Void {}

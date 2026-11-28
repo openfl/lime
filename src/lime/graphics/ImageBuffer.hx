@@ -140,9 +140,8 @@ class ImageBuffer
 		#elseif (js && html5)
 		if (data != null)
 		{
-			buffer.data = new UInt8Array(data.byteLength);
-			var copy = new UInt8Array(data);
-			buffer.data.set(copy);
+			// A typed array made from another copies its elements
+			buffer.data = new UInt8Array(data);
 		}
 		else if (__srcImageData != null)
 		{

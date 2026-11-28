@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<project>
+
+	<meta title="Frame Loop Bench" package="org.openfl.lime.frameloopbench" version="1.0.0" company="OpenFL" />
+	<app main="FrameLoopBench" path="bin" file="FrameLoopBench" />
+	<source path="src" />
+	<haxelib name="lime" />
+	<window width="320" height="240" fps="60" />
+
+</project>

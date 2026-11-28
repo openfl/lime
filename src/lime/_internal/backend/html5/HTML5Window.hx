@@ -67,11 +67,15 @@ class HTML5Window
 	#end
 
 	private var cacheElementHeight:Float;
+	private var minimizeOnFocusLoss = true;
 	private var cacheElementWidth:Float;
 	private var cacheElementScale:Float;
+	// Reports changes of the element's size, where the browser has it, so the size isn't read every frame
+	private var elementSizeObserver:Dynamic;
 	private var cacheMouseX:Float;
 	private var cacheMouseY:Float;
 	private var cursor:MouseCursor;
+	private var customCursor:String;
 	private var dragDepth:Int = 0;
 	private var dragOut:{data:DragData, image:Image, offsetX:Int, offsetY:Int, actions:DropAction, promise:Promise<DropAction>, started:Bool};
 	private var dropTarget:Bool = false;
@@ -197,6 +201,23 @@ class HTML5Window
 			resizeElement = true;
 		}
 
+		// Reading an element's size makes the browser finish layout first, which is every frame in pages
+		// whose DOM changes every frame, so the size is read when the browser reports a change. The
+		// report comes after layout, so a change made between frames reaches the window a frame later.
+		if (element != null && untyped Browser.window.ResizeObserver != null)
+		{
+			elementSizeObserver = untyped #if haxe4 js.Syntax.code #else __js__ #end ("new ResizeObserver({0})", function(_) updateSize());
+			try
+			{
+				// The border box, as the client size also changes with the padding
+				elementSizeObserver.observe(element, {box: "border-box"});
+			}
+			catch (e:Dynamic)
+			{
+				elementSizeObserver.observe(element);
+			}
+		}
+
 		if (canvas != null)
 		{
 			canvas.width = Math.round(parent.__width * scale);
@@ -295,6 +316,12 @@ class HTML5Window
 		{
 			menus.close();
 			menus = null;
+		}
+
+		if (elementSizeObserver != null)
+		{
+			elementSizeObserver.disconnect();
+			elementSizeObserver = null;
 		}
 
 		var element = parent.element;
@@ -497,9 +524,14 @@ class HTML5Window
 		return false;
 	}
 
+	public function getMinimizeOnFocusLoss():Bool
+	{
+		return minimizeOnFocusLoss;
+	}
+
 	public function getMouseLock():Bool
 	{
-		return false;
+		return parent.element != null && (untyped Browser.document.pointerLockElement) == parent.element;
 	}
 
 	public function getMouseRect():Rectangle
@@ -1090,10 +1122,34 @@ class HTML5Window
 					}
 					__stopMousePropagation = event.currentTarget == parent.element;
 
-					if (x != cacheMouseX || y != cacheMouseY)
+					// While the pointer is locked, the event's position stays where the lock
+					// began, and only its movement says how far the mouse moved, in CSS pixels
+					var locked = getMouseLock();
+					var movementX = x - cacheMouseX;
+					var movementY = y - cacheMouseY;
+
+					if (locked)
+					{
+						// From CSS pixels to the window's own units on each axis, as for its position
+						var scaleX = 1.0;
+						var scaleY = 1.0;
+						var target:Element = canvas != null ? canvas : (div != null ? null : parent.element);
+
+						if (target != null)
+						{
+							var rect = target.getBoundingClientRect();
+							if (rect.width > 0) scaleX = parent.__width / rect.width;
+							if (rect.height > 0) scaleY = parent.__height / rect.height;
+						}
+
+						movementX = (untyped event.movementX : Float) * scaleX;
+						movementY = (untyped event.movementY : Float) * scaleY;
+					}
+
+					if (locked ? (movementX != 0 || movementY != 0) : (x != cacheMouseX || y != cacheMouseY))
 					{
 						parent.onMouseMove.dispatch(x, y);
-						parent.onMouseMoveRelative.dispatch(x - cacheMouseX, y - cacheMouseY);
+						parent.onMouseMoveRelative.dispatch(movementX, movementY);
 
 						if ((parent.onMouseMove.canceled || parent.onMouseMoveRelative.canceled) && event.cancelable)
 						{
@@ -1449,6 +1505,7 @@ class HTML5Window
 					case TEXT: "text";
 					case WAIT: "wait";
 					case WAIT_ARROW: "wait";
+					case CUSTOM: customCursor != null ? customCursor : "auto";
 					default: "auto";
 				}
 			}
@@ -1457,6 +1514,25 @@ class HTML5Window
 		}
 
 		return cursor;
+	}
+
+	public function setCustomCursor(image:Image, hotSpotX:Int, hotSpotY:Int):Bool
+	{
+		// a copy, as the image is converted to a canvas to be encoded
+		var copy = image.clone();
+		copy.premultiplied = false;
+		ImageCanvasUtil.convertToCanvas(copy);
+		var canvas:CanvasElement = @:privateAccess copy.buffer.__srcCanvas;
+
+		if (canvas == null)
+		{
+			return false;
+		}
+
+		customCursor = "url(" + canvas.toDataURL("image/png") + ") " + hotSpotX + " " + hotSpotY + ", auto";
+		parent.element.style.cursor = customCursor;
+		cursor = CUSTOM;
+		return true;
 	}
 
 	public function setDisplayMode(value:DisplayMode):DisplayMode
@@ -1603,7 +1679,34 @@ class HTML5Window
 		return false;
 	}
 
-	public function setMouseLock(value:Bool):Void {}
+	// Nothing here minimizes a window when it loses focus, so the value is only kept
+	public function setMinimizeOnFocusLoss(value:Bool):Bool
+	{
+		return minimizeOnFocusLoss = value;
+	}
+
+	public function setMouseLock(value:Bool):Void
+	{
+		var element:Dynamic = parent.element;
+		if (element == null) return;
+
+		var document:Dynamic = Browser.document;
+
+		if (value)
+		{
+			if (document.pointerLockElement != element && element.requestPointerLock != null)
+			{
+				// Browsers lock the pointer only from a user input event, and some refuse with a
+				// promise that would otherwise be reported as unhandled
+				var request:Dynamic = element.requestPointerLock();
+				if (request != null && request.then != null) request.then(null, function(_) {});
+			}
+		}
+		else if (document.pointerLockElement == element && document.exitPointerLock != null)
+		{
+			document.exitPointerLock();
+		}
+	}
 
 	public function setMouseRect(value:Rectangle):Void {}
 
@@ -1777,6 +1880,13 @@ class HTML5Window
 	}
 	#end
 
+	// The size, for a frame, where nothing reports when it changes. A window that fills the page hears
+	// of changes from the window's resize event.
+	private function updateSizeForFrame():Void
+	{
+		if (elementSizeObserver == null && parent.element != null) updateSize();
+	}
+
 	private function updateSize():Void
 	{
 		if (!parent.__resizable) return;
@@ -1837,6 +1947,9 @@ class HTML5Window
 						}
 
 						parent.onResize.dispatch(Std.int(elementWidth), Std.int(elementHeight));
+
+						// Drawn at its new size without waiting out an idle frame
+						if (parent.application != null) parent.application.requestFrame();
 					}
 				}
 				else

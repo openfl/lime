@@ -92,6 +92,10 @@ class DragDropTest extends Test
 	#if (lime_cffi && !macro && !mobile)
 	public function teardown():Void
 	{
+		// A test that failed leaves nothing for the application's own updates to throw
+		@:privateAccess lime._internal.backend.native.NativeApplication.deferredException = null;
+		@:privateAccess lime._internal.backend.native.NativeApplication.deferredExceptionPending = false;
+
 		if (window == null) return;
 
 		window.onDragEnter.removeAll();
@@ -227,6 +231,83 @@ class DragDropTest extends Test
 		Assert.isFalse(promises.exists(id));
 	}
 
+	// Native code drops what is thrown while the system waits on a drag, so what a listener throws is thrown
+	// again from the application's next update, where it reaches the application's handler, the first of
+	// them only. The drag is refused, as the listener didn't get to choose its action.
+
+	public function testWhatADragListenerThrowsComesOutOfTheNextUpdate():Void
+	{
+		var window = open();
+		if (window == null) return;
+
+		window.dropAction = COPY;
+		window.onDragEnter.add(function(data:DragData, x:Float, y:Float)
+		{
+			window.dropAction = COPY;
+			throw "thrown in onDragEnter";
+		});
+
+		var action = dragQuietly(DRAG_ENTER, window.id, 10, 10, COPY | MOVE);
+		Assert.equals(DropAction.NONE, action, "the action of a drag whose listener threw");
+		Assert.equals("thrown in onDragEnter", Std.string(update()), "what the next update threw");
+		Assert.isNull(update(), "the update after that threw too");
+	}
+
+	public function testADropWhoseListenerThrowsIsRefused():Void
+	{
+		var window = open();
+		if (window == null) return;
+
+		window.dropAction = COPY;
+		window.onDrop.add(function(data:DragData, x:Float, y:Float) throw "thrown in onDrop");
+
+		Assert.equals(DropAction.NONE, dragQuietly(DRAG_DROP, window.id, 10, 10, COPY), "the action of a drop whose listener threw");
+		Assert.equals("thrown in onDrop", Std.string(update()), "what the next update threw");
+	}
+
+	public function testOnlyTheFirstOfSeveralThrowsComesOut():Void
+	{
+		var window = open();
+		if (window == null) return;
+
+		window.onDragEnter.add(function(data:DragData, x:Float, y:Float) throw "first");
+		window.onDragOver.add(function(x:Float, y:Float) throw "second");
+		window.onDragLeave.add(function() throw "third");
+
+		dragQuietly(DRAG_ENTER, window.id, 10, 10, COPY);
+		dragQuietly(DRAG_OVER, window.id, 11, 11, COPY);
+		dragQuietly(DRAG_LEAVE, window.id, 0, 0, COPY);
+
+		Assert.equals("first", Std.string(update()), "what the next update threw");
+		Assert.isNull(update(), "the update after that threw too");
+	}
+
+	public function testWhatADragOutsFutureListenerThrowsComesOutOfTheNextUpdate():Void
+	{
+		var promises = @:privateAccess lime._internal.backend.native.NativeWindow.dragPromises;
+		var promise = new lime.app.Promise<DropAction>();
+		var id = 0x7FFF0001;
+		promises.set(id, promise);
+		promise.future.onComplete(function(action) throw "thrown when the drag out ended");
+
+		dragQuietly(DRAG_COMPLETE, id, 0, 0, NONE, COPY);
+
+		Assert.equals("thrown when the drag out ended", Std.string(update()), "what the next update threw");
+	}
+
+	public function testNothingIsThrownWhenNoListenerThrew():Void
+	{
+		var window = open();
+		if (window == null) return;
+
+		window.onDragEnter.add(function(data:DragData, x:Float, y:Float) window.dropAction = COPY);
+		window.onDrop.add(function(data:DragData, x:Float, y:Float) {});
+
+		Assert.equals(DropAction.COPY, dragQuietly(DRAG_ENTER, window.id, 10, 10, COPY));
+		Assert.equals(DropAction.COPY, dragQuietly(DRAG_DROP, window.id, 10, 10, COPY));
+		Assert.isNull(update(), "an update threw");
+	}
+
 	public function testDragsOutNeedDataMadeForThem():Void
 	{
 		var window = open();
@@ -246,6 +327,29 @@ class DragDropTest extends Test
 		Assert.equals(DragData.isSupported, window.dropTarget);
 		window.dropTarget = false;
 		Assert.isFalse(window.dropTarget);
+	}
+
+	// On macOS, native-desktop 1.2.1 gave a target's window a class of its own, and SDL, closing the
+	// window, could no longer stop watching it, which ended the application
+	public function testAWindowClosesWhileADropTarget():Void
+	{
+		if (open() == null) return;
+
+		var closing = create();
+		closing.dropTarget = true;
+		closing.close();
+		Assert.equals(-1, Application.current.windows.indexOf(closing));
+	}
+
+	public function testAWindowClosesAfterItWasADropTarget():Void
+	{
+		if (open() == null) return;
+
+		var closing = create();
+		closing.dropTarget = true;
+		closing.dropTarget = false;
+		closing.close();
+		Assert.equals(-1, Application.current.windows.indexOf(closing));
 	}
 
 	#if (cpp && windows)
@@ -376,6 +480,40 @@ class DragDropTest extends Test
 
 		@:privateAccess backend.handleDragEvent();
 		return info.action;
+	}
+
+	/** As drag(), failing where the event throws back into native code, which would drop it **/
+	private static function dragQuietly(type:Int, windowID:Int, x:Float, y:Float, allowedActions:DropAction, action:DropAction = NONE):DropAction
+	{
+		try
+		{
+			return drag(type, windowID, x, y, allowedActions, action);
+		}
+		catch (e:Dynamic)
+		{
+			Assert.fail("the drag event threw " + e + " back to native code");
+			return @:privateAccess Application.current.__backend.dragEventInfo.action;
+		}
+	}
+
+	/** Runs one update of the application, as its loop does, and gives what it threw, or null **/
+	private static function update():Dynamic
+	{
+		var backend = @:privateAccess Application.current.__backend;
+		var info = @:privateAccess backend.applicationEventInfo;
+		info.type = cast 0;
+		info.deltaTime = 0;
+
+		try
+		{
+			@:privateAccess backend.handleApplicationEvent();
+		}
+		catch (e:Dynamic)
+		{
+			return e;
+		}
+
+		return null;
 	}
 
 	private static function value(future:Future<DropAction>):Null<DropAction>

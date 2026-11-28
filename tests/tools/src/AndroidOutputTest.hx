@@ -411,6 +411,28 @@ class AndroidOutputTest extends Test
 		Assert.isTrue(app.indexOf('outputFileName =  "MyApplication-" + variant.buildType.name + ".apk"') > -1);
 	}
 
+	// Gradle 10 no longer sets a property written without an equals sign, as Gradle warns
+	public function testGradleSettingsAreAssignedWithAnEqualsSign():Void
+	{
+		output.update('<project>
+			<app main="Main" file="MyApplication" />
+		</project>');
+
+		var app = output.read("bin/app/build.gradle");
+		Assert.isTrue(app.indexOf('namespace = "') > -1, "the namespace isn't assigned");
+		Assert.isTrue(app.indexOf("signingConfig = signingConfigs.release") > -1, "the signing config isn't assigned");
+
+		var unassigned = ~/^\s*(::[^:]*::)?(namespace|ndkPath|ndkVersion|signingConfig)\s+[^=\s{]/;
+
+		for (file in ["bin/app/build.gradle", "bin/build.gradle"])
+		{
+			for (line in lines(output.read(file)))
+			{
+				Assert.isFalse(unassigned.match(line), file + " sets a property without an equals sign: " + line);
+			}
+		}
+	}
+
 	// Google Play requires API 36 for new apps and updates. Android lists plugin 8.9.1 as the
 	// first for API 36, and plugin 8.9 needs Gradle 8.11.1
 	public function testTheDefaultsTargetTheLevelGooglePlayRequires():Void
@@ -447,6 +469,27 @@ class AndroidOutputTest extends Test
 		</project>');
 
 		Assert.equals("productivity", manifest().node.application.x.get("android:appCategory"));
+	}
+
+	// From Android 11, the heap tags the top byte of the addresses it gives an app that targets
+	// API 30 or later, and Lime keeps every bit of a tagged address. A project whose own native
+	// code can't take tagged addresses can still turn tagging off
+	public function testHeapPointerTaggingStaysOnUnlessTheProjectTurnsItOff():Void
+	{
+		output.update('<project>
+			<app main="Main" file="MyApplication" />
+		</project>');
+
+		Assert.isFalse(manifest().node.application.x.exists("android:allowNativeHeapPointerTagging"));
+
+		output.update('<project>
+			<app main="Main" file="MyApplication" />
+			<config:android>
+				<application android:allowNativeHeapPointerTagging="false" />
+			</config:android>
+		</project>');
+
+		Assert.equals("false", manifest().node.application.x.get("android:allowNativeHeapPointerTagging"));
 	}
 
 	// From API 36, Android 16 gives back presses only to an OnBackInvokedCallback. The class is
@@ -502,7 +545,7 @@ class AndroidOutputTest extends Test
 
 		var build = output.read("bin/app/build.gradle");
 
-		Assert.isTrue(~/^\s*ndkPath '/m.match(build), "ndkPath, which plugins from 4.0 need, is not set");
+		Assert.isTrue(~/^\s*ndkPath = '/m.match(build), "ndkPath, which plugins from 4.0 need, is not set");
 		Assert.isTrue(build.indexOf("androidResources {") > -1, "aaptOptions is used, which plugins from 7.1 replace with androidResources");
 		Assert.isFalse(properties(output.read("bin/local.properties")).exists("ndk.dir"));
 	}
@@ -591,7 +634,7 @@ class AndroidOutputTest extends Test
 
 		var build = output.read("bin/app/build.gradle");
 
-		Assert.isTrue(build.indexOf('namespace "com.example.myapplication"') > -1);
+		Assert.isTrue(build.indexOf('namespace = "com.example.myapplication"') > -1);
 		Assert.isTrue(build.indexOf('applicationId "com.example.myapplication"') > -1);
 		// The APK is named after the app file
 		Assert.isTrue(build.indexOf('outputFileName =  "MyApplication-" + variant.buildType.name + ".apk"') > -1);

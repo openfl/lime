@@ -37,12 +37,16 @@ namespace lime {
 			~SDLApplication ();
 
 			virtual int Exec ();
+			virtual double GetFrameDeltaTime ();
 			virtual void Init ();
 			virtual int Quit ();
+			virtual void RequestFrame ();
+			virtual void RequestTimer (double milliseconds);
 			virtual void SetMainLoop (int profile, double frameRate, int timePrecision, int busyWait, int uncapMode);
 			virtual void SetBackgroundFrameRate (double frameRate);
 			virtual void SetFrameRate (double frameRate);
 			virtual void SetIdleEvents (bool enabled);
+			virtual void SetIdleFrameRate (double frameRate);
 			virtual bool SetMenu (const unsigned char* data, int length);
 			virtual void SetVSyncMode (int vsyncMode);
 			virtual bool Update ();
@@ -50,7 +54,12 @@ namespace lime {
 			void RegisterWindow (SDLWindow *window);
 			void UnregisterWindow (SDLWindow *window);
 			static void NoteContextFlip ();
+			// Wakes a loop that is waiting for events or for a frame, from any thread
+			static void Wake ();
+			static void EnterSwapBlocking ();
+			static void ExitSwapBlocking ();
 			static void CallFromEventPump (void (*callback) (void*), void* data);
+			static SDLApplication* GetCurrent () { return currentApplication; }
 #if defined(HX_WINDOWS) && !defined(HX_WINRT)
 			static void EnterNativeModalLoop ();
 			static void ExitNativeModalLoop ();
@@ -68,15 +77,22 @@ namespace lime {
 			bool CalibrateSleepGuardBefore (double remaining);
 			void DispatchFrame (double now, bool renderFrame = true);
 			void DispatchIdle (double remaining);
+			void DispatchTimers ();
 			double GetCurrentTimeMs () const;
 			double GetDisplayRefreshRate () const;
 			Uint32 GetSleepGuardMs () const;
 			void HandleEvent (SDL_Event* event);
-			bool IsFrameDue (double now) const;
+			bool IsFrameDue (double now);
 			bool IsIdleDue (double now) const;
+			bool IsTimerDue (double now) const;
+			double NextTimerTime () const;
 			bool IsSchedulerUnthrottled () const;
+			void MakeFrameDue (double now);
 			void PaceFrameAfterRender (bool swapped, double renderMs);
+			void Reschedule ();
+			void TakeFrameRequest ();
 			void RefreshVSyncState ();
+			static int MinimizeOnFocusLossWatch (void* userdata, SDL_Event* event);
 #if defined(HX_WINDOWS) && !defined(HX_WINRT)
 			void PumpOneFrameFromWatch (SDL_Event* watchEvent = 0);
 			static int ModalEventWatch (void* userdata, SDL_Event* event);
@@ -100,7 +116,7 @@ namespace lime {
 			void UpdateSleepGuard (Uint32 requestedMs, Uint32 elapsedMs);
 			bool SleepsOutTheRemainder () const;
 #if defined(HX_WINDOWS) && !defined(HX_WINRT)
-			bool WaitOnFrameTimer (double ms);
+			int SleepUntilWork (double ms, unsigned int wakeMask);
 #endif
 			int WaitEvent (SDL_Event* event);
 
@@ -151,7 +167,21 @@ namespace lime {
 
 			};
 
+			// What a wait leaves for Update to do
+			enum WaitResult {
+
+				// Nothing was collected: Update pumps
+				WAIT_NONE = 0,
+				// An event was taken off the queue, which the wait's own pump filled
+				WAIT_EVENT = 1,
+				// The queue was pumped, and nothing taken off it
+				WAIT_PUMPED = 2
+
+			};
+
 			bool active;
+			// The period frames are timed by: the frame period, or a refresh while swaps are skipped
+			double activePeriod;
 			int activeUncapMode;
 			bool allowBusyWait;
 			ApplicationEvent applicationEvent;
@@ -160,13 +190,33 @@ namespace lime {
 			double currentUpdate;
 			double deltaRemainder;
 			Uint64 dispatchedFrames;
+			// The time between the last two updates, which deltaTime rounds to whole milliseconds
+			double frameDeltaTime;
+			// The earliest the next frame may come: what a frame that is asked for is brought forward to
+			double earliestUpdate;
 			double displayRefreshRate;
 			double framePeriod;
 			Uint32 initFlags;
 			DropEvent dropEvent;
 			bool firstTime;
+			// A frame is drawn once this turn's events are handled, due or not, as a new size is on Windows
+			bool frameForced;
+			// A frame was asked for and hasn't started
+			bool framePending;
+			// When the last frame was due, or when it started if it came a period late or early
+			double frameSlot;
 			GamepadEvent gamepadEvent;
+			// An idle event is due in this wait: its first, or one more for a listener with work left
+			bool idleArmed;
 			bool idleEvents;
+			// The time between frames while none is asked for, or 0 where frames always come
+			double idlePeriod;
+			// Input isn't watched for before this time: an interval after the last events were handled
+			double inputHoldUntil;
+			// The least time between two wakes for input, in milliseconds
+			double inputInterval;
+			// An event another thread was pushing wasn't in the queue yet, so the next wait is short
+			bool lookAgain;
 			JoystickEvent joystickEvent;
 			KeyEvent keyEvent;
 			double lastUpdate;
@@ -177,6 +227,7 @@ namespace lime {
 			// A high-resolution waitable timer, when Windows can make one
 			void* frameTimer;
 #endif
+			SDL_threadID mainThreadID;
 			MenuEvent menuEvent;
 			MouseEvent mouseEvent;
 			bool mouseCaptureRequested;
@@ -195,6 +246,8 @@ namespace lime {
 			// The most frames a second while every window is minimised or hidden, or 0 for no limit
 			double requestedBackgroundFrameRate;
 			double requestedFrameRate;
+			// The frames a second while no frame is asked for, or 0 to keep them coming at the frame rate
+			double requestedIdleFrameRate;
 			int requestedProfile;
 			int requestedTimePrecisionMode;
 			int requestedUncapMode;
@@ -212,6 +265,10 @@ namespace lime {
 			double lastSwapFrame;
 			TextEvent textEvent;
 			TouchEvent touchEvent;
+			// When the next timer is due, on the loop's clock, or below zero for none
+			double timedUpdate;
+			// When the timers last ran, from an update or on their own
+			double timersRanAt;
 			TrayIconEvent trayIconEvent;
 			bool useDisplayDrivenFallback;
 			bool useHighResolutionTimer;
@@ -224,7 +281,6 @@ namespace lime {
 			SDL_Event modalFrameEvent;
 			bool modalFramePending;
 			std::exception_ptr modalNativeException;
-			Uint32 mainThreadID;
 			std::map<Uint32, std::pair<int, int>> dispatchedWindowSizes;
 #endif
 
