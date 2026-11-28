@@ -7,6 +7,7 @@
 #include <system/CFFI.h>
 #include <system/CFFIPointer.h>
 #include <system/Mutex.h>
+#include <system/System.h>
 #include <system/ValuePointer.h>
 #include <text/Font.h>
 #include <utils/Bytes.h>
@@ -335,14 +336,24 @@ namespace lime {
 
 	void lime_cairo_fill (value handle) {
 
-		cairo_fill ((cairo_t*)val_data (handle));
+		cairo_t* cairo = (cairo_t*)val_data (handle);
+		cairo_reference (cairo);
+		System::GCEnterBlocking ();
+		cairo_fill (cairo);
+		System::GCExitBlocking ();
+		cairo_destroy (cairo);
 
 	}
 
 
 	HL_PRIM void HL_NAME(hl_cairo_fill) (HL_CFFIPointer* handle) {
 
-		cairo_fill ((cairo_t*)handle->ptr);
+		cairo_t* cairo = (cairo_t*)handle->ptr;
+		cairo_reference (cairo);
+		System::GCEnterBlocking ();
+		cairo_fill (cairo);
+		System::GCExitBlocking ();
+		cairo_destroy (cairo);
 
 	}
 
@@ -386,14 +397,24 @@ namespace lime {
 
 	void lime_cairo_fill_preserve (value handle) {
 
-		cairo_fill_preserve ((cairo_t*)val_data (handle));
+		cairo_t* cairo = (cairo_t*)val_data (handle);
+		cairo_reference (cairo);
+		System::GCEnterBlocking ();
+		cairo_fill_preserve (cairo);
+		System::GCExitBlocking ();
+		cairo_destroy (cairo);
 
 	}
 
 
 	HL_PRIM void HL_NAME(hl_cairo_fill_preserve) (HL_CFFIPointer* handle) {
 
-		cairo_fill_preserve ((cairo_t*)handle->ptr);
+		cairo_t* cairo = (cairo_t*)handle->ptr;
+		cairo_reference (cairo);
+		System::GCEnterBlocking ();
+		cairo_fill_preserve (cairo);
+		System::GCExitBlocking ();
+		cairo_destroy (cairo);
 
 	}
 
@@ -1214,28 +1235,60 @@ namespace lime {
 
 	void lime_cairo_mask (value handle, value pattern) {
 
-		cairo_mask ((cairo_t*)val_data (handle), (cairo_pattern_t*)val_data (pattern));
+		cairo_t* cairo = (cairo_t*)val_data (handle);
+		cairo_pattern_t* _pattern = (cairo_pattern_t*)val_data (pattern);
+		cairo_reference (cairo);
+		cairo_pattern_reference (_pattern);
+		System::GCEnterBlocking ();
+		cairo_mask (cairo, _pattern);
+		System::GCExitBlocking ();
+		cairo_pattern_destroy (_pattern);
+		cairo_destroy (cairo);
 
 	}
 
 
 	HL_PRIM void HL_NAME(hl_cairo_mask) (HL_CFFIPointer* handle, HL_CFFIPointer* pattern) {
 
-		cairo_mask ((cairo_t*)handle->ptr, (cairo_pattern_t*)pattern->ptr);
+		cairo_t* cairo = (cairo_t*)handle->ptr;
+		cairo_pattern_t* _pattern = (cairo_pattern_t*)pattern->ptr;
+		cairo_reference (cairo);
+		cairo_pattern_reference (_pattern);
+		System::GCEnterBlocking ();
+		cairo_mask (cairo, _pattern);
+		System::GCExitBlocking ();
+		cairo_pattern_destroy (_pattern);
+		cairo_destroy (cairo);
 
 	}
 
 
 	void lime_cairo_mask_surface (value handle, value surface, double x, double y) {
 
-		cairo_mask_surface ((cairo_t*)val_data (handle), (cairo_surface_t*)val_data (surface), x, y);
+		cairo_t* cairo = (cairo_t*)val_data (handle);
+		cairo_surface_t* _surface = (cairo_surface_t*)val_data (surface);
+		cairo_reference (cairo);
+		cairo_surface_reference (_surface);
+		System::GCEnterBlocking ();
+		cairo_mask_surface (cairo, _surface, x, y);
+		System::GCExitBlocking ();
+		cairo_surface_destroy (_surface);
+		cairo_destroy (cairo);
 
 	}
 
 
 	HL_PRIM void HL_NAME(hl_cairo_mask_surface) (HL_CFFIPointer* handle, HL_CFFIPointer* surface, double x, double y) {
 
-		cairo_mask_surface ((cairo_t*)handle->ptr, (cairo_surface_t*)surface->ptr, x, y);
+		cairo_t* cairo = (cairo_t*)handle->ptr;
+		cairo_surface_t* _surface = (cairo_surface_t*)surface->ptr;
+		cairo_reference (cairo);
+		cairo_surface_reference (_surface);
+		System::GCEnterBlocking ();
+		cairo_mask_surface (cairo, _surface, x, y);
+		System::GCExitBlocking ();
+		cairo_surface_destroy (_surface);
+		cairo_destroy (cairo);
 
 	}
 
@@ -1270,28 +1323,48 @@ namespace lime {
 
 	void lime_cairo_paint (value handle) {
 
-		cairo_paint ((cairo_t*)val_data (handle));
+		cairo_t* cairo = (cairo_t*)val_data (handle);
+		cairo_reference (cairo);
+		System::GCEnterBlocking ();
+		cairo_paint (cairo);
+		System::GCExitBlocking ();
+		cairo_destroy (cairo);
 
 	}
 
 
 	HL_PRIM void HL_NAME(hl_cairo_paint) (HL_CFFIPointer* handle) {
 
-		cairo_paint ((cairo_t*)handle->ptr);
+		cairo_t* cairo = (cairo_t*)handle->ptr;
+		cairo_reference (cairo);
+		System::GCEnterBlocking ();
+		cairo_paint (cairo);
+		System::GCExitBlocking ();
+		cairo_destroy (cairo);
 
 	}
 
 
 	void lime_cairo_paint_with_alpha (value handle, double alpha) {
 
-		cairo_paint_with_alpha ((cairo_t*)val_data (handle), alpha);
+		cairo_t* cairo = (cairo_t*)val_data (handle);
+		cairo_reference (cairo);
+		System::GCEnterBlocking ();
+		cairo_paint_with_alpha (cairo, alpha);
+		System::GCExitBlocking ();
+		cairo_destroy (cairo);
 
 	}
 
 
 	HL_PRIM void HL_NAME(hl_cairo_paint_with_alpha) (HL_CFFIPointer* handle, double alpha) {
 
-		cairo_paint_with_alpha ((cairo_t*)handle->ptr, alpha);
+		cairo_t* cairo = (cairo_t*)handle->ptr;
+		cairo_reference (cairo);
+		System::GCEnterBlocking ();
+		cairo_paint_with_alpha (cairo, alpha);
+		System::GCExitBlocking ();
+		cairo_destroy (cairo);
 
 	}
 
@@ -2249,14 +2322,24 @@ namespace lime {
 
 	void lime_cairo_stroke (value handle) {
 
-		cairo_stroke ((cairo_t*)val_data (handle));
+		cairo_t* cairo = (cairo_t*)val_data (handle);
+		cairo_reference (cairo);
+		System::GCEnterBlocking ();
+		cairo_stroke (cairo);
+		System::GCExitBlocking ();
+		cairo_destroy (cairo);
 
 	}
 
 
 	HL_PRIM void HL_NAME(hl_cairo_stroke) (HL_CFFIPointer* handle) {
 
-		cairo_stroke ((cairo_t*)handle->ptr);
+		cairo_t* cairo = (cairo_t*)handle->ptr;
+		cairo_reference (cairo);
+		System::GCEnterBlocking ();
+		cairo_stroke (cairo);
+		System::GCExitBlocking ();
+		cairo_destroy (cairo);
 
 	}
 
@@ -2300,14 +2383,24 @@ namespace lime {
 
 	void lime_cairo_stroke_preserve (value handle) {
 
-		cairo_stroke_preserve ((cairo_t*)val_data (handle));
+		cairo_t* cairo = (cairo_t*)val_data (handle);
+		cairo_reference (cairo);
+		System::GCEnterBlocking ();
+		cairo_stroke_preserve (cairo);
+		System::GCExitBlocking ();
+		cairo_destroy (cairo);
 
 	}
 
 
 	HL_PRIM void HL_NAME(hl_cairo_stroke_preserve) (HL_CFFIPointer* handle) {
 
-		cairo_stroke_preserve ((cairo_t*)handle->ptr);
+		cairo_t* cairo = (cairo_t*)handle->ptr;
+		cairo_reference (cairo);
+		System::GCEnterBlocking ();
+		cairo_stroke_preserve (cairo);
+		System::GCExitBlocking ();
+		cairo_destroy (cairo);
 
 	}
 
