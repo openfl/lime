@@ -116,7 +116,7 @@ namespace lime {
 			void UpdateSleepGuard (Uint32 requestedMs, Uint32 elapsedMs);
 			bool SleepsOutTheRemainder () const;
 #if defined(HX_WINDOWS) && !defined(HX_WINRT)
-			int SleepUntilWork (double ms, unsigned int wakeMask, bool byClock);
+			int SleepUntilWork (double ms, unsigned int wakeMask);
 #endif
 			int WaitEvent (SDL_Event* event);
 
