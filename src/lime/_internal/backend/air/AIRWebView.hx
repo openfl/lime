@@ -1,5 +1,6 @@
 package lime._internal.backend.air;
 
+import lime.ui.FocusDirection;
 import flash.display.BitmapData;
 import flash.events.ErrorEvent;
 import flash.events.Event;
@@ -106,9 +107,10 @@ class AIRWebView
 		return Future.withValue("null");
 	}
 
-	public function focus():Void
+	public function focus(direction:FocusDirection):Void
 	{
-		if (view != null) view.assignFocus();
+		// AIR's FocusDirection names the same three directions
+		if (view != null) view.assignFocus(cast(direction == TOP ? "top" : (direction == BOTTOM ? "bottom" : "none")));
 	}
 
 	public function getCanGoBack():Bool

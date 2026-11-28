@@ -1,11 +1,31 @@
 #include <media/codecs/vorbis/VorbisFile.h>
 #include <media/containers/OGG.h>
+#include <system/System.h>
+#include <limits.h>
+#include <string.h>
 
 
 namespace lime {
 
 
+	static bool DecodeOGG (Resource *resource, AudioBuffer *audioBuffer);
+
+
 	bool OGG::Decode (Resource *resource, AudioBuffer *audioBuffer) {
+
+		// libvorbis only reads the encoded sound and writes the buffer's own
+		// memory, so the collector needn't wait for this thread: a decode on a
+		// worker thread otherwise holds up every collection until it finishes
+		System::GCEnterBlocking ();
+		bool decoded = DecodeOGG (resource, audioBuffer);
+		System::GCExitBlocking ();
+
+		return decoded;
+
+	}
+
+
+	static bool DecodeOGG (Resource *resource, AudioBuffer *audioBuffer) {
 
 		OggVorbis_File* oggFile;
 		Bytes *data = NULL;
@@ -56,22 +76,85 @@ namespace lime {
 
 		audioBuffer->bitsPerSample = 16;
 
-		int dataLength = ov_pcm_total (oggFile, -1) * audioBuffer->channels * audioBuffer->bitsPerSample / 8;
-		audioBuffer->data->Resize (dataLength);
+		// The length the file gives only sizes the buffer to start with: it is
+		// an error code for some streams, can be too long for an int, and in a
+		// damaged file can be shorter than the audio. So the buffer grows as
+		// the audio comes, and no read goes past its end.
+		int frameSize = audioBuffer->channels * audioBuffer->bitsPerSample / 8;
+		ogg_int64_t frames = ov_pcm_total (oggFile, -1);
+		int capacity = BUFFER_SIZE;
 
-		while (bytes > 0) {
+		if (frames > 0 && frameSize > 0 && frames <= (ogg_int64_t)(INT_MAX / frameSize)) {
 
-			bytes = ov_read (oggFile, (char *)audioBuffer->data->buffer->b + totalBytes, BUFFER_SIZE, BUFFER_READ_TYPE, 2, 1, &bitStream);
-
-			if (bytes > 0) {
-
-				totalBytes += bytes;
-
-			}
+			capacity = (int)(frames * frameSize);
 
 		}
 
-		if (dataLength != totalBytes) {
+		bool failed = !audioBuffer->data->TryResize (capacity);
+		char extra[BUFFER_SIZE];
+
+		while (!failed) {
+
+			// Near the end of the buffer, a block is read aside: ov_read gives
+			// nothing when asked for less than a sample frame
+			int room = capacity - totalBytes;
+			bool direct = room >= BUFFER_SIZE;
+			char* target = direct ? (char*)audioBuffer->data->buffer->b + totalBytes : extra;
+			bytes = ov_read (oggFile, target, BUFFER_SIZE, BUFFER_READ_TYPE, 2, 1, &bitStream);
+
+			if (bytes <= 0) {
+
+				break;
+
+			}
+
+			if (!direct) {
+
+				if (bytes > room) {
+
+					// More audio than the file said: grow by half, as far as an int goes
+					if (bytes > INT_MAX - totalBytes) {
+
+						failed = true;
+						break;
+
+					}
+
+					ogg_int64_t needed = (ogg_int64_t)totalBytes + bytes;
+					ogg_int64_t grown = (ogg_int64_t)capacity + capacity / 2;
+					if (grown < needed) grown = needed;
+					if (grown > INT_MAX) grown = INT_MAX;
+
+					if (!audioBuffer->data->TryResize ((int)grown)) {
+
+						failed = true;
+						break;
+
+					}
+
+					capacity = (int)grown;
+
+				}
+
+				memcpy ((char*)audioBuffer->data->buffer->b + totalBytes, extra, bytes);
+
+			}
+
+			totalBytes += bytes;
+
+		}
+
+		if (failed) {
+
+			audioBuffer->data->Resize (0);
+			ov_clear (oggFile);
+			delete oggFile;
+
+			return false;
+
+		}
+
+		if (capacity != totalBytes) {
 
 			audioBuffer->data->Resize (totalBytes);
 

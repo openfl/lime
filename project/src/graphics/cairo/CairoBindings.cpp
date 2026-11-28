@@ -2,12 +2,17 @@
 #include <cairo-ft.h>
 #include <map>
 #include <math/Matrix3.h>
+#include <math/Rectangle.h>
 #include <math/Vector2.h>
 #include <system/CFFI.h>
 #include <system/CFFIPointer.h>
 #include <system/Mutex.h>
+#include <system/System.h>
 #include <system/ValuePointer.h>
 #include <text/Font.h>
+#include <utils/Bytes.h>
+#include <utils/DataPointer.h>
+#include <string.h>
 
 
 namespace lime {
@@ -225,6 +230,29 @@ namespace lime {
 	}
 
 
+	value lime_cairo_get_clip_extents (value handle) {
+
+		double x1, y1, x2, y2;
+		cairo_clip_extents ((cairo_t*)val_data (handle), &x1, &y1, &x2, &y2);
+		Rectangle rect = Rectangle (x1, y1, x2 - x1, y2 - y1);
+		return rect.Value ();
+
+	}
+
+
+	HL_PRIM Rectangle* HL_NAME(hl_cairo_get_clip_extents) (HL_CFFIPointer* handle, Rectangle* out) {
+
+		double x1, y1, x2, y2;
+		cairo_clip_extents ((cairo_t*)handle->ptr, &x1, &y1, &x2, &y2);
+		out->x = x1;
+		out->y = y1;
+		out->width = x2 - x1;
+		out->height = y2 - y1;
+		return out;
+
+	}
+
+
 	void lime_cairo_clip_preserve (value handle) {
 
 		cairo_clip_preserve ((cairo_t*)val_data (handle));
@@ -309,14 +337,24 @@ namespace lime {
 
 	void lime_cairo_fill (value handle) {
 
-		cairo_fill ((cairo_t*)val_data (handle));
+		cairo_t* cairo = (cairo_t*)val_data (handle);
+		cairo_reference (cairo);
+		System::GCEnterBlocking ();
+		cairo_fill (cairo);
+		System::GCExitBlocking ();
+		cairo_destroy (cairo);
 
 	}
 
 
 	HL_PRIM void HL_NAME(hl_cairo_fill) (HL_CFFIPointer* handle) {
 
-		cairo_fill ((cairo_t*)handle->ptr);
+		cairo_t* cairo = (cairo_t*)handle->ptr;
+		cairo_reference (cairo);
+		System::GCEnterBlocking ();
+		cairo_fill (cairo);
+		System::GCExitBlocking ();
+		cairo_destroy (cairo);
 
 	}
 
@@ -335,16 +373,49 @@ namespace lime {
 	}
 
 
+	value lime_cairo_get_fill_extents (value handle) {
+
+		double x1, y1, x2, y2;
+		cairo_fill_extents ((cairo_t*)val_data (handle), &x1, &y1, &x2, &y2);
+		Rectangle rect = Rectangle (x1, y1, x2 - x1, y2 - y1);
+		return rect.Value ();
+
+	}
+
+
+	HL_PRIM Rectangle* HL_NAME(hl_cairo_get_fill_extents) (HL_CFFIPointer* handle, Rectangle* out) {
+
+		double x1, y1, x2, y2;
+		cairo_fill_extents ((cairo_t*)handle->ptr, &x1, &y1, &x2, &y2);
+		out->x = x1;
+		out->y = y1;
+		out->width = x2 - x1;
+		out->height = y2 - y1;
+		return out;
+
+	}
+
+
 	void lime_cairo_fill_preserve (value handle) {
 
-		cairo_fill_preserve ((cairo_t*)val_data (handle));
+		cairo_t* cairo = (cairo_t*)val_data (handle);
+		cairo_reference (cairo);
+		System::GCEnterBlocking ();
+		cairo_fill_preserve (cairo);
+		System::GCExitBlocking ();
+		cairo_destroy (cairo);
 
 	}
 
 
 	HL_PRIM void HL_NAME(hl_cairo_fill_preserve) (HL_CFFIPointer* handle) {
 
-		cairo_fill_preserve ((cairo_t*)handle->ptr);
+		cairo_t* cairo = (cairo_t*)handle->ptr;
+		cairo_reference (cairo);
+		System::GCEnterBlocking ();
+		cairo_fill_preserve (cairo);
+		System::GCExitBlocking ();
+		cairo_destroy (cairo);
 
 	}
 
@@ -547,12 +618,26 @@ namespace lime {
 	}
 
 
-	value lime_cairo_get_current_point (value handle) {
+	// Writes the doubles into out, the caller's Bytes, rather than returning them
+	// in an object built here with a boxed Float each
+	static void WriteDoubles (value out, const double* values, int count) {
 
-		double x, y;
-		cairo_get_current_point ((cairo_t*)val_data (handle), &x, &y);
-		Vector2 vec2 = Vector2 (x, y);
-		return vec2.Value ();
+		Bytes bytes (out);
+
+		if (bytes.length >= count * (int)sizeof (double)) {
+
+			memcpy (bytes.b, values, count * sizeof (double));
+
+		}
+
+	}
+
+
+	void lime_cairo_get_current_point (value handle, value out) {
+
+		double values[2];
+		cairo_get_current_point ((cairo_t*)val_data (handle), &values[0], &values[1]);
+		WriteDoubles (out, values, 2);
 
 	}
 
@@ -678,7 +763,8 @@ namespace lime {
 
 	value lime_cairo_get_font_options (value handle) {
 
-		cairo_font_options_t* options = 0;
+		// cairo_get_font_options copies into options the caller has made
+		cairo_font_options_t* options = cairo_font_options_create ();
 		cairo_get_font_options ((cairo_t*)val_data (handle), options);
 		return CFFIPointer (options, gc_cairo_font_options);
 
@@ -687,7 +773,7 @@ namespace lime {
 
 	HL_PRIM HL_CFFIPointer* HL_NAME(hl_cairo_get_font_options) (HL_CFFIPointer* handle) {
 
-		cairo_font_options_t* options = 0;
+		cairo_font_options_t* options = cairo_font_options_create ();
 		cairo_get_font_options ((cairo_t*)handle->ptr, options);
 		return HLCFFIPointer (options, (hl_finalizer)hl_gc_cairo_font_options);
 
@@ -782,12 +868,12 @@ namespace lime {
 	}
 
 
-	value lime_cairo_get_matrix (value handle) {
+	void lime_cairo_get_matrix (value handle, value out) {
 
 		cairo_matrix_t cm;
 		cairo_get_matrix ((cairo_t*)val_data (handle), &cm);
-		Matrix3 mat3 = Matrix3 (cm.xx, cm.yx, cm.xy, cm.yy, cm.x0, cm.y0);
-		return mat3.Value ();
+		double values[6] = { cm.xx, cm.yx, cm.xy, cm.yy, cm.x0, cm.y0 };
+		WriteDoubles (out, values, 6);
 
 	}
 
@@ -998,7 +1084,7 @@ namespace lime {
 
 	value lime_cairo_image_surface_create_for_data (double data, int format, int width, int height, int stride) {
 
-		cairo_surface_t* surface = cairo_image_surface_create_for_data ((unsigned char*)(uintptr_t)data, (cairo_format_t)format, width, height, stride);
+		cairo_surface_t* surface = cairo_image_surface_create_for_data ((unsigned char*)DataPointerToAddress (data), (cairo_format_t)format, width, height, stride);
 
 		value object = CFFIPointer (surface, gc_cairo_surface);
 		cairoObjects_Mutex.Lock ();
@@ -1011,7 +1097,7 @@ namespace lime {
 
 	HL_PRIM HL_CFFIPointer* HL_NAME(hl_cairo_image_surface_create_for_data) (double data, int format, int width, int height, int stride) {
 
-		cairo_surface_t* surface = cairo_image_surface_create_for_data ((unsigned char*)(uintptr_t)data, (cairo_format_t)format, width, height, stride);
+		cairo_surface_t* surface = cairo_image_surface_create_for_data ((unsigned char*)DataPointerToAddress (data), (cairo_format_t)format, width, height, stride);
 
 		HL_CFFIPointer* object = HLCFFIPointer (surface, (hl_finalizer)hl_gc_cairo_surface);
 		cairoObjects_Mutex.Lock ();
@@ -1024,14 +1110,14 @@ namespace lime {
 
 	double lime_cairo_image_surface_get_data (value handle) {
 
-		return (uintptr_t)cairo_image_surface_get_data ((cairo_surface_t*)val_data (handle));
+		return DataPointerFromAddress ((uintptr_t)cairo_image_surface_get_data ((cairo_surface_t*)val_data (handle)));
 
 	}
 
 
 	HL_PRIM double HL_NAME(hl_cairo_image_surface_get_data) (HL_CFFIPointer* handle) {
 
-		return (uintptr_t)cairo_image_surface_get_data ((cairo_surface_t*)handle->ptr);
+		return DataPointerFromAddress ((uintptr_t)cairo_image_surface_get_data ((cairo_surface_t*)handle->ptr));
 
 	}
 
@@ -1150,28 +1236,60 @@ namespace lime {
 
 	void lime_cairo_mask (value handle, value pattern) {
 
-		cairo_mask ((cairo_t*)val_data (handle), (cairo_pattern_t*)val_data (pattern));
+		cairo_t* cairo = (cairo_t*)val_data (handle);
+		cairo_pattern_t* _pattern = (cairo_pattern_t*)val_data (pattern);
+		cairo_reference (cairo);
+		cairo_pattern_reference (_pattern);
+		System::GCEnterBlocking ();
+		cairo_mask (cairo, _pattern);
+		System::GCExitBlocking ();
+		cairo_pattern_destroy (_pattern);
+		cairo_destroy (cairo);
 
 	}
 
 
 	HL_PRIM void HL_NAME(hl_cairo_mask) (HL_CFFIPointer* handle, HL_CFFIPointer* pattern) {
 
-		cairo_mask ((cairo_t*)handle->ptr, (cairo_pattern_t*)pattern->ptr);
+		cairo_t* cairo = (cairo_t*)handle->ptr;
+		cairo_pattern_t* _pattern = (cairo_pattern_t*)pattern->ptr;
+		cairo_reference (cairo);
+		cairo_pattern_reference (_pattern);
+		System::GCEnterBlocking ();
+		cairo_mask (cairo, _pattern);
+		System::GCExitBlocking ();
+		cairo_pattern_destroy (_pattern);
+		cairo_destroy (cairo);
 
 	}
 
 
 	void lime_cairo_mask_surface (value handle, value surface, double x, double y) {
 
-		cairo_mask_surface ((cairo_t*)val_data (handle), (cairo_surface_t*)val_data (surface), x, y);
+		cairo_t* cairo = (cairo_t*)val_data (handle);
+		cairo_surface_t* _surface = (cairo_surface_t*)val_data (surface);
+		cairo_reference (cairo);
+		cairo_surface_reference (_surface);
+		System::GCEnterBlocking ();
+		cairo_mask_surface (cairo, _surface, x, y);
+		System::GCExitBlocking ();
+		cairo_surface_destroy (_surface);
+		cairo_destroy (cairo);
 
 	}
 
 
 	HL_PRIM void HL_NAME(hl_cairo_mask_surface) (HL_CFFIPointer* handle, HL_CFFIPointer* surface, double x, double y) {
 
-		cairo_mask_surface ((cairo_t*)handle->ptr, (cairo_surface_t*)surface->ptr, x, y);
+		cairo_t* cairo = (cairo_t*)handle->ptr;
+		cairo_surface_t* _surface = (cairo_surface_t*)surface->ptr;
+		cairo_reference (cairo);
+		cairo_surface_reference (_surface);
+		System::GCEnterBlocking ();
+		cairo_mask_surface (cairo, _surface, x, y);
+		System::GCExitBlocking ();
+		cairo_surface_destroy (_surface);
+		cairo_destroy (cairo);
 
 	}
 
@@ -1206,28 +1324,48 @@ namespace lime {
 
 	void lime_cairo_paint (value handle) {
 
-		cairo_paint ((cairo_t*)val_data (handle));
+		cairo_t* cairo = (cairo_t*)val_data (handle);
+		cairo_reference (cairo);
+		System::GCEnterBlocking ();
+		cairo_paint (cairo);
+		System::GCExitBlocking ();
+		cairo_destroy (cairo);
 
 	}
 
 
 	HL_PRIM void HL_NAME(hl_cairo_paint) (HL_CFFIPointer* handle) {
 
-		cairo_paint ((cairo_t*)handle->ptr);
+		cairo_t* cairo = (cairo_t*)handle->ptr;
+		cairo_reference (cairo);
+		System::GCEnterBlocking ();
+		cairo_paint (cairo);
+		System::GCExitBlocking ();
+		cairo_destroy (cairo);
 
 	}
 
 
 	void lime_cairo_paint_with_alpha (value handle, double alpha) {
 
-		cairo_paint_with_alpha ((cairo_t*)val_data (handle), alpha);
+		cairo_t* cairo = (cairo_t*)val_data (handle);
+		cairo_reference (cairo);
+		System::GCEnterBlocking ();
+		cairo_paint_with_alpha (cairo, alpha);
+		System::GCExitBlocking ();
+		cairo_destroy (cairo);
 
 	}
 
 
 	HL_PRIM void HL_NAME(hl_cairo_paint_with_alpha) (HL_CFFIPointer* handle, double alpha) {
 
-		cairo_paint_with_alpha ((cairo_t*)handle->ptr, alpha);
+		cairo_t* cairo = (cairo_t*)handle->ptr;
+		cairo_reference (cairo);
+		System::GCEnterBlocking ();
+		cairo_paint_with_alpha (cairo, alpha);
+		System::GCExitBlocking ();
+		cairo_destroy (cairo);
 
 	}
 
@@ -1392,7 +1530,8 @@ namespace lime {
 
 	int lime_cairo_pattern_get_color_stop_count (value handle) {
 
-		int count;
+		// Left as it is for a pattern that isn't a gradient
+		int count = 0;
 		cairo_pattern_get_color_stop_count ((cairo_pattern_t*)val_data (handle), &count);
 		return count;
 
@@ -1401,7 +1540,7 @@ namespace lime {
 
 	HL_PRIM int HL_NAME(hl_cairo_pattern_get_color_stop_count) (HL_CFFIPointer* handle) {
 
-		int count;
+		int count = 0;
 		cairo_pattern_get_color_stop_count ((cairo_pattern_t*)handle->ptr, &count);
 		return count;
 
@@ -1436,12 +1575,12 @@ namespace lime {
 	}
 
 
-	value lime_cairo_pattern_get_matrix (value handle) {
+	void lime_cairo_pattern_get_matrix (value handle, value out) {
 
 		cairo_matrix_t cm;
 		cairo_pattern_get_matrix ((cairo_pattern_t*)val_data (handle), &cm);
-		Matrix3 mat3 = Matrix3 (cm.xx, cm.yx, cm.xy, cm.yy, cm.x0, cm.y0);
-		return mat3.Value ();
+		double values[6] = { cm.xx, cm.yx, cm.xy, cm.yy, cm.x0, cm.y0 };
+		WriteDoubles (out, values, 6);
 
 	}
 
@@ -1490,12 +1629,10 @@ namespace lime {
 	}
 
 
-	void lime_cairo_pattern_set_matrix (value handle, value matrix) {
-
-		Matrix3 mat3 = Matrix3 (matrix);
+	void lime_cairo_pattern_set_matrix (value handle, double a, double b, double c, double d, double tx, double ty) {
 
 		cairo_matrix_t cm;
-		cairo_matrix_init (&cm, mat3.a, mat3.b, mat3.c, mat3.d, mat3.tx, mat3.ty);
+		cairo_matrix_init (&cm, a, b, c, d, tx, ty);
 
 		cairo_pattern_set_matrix ((cairo_pattern_t*)val_data (handle), &cm);
 
@@ -2044,6 +2181,7 @@ namespace lime {
 			id_index = val_id ("index");
 			id_x = val_id ("x");
 			id_y = val_id ("y");
+			init = true;
 
 		}
 
@@ -2094,6 +2232,51 @@ namespace lime {
 	}
 
 
+	// Glyphs as Cairo.showGlyphs packs them: three doubles each, the index, x and y
+	static void ShowGlyphData (cairo_t* cairo, const unsigned char* data, int count) {
+
+		cairo_glyph_t* _glyphs = cairo_glyph_allocate (count);
+		double values[3];
+
+		for (int i = 0; i < count; i++) {
+
+			memcpy (values, data + i * sizeof (values), sizeof (values));
+			_glyphs[i].index = (unsigned long)values[0];
+			_glyphs[i].x = values[1];
+			_glyphs[i].y = values[2];
+
+		}
+
+		cairo_show_glyphs (cairo, _glyphs, count);
+		cairo_glyph_free (_glyphs);
+
+	}
+
+
+	void lime_cairo_show_glyph_data (value handle, value data, int count) {
+
+		Bytes bytes (data);
+
+		if (count > 0 && bytes.length >= count * 3 * (int)sizeof (double)) {
+
+			ShowGlyphData ((cairo_t*)val_data (handle), bytes.b, count);
+
+		}
+
+	}
+
+
+	HL_PRIM void HL_NAME(hl_cairo_show_glyph_data) (HL_CFFIPointer* handle, Bytes* data, int count) {
+
+		if (data && count > 0 && data->length >= count * 3 * (int)sizeof (double)) {
+
+			ShowGlyphData ((cairo_t*)handle->ptr, data->b, count);
+
+		}
+
+	}
+
+
 	void lime_cairo_show_page (value handle) {
 
 		cairo_show_page ((cairo_t*)val_data (handle));
@@ -2117,6 +2300,8 @@ namespace lime {
 
 	HL_PRIM void HL_NAME(hl_cairo_show_text) (HL_CFFIPointer* handle, hl_vstring* text) {
 
+		// A null String draws nothing, as on the other native targets
+		if (!text) return;
 		cairo_show_text ((cairo_t*)handle->ptr, (char*)hl_to_utf8 ((const uchar*)text->bytes));
 
 	}
@@ -2138,14 +2323,24 @@ namespace lime {
 
 	void lime_cairo_stroke (value handle) {
 
-		cairo_stroke ((cairo_t*)val_data (handle));
+		cairo_t* cairo = (cairo_t*)val_data (handle);
+		cairo_reference (cairo);
+		System::GCEnterBlocking ();
+		cairo_stroke (cairo);
+		System::GCExitBlocking ();
+		cairo_destroy (cairo);
 
 	}
 
 
 	HL_PRIM void HL_NAME(hl_cairo_stroke) (HL_CFFIPointer* handle) {
 
-		cairo_stroke ((cairo_t*)handle->ptr);
+		cairo_t* cairo = (cairo_t*)handle->ptr;
+		cairo_reference (cairo);
+		System::GCEnterBlocking ();
+		cairo_stroke (cairo);
+		System::GCExitBlocking ();
+		cairo_destroy (cairo);
 
 	}
 
@@ -2164,16 +2359,49 @@ namespace lime {
 	}
 
 
+	value lime_cairo_get_stroke_extents (value handle) {
+
+		double x1, y1, x2, y2;
+		cairo_stroke_extents ((cairo_t*)val_data (handle), &x1, &y1, &x2, &y2);
+		Rectangle rect = Rectangle (x1, y1, x2 - x1, y2 - y1);
+		return rect.Value ();
+
+	}
+
+
+	HL_PRIM Rectangle* HL_NAME(hl_cairo_get_stroke_extents) (HL_CFFIPointer* handle, Rectangle* out) {
+
+		double x1, y1, x2, y2;
+		cairo_stroke_extents ((cairo_t*)handle->ptr, &x1, &y1, &x2, &y2);
+		out->x = x1;
+		out->y = y1;
+		out->width = x2 - x1;
+		out->height = y2 - y1;
+		return out;
+
+	}
+
+
 	void lime_cairo_stroke_preserve (value handle) {
 
-		cairo_stroke_preserve ((cairo_t*)val_data (handle));
+		cairo_t* cairo = (cairo_t*)val_data (handle);
+		cairo_reference (cairo);
+		System::GCEnterBlocking ();
+		cairo_stroke_preserve (cairo);
+		System::GCExitBlocking ();
+		cairo_destroy (cairo);
 
 	}
 
 
 	HL_PRIM void HL_NAME(hl_cairo_stroke_preserve) (HL_CFFIPointer* handle) {
 
-		cairo_stroke_preserve ((cairo_t*)handle->ptr);
+		cairo_t* cairo = (cairo_t*)handle->ptr;
+		cairo_reference (cairo);
+		System::GCEnterBlocking ();
+		cairo_stroke_preserve (cairo);
+		System::GCExitBlocking ();
+		cairo_destroy (cairo);
 
 	}
 
@@ -2206,12 +2434,10 @@ namespace lime {
 	}
 
 
-	void lime_cairo_transform (value handle, value matrix) {
-
-		Matrix3 mat3 = Matrix3 (matrix);
+	void lime_cairo_transform (value handle, double a, double b, double c, double d, double tx, double ty) {
 
 		cairo_matrix_t cm;
-		cairo_matrix_init (&cm, mat3.a, mat3.b, mat3.c, mat3.d, mat3.tx, mat3.ty);
+		cairo_matrix_init (&cm, a, b, c, d, tx, ty);
 
 		cairo_transform ((cairo_t*)val_data (handle), &cm);
 
@@ -2281,6 +2507,7 @@ namespace lime {
 	DEFINE_PRIME6v (lime_cairo_arc_negative);
 	DEFINE_PRIME1v (lime_cairo_clip);
 	DEFINE_PRIME5v (lime_cairo_clip_extents);
+	DEFINE_PRIME1 (lime_cairo_get_clip_extents);
 	DEFINE_PRIME1v (lime_cairo_clip_preserve);
 	DEFINE_PRIME1v (lime_cairo_close_path);
 	DEFINE_PRIME1v (lime_cairo_copy_page);
@@ -2288,6 +2515,7 @@ namespace lime {
 	DEFINE_PRIME7v (lime_cairo_curve_to);
 	DEFINE_PRIME1v (lime_cairo_fill);
 	DEFINE_PRIME5v (lime_cairo_fill_extents);
+	DEFINE_PRIME1 (lime_cairo_get_fill_extents);
 	DEFINE_PRIME1v (lime_cairo_fill_preserve);
 	DEFINE_PRIME2 (lime_cairo_ft_font_face_create);
 	DEFINE_PRIME1 (lime_cairo_font_face_status);
@@ -2301,7 +2529,7 @@ namespace lime {
 	DEFINE_PRIME2v (lime_cairo_font_options_set_hint_style);
 	DEFINE_PRIME2v (lime_cairo_font_options_set_hint_metrics);
 	DEFINE_PRIME1 (lime_cairo_get_antialias);
-	DEFINE_PRIME1 (lime_cairo_get_current_point);
+	DEFINE_PRIME2v (lime_cairo_get_current_point);
 	DEFINE_PRIME1 (lime_cairo_get_dash);
 	DEFINE_PRIME1 (lime_cairo_get_dash_count);
 	DEFINE_PRIME1 (lime_cairo_get_fill_rule);
@@ -2311,7 +2539,7 @@ namespace lime {
 	DEFINE_PRIME1 (lime_cairo_get_line_cap);
 	DEFINE_PRIME1 (lime_cairo_get_line_join);
 	DEFINE_PRIME1 (lime_cairo_get_line_width);
-	DEFINE_PRIME1 (lime_cairo_get_matrix);
+	DEFINE_PRIME2v (lime_cairo_get_matrix);
 	DEFINE_PRIME1 (lime_cairo_get_miter_limit);
 	DEFINE_PRIME1 (lime_cairo_get_operator);
 	DEFINE_PRIME1 (lime_cairo_get_source);
@@ -2346,10 +2574,10 @@ namespace lime {
 	DEFINE_PRIME1 (lime_cairo_pattern_get_color_stop_count);
 	DEFINE_PRIME1 (lime_cairo_pattern_get_extend);
 	DEFINE_PRIME1 (lime_cairo_pattern_get_filter);
-	DEFINE_PRIME1 (lime_cairo_pattern_get_matrix);
+	DEFINE_PRIME2v (lime_cairo_pattern_get_matrix);
 	DEFINE_PRIME2v (lime_cairo_pattern_set_extend);
 	DEFINE_PRIME2v (lime_cairo_pattern_set_filter);
-	DEFINE_PRIME2v (lime_cairo_pattern_set_matrix);
+	DEFINE_PRIME7v (lime_cairo_pattern_set_matrix);
 	DEFINE_PRIME1 (lime_cairo_pop_group);
 	DEFINE_PRIME1v (lime_cairo_pop_group_to_source);
 	DEFINE_PRIME1v (lime_cairo_push_group);
@@ -2381,29 +2609,34 @@ namespace lime {
 	DEFINE_PRIME5v (lime_cairo_set_source_rgba);
 	DEFINE_PRIME4v (lime_cairo_set_source_surface);
 	DEFINE_PRIME2v (lime_cairo_set_tolerance);
+	DEFINE_PRIME3v (lime_cairo_show_glyph_data);
 	DEFINE_PRIME2v (lime_cairo_show_glyphs);
 	DEFINE_PRIME1v (lime_cairo_show_page);
 	DEFINE_PRIME2v (lime_cairo_show_text);
 	DEFINE_PRIME1 (lime_cairo_status);
 	DEFINE_PRIME1v (lime_cairo_stroke);
 	DEFINE_PRIME5v (lime_cairo_stroke_extents);
+	DEFINE_PRIME1 (lime_cairo_get_stroke_extents);
 	DEFINE_PRIME1v (lime_cairo_stroke_preserve);
 	DEFINE_PRIME1v (lime_cairo_surface_flush);
 	DEFINE_PRIME2v (lime_cairo_text_path);
-	DEFINE_PRIME2v (lime_cairo_transform);
+	DEFINE_PRIME7v (lime_cairo_transform);
 	DEFINE_PRIME3v (lime_cairo_translate);
 	DEFINE_PRIME0 (lime_cairo_version);
 	DEFINE_PRIME0 (lime_cairo_version_string);
 
 
+	#define _TBYTES _OBJ (_I32 _BYTES)
 	#define _TCFFIPOINTER _DYN
 	#define _TMATRIX3 _OBJ (_F64 _F64 _F64 _F64 _F64 _F64)
+	#define _TRECTANGLE _OBJ (_F64 _F64 _F64 _F64)
 	#define _TVECTOR2 _OBJ (_F64 _F64)
 
 	DEFINE_HL_PRIM (_VOID, hl_cairo_arc, _TCFFIPOINTER _F64 _F64 _F64 _F64 _F64);
 	DEFINE_HL_PRIM (_VOID, hl_cairo_arc_negative, _TCFFIPOINTER _F64 _F64 _F64 _F64 _F64);
 	DEFINE_HL_PRIM (_VOID, hl_cairo_clip, _TCFFIPOINTER);
 	DEFINE_HL_PRIM (_VOID, hl_cairo_clip_extents, _TCFFIPOINTER _F64 _F64 _F64 _F64);
+	DEFINE_HL_PRIM (_TRECTANGLE, hl_cairo_get_clip_extents, _TCFFIPOINTER _TRECTANGLE);
 	DEFINE_HL_PRIM (_VOID, hl_cairo_clip_preserve, _TCFFIPOINTER);
 	DEFINE_HL_PRIM (_VOID, hl_cairo_close_path, _TCFFIPOINTER);
 	DEFINE_HL_PRIM (_VOID, hl_cairo_copy_page, _TCFFIPOINTER);
@@ -2411,6 +2644,7 @@ namespace lime {
 	DEFINE_HL_PRIM (_VOID, hl_cairo_curve_to, _TCFFIPOINTER _F64 _F64 _F64 _F64 _F64 _F64);
 	DEFINE_HL_PRIM (_VOID, hl_cairo_fill, _TCFFIPOINTER);
 	DEFINE_HL_PRIM (_VOID, hl_cairo_fill_extents, _TCFFIPOINTER _F64 _F64 _F64 _F64);
+	DEFINE_HL_PRIM (_TRECTANGLE, hl_cairo_get_fill_extents, _TCFFIPOINTER _TRECTANGLE);
 	DEFINE_HL_PRIM (_VOID, hl_cairo_fill_preserve, _TCFFIPOINTER);
 	DEFINE_HL_PRIM (_TCFFIPOINTER, hl_cairo_ft_font_face_create, _TCFFIPOINTER _I32);
 	DEFINE_HL_PRIM (_I32, hl_cairo_font_face_status, _TCFFIPOINTER);
@@ -2503,12 +2737,14 @@ namespace lime {
 	DEFINE_HL_PRIM (_VOID, hl_cairo_set_source_rgba, _TCFFIPOINTER _F64 _F64 _F64 _F64);
 	DEFINE_HL_PRIM (_VOID, hl_cairo_set_source_surface, _TCFFIPOINTER _TCFFIPOINTER _F64 _F64);
 	DEFINE_HL_PRIM (_VOID, hl_cairo_set_tolerance, _TCFFIPOINTER _F64);
+	DEFINE_HL_PRIM (_VOID, hl_cairo_show_glyph_data, _TCFFIPOINTER _TBYTES _I32);
 	DEFINE_HL_PRIM (_VOID, hl_cairo_show_glyphs, _TCFFIPOINTER _ARR);
 	DEFINE_HL_PRIM (_VOID, hl_cairo_show_page, _TCFFIPOINTER);
 	DEFINE_HL_PRIM (_VOID, hl_cairo_show_text, _TCFFIPOINTER _STRING);
 	DEFINE_HL_PRIM (_I32, hl_cairo_status, _TCFFIPOINTER);
 	DEFINE_HL_PRIM (_VOID, hl_cairo_stroke, _TCFFIPOINTER);
 	DEFINE_HL_PRIM (_VOID, hl_cairo_stroke_extents, _TCFFIPOINTER _F64 _F64 _F64 _F64);
+	DEFINE_HL_PRIM (_TRECTANGLE, hl_cairo_get_stroke_extents, _TCFFIPOINTER _TRECTANGLE);
 	DEFINE_HL_PRIM (_VOID, hl_cairo_stroke_preserve, _TCFFIPOINTER);
 	DEFINE_HL_PRIM (_VOID, hl_cairo_surface_flush, _TCFFIPOINTER);
 	DEFINE_HL_PRIM (_VOID, hl_cairo_text_path, _TCFFIPOINTER _STRING);

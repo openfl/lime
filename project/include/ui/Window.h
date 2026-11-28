@@ -36,6 +36,11 @@ namespace lime {
 			virtual void ContextMakeCurrent () = 0;
 			virtual void ContextUnlock () = 0;
 			virtual void Focus () = 0;
+			// Stacking and dragging, where the platform's own window can do them. StartMoveResize moves the window
+			// for edges 0, or resizes it by the edges (1 top, 2 bottom, 4 left, 8 right) while the button is held.
+			virtual bool OrderRelative (Window* other, bool above) = 0;
+			virtual bool OrderToBack () = 0;
+			virtual bool StartMoveResize (int edges) = 0;
 			virtual void* GetContext () = 0;
 			virtual const char* GetContextType () = 0;
 			// virtual Cursor GetCursor () = 0;
@@ -44,7 +49,9 @@ namespace lime {
 			virtual int GetHeight () = 0;
 			virtual uint32_t GetID () = 0;
 			virtual bool Flash (int mode) { return false; }
+			virtual bool GetFullscreen () { return false; }
 			virtual bool GetKeyboardGrab () { return false; }
+			virtual bool GetMinimizeOnFocusLoss () { return true; }
 			virtual bool GetMouseLock () = 0;
 			virtual bool GetMouseRect (int* x, int* y, int* width, int* height) { return false; }
 			virtual int GetNativeHandle (void** handle, void** display) { return 0; }
@@ -70,6 +77,7 @@ namespace lime {
 			virtual bool SetMenu (const unsigned char* data, int length) { return false; }
 			virtual bool SetMinimized (bool minimized) = 0;
 			virtual void SetKeyboardGrab (bool keyboardGrab) {}
+			virtual void SetMinimizeOnFocusLoss (bool value) {}
 			virtual void SetMouseLock (bool mouseLock) = 0;
 			virtual void SetMouseRect (int x, int y, int width, int height) {}
 			virtual void SetOpacity (float opacity) = 0;
@@ -93,6 +101,8 @@ namespace lime {
 			}
 			virtual bool GetVulkanInstanceExtensions (unsigned int* count, const char** names) { return false; }
 			virtual void* GetVulkanInstanceProcAddr () { return 0; }
+			// Counts a Vulkan present as a swap, so vsync paces the frame loop as it does swaps
+			virtual void NoteVulkanPresent () {}
 
 			Application* currentApplication;
 			int flags;
@@ -101,7 +111,7 @@ namespace lime {
 	};
 
 
-	Window* CreateWindow (Application* application, int width, int height, int flags, const char* title);
+	Window* CreateWindow (Application* application, int width, int height, int flags, const char* title, int x = 0, int y = 0, int display = 0);
 	const char* GetWindowCreationError ();
 	void AlertWindow (const char* message, const char* title);
 	void SetWindowAppearance (Window* window, int appearance);
@@ -129,7 +139,9 @@ namespace lime {
 		WINDOW_FLAG_COLOR_DEPTH_32_BIT = 0x00010000,
 		WINDOW_FLAG_VULKAN = 0x00020000,
 		WINDOW_FLAG_TRANSPARENT = 0x00040000,
-		WINDOW_FLAG_SOFTWARE_OPENGL = 0x00080000
+		WINDOW_FLAG_SOFTWARE_OPENGL = 0x00080000,
+		WINDOW_FLAG_POSITION_X = 0x00100000,
+		WINDOW_FLAG_POSITION_Y = 0x00200000
 
 	};
 

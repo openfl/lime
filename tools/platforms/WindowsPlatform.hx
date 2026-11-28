@@ -21,6 +21,7 @@ import lime.tools.Icon;
 import lime.tools.IconHelper;
 import lime.tools.JavaHelper;
 import lime.tools.ModuleHelper;
+import lime.tools.NativeSourcesHelper;
 import lime.tools.NekoHelper;
 import lime.tools.NodeJSHelper;
 import lime.tools.Orientation;
@@ -123,7 +124,8 @@ class WindowsPlatform extends PlatformTarget
 
 		for (i in 1...project.windows.length)
 		{
-			defaults.windows.push(defaults.window);
+			// A copy each, as merge() copies each project window into its own default
+			defaults.windows.push(hxp.ObjectTools.copyFields(defaults.window, {}));
 		}
 
 		defaults.merge(project);
@@ -244,7 +246,7 @@ class WindowsPlatform extends PlatformTarget
 
 		var icons = project.icons;
 
-		if (icons.length == 0)
+		if (!IconHelper.hasIcons(icons))
 		{
 			icons = [new Icon(System.findTemplate(project.templatePaths, "default/icon.svg"))];
 		}
@@ -1036,6 +1038,7 @@ class WindowsPlatform extends PlatformTarget
 				{
 					context.ndlls[i].path = NDLL.getLibraryPath(ndll, (targetType == "winrt" ? "WinRT" : "Windows") + (is64 ? "64" : ""), "lib", suffix,
 						project.debug);
+					NativeSourcesHelper.checkLibrary(StringTools.replace(context.ndlls[i].path, "${LIBEXT}", ".lib"));
 				}
 			}
 		}
@@ -1061,7 +1064,7 @@ class WindowsPlatform extends PlatformTarget
 		else if (targetType == "cpp")
 		{
 			var windowsIcons = project.icons;
-			if (windowsIcons.length == 0)
+			if (!IconHelper.hasIcons(windowsIcons))
 			{
 				windowsIcons = [new Icon(System.findTemplate(project.templatePaths, "default/icon.svg"))];
 			}
@@ -1070,6 +1073,15 @@ class WindowsPlatform extends PlatformTarget
 			// hxcpp only recompiles ApplicationMain.rc when its text changes, so the
 			// icon's hash goes into it; otherwise a new icon keeps the old resource.
 			context.ICON_HASH = context.HAS_ICON ? haxe.crypto.Md5.make(File.getBytes(iconPath)).toHex() : "";
+			// For the resource file's quoted strings, where a backslash starts an escape and a quote is doubled
+			var rcString = function(value:Dynamic):String
+			{
+				return StringTools.replace(StringTools.replace(Std.string(value), "\\", "\\\\"), "\"", "\"\"");
+			};
+			context.RC_COMPANY = rcString(context.APP_COMPANY);
+			context.RC_DESCRIPTION = rcString(context.APP_DESCRIPTION);
+			context.RC_FILE = rcString(context.APP_FILE);
+			context.RC_PACKAGE = rcString(context.APP_PACKAGE);
 			ProjectHelper.recursiveSmartCopyTemplate(project, "windows/resource", targetDirectory + "/obj", context);
 
 			if (project.targetFlags.exists("static"))
@@ -1085,7 +1097,7 @@ class WindowsPlatform extends PlatformTarget
 
 		}*/
 
-		copyProjectAssets(applicationDirectory);
+		copyProjectAssets(applicationDirectory, null, context);
 	}
 
 	private function updateUWP():Void
@@ -1178,7 +1190,7 @@ class WindowsPlatform extends PlatformTarget
 
 		var icons = project.icons;
 
-		if (icons.length == 0)
+		if (!IconHelper.hasIcons(icons))
 		{
 			icons = [new Icon(System.findTemplate(project.templatePaths, "default/icon.svg"))];
 		}

@@ -28,12 +28,12 @@ import ::APP_MAIN::;
 
 		#if !munit
 		var app = new ::APP_MAIN::();
-		app.meta.set("build", "::meta.buildNumber::");
-		app.meta.set("company", "::meta.company::");
-		app.meta.set("file", "::APP_FILE::");
-		app.meta.set("name", "::meta.title::");
-		app.meta.set("packageName", "::meta.packageName::");
-		app.meta.set("version", "::meta.version::");
+		app.meta.set("build", $$toJSON(::meta.buildNumber::));
+		app.meta.set("company", $$toJSON(::meta.company::));
+		app.meta.set("file", $$toJSON(::APP_FILE::));
+		app.meta.set("name", $$toJSON(::meta.title::));
+		app.meta.set("packageName", $$toJSON(::meta.packageName::));
+		app.meta.set("version", $$toJSON(::meta.version::));
 
 		#if !flash
 		::foreach windows::
@@ -42,7 +42,7 @@ import ::APP_MAIN::;
 				allowHighDPI: ::allowHighDPI::,
 				alwaysOnTop: ::alwaysOnTop::,
 				borderless: ::borderless::,
-				// display: ::display::,
+				display: ::display::,
 				element: null,
 				frameRate: ::fps::,
 				#if !web fullscreen: ::fullscreen::, #end
@@ -52,7 +52,7 @@ import ::APP_MAIN::;
 				minimized: ::minimized::,
 				parameters: ::parameters::,
 				resizable: ::resizable::,
-				title: "::title::",
+				title: $$toJSON(::title::),
 				transparent: ::transparent::,
 				width: ::width::,
 				x: ::x::,
@@ -66,6 +66,7 @@ import ::APP_MAIN::;
 				colorDepth: ::colorDepth::,
 				depth: ::depthBuffer::,
 				hardware: ::hardware::,
+				#if html5 preserveDrawingBuffer: ::if preserveDrawingBuffer::true::else::false::end::, #end
 				stencil: ::stencilBuffer::,
 				type: null,
 				vsync: ::vsync::,
@@ -129,7 +130,7 @@ import ::APP_MAIN::;
 		#end
 		::end::
 		#elseif air
-		app.window.title = "::meta.title::";
+		app.window.title = $$toJSON(::meta.title::);
 		#else
 		app.window.context.attributes.background = ::WIN_BACKGROUND::;
 		app.window.frameRate = ::WIN_FPS::;

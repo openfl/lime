@@ -79,8 +79,7 @@ abstract BGRA(#if (flash && !lime_doc_gen) Int #else UInt #end) from Int to Int 
 		}
 		else if (a != 0xFF)
 		{
-			a16 = RGBA.__alpha16[a];
-			set((b * a16) >> 16, (g * a16) >> 16, (r * a16) >> 16, a);
+			set(RGBA.__multiply(b, a), RGBA.__multiply(g, a), RGBA.__multiply(r, a), a);
 		}
 	}
 
@@ -130,8 +129,7 @@ abstract BGRA(#if (flash && !lime_doc_gen) Int #else UInt #end) from Int to Int 
 	{
 		if (a != 0 && a != 0xFF)
 		{
-			unmult = 255.0 / a;
-			set(RGBA.__clamp[Math.floor(b * unmult)], RGBA.__clamp[Math.floor(g * unmult)], RGBA.__clamp[Math.floor(r * unmult)], a);
+			set(RGBA.__unmultiply(b, a), RGBA.__unmultiply(g, a), RGBA.__unmultiply(r, a), a);
 		}
 	}
 
@@ -144,30 +142,33 @@ abstract BGRA(#if (flash && !lime_doc_gen) Int #else UInt #end) from Int to Int 
 	**/
 	public inline function writeUInt8(data:UInt8Array, offset:Int, format:PixelFormat = RGBA32, premultiplied:Bool = false):Void
 	{
+		// A copy, so that writing leaves the color as it was
+		var color:BGRA = this;
+
 		if (premultiplied)
 		{
-			multiplyAlpha();
+			color.multiplyAlpha();
 		}
 
 		switch (format)
 		{
 			case BGRA32:
-				data[offset] = b;
-				data[offset + 1] = g;
-				data[offset + 2] = r;
-				data[offset + 3] = a;
+				data[offset] = color.b;
+				data[offset + 1] = color.g;
+				data[offset + 2] = color.r;
+				data[offset + 3] = color.a;
 
 			case RGBA32:
-				data[offset] = r;
-				data[offset + 1] = g;
-				data[offset + 2] = b;
-				data[offset + 3] = a;
+				data[offset] = color.r;
+				data[offset + 1] = color.g;
+				data[offset + 2] = color.b;
+				data[offset + 3] = color.a;
 
 			case ARGB32:
-				data[offset] = a;
-				data[offset + 1] = r;
-				data[offset + 2] = g;
-				data[offset + 3] = b;
+				data[offset] = color.a;
+				data[offset + 1] = color.r;
+				data[offset + 2] = color.g;
+				data[offset + 3] = color.b;
 		}
 	}
 

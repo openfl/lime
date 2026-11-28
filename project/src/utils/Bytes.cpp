@@ -1,7 +1,5 @@
-#include <system/Mutex.h>
 #include <system/System.h>
 #include <utils/Bytes.h>
-#include <map>
 
 
 namespace lime {
@@ -11,9 +9,13 @@ namespace lime {
 	static int id_length;
 	static bool init = false;
 	static bool useBuffer = false;
-	static std::map<Bytes*, bool> hadValue;
-	static std::map<Bytes*, bool> usingValue;
-	static Mutex mutex;
+
+	// Set as the type of a Bytes whose memory is a Haxe value's, borrowed by
+	// Set (value), so that it isn't freed or reallocated here. A Bytes made in
+	// C++ has no type of its own, and HashLink's own Bytes keep theirs. Each
+	// Bytes keeps this itself, so making and destroying one takes no lock.
+	static char borrowedMarker;
+	#define BORROWED_TYPE ((hl_type*)&borrowedMarker)
 
 
 	inline void _initializeBytes () {
@@ -25,7 +27,10 @@ namespace lime {
 
 			buffer _buffer = alloc_buffer_len (1);
 
-			if (buffer_data (_buffer)) {
+			// Neko's buffers are strings one byte longer than asked for, ending in
+			// a zero that Haxe's Bytes would then compare and copy, so Value () only
+			// uses buffers that are the length given, and strings otherwise
+			if (buffer_data (_buffer) && buffer_size (_buffer) == 1) {
 
 				useBuffer = true;
 
@@ -44,6 +49,7 @@ namespace lime {
 		_initializeBytes ();
 		#endif
 
+		t = 0;
 		b = 0;
 		length = 0;
 
@@ -54,6 +60,7 @@ namespace lime {
 
 		_initializeBytes ();
 
+		t = 0;
 		b = 0;
 		length = 0;
 
@@ -64,40 +71,24 @@ namespace lime {
 
 	Bytes::~Bytes () {
 
-		mutex.Lock ();
-
-		bool usingHaxeValue = (usingValue.find (this) != usingValue.end ());
-
-		if (usingHaxeValue) {
-
-			usingValue.erase (this);
-
-		}
-
-		if (!usingHaxeValue && b) {
+		if (t != BORROWED_TYPE && b) {
 
 			free (b);
 
 		}
 
-		if (hadValue.find (this) != hadValue.end ()) {
-
-			hadValue.erase (this);
-
-		}
-
-		mutex.Unlock ();
-
 	}
 
 
-	void Bytes::ReadFile (const char* path) {
+	bool Bytes::ReadFile (const char* path) {
+
+		if (!path) return false;
 
 		FILE_HANDLE *file = lime::fopen (path, "rb");
 
 		if (!file) {
 
-			return;
+			return false;
 
 		}
 
@@ -105,17 +96,16 @@ namespace lime {
 		int size = lime::ftell (file);
 		lime::fseek (file, 0, SEEK_SET);
 
+		bool read = (size >= 0);
+
 		if (size > 0) {
 
-			if (TryResize (size)) {
-
-				lime::fread (b, 1, size, file);
-
-			}
+			read = TryResize (size) && lime::fread (b, 1, size, file) == (size_t)size;
 
 		}
 
 		lime::fclose (file);
+		return read;
 
 	}
 
@@ -127,6 +117,28 @@ namespace lime {
 			unsigned char* data = 0;
 			unsigned char* oldB = b;
 			bool freeOldB = false;
+
+			if (size > 0 && b) {
+
+				if (t != BORROWED_TYPE) {
+
+					// Memory of its own is resized where it is when it can be, so
+					// trimming it, or growing it in place, copies nothing
+					data = (unsigned char*)realloc (b, sizeof (char) * size);
+
+					if (!data) {
+
+						return false;
+
+					}
+
+					b = data;
+					length = size;
+					return true;
+
+				}
+
+			}
 
 			if (size > 0) {
 
@@ -146,11 +158,9 @@ namespace lime {
 
 			}
 
-			mutex.Lock ();
+			if (t == BORROWED_TYPE) {
 
-			if (usingValue.find (this) != usingValue.end ()) {
-
-				usingValue.erase (this);
+				t = 0;
 
 			} else if (oldB) {
 
@@ -160,8 +170,6 @@ namespace lime {
 
 			b = data;
 			length = size > 0 ? size : 0;
-
-			mutex.Unlock ();
 
 			if (freeOldB) {
 
@@ -191,7 +199,6 @@ namespace lime {
 
 	    if (!isNull) {
 
-	        //here we can extract the values before calling our mutex to avoid potential deadlock or contention
 	        value lengthVal = val_field(bytes, id_length);
 	        value bVal = val_field(bytes, id_b);
 
@@ -207,42 +214,21 @@ namespace lime {
 	        }
 	    }
 
-	    //and now it should be save to lock
-	    mutex.Lock();
+	    if (b && t != BORROWED_TYPE) {
 
-	    bool usingHaxeValue = (usingValue.find(this) != usingValue.end());
-
-	    if (b) {
-
-	        if (usingHaxeValue) {
-
-	            usingValue.erase(this);
-	            usingHaxeValue = false;
-
-	        } else {
-
-	            free(b);
-
-	        }
-
-	    } else if (usingHaxeValue) {
-
-	        usingValue.erase(this);
-	        usingHaxeValue = false;
+	        free(b);
 
 	    }
 
 	    if (isNull) {
+	        t = 0;
 	        length = 0;
 	        b = 0;
 	    } else {
-	        hadValue[this] = true;
-	        usingValue[this] = true;
+	        t = BORROWED_TYPE;
 	        length = newLength;
 	        b = newB;
 	    }
-
-	    mutex.Unlock();
 	}
 
 
@@ -310,10 +296,6 @@ namespace lime {
 				}
 
 			}
-
-			mutex.Lock ();
-			hadValue[this] = true;
-			mutex.Unlock ();
 
 			return bytes;
 

@@ -141,22 +141,29 @@ import haxe.ds.ObjectMap;
 	}
 
 	/**
-				Releases an active object back into the pool.
+				Releases an active object back into the pool. An object that isn't an active
+				member of the pool, such as one already released, is ignored, and debug builds
+				report it as an error.
 
 				@param object The object to release.
 	**/
 	public function release(object:T):Void
 	{
-		#if debug
+		// Only an active member of the pool can come back to it
 		if (object == null || !__pool.exists(object))
 		{
+			#if debug
 			Log.error("Object is not a member of the pool");
+			#end
+			return;
 		}
 		else if (!__pool.get(object))
 		{
+			#if debug
 			Log.error("Object has already been released");
+			#end
+			return;
 		}
-		#end
 
 		activeObjects--;
 
@@ -205,9 +212,7 @@ import haxe.ds.ObjectMap;
 
 	@:noCompletion private inline function __addInactive(object:T):Void
 	{
-		#if debug
 		__pool.set(object, false);
-		#end
 
 		if (__inactiveObject0 == null)
 		{
@@ -254,9 +259,7 @@ import haxe.ds.ObjectMap;
 			}
 		}
 
-		#if debug
 		__pool.set(object, true);
-		#end
 
 		inactiveObjects--;
 		activeObjects++;

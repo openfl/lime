@@ -3,6 +3,7 @@ package lime.graphics.cairo;
 #if (!lime_doc_gen || lime_cairo)
 import lime._internal.backend.native.NativeCFFI;
 import lime.math.Matrix3;
+import lime.math.Rectangle;
 import lime.math.Vector2;
 import lime.system.CFFI;
 import lime.system.CFFIPointer;
@@ -73,6 +74,7 @@ class Cairo
 		#end
 	}
 
+	@:deprecated("clipExtents() can't give its results, as Haxe passes numbers by value. Use getClipExtents()")
 	public function clipExtents(x1:Float, y1:Float, x2:Float, y2:Float):Void
 	{
 		#if (lime_cffi && lime_cairo && !macro)
@@ -115,6 +117,7 @@ class Cairo
 		#end
 	}
 
+	@:deprecated("fillExtents() can't give its results, as Haxe passes numbers by value. Use getFillExtents()")
 	public function fillExtents(x1:Float, y1:Float, x2:Float, y2:Float):Void
 	{
 		#if (lime_cffi && lime_cairo && !macro)
@@ -129,6 +132,47 @@ class Cairo
 		#end
 	}
 
+	/**
+		The extents of the current clip region, in user space: the smallest rectangle that
+		contains it, as `cairo_clip_extents()` gives it.
+		@return A `Rectangle` from the extents' top left corner (`x1`, `y1`) to their bottom right corner
+		(`x2`, `y2`), or `null` where Cairo isn't available.
+	**/
+	public function getClipExtents():Rectangle
+	{
+		#if (lime_cffi && lime_cairo && !macro)
+		#if hl
+		return NativeCFFI.lime_cairo_get_clip_extents(handle, new Rectangle());
+		#else
+		var rect:Dynamic = NativeCFFI.lime_cairo_get_clip_extents(handle);
+		return new Rectangle(rect.x, rect.y, rect.width, rect.height);
+		#end
+		#else
+		return null;
+		#end
+	}
+
+	/**
+		The extents of the area that `fill()` would cover with the current path and fill rule,
+		in user space, as `cairo_fill_extents()` gives it, ignoring the clip. An empty path
+		gives an empty rectangle at 0, 0.
+		@return A `Rectangle` from the extents' top left corner (`x1`, `y1`) to their bottom right corner
+		(`x2`, `y2`), or `null` where Cairo isn't available.
+	**/
+	public function getFillExtents():Rectangle
+	{
+		#if (lime_cffi && lime_cairo && !macro)
+		#if hl
+		return NativeCFFI.lime_cairo_get_fill_extents(handle, new Rectangle());
+		#else
+		var rect:Dynamic = NativeCFFI.lime_cairo_get_fill_extents(handle);
+		return new Rectangle(rect.x, rect.y, rect.width, rect.height);
+		#end
+		#else
+		return null;
+		#end
+	}
+
 	public function getOperator():CairoOperator
 	{
 		#if (lime_cffi && lime_cairo && !macro)
@@ -136,6 +180,27 @@ class Cairo
 		#end
 
 		return cast 0;
+	}
+
+	/**
+		The extents of the area that `stroke()` would cover with the current path and line
+		settings, in user space, as `cairo_stroke_extents()` gives it, ignoring the clip. An
+		empty path gives an empty rectangle at 0, 0.
+		@return A `Rectangle` from the extents' top left corner (`x1`, `y1`) to their bottom right corner
+		(`x2`, `y2`), or `null` where Cairo isn't available.
+	**/
+	public function getStrokeExtents():Rectangle
+	{
+		#if (lime_cffi && lime_cairo && !macro)
+		#if hl
+		return NativeCFFI.lime_cairo_get_stroke_extents(handle, new Rectangle());
+		#else
+		var rect:Dynamic = NativeCFFI.lime_cairo_get_stroke_extents(handle);
+		return new Rectangle(rect.x, rect.y, rect.width, rect.height);
+		#end
+		#else
+		return null;
+		#end
 	}
 
 	public function identityMatrix():Void
@@ -361,13 +426,23 @@ class Cairo
 	public function showGlyphs(glyphs:Array<CairoGlyph>):Void
 	{
 		#if (lime_cffi && lime_cairo && !macro)
-		#if hl
-		var _glyphs = new hl.NativeArray<CairoGlyph>(glyphs.length);
-		for (i in 0...glyphs.length)
-			_glyphs[i] = glyphs[i];
-		var glyphs = _glyphs;
-		#end
-		NativeCFFI.lime_cairo_show_glyphs(handle, glyphs);
+		// Packed as three doubles a glyph, the index, x and y, so that native code
+		// reads them in a plain loop instead of looking up each glyph's fields
+		var length = glyphs.length;
+		if (length == 0) return;
+
+		var data = haxe.io.Bytes.alloc(length * 24);
+		var glyph:CairoGlyph;
+
+		for (i in 0...length)
+		{
+			glyph = glyphs[i];
+			data.setDouble(i * 24, glyph.index);
+			data.setDouble(i * 24 + 8, glyph.x);
+			data.setDouble(i * 24 + 16, glyph.y);
+		}
+
+		NativeCFFI.lime_cairo_show_glyph_data(handle, data, length);
 		#end
 	}
 
@@ -401,6 +476,7 @@ class Cairo
 		#end
 	}
 
+	@:deprecated("strokeExtents() can't give its results, as Haxe passes numbers by value. Use getStrokeExtents()")
 	public function strokeExtents(x1:Float, y1:Float, x2:Float, y2:Float):Void
 	{
 		#if (lime_cffi && lime_cairo && !macro)
@@ -425,7 +501,11 @@ class Cairo
 	public function transform(matrix:Matrix3):Void
 	{
 		#if (lime_cffi && lime_cairo && !macro)
+		#if hl
 		NativeCFFI.lime_cairo_transform(handle, matrix.toCairoMatrix3());
+		#else
+		NativeCFFI.lime_cairo_transform(handle, matrix.a, matrix.b, matrix.c, matrix.d, matrix.tx, matrix.ty);
+		#end
 		#end
 	}
 
@@ -461,8 +541,10 @@ class Cairo
 		#if hl
 		return NativeCFFI.lime_cairo_get_current_point(handle, new Vector2());
 		#else
-		var vec:Dynamic = NativeCFFI.lime_cairo_get_current_point(handle);
-		return new Vector2(vec.x, vec.y);
+		// Written into bytes of its own, rather than an object of boxed Floats
+		var values = haxe.io.Bytes.alloc(16);
+		NativeCFFI.lime_cairo_get_current_point(handle, values);
+		return new Vector2(values.getDouble(0), values.getDouble(8));
 		#end
 		#end
 
@@ -645,8 +727,10 @@ class Cairo
 		#if hl
 		return NativeCFFI.lime_cairo_get_matrix(handle, new CairoMatrix3());
 		#else
-		var m:Dynamic = NativeCFFI.lime_cairo_get_matrix(handle);
-		return new Matrix3(m.a, m.b, m.c, m.d, m.tx, m.ty);
+		var values = haxe.io.Bytes.alloc(48);
+		NativeCFFI.lime_cairo_get_matrix(handle, values);
+		return new Matrix3(values.getDouble(0), values.getDouble(8), values.getDouble(16), values.getDouble(24), values.getDouble(32),
+			values.getDouble(40));
 		#end
 		#end
 

@@ -4,6 +4,7 @@
 #include <system/System.h>
 #include <utils/Bytes.h>
 #include <string>
+#include <cstring>
 
 
 namespace lime {
@@ -173,44 +174,45 @@ namespace lime {
 	}
 
 
-	value lime_video_decoder_get_frame_info (value handle) {
+	// The last frame's details, in the order VideoDecoder.hx reads them, written into its
+	// buffer rather than an object made for every frame
+	static const int FRAME_INFO_COUNT = 9;
 
-		VideoDecoder* decoder = (VideoDecoder*)val_data (handle);
+	static bool WriteFrameInfo (VideoDecoder* decoder, unsigned char* data, int length) {
 
-		_initializeVideo ();
+		if (!data || length < FRAME_INFO_COUNT * (int)sizeof (double)) return false;
 
-		value info = alloc_empty_object ();
-		alloc_field (info, id_colorMatrix, alloc_int (decoder->frameColorMatrix));
-		alloc_field (info, id_droppedFrames, alloc_int (decoder->droppedFrames));
-		alloc_field (info, id_duration, alloc_float (decoder->frameDuration));
-		alloc_field (info, id_fullRange, alloc_bool (decoder->frameFullRange));
-		alloc_field (info, id_height, alloc_int (decoder->frameHeight));
-		alloc_field (info, id_length, alloc_int (decoder->frameLength));
-		alloc_field (info, id_texture, alloc_int (decoder->frameTexture));
-		alloc_field (info, id_time, alloc_float (decoder->frameTime));
-		alloc_field (info, id_width, alloc_int (decoder->frameWidth));
-		return info;
+		double info[FRAME_INFO_COUNT] = {
+			(double)decoder->frameColorMatrix,
+			(double)decoder->droppedFrames,
+			decoder->frameDuration,
+			decoder->frameFullRange ? 1.0 : 0.0,
+			(double)decoder->frameHeight,
+			(double)decoder->frameLength,
+			(double)decoder->frameTexture,
+			decoder->frameTime,
+			(double)decoder->frameWidth
+		};
+
+		memcpy (data, info, sizeof (info));
+		return true;
 
 	}
 
 
-	HL_PRIM vdynamic* HL_NAME(hl_video_decoder_get_frame_info) (HL_CFFIPointer* handle) {
+	bool lime_video_decoder_read_frame_info (value handle, value buffer) {
+
+		VideoDecoder* decoder = (VideoDecoder*)val_data (handle);
+		Bytes bytes (buffer);
+		return WriteFrameInfo (decoder, bytes.b, bytes.length);
+
+	}
+
+
+	HL_PRIM bool HL_NAME(hl_video_decoder_read_frame_info) (HL_CFFIPointer* handle, Bytes* buffer) {
 
 		VideoDecoder* decoder = (VideoDecoder*)handle->ptr;
-
-		_hl_initializeVideo ();
-
-		vdynamic* info = (vdynamic*)hl_alloc_dynobj ();
-		hl_dyn_seti (info, id_colorMatrix, &hlt_i32, decoder->frameColorMatrix);
-		hl_dyn_seti (info, id_droppedFrames, &hlt_i32, decoder->droppedFrames);
-		hl_dyn_setd (info, id_duration, decoder->frameDuration);
-		hl_dyn_seti (info, id_fullRange, &hlt_bool, decoder->frameFullRange);
-		hl_dyn_seti (info, id_height, &hlt_i32, decoder->frameHeight);
-		hl_dyn_seti (info, id_length, &hlt_i32, decoder->frameLength);
-		hl_dyn_seti (info, id_texture, &hlt_i32, decoder->frameTexture);
-		hl_dyn_setd (info, id_time, decoder->frameTime);
-		hl_dyn_seti (info, id_width, &hlt_i32, decoder->frameWidth);
-		return info;
+		return buffer && WriteFrameInfo (decoder, buffer->b, buffer->length);
 
 	}
 
@@ -400,11 +402,11 @@ namespace lime {
 	DEFINE_PRIME1v (lime_video_decoder_close);
 	DEFINE_PRIME0 (lime_video_decoder_create);
 	DEFINE_PRIME1 (lime_video_decoder_get_audio_time);
-	DEFINE_PRIME1 (lime_video_decoder_get_frame_info);
 	DEFINE_PRIME0 (lime_video_decoder_is_supported);
 	DEFINE_PRIME4 (lime_video_decoder_open);
 	DEFINE_PRIME4 (lime_video_decoder_read_audio);
 	DEFINE_PRIME5 (lime_video_decoder_read_frame);
+	DEFINE_PRIME2 (lime_video_decoder_read_frame_info);
 	DEFINE_PRIME3 (lime_video_decoder_seek);
 	DEFINE_PRIME2v (lime_video_decoder_set_drop_late_frames);
 
@@ -415,11 +417,11 @@ namespace lime {
 	DEFINE_HL_PRIM (_VOID, hl_video_decoder_close, _TCFFIPOINTER);
 	DEFINE_HL_PRIM (_TCFFIPOINTER, hl_video_decoder_create, _NO_ARG);
 	DEFINE_HL_PRIM (_F64, hl_video_decoder_get_audio_time, _TCFFIPOINTER);
-	DEFINE_HL_PRIM (_DYN, hl_video_decoder_get_frame_info, _TCFFIPOINTER);
 	DEFINE_HL_PRIM (_BOOL, hl_video_decoder_is_supported, _NO_ARG);
 	DEFINE_HL_PRIM (_DYN, hl_video_decoder_open, _TCFFIPOINTER _STRING _BOOL _I32);
 	DEFINE_HL_PRIM (_I32, hl_video_decoder_read_audio, _TCFFIPOINTER _TBYTES _I32 _I32);
 	DEFINE_HL_PRIM (_I32, hl_video_decoder_read_frame, _TCFFIPOINTER _TBYTES _I32 _I32 _F64);
+	DEFINE_HL_PRIM (_BOOL, hl_video_decoder_read_frame_info, _TCFFIPOINTER _TBYTES);
 	DEFINE_HL_PRIM (_BOOL, hl_video_decoder_seek, _TCFFIPOINTER _F64 _BOOL);
 	DEFINE_HL_PRIM (_VOID, hl_video_decoder_set_drop_late_frames, _TCFFIPOINTER _BOOL);
 

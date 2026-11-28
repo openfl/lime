@@ -256,13 +256,27 @@ class Font
 	}
 
 	/**
-	 * Decomposes the font into outline data.
+	 * Decomposes the font into outline data, with the glyph outlines auto-hinted.
 	 *
-	 * @param forceAutoHint When `true`, force auto-hinting for outline decomposition.
-	 * When `false`, preserve the unhinted glyph outlines.
 	 * @return An instance of `NativeFontData` that contains decomposed font outline information.
 	 */
-	public function decompose(forceAutoHint:Bool = true):NativeFontData
+	public function decompose():NativeFontData
+	{
+		return __decompose(true);
+	}
+
+	/**
+	 * Decomposes the font into outline data, keeping the glyph outlines unhinted, as
+	 * the font draws them.
+	 *
+	 * @return An instance of `NativeFontData` that contains decomposed font outline information.
+	 */
+	public function decomposeUnhinted():NativeFontData
+	{
+		return __decompose(false);
+	}
+
+	@:noCompletion private function __decompose(forceAutoHint:Bool):NativeFontData
 	{
 		#if (lime_cffi && !macro)
 		if (src == null) throw "Uninitialized font handle.";
@@ -271,7 +285,7 @@ class Font
 		#if hl
 		if (data != null)
 		{
-			data.family_name = @:privateAccess String.fromUCS2(data.family_name);
+			data.family_name = data.family_name != null ? @:privateAccess String.fromUTF8(data.family_name) : null;
 			data.style_name = @:privateAccess String.fromUTF8(data.style_name);
 		}
 		#end
@@ -430,15 +444,16 @@ class Font
 	}
 
 	/**
-	 * Renders a specific glyph to an image.
+	 * Renders a specific glyph to an image, at 96 DPI. `renderGlyphWithLoadFlags()`
+	 * renders at another DPI.
 	 *
 	 * @param glyph The glyph to render.
 	 * @param fontSize The size to render the glyph at.
 	 * @return An `Image` instance representing the rendered glyph.
 	 */
-	public function renderGlyph(glyph:Glyph, fontSize:Int, dpi:Int = 96):Image
+	public function renderGlyph(glyph:Glyph, fontSize:Int):Image
 	{
-		return renderGlyphWithLoadFlags(glyph, fontSize, dpi);
+		return renderGlyphWithLoadFlags(glyph, fontSize, 96);
 	}
 
 	/**
@@ -783,11 +798,9 @@ class Font
 		#if (js && html5)
 		this.name = name;
 
-		var userAgent = Browser.navigator.userAgent.toLowerCase();
-		var isSafari = (userAgent.indexOf(" safari/") >= 0 && userAgent.indexOf(" chrome/") < 0);
-		var isUIWebView = ~/(iPhone|iPod|iPad).*AppleWebKit(?!.*Version)/i.match(userAgent);
-
-		if (!isSafari && !isUIWebView && untyped (Browser.document).fonts && untyped (Browser.document).fonts.load)
+		// The CSS Font Loading API, which Safari has had since version 10. Without it, the font is
+		// taken as loaded once text in it measures differently from the fallback fonts.
+		if (untyped (Browser.document).fonts && untyped (Browser.document).fonts.load)
 		{
 			untyped (Browser.document).fonts.load("1em '" + name + "'").then(function(_)
 			{

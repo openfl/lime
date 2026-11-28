@@ -13,6 +13,12 @@ package lime.net.curl;
 	var RANGE = 10007;
 	var INFILE = 10009;
 	var READDATA = 10009;
+	/**
+		Gives the handle a buffer that libcurl describes each failed transfer
+		in, read with `CURL.getErrorBuffer()`. Set it to `true` to turn it on,
+		and to `false` or `null` to turn it off. Any other value turns it on
+		too: libcurl writes to the handle's own buffer, never to the value.
+	**/
 	var ERRORBUFFER = 10010;
 	var WRITEFUNCTION = 20011;
 	var READFUNCTION = 20012;
@@ -25,7 +31,7 @@ package lime.net.curl;
 	var LOW_SPEED_LIMIT = 19;
 	var LOW_SPEED_TIME = 20;
 	var RESUME_FROM = 21;
-	var COOKIE = 22;
+	var COOKIE = 10022;
 	var HTTPHEADER = 10023;
 	var RTSPHEADER = 10023;
 	var HTTPPOST = 10024;
@@ -126,7 +132,7 @@ package lime.net.curl;
 	var IOCTLDATA = 10131;
 	var FTP_ACCOUNT = 10134;
 	var COOKIELIST = 10135;
-	var IGNORE_CONTENT_LENGTH = 10136;
+	var IGNORE_CONTENT_LENGTH = 136;
 	var FTP_SKIP_PASV_IP = 137;
 	var FTP_FILEMETHOD = 138;
 	var LOCALPORT = 139;
@@ -233,7 +239,7 @@ package lime.net.curl;
 	var STREAM_DEPENDS = 10240;
 	var STREAM_DEPENDS_E = 10241;
 	var TFTP_NO_OPTIONS = 242;
-	var CONNECT_TO = 243;
+	var CONNECT_TO = 10243;
 	var TCP_FASTOPEN = 244;
 	var KEEP_SENDING_ON_ERROR = 245;
 	var PROXY_CAINFO = 10246;

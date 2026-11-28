@@ -45,7 +45,11 @@ abstract HBFont(CFFIPointer) from CFFIPointer to CFFIPointer
 	public function getGlyphAdvanceForDirection(glyph:Int, direction:HBDirection):Vector2
 	{
 		#if (lime_cffi && lime_harfbuzz && !macro)
-		return NativeCFFI.lime_hb_font_get_glyph_advance_for_direction(this, glyph, direction #if hl, new Vector2() #end);
+		#if hl
+		return NativeCFFI.lime_hb_font_get_glyph_advance_for_direction(this, glyph, direction, new Vector2());
+		#else
+		return __toVector2(NativeCFFI.lime_hb_font_get_glyph_advance_for_direction(this, glyph, direction));
+		#end
 		#else
 		return null;
 		#end
@@ -54,7 +58,11 @@ abstract HBFont(CFFIPointer) from CFFIPointer to CFFIPointer
 	public function getGlyphKerningForDirection(glyph:Int, firstGlyph:Int, secondGlyph:Int, direction:HBDirection):Vector2
 	{
 		#if (lime_cffi && lime_harfbuzz && !macro)
-		return NativeCFFI.lime_hb_font_get_glyph_kerning_for_direction(this, firstGlyph, secondGlyph, direction #if hl, new Vector2() #end);
+		#if hl
+		return NativeCFFI.lime_hb_font_get_glyph_kerning_for_direction(this, firstGlyph, secondGlyph, direction, new Vector2());
+		#else
+		return __toVector2(NativeCFFI.lime_hb_font_get_glyph_kerning_for_direction(this, firstGlyph, secondGlyph, direction));
+		#end
 		#else
 		return null;
 		#end
@@ -63,7 +71,11 @@ abstract HBFont(CFFIPointer) from CFFIPointer to CFFIPointer
 	public function getGlyphOriginForDirection(glyph:Int, direction:HBDirection):Vector2
 	{
 		#if (lime_cffi && lime_harfbuzz && !macro)
-		return NativeCFFI.lime_hb_font_get_glyph_origin_for_direction(this, glyph, direction #if hl, new Vector2() #end);
+		#if hl
+		return NativeCFFI.lime_hb_font_get_glyph_origin_for_direction(this, glyph, direction, new Vector2());
+		#else
+		return __toVector2(NativeCFFI.lime_hb_font_get_glyph_origin_for_direction(this, glyph, direction));
+		#end
 		#else
 		return null;
 		#end
@@ -142,7 +154,11 @@ abstract HBFont(CFFIPointer) from CFFIPointer to CFFIPointer
 	@:noCompletion private inline function get_ppem():Vector2
 	{
 		#if (lime_cffi && lime_harfbuzz && !macro)
-		return NativeCFFI.lime_hb_font_get_ppem(this #if hl, new Vector2() #end);
+		#if hl
+		return NativeCFFI.lime_hb_font_get_ppem(this, new Vector2());
+		#else
+		return __toVector2(NativeCFFI.lime_hb_font_get_ppem(this));
+		#end
 		#else
 		return null;
 		#end
@@ -159,7 +175,11 @@ abstract HBFont(CFFIPointer) from CFFIPointer to CFFIPointer
 	@:noCompletion private inline function get_scale():Vector2
 	{
 		#if (lime_cffi && lime_harfbuzz && !macro)
-		return NativeCFFI.lime_hb_font_get_scale(this #if hl, new Vector2() #end);
+		#if hl
+		return NativeCFFI.lime_hb_font_get_scale(this, new Vector2());
+		#else
+		return __toVector2(NativeCFFI.lime_hb_font_get_scale(this));
+		#end
 		#else
 		return null;
 		#end
@@ -171,6 +191,12 @@ abstract HBFont(CFFIPointer) from CFFIPointer to CFFIPointer
 		NativeCFFI.lime_hb_font_set_scale(this, Std.int(value.x), Std.int(value.y));
 		#end
 		return value;
+	}
+
+	// C++ and Neko give an anonymous object with x and y, which isn't a Vector2
+	@:noCompletion private static function __toVector2(value:Dynamic):Vector2
+	{
+		return value == null ? null : new Vector2(value.x, value.y);
 	}
 }
 #end

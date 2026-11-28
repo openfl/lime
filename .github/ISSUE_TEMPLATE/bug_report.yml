@@ -6,7 +6,9 @@ body:
   - type: markdown
     attributes:
       value: |
-        Please report one specific problem per issue. Reports without enough information to reproduce may be closed until the missing details are provided.
+        Please report one specific problem per issue. Only the first few fields are required; fill in the rest where they apply. Reports without enough information to reproduce may be closed until the missing details are provided.
+
+        For an error from the compiler or from a Lime build command, the build error form is shorter.
 
   - type: checkboxes
     id: checks
@@ -17,16 +19,12 @@ body:
           required: true
         - label: I tested the latest stable Lime release or the current development branch where possible.
           required: true
-        - label: I reduced this to the smallest project or code sample that still reproduces the issue.
-          required: true
-        - label: This issue describes one specific behavior, not several unrelated observations.
-          required: true
 
   - type: textarea
     id: summary
     attributes:
       label: Problem Description
-      description: Describe the specific behavior that appears to be wrong.
+      description: Describe what happens, and what you expected to happen instead.
     validations:
       required: true
 
@@ -34,47 +32,22 @@ body:
     id: versions
     attributes:
       label: Version Information
-      description: Include exact versions. Do not write "latest" by itself.
+      description: Include exact versions. Do not write "latest" by itself. For a library installed from git, also give its commit (`git rev-parse HEAD` in its folder).
       value: |
-        Lime version:
-        OpenFL version, if applicable:
+        Lime version, and git commit if from git:
+        OpenFL version, and git commit if from git, if applicable:
         Haxe version:
+        hxcpp (output of `haxelib path hxcpp`, or libhxcpp version and git commit), for native targets:
+        C++ toolchain (MSVC and its version, MinGW, clang or Xcode), for native targets:
         Target/runtime:
-    validations:
-      required: true
-
-  - type: textarea
-    id: environment
-    attributes:
-      label: Environment
-      description: Include relevant OS, architecture, hardware and driver details.
-      value: |
-        OS:
-        Architecture:
-        GPU/driver, if relevant:
-        Display refresh rate, if relevant:
     validations:
       required: true
 
   - type: textarea
     id: repro
     attributes:
-      label: Minimal Reproduction
-      description: Attach or link a minimal project, or paste the smallest code sample that reproduces the problem. Include project.xml or project.hxp.
-      placeholder: |
-        Link to minimal project:
-
-        project.xml / project.hxp:
-
-        Relevant source:
-    validations:
-      required: true
-
-  - type: textarea
-    id: steps
-    attributes:
-      label: Steps to Reproduce
-      description: List exact steps needed to reproduce the issue from a clean checkout/project.
+      label: How to Reproduce
+      description: The steps that show the problem. A short code sample, a command, or a link to a minimal project is enough. Include project.xml or project.hxp when the project settings matter.
       placeholder: |
         1.
         2.
@@ -83,26 +56,32 @@ body:
       required: true
 
   - type: textarea
-    id: expected
+    id: diagnose
     attributes:
-      label: Expected Behavior
-      description: What should happen?
+      label: lime diagnose Output
+      description: For native targets, run `lime diagnose` (Lime 8.4.0 and later) and paste what it prints. It lists the versions and commits above, the hxcpp folder, the C++ compiler hxcpp picks, and what Lime's native libraries were built from.
+      render: text
     validations:
-      required: true
+      required: false
 
   - type: textarea
-    id: actual
+    id: environment
     attributes:
-      label: Actual Behavior
-      description: What happens instead?
+      label: Environment
+      description: Include the OS, architecture, hardware and driver details that are relevant.
+      value: |
+        OS:
+        Architecture:
+        GPU/driver, if relevant:
+        Display refresh rate, if relevant:
     validations:
-      required: true
+      required: false
 
   - type: textarea
     id: logs
     attributes:
       label: Logs and Output
-      description: Paste relevant console output, stack traces or build logs.
+      description: Paste the full console output of the command that shows the problem, from the command itself to the end, with stack traces. A crash's last line alone is rarely enough. For build problems, run the command with `-verbose`.
       render: text
     validations:
       required: false
@@ -111,7 +90,7 @@ body:
     id: media
     attributes:
       label: Screenshots or Videos
-      description: Attach screenshots or videos only if they help demonstrate the reproduced behavior. They do not replace a minimal reproduction.
+      description: Attach screenshots or videos only if they help demonstrate the reproduced behavior. They do not replace a reproduction.
     validations:
       required: false
 

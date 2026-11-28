@@ -414,6 +414,71 @@ class System
 	#end
 
 	/**
+		The space left for this user on the volume that holds `path`, in bytes,
+		or `-1` when it cannot be found. `path` can be a folder or a file, and
+		on Windows a file or folder that does not exist yet, whose nearest
+		existing folder is asked about. Space kept for the system, which this
+		user cannot use, is left out.
+
+		Available on native targets.
+	**/
+	public static function getFreeSpace(path:String):Float
+	{
+		#if (lime_cffi && !macro)
+		if (path != null && path != "") return NativeCFFI.lime_system_get_free_space(path);
+		#end
+
+		return -1;
+	}
+
+	/**
+		Whether `path` is a symbolic link, without following it. On Windows,
+		junctions and other reparse points count too, as they do for AIR's
+		`File.isSymbolicLink`. A path that does not exist is not a link.
+
+		Available on native targets.
+	**/
+	public static function isSymbolicLink(path:String):Bool
+	{
+		#if (lime_cffi && !macro)
+		if (path != null && path != "") return NativeCFFI.lime_system_is_symbolic_link(path);
+		#end
+
+		return false;
+	}
+
+	/**
+		Moves the file or folder at `path` to the system's trash, from where
+		the user can restore it, and returns whether it went there. It does not
+		delete what cannot go to the trash, as on a drive without one.
+
+		Windows uses the Recycle Bin, macOS the Trash, and Linux GIO's trash,
+		or else the freedesktop.org trash in the user's home, for files on the
+		same drive. Other targets return `false`.
+
+		It can take a moment for large folders; `moveToTrashAsync` does it on
+		a background thread.
+	**/
+	public static function moveToTrash(path:String):Bool
+	{
+		#if (lime_cffi && !macro)
+		if (path != null && path != "") return NativeCFFI.lime_system_move_to_trash(path);
+		#end
+
+		return false;
+	}
+
+	/**
+		Moves the file or folder at `path` to the system's trash on a
+		background thread, as `moveToTrash` does, and completes with whether it
+		went there.
+	**/
+	public static function moveToTrashAsync(path:String):lime.app.Future<Bool>
+	{
+		return new lime.app.Future<Bool>(function() return moveToTrash(path), true);
+	}
+
+	/**
 		Opens a file with the system default application.
 
 		In a web browser, opens a URL with target `_blank`.
@@ -422,7 +487,10 @@ class System
 	{
 		if (path != null)
 		{
-			#if (sys && windows)
+			#if (windows && lime_cffi && !macro)
+			// Through the shell, as cmd's start would without the console window cmd shows for a moment
+			NativeCFFI.lime_system_open_file(path);
+			#elseif (sys && windows)
 			Sys.command("start", ["", path]);
 			#elseif mac
 			Sys.command("/usr/bin/open", [path]);

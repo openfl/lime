@@ -139,7 +139,8 @@ abstract ConfigData(Dynamic) to Dynamic from Dynamic
 	{
 		if (exists(id))
 		{
-			return get(id) == "true";
+			// A value from a project file is a String, and one an HXP project sets may be a Bool
+			return Std.string(get(id)) == "true";
 		}
 
 		return defaultValue;
@@ -237,7 +238,9 @@ abstract ConfigData(Dynamic) to Dynamic from Dynamic
 				continue;
 			}
 
-			if (valueSource != valueDest
+			// A list is added even when it ends with the value this one ends with, as its earlier
+			// values may still be new
+			if ((valueSource != valueDest || Reflect.hasField(source, ARRAY + field))
 				&& valueDest != null
 				&& typeSource != "TObject"
 				&& !#if (haxe_ver >= 4.2) Std.isOfType #else Std.is #end (valueSource, Array))

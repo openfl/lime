@@ -1,6 +1,7 @@
 package lime._internal.backend.android;
 
 #if android
+import lime.ui.FocusDirection;
 import haxe.crypto.Base64;
 import haxe.Json;
 import lime._internal.backend.native.NativeApplication;
@@ -156,9 +157,12 @@ class AndroidWebView
 		return promise.future;
 	}
 
-	public function focus():Void
+	public function focus(direction:FocusDirection):Void
 	{
+		// The page is entered at an end by the stagewebview host's own commands, which an older one ignores
 		command("focus");
+		if (direction == TOP) command("focusTop");
+		else if (direction == BOTTOM) command("focusBottom");
 	}
 
 	public function getCanGoBack():Bool

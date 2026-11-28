@@ -34,6 +34,7 @@ namespace lime {
 			static std::wstring* GetDeviceModel ();
 			static std::wstring* GetDeviceVendor ();
 			static std::wstring* GetDirectory (SystemDirectory type, const char* company, const char* title);
+			static double GetAvailableSpace (const char* path);
 			static void* GetDisplay (bool useCFFIValue, int id);
 			#ifdef IPHONE
 			static std::wstring* GetIOSDirectory (SystemDirectory type);
@@ -50,6 +51,12 @@ namespace lime {
 			static int GetWindowsConsoleMode (int handleType);
 			static int GetWindowsFileAttributes (const wchar_t* path);
 			#endif
+			static bool IsSymbolicLink (const char* path);
+			// Through native-desktop, where Lime has it; any thread may call it
+			static bool MoveToTrash (const char* path);
+			// Through native-desktop, where Lime has it. Each volume is its root directory, name, file system type,
+			// drive, and 1 or 0 for removable and writable, separated by 0x1F, with 0x1E after each volume.
+			static bool GetStorageVolumes (std::string* volumes);
 			static void OpenFile (const char* path);
 			static void OpenURL (const char* url, const char* target);
 			static bool SetAllowScreenTimeout (bool allow);

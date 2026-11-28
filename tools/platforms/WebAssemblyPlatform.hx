@@ -15,6 +15,7 @@ import lime.tools.HTML5Helper;
 import lime.tools.HXProject;
 import lime.tools.Icon;
 import lime.tools.IconHelper;
+import lime.tools.NativeSourcesHelper;
 import lime.tools.Orientation;
 import lime.tools.PlatformTarget;
 import lime.tools.ProjectHelper;
@@ -88,7 +89,8 @@ class WebAssemblyPlatform extends PlatformTarget
 
 		for (i in 1...project.windows.length)
 		{
-			defaults.windows.push(defaults.window);
+			// A copy each, as merge() copies each project window into its own default
+			defaults.windows.push(hxp.ObjectTools.copyFields(defaults.window, {}));
 		}
 
 		defaults.merge(project);
@@ -160,6 +162,7 @@ class WebAssemblyPlatform extends PlatformTarget
 		for (ndll in project.ndlls)
 		{
 			var path = NDLL.getLibraryPath(ndll, "Emscripten", "lib", ".a", project.debug);
+			NativeSourcesHelper.checkLibrary(path);
 			args.push(path);
 		}
 
@@ -429,7 +432,7 @@ class WebAssemblyPlatform extends PlatformTarget
 
 		var icons = project.icons;
 
-		if (icons.length == 0)
+		if (!IconHelper.hasIcons(icons))
 		{
 			icons = [new Icon(System.findTemplate(project.templatePaths, "default/icon.svg"))];
 		}
@@ -469,7 +472,7 @@ class WebAssemblyPlatform extends PlatformTarget
 		// ProjectHelper.recursiveSmartCopyTemplate(project, "webassembly/cpp", targetDirectory + "/obj", context);
 		ProjectHelper.recursiveSmartCopyTemplate(project, "cpp/static", targetDirectory + "/obj", context);
 
-		copyProjectAssets(destination);
+		copyProjectAssets(destination, null, context);
 	}
 
 	@ignore public override function install():Void {}

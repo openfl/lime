@@ -13,8 +13,6 @@ namespace lime {
 
 	int __alpha16[0xFF + 1];
 	int __clamp[0xFF + 0xFF + 1];
-	static int a16;
-	static double unmult;
 
 	int initValues () {
 
@@ -91,8 +89,8 @@ namespace lime {
 
 				} else if (a != 0xFF) {
 
-					a16 = __alpha16[a];
-					Set ((r * a16) >> 16, (g * a16) >> 16, (b * a16) >> 16, a);
+					// Rounded to the nearest, as RGBA.hx does
+					Set ((r * a + 127) / 255, (g * a + 127) / 255, (b * a + 127) / 255, a);
 
 				}
 
@@ -103,10 +101,18 @@ namespace lime {
 
 				if (a != 0 && a != 0xFF) {
 
-					unmult = 255.0 / a;
-					Set (__clamp[(int)(r * unmult)], __clamp[(int)(g * unmult)], __clamp[(int)(b * unmult)], a);
+					// Rounded to the nearest, and 0xFF however far a channel is above alpha
+					Set (Unmultiply (r), Unmultiply (g), Unmultiply (b), a);
 
 				}
+
+			}
+
+
+			inline unsigned char Unmultiply (int channel) {
+
+				int value = (channel * 255 + (a >> 1)) / a;
+				return value > 0xFF ? 0xFF : value;
 
 			}
 
@@ -162,9 +168,12 @@ namespace lime {
 
 			inline void WriteUInt8 (unsigned char* data, int offset, PixelFormat format, bool premultiplied) {
 
+				// A copy, so that writing leaves the color as it was
+				RGBA color = *this;
+
 				if (premultiplied) {
 
-					MultiplyAlpha ();
+					color.MultiplyAlpha ();
 
 				}
 
@@ -172,26 +181,26 @@ namespace lime {
 
 					case BGRA32:
 
-						data[offset] = b;
-						data[offset + 1] = g;
-						data[offset + 2] = r;
-						data[offset + 3] = a;
+						data[offset] = color.b;
+						data[offset + 1] = color.g;
+						data[offset + 2] = color.r;
+						data[offset + 3] = color.a;
 						break;
 
 					case RGBA32:
 
-						data[offset] = r;
-						data[offset + 1] = g;
-						data[offset + 2] = b;
-						data[offset + 3] = a;
+						data[offset] = color.r;
+						data[offset + 1] = color.g;
+						data[offset + 2] = color.b;
+						data[offset + 3] = color.a;
 						break;
 
 					case ARGB32:
 
-						data[offset] = a;
-						data[offset + 1] = r;
-						data[offset + 2] = g;
-						data[offset + 3] = b;
+						data[offset] = color.a;
+						data[offset + 1] = color.r;
+						data[offset + 2] = color.g;
+						data[offset + 3] = color.b;
 						break;
 
 				}

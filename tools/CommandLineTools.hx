@@ -14,6 +14,7 @@ import sys.io.File;
 import sys.io.Process;
 import sys.FileSystem;
 import utils.publish.*;
+import utils.BuildEnvironment;
 import utils.CreateTemplate;
 import utils.JavaExternGenerator;
 import utils.PlatformSetup;
@@ -96,6 +97,9 @@ class CommandLineTools
 			case "config":
 				displayConfig();
 
+			case "diagnose":
+				BuildEnvironment.printReport();
+
 			case "setup":
 				platformSetup();
 
@@ -122,6 +126,12 @@ class CommandLineTools
 				}
 
 				var project = initializeProject();
+
+				if (project != null && (command == "build" || command == "test") && BuildEnvironment.usesHxcpp(project))
+				{
+					BuildEnvironment.checkHxcpp();
+				}
+
 				buildProject(project);
 
 			case "rebuild":
@@ -216,7 +226,7 @@ class CommandLineTools
 
 					switch (haxelib.name)
 					{
-						case "hxcpp":
+						case "hxcpp", "libhxcpp":
 							hxmlPath = Path.combine(haxelibPath, "tools/hxcpp/compile.hxml");
 
 						case "haxelib":
@@ -401,6 +411,12 @@ class CommandLineTools
 						// TODO: Fix use of initialize without resetting reference?
 
 						project = initializeProject(project, targetName);
+
+						if (BuildEnvironment.usesHxcpp(project, true))
+						{
+							BuildEnvironment.checkHxcpp();
+						}
+
 						buildProject(project);
 
 						if (Log.verbose)
@@ -794,6 +810,7 @@ class CommandLineTools
 			"help" => "Show this information",
 			"trace" => "Trace output for the specifed project and target",
 			"deploy" => "Archive and upload builds",
+			"diagnose" => "Print the versions and setup to paste into a bug report",
 			"display" => "Display information for the specified project and target",
 			"rebuild" => "Recompile native binaries for libraries",
 			"install" => "Install a library from haxelib, plus dependencies",
@@ -804,7 +821,7 @@ class CommandLineTools
 		];
 
 		var basicCommands = ["config", "create", "clean", "update", "build", "run", "test", "help"];
-		var additionalCommands = ["trace", "deploy", "display", "rebuild", "install", "remove", "upgrade", "setup"];
+		var additionalCommands = ["trace", "deploy", "display", "rebuild", "install", "remove", "upgrade", "setup", "diagnose"];
 
 		if (targetFlags.exists("openfl"))
 		{
@@ -893,6 +910,14 @@ class CommandLineTools
 					+ "Usage:\x1b[0m \x1b[1m"
 					+ commandName
 					+ " process <file>\x1b[0m \x1b[3;37m(directory)\x1b[0m \x1b[3;37m[options]\x1b[0m");
+
+			case "diagnose":
+				Log.println(" " + Log.accentColor + "Usage:\x1b[0m \x1b[1m" + commandName + " diagnose\x1b[0m");
+				Log.println("");
+				Log.println(" Prints the Haxe, Lime, OpenFL, libhxcpp and hxcpp versions, with git commits for git");
+				Log.println(" checkouts, the C++ compiler hxcpp picks, the host, and what Lime's native libraries");
+				Log.println(" were built from, as plain text to paste into a bug report.");
+				return;
 
 			default:
 				displayInfo();
@@ -1698,6 +1723,14 @@ class CommandLineTools
 			environment.set("haxe_ver", haxeVersion);
 
 			environment.set("haxe" + haxeVersion.split(".")[0], "1");
+
+			var haxeMajorVersion = Std.parseInt(haxeVersion.split(".")[0]);
+
+			// An IDE reads display's output as build arguments
+			if (haxeMajorVersion != null && haxeMajorVersion < 4 && command != "display")
+			{
+				Log.warn("Haxe " + haxeVersion + " is deprecated, and Lime 9 requires Haxe 4 or later.");
+			}
 		}
 		catch (e:Dynamic) {}
 
@@ -2062,7 +2095,7 @@ class CommandLineTools
 				overrides.haxeflags.push(argument);
 				catchHaxeFlag = false;
 			}
-			else if (argument == "-args" || argument == "--")
+			else if (argument == "-args" || argument == "--args" || argument == "--")
 			{
 				catchArguments = true;
 			}

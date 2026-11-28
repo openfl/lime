@@ -50,7 +50,7 @@ class WebServer extends HostApplication
 
 		if (open)
 		{
-			System.openURL(url);
+			CommandHelper.openURL(url);
 		}
 
 		var last = Timer.stamp();
