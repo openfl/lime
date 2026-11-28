@@ -12,6 +12,7 @@ import lime.ui.MenuItem;
 @:fileXml('tags="haxe,release"')
 @:noDebug
 #end
+@:access(lime._internal.backend.native.NativeApplication)
 @:access(lime._internal.backend.native.NativeCFFI)
 @:access(lime.ui.Menu)
 @:access(lime.ui.MenuItem)
@@ -20,6 +21,20 @@ class NativeMenu
 	public static inline var SUPPORT_POPUP:Int = 0x01;
 	public static inline var SUPPORT_WINDOW:Int = 0x02;
 	public static inline var SUPPORT_APPLICATION:Int = 0x04;
+
+	// Where a menu belongs, as native_desktop::MenuSource numbers it
+	public static inline var SOURCE_WINDOW:Int = 0;
+	public static inline var SOURCE_TRAY_ICON:Int = 1;
+	public static inline var SOURCE_APPLICATION:Int = 2;
+	public static inline var SOURCE_DOCK:Int = 3;
+
+	// The menu ID of the close event that follows the last menu to close
+	private static inline var TRACKING_ENDED:Int = -1;
+
+	// The menus installed or shown natively, by source and target, with the items their IDs index
+	private static var installed = new Map<String, InstalledMenu>();
+	private static var popups = new Map<String, InstalledMenu>();
+	private static var registered = false;
 
 	/**
 		Writes the menu as little-endian Int32 values for the native menu backend:
@@ -65,6 +80,127 @@ class NativeMenu
 		#end
 	}
 
+	/**
+		Starts dispatching `Menu.onOpen` and `Menu.onClose` from the native menus.
+	**/
+	public static function init():Void
+	{
+		#if (!macro && lime_cffi)
+		if (registered) return;
+		registered = true;
+		NativeCFFI.lime_menu_set_open_callback(handleOpen);
+		#end
+	}
+
+	/**
+		Records the menu installed for a source and target, for its open and
+		close events. `items` is the array its IDs index, which may grow while
+		the menu is shown.
+	**/
+	public static function setInstalled(source:Int, target:Int, menu:Menu, items:Array<MenuItem>):Void
+	{
+		var key = source + ":" + target;
+
+		if (menu != null && items != null) installed.set(key, {menu: menu, items: items});
+		else installed.remove(key);
+	}
+
+	/**
+		Records a menu shown at once, as a context menu, until its last close
+		event. It takes the place of the installed menu of the same source and
+		target meanwhile.
+	**/
+	public static function setPopup(source:Int, target:Int, menu:Menu, items:Array<MenuItem>):Void
+	{
+		popups.set(source + ":" + target, {menu: menu, items: items});
+	}
+
+	/**
+		The array to encode a menu's items into before installing it. When the
+		changes made while menus were shown are applied, a selection made in
+		them may not have arrived yet, so the menu installed again keeps the IDs
+		its items had.
+	**/
+	public static function newItems(source:Int, target:Int, menu:Menu):Array<MenuItem>
+	{
+		if (Menu.__applyingDeferred)
+		{
+			var context = installed.get(source + ":" + target);
+			if (context != null && context.menu == menu) return context.items;
+		}
+
+		return [];
+	}
+
+	public static function handleClose(source:Int, target:Int, menuID:Int):Void
+	{
+		var key = source + ":" + target;
+
+		if (menuID == TRACKING_ENDED)
+		{
+			popups.remove(key);
+			Menu.__applyDeferred();
+			return;
+		}
+
+		var menu = findMenu(key, menuID);
+		if (menu != null) menu.onClose.dispatch();
+	}
+
+	private static function findMenu(key:String, menuID:Int):Menu
+	{
+		var context = popups.exists(key) ? popups.get(key) : installed.get(key);
+		if (context == null) return null;
+		if (menuID == 0) return context.menu;
+
+		var item = getItem(context.items, menuID);
+		return item != null ? item.submenu : null;
+	}
+
+	// Called by the native menus while a menu waits to be shown, where native code drops what is thrown
+	private static function handleOpen():Void
+	{
+		#if (!macro && lime_cffi)
+		try
+		{
+			dispatchOpen();
+		}
+		catch (exception:Dynamic)
+		{
+			NativeApplication.deferException(exception);
+		}
+		#end
+	}
+
+	private static function dispatchOpen():Void
+	{
+		#if (!macro && lime_cffi)
+		var target:Int = NativeCFFI.lime_menu_get_open_event(0);
+		var menuID:Int = NativeCFFI.lime_menu_get_open_event(1);
+		var source:Int = NativeCFFI.lime_menu_get_open_event(2);
+		var key = source + ":" + target;
+		var context = popups.exists(key) ? popups.get(key) : installed.get(key);
+		var menu = findMenu(key, menuID);
+
+		if (menu == null) return;
+
+		menu.__dispatchOpen();
+
+		// The menu is built again from its items when they or its submenus changed. Items keep
+		// their IDs, and new ones are added to the end, so the rest of the menu stays as it is.
+		for (changed in Menu.__deferred)
+		{
+			if (changed.__isDescendantOf(menu))
+			{
+				var output = new BytesOutput();
+				writeMenu(output, menu, context.items);
+				NativeCFFI.lime_menu_set_open_items(output.getBytes());
+				break;
+			}
+		}
+		#end
+	}
+
 	public static function getItem(items:Array<MenuItem>, id:Int):MenuItem
 	{
 		return (items != null && id > 0 && id <= items.length) ? items[id - 1] : null;
@@ -78,10 +214,10 @@ class NativeMenu
 
 		for (item in items)
 		{
-			if (item.keyEquivalent == keyCode
+			if (item.keyCode == keyCode
 				&& item.submenu == null
 				&& !item.isSeparator
-				&& getModifierMask(item.keyEquivalentModifiers) == modifiers
+				&& getModifierMask(item.keyModifier) == modifiers
 				&& isEnabled(item))
 			{
 				return item;
@@ -164,8 +300,8 @@ class NativeMenu
 
 			if (keyCode != 0)
 			{
-				item.__keyEquivalent = cast keyCode;
-				item.__keyEquivalentModifiers = cast keyModifiers;
+				item.__keyCode = cast keyCode;
+				item.__keyModifier = cast keyModifiers;
 			}
 
 			if (flags & MENU_ITEM_ACTION != 0)
@@ -178,7 +314,7 @@ class NativeMenu
 				item.submenu = readMenu(input);
 			}
 
-			menu.addItem(item);
+			menu.add(item);
 		}
 
 		return menu;
@@ -214,7 +350,14 @@ class NativeMenu
 
 		for (item in menu.__items)
 		{
-			items.push(item);
+			// An item already in items keeps its ID, as a menu built again while it is shown must
+			var index = items.indexOf(item);
+
+			if (index == -1)
+			{
+				items.push(item);
+				index = items.length - 1;
+			}
 
 			var flags = 0;
 			if (item.enabled) flags |= MENU_ITEM_ENABLED;
@@ -233,10 +376,10 @@ class NativeMenu
 
 			var label = Bytes.ofString(getLabel(item));
 
-			output.writeInt32(items.length);
+			output.writeInt32(index + 1);
 			output.writeInt32(flags);
-			output.writeInt32(item.keyEquivalent);
-			output.writeInt32(item.keyEquivalentModifiers);
+			output.writeInt32(item.keyCode);
+			output.writeInt32(item.keyModifier);
 			output.writeInt32(label.length);
 			output.write(label);
 
@@ -262,4 +405,10 @@ class NativeMenu
 	var MENU_ITEM_SEPARATOR = 0x04;
 	var MENU_ITEM_SUBMENU = 0x08;
 	var MENU_ITEM_ACTION = 0x10;
+}
+
+private typedef InstalledMenu =
+{
+	var menu:Menu;
+	var items:Array<MenuItem>;
 }

@@ -151,14 +151,24 @@ abstract UInt32Array(ArrayBufferView) from ArrayBufferView to ArrayBufferView
 	@:arrayAccess #if (haxe_ver >= 4.0) extern #else @:extern #end
 	public inline function __get(idx:Int)
 	{
-		return ArrayBufferIO.getUint32(this.buffer, this.byteOffset + (idx * BYTES_PER_ELEMENT));
+		// Outside the view, debug builds read 0, as ECMAScript reads undefined
+		#if hl
+		// Read straight from the buffer: ArrayBufferIO gives a Null<UInt>, which
+		// HashLink allocates for every element read
+		var bytes = this.buffer;
+		var pos = this.byteOffset + (idx * BYTES_PER_ELEMENT);
+		return #if debug (idx < 0 || idx >= this.length) ? (0 : UInt) : #end ((pos + 3 : UInt) < (bytes.length : UInt) ? (@:privateAccess bytes.b).getI32(pos) : 0 : UInt);
+		#else
+		return #if debug (idx < 0 || idx >= this.length) ? 0 : #end ArrayBufferIO.getUint32(this.buffer, this.byteOffset + (idx * BYTES_PER_ELEMENT));
+		#end
 	}
 
 	@:noCompletion
 	@:arrayAccess #if (haxe_ver >= 4.0) extern #else @:extern #end
 	public inline function __set(idx:Int, val:UInt)
 	{
-		ArrayBufferIO.setUint32(this.buffer, this.byteOffset + (idx * BYTES_PER_ELEMENT), val);
+		// Outside the view, debug builds ignore the write, as ECMAScript does
+		#if debug if (idx >= 0 && idx < this.length) #end ArrayBufferIO.setUint32(this.buffer, this.byteOffset + (idx * BYTES_PER_ELEMENT), val);
 		return val;
 	}
 

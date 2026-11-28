@@ -400,4 +400,51 @@ class UInt32ArrayTest extends Test
 		Assert.equals(0x0, array2[6]);
 		Assert.equals(0x0, array2[7]);
 	}
+
+	public function testElementsReadBackAsUnsignedAcrossTheirRange():Void
+	{
+		var array = new UInt32Array(5);
+		array[0] = 0xFFFFFFFF;
+		array[1] = 0x80000000;
+		array[2] = 0x7FFFFFFF;
+		array[3] = 0xDEADBEEF;
+		array[4] = 0x000000FF;
+
+		assertUnsigned([4294967295.0, 2147483648.0, 2147483647.0, 3735928559.0, 255.0], array);
+
+		// Compared as UInt, values above 0x7FFFFFFF are the larger ones
+		var high:UInt = array[1];
+		var low:UInt = array[2];
+		Assert.isTrue(high > low, "0x80000000 read back as no more than 0x7FFFFFFF");
+	}
+
+	public function testElementsReadBackAsUnsignedThroughAViewWithAByteOffset():Void
+	{
+		var buffer = new ArrayBuffer(24);
+		var whole = new UInt32Array(buffer);
+		whole[0] = 0x00000001;
+		whole[1] = 0xFFFFFFFF;
+		whole[2] = 0x80000000;
+		whole[3] = 0xCAFEBABE;
+		whole[4] = 0x7FFFFFFF;
+
+		var view = new UInt32Array(buffer, 4, 4);
+		Assert.equals(4, view.byteOffset);
+		assertUnsigned([4294967295.0, 2147483648.0, 3405691582.0, 2147483647.0], view);
+
+		var subarray = whole.subarray(1, 5);
+		Assert.equals(4, subarray.byteOffset);
+		assertUnsigned([4294967295.0, 2147483648.0, 3405691582.0, 2147483647.0], subarray);
+	}
+
+	private static function assertUnsigned(expected:Array<Float>, array:UInt32Array, ?pos:haxe.PosInfos):Void
+	{
+		Assert.equals(expected.length, array.length, pos);
+
+		for (i in 0...expected.length)
+		{
+			var value:UInt = array[i];
+			Assert.equals(expected[i], (value : Float), "element " + i + " read back as " + (value : Float), pos);
+		}
+	}
 }

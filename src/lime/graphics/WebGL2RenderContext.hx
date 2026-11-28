@@ -270,7 +270,6 @@ import lime.graphics.opengl.*;
 import lime.graphics.OpenGLRenderContext;
 import lime.utils.ArrayBuffer;
 import lime.utils.ArrayBufferView;
-import lime.utils.BytePointer;
 import lime.utils.DataPointer;
 import lime.utils.Float32Array;
 import lime.utils.Int32Array;
@@ -300,6 +299,7 @@ import lime.utils.UInt32Array;
 	```
 **/
 @:access(lime.graphics.RenderContext)
+@:access(lime.utils.ArrayBufferView)
 #if !doc_gen
 @:transitive abstract WebGL2RenderContext(OpenGLRenderContext) from OpenGLRenderContext to OpenGLRenderContext
 {
@@ -307,7 +307,33 @@ import lime.utils.UInt32Array;
 abstract WebGL2RenderContext(Dynamic) from Dynamic to Dynamic
 {
 #end
-	private static var __tempPointer = new BytePointer();
+	// srcOffset, srcLength and length count elements of the view, as in WebGL 2,
+	// and are kept within it
+	@:noCompletion private static function __viewElements(view:ArrayBufferView, offset:Null<Int>, length:Null<Int>):Int
+	{
+		if (view == null) return 0;
+
+		var start = (offset != null && offset > 0) ? offset : 0;
+		var available = view.length - start;
+		if (available <= 0) return 0;
+
+		return (length != null && length > 0 && length < available) ? length : available;
+	}
+
+	@:noCompletion private static inline function __viewBytes(view:ArrayBufferView, offset:Null<Int>, length:Null<Int>):Int
+	{
+		return view != null ? __viewElements(view, offset, length) * view.bytesPerElement : 0;
+	}
+
+	@:noCompletion private static function __viewPointer(view:ArrayBufferView, offset:Null<Int>):DataPointer
+	{
+		if (view == null) return 0;
+
+		var pointer:DataPointer = view;
+		if (offset == null || offset <= 0) return pointer;
+		if (offset > view.length) offset = view.length;
+		return pointer + offset * view.bytesPerElement;
+	}
 
 	public var DEPTH_BUFFER_BIT(get, never):Int;
 	public var STENCIL_BUFFER_BIT(get, never):Int;
@@ -3764,9 +3790,8 @@ abstract WebGL2RenderContext(Dynamic) from Dynamic to Dynamic
 	public inline function bufferData(target:Int, srcData:Dynamic, usage:Int, ?srcOffset:Int, ?length:Int):Void
 	#end
 	{
-		var size = (srcData != null) ? srcData.byteLength : 0;
-		__tempPointer.set(srcData, srcOffset);
-		this.bufferData(target, size, __tempPointer, usage);
+		var size = __viewBytes(srcData, srcOffset, length);
+		this.bufferData(target, size, __viewPointer(srcData, srcOffset), usage);
 	}
 
 	#if !lime_webgl
@@ -3775,9 +3800,8 @@ abstract WebGL2RenderContext(Dynamic) from Dynamic to Dynamic
 	public inline function bufferSubData(target:Int, offset:Int, srcData:Dynamic, ?srcOffset:Int, ?length:Int):Void
 	#end
 	{
-		var size = (length != null) ? length : (srcData != null) ? srcData.byteLength : 0;
-		__tempPointer.set(srcData, srcOffset);
-		this.bufferSubData(target, offset, size, __tempPointer);
+		var size = __viewBytes(srcData, srcOffset, length);
+		this.bufferSubData(target, offset, size, __viewPointer(srcData, srcOffset));
 	}
 
 	public inline function checkFramebufferStatus(target:Int):Int
@@ -3797,20 +3821,17 @@ abstract WebGL2RenderContext(Dynamic) from Dynamic to Dynamic
 
 	public function clearBufferfv(buffer:Int, drawbuffer:Int, values:ArrayBufferView, srcOffset:Int = 0):Void
 	{
-		__tempPointer.set(values, srcOffset);
-		this.clearBufferfv(buffer, drawbuffer, __tempPointer);
+		this.clearBufferfv(buffer, drawbuffer, __viewPointer(values, srcOffset));
 	}
 
 	public function clearBufferiv(buffer:Int, drawbuffer:Int, values:ArrayBufferView, ?srcOffset:Int):Void
 	{
-		__tempPointer.set(values, srcOffset);
-		this.clearBufferiv(buffer, drawbuffer, __tempPointer);
+		this.clearBufferiv(buffer, drawbuffer, __viewPointer(values, srcOffset));
 	}
 
 	public function clearBufferuiv(buffer:Int, drawbuffer:Int, values:ArrayBufferView, ?srcOffset:Int):Void
 	{
-		__tempPointer.set(values, srcOffset);
-		this.clearBufferuiv(buffer, drawbuffer, __tempPointer);
+		this.clearBufferuiv(buffer, drawbuffer, __viewPointer(values, srcOffset));
 	}
 
 	public inline function clearColor(red:Float, green:Float, blue:Float, alpha:Float):Void
@@ -3852,17 +3873,15 @@ abstract WebGL2RenderContext(Dynamic) from Dynamic to Dynamic
 		?srcLengthOverride:Int):Void
 	#end
 	{
-		var imageSize = (srcLengthOverride != null) ? srcLengthOverride : (srcData != null) ? srcData.byteLength : 0;
-		__tempPointer.set(srcData, srcOffset);
-		this.compressedTexImage2D(target, level, internalformat, width, height, border, imageSize, __tempPointer);
+		var imageSize = __viewBytes(srcData, srcOffset, srcLengthOverride);
+		this.compressedTexImage2D(target, level, internalformat, width, height, border, imageSize, __viewPointer(srcData, srcOffset));
 	}
 
 	public function compressedTexImage3D(target:Int, level:Int, internalformat:Int, width:Int, height:Int, depth:Int, border:Int, srcData:ArrayBufferView,
 			srcOffset:Int = 0, ?srcLengthOverride:Int):Void
 	{
-		var imageSize = (srcLengthOverride != null) ? srcLengthOverride : (srcData != null) ? srcData.byteLength : 0;
-		__tempPointer.set(srcData, srcOffset);
-		this.compressedTexImage3D(target, level, internalformat, width, height, depth, border, imageSize, __tempPointer);
+		var imageSize = __viewBytes(srcData, srcOffset, srcLengthOverride);
+		this.compressedTexImage3D(target, level, internalformat, width, height, depth, border, imageSize, __viewPointer(srcData, srcOffset));
 	}
 
 	#if !lime_webgl
@@ -3873,17 +3892,15 @@ abstract WebGL2RenderContext(Dynamic) from Dynamic to Dynamic
 		?srcOffset:Int, ?srcLengthOverride:Int):Void
 	#end
 	{
-		var imageSize = (srcLengthOverride != null) ? srcLengthOverride : (srcData != null) ? srcData.byteLength : 0;
-		__tempPointer.set(srcData, srcOffset);
-		this.compressedTexSubImage2D(target, level, xoffset, yoffset, width, height, format, imageSize, __tempPointer);
+		var imageSize = __viewBytes(srcData, srcOffset, srcLengthOverride);
+		this.compressedTexSubImage2D(target, level, xoffset, yoffset, width, height, format, imageSize, __viewPointer(srcData, srcOffset));
 	}
 
 	public inline function compressedTexSubImage3D(target:Int, level:Int, xoffset:Int, yoffset:Int, zoffset:Int, width:Int, height:Int, depth:Int, format:Int,
 			srcData:ArrayBufferView, srcOffset:Int = 0, ?srcLengthOverride:Int):Void
 	{
-		var imageSize = (srcLengthOverride != null) ? srcLengthOverride : (srcData != null) ? srcData.byteLength : 0;
-		__tempPointer.set(srcData, srcOffset);
-		this.compressedTexSubImage3D(target, level, xoffset, yoffset, zoffset, width, height, depth, format, imageSize, __tempPointer);
+		var imageSize = __viewBytes(srcData, srcOffset, srcLengthOverride);
+		this.compressedTexSubImage3D(target, level, xoffset, yoffset, zoffset, width, height, depth, format, imageSize, __viewPointer(srcData, srcOffset));
 	}
 
 	public inline function copyBufferSubData(readTarget:Int, writeTarget:Int, readOffset:DataPointer, writeOffset:DataPointer, size:Int):Void
@@ -4444,8 +4461,7 @@ abstract WebGL2RenderContext(Dynamic) from Dynamic to Dynamic
 	public inline function readPixels(x:Int, y:Int, width:Int, height:Int, format:Int, type:Int, pixels:Dynamic, ?dstOffset:Int):Void
 	#end
 	{
-		__tempPointer.set(pixels, dstOffset);
-		this.readPixels(x, y, width, height, format, type, __tempPointer);
+		this.readPixels(x, y, width, height, format, type, __viewPointer(pixels, dstOffset));
 	}
 
 	public inline function renderbufferStorage(target:Int, internalformat:Int, width:Int, height:Int):Void
@@ -4529,16 +4545,14 @@ abstract WebGL2RenderContext(Dynamic) from Dynamic to Dynamic
 	#end
 	{
 		#if !lime_webgl
-		__tempPointer.set(srcData, srcOffset);
-		this.texImage2D(target, level, internalformat, width, height, border, format, type, __tempPointer);
+		this.texImage2D(target, level, internalformat, width, height, border, format, type, __viewPointer(srcData, srcOffset));
 		#end
 	}
 
 	public inline function texImage3D(target:Int, level:Int, internalformat:Int, width:Int, height:Int, depth:Int, border:Int, format:Int, type:Int,
 			srcData:ArrayBufferView, srcOffset:Int = 0):Void
 	{
-		__tempPointer.set(srcData, srcOffset);
-		this.texImage3D(target, level, internalformat, width, height, depth, border, format, type, __tempPointer);
+		this.texImage3D(target, level, internalformat, width, height, depth, border, format, type, __viewPointer(srcData, srcOffset));
 	}
 
 	public inline function texStorage2D(target:Int, level:Int, internalformat:Int, width:Int, height:Int):Void
@@ -4569,15 +4583,13 @@ abstract WebGL2RenderContext(Dynamic) from Dynamic to Dynamic
 		?srcOffset:Int):Void
 	#end
 	{
-		__tempPointer.set(srcData, srcOffset);
-		this.texSubImage2D(target, level, xoffset, yoffset, width, height, format, type, __tempPointer);
+		this.texSubImage2D(target, level, xoffset, yoffset, width, height, format, type, __viewPointer(srcData, srcOffset));
 	}
 
 	public inline function texSubImage3D(target:Int, level:Int, xoffset:Int, yoffset:Int, zoffset:Int, width:Int, height:Int, depth:Int, format:Int, type:Int,
 			srcData:ArrayBufferView, srcOffset:Int = 0):Void
 	{
-		__tempPointer.set(srcData, srcOffset);
-		this.texSubImage3D(target, level, xoffset, yoffset, zoffset, width, height, depth, format, type, __tempPointer);
+		this.texSubImage3D(target, level, xoffset, yoffset, zoffset, width, height, depth, format, type, __viewPointer(srcData, srcOffset));
 	}
 
 	public inline function transformFeedbackVaryings(program:GLProgram, varyings:Array<String>, bufferMode:Int):Void
@@ -4596,7 +4608,7 @@ abstract WebGL2RenderContext(Dynamic) from Dynamic to Dynamic
 	public inline function uniform1fv(location:GLUniformLocation, v:Dynamic, ?srcOffset:Int, ?srcLength:Int):Void
 	#end
 	{
-		this.uniform1fv(location, v != null ? v.length : 0, v);
+		this.uniform1fv(location, __viewElements(v, srcOffset, srcLength), __viewPointer(v, srcOffset));
 	}
 
 	public inline function uniform1i(location:GLUniformLocation, v0:Int):Void
@@ -4610,7 +4622,7 @@ abstract WebGL2RenderContext(Dynamic) from Dynamic to Dynamic
 	public inline function uniform1iv(location:GLUniformLocation, v:Dynamic, ?srcOffset:Int, ?srcLength:Int):Void
 	#end
 	{
-		this.uniform1iv(location, v != null ? v.length : 0, v);
+		this.uniform1iv(location, __viewElements(v, srcOffset, srcLength), __viewPointer(v, srcOffset));
 	}
 
 	public inline function uniform1ui(location:GLUniformLocation, v0:Int):Void
@@ -4620,7 +4632,7 @@ abstract WebGL2RenderContext(Dynamic) from Dynamic to Dynamic
 
 	public inline function uniform1uiv(location:GLUniformLocation, v:UInt32Array, ?srcOffset:Int, ?srcLength:Int):Void
 	{
-		this.uniform1uiv(location, v != null ? v.length : 0, v);
+		this.uniform1uiv(location, __viewElements(v, srcOffset, srcLength), __viewPointer(v, srcOffset));
 	}
 
 	public inline function uniform2f(location:GLUniformLocation, v0:Float, v1:Float):Void
@@ -4634,7 +4646,7 @@ abstract WebGL2RenderContext(Dynamic) from Dynamic to Dynamic
 	public function uniform2fv(location:GLUniformLocation, v:Dynamic, ?srcOffset:Int, ?srcLength:Int):Void
 	#end
 	{
-		this.uniform2fv(location, v != null ? v.length >> 1 : 0, v);
+		this.uniform2fv(location, Std.int(__viewElements(v, srcOffset, srcLength) / 2), __viewPointer(v, srcOffset));
 	}
 
 	public inline function uniform2i(location:GLUniformLocation, v0:Int, v1:Int):Void
@@ -4648,7 +4660,7 @@ abstract WebGL2RenderContext(Dynamic) from Dynamic to Dynamic
 	public inline function uniform2iv(location:GLUniformLocation, v:Dynamic, ?srcOffset:Int, ?srcLength:Int):Void
 	#end
 	{
-		this.uniform2iv(location, v != null ? v.length >> 1 : 0, v);
+		this.uniform2iv(location, Std.int(__viewElements(v, srcOffset, srcLength) / 2), __viewPointer(v, srcOffset));
 	}
 
 	public inline function uniform2ui(location:GLUniformLocation, v0:Int, v1:Int):Void
@@ -4658,7 +4670,7 @@ abstract WebGL2RenderContext(Dynamic) from Dynamic to Dynamic
 
 	public inline function uniform2uiv(location:GLUniformLocation, v:UInt32Array, ?srcOffset:Int, ?srcLength:Int):Void
 	{
-		this.uniform2uiv(location, v != null ? v.length >> 1 : 0, v);
+		this.uniform2uiv(location, Std.int(__viewElements(v, srcOffset, srcLength) / 2), __viewPointer(v, srcOffset));
 	}
 
 	public inline function uniform3f(location:GLUniformLocation, v0:Float, v1:Float, v2:Float):Void
@@ -4672,7 +4684,7 @@ abstract WebGL2RenderContext(Dynamic) from Dynamic to Dynamic
 	public inline function uniform3fv(location:GLUniformLocation, v:Dynamic, ?srcOffset:Int, ?srcLength:Int):Void
 	#end
 	{
-		this.uniform3fv(location, v != null ? Std.int(v.length / 3) : 0, v);
+		this.uniform3fv(location, Std.int(__viewElements(v, srcOffset, srcLength) / 3), __viewPointer(v, srcOffset));
 	}
 
 	public inline function uniform3i(location:GLUniformLocation, v0:Int, v1:Int, v2:Int):Void
@@ -4686,7 +4698,7 @@ abstract WebGL2RenderContext(Dynamic) from Dynamic to Dynamic
 	public inline function uniform3iv(location:GLUniformLocation, v:Dynamic, ?srcOffset:Int, ?srcLength:Int):Void
 	#end
 	{
-		this.uniform3iv(location, v != null ? Std.int(v.length / 3) : 0, v);
+		this.uniform3iv(location, Std.int(__viewElements(v, srcOffset, srcLength) / 3), __viewPointer(v, srcOffset));
 	}
 
 	public inline function uniform3ui(location:GLUniformLocation, v0:Int, v1:Int, v2:Int):Void
@@ -4696,7 +4708,7 @@ abstract WebGL2RenderContext(Dynamic) from Dynamic to Dynamic
 
 	public inline function uniform3uiv(location:GLUniformLocation, v:UInt32Array, ?srcOffset:Int, ?srcLength:Int):Void
 	{
-		this.uniform3uiv(location, v != null ? Std.int(v.length / 3) : 0, v);
+		this.uniform3uiv(location, Std.int(__viewElements(v, srcOffset, srcLength) / 3), __viewPointer(v, srcOffset));
 	}
 
 	public inline function uniform4f(location:GLUniformLocation, v0:Float, v1:Float, v2:Float, v3:Float):Void
@@ -4710,7 +4722,7 @@ abstract WebGL2RenderContext(Dynamic) from Dynamic to Dynamic
 	public inline function uniform4fv(location:GLUniformLocation, v:Dynamic, ?srcOffset:Int, ?srcLength:Int):Void
 	#end
 	{
-		this.uniform4fv(location, v != null ? v.length >> 2 : 0, v);
+		this.uniform4fv(location, Std.int(__viewElements(v, srcOffset, srcLength) / 4), __viewPointer(v, srcOffset));
 	}
 
 	public inline function uniform4i(location:GLUniformLocation, v0:Int, v1:Int, v2:Int, v3:Int):Void
@@ -4724,7 +4736,7 @@ abstract WebGL2RenderContext(Dynamic) from Dynamic to Dynamic
 	public inline function uniform4iv(location:GLUniformLocation, v:Dynamic, ?srcOffset:Int, ?srcLength:Int):Void
 	#end
 	{
-		this.uniform4iv(location, v != null ? v.length >> 2 : 0, v);
+		this.uniform4iv(location, Std.int(__viewElements(v, srcOffset, srcLength) / 4), __viewPointer(v, srcOffset));
 	}
 
 	public inline function uniform4ui(location:GLUniformLocation, v0:Int, v1:Int, v2:Int, v3:Int):Void
@@ -4734,7 +4746,7 @@ abstract WebGL2RenderContext(Dynamic) from Dynamic to Dynamic
 
 	public inline function uniform4uiv(location:GLUniformLocation, v:UInt32Array, ?srcOffset:Int, ?srcLength:Int):Void
 	{
-		this.uniform4uiv(location, v != null ? v.length >> 2 : 0, v);
+		this.uniform4uiv(location, Std.int(__viewElements(v, srcOffset, srcLength) / 4), __viewPointer(v, srcOffset));
 	}
 
 	public inline function uniformBlockBinding(program:GLProgram, uniformBlockIndex:Int, uniformBlockBinding:Int):Void
@@ -4748,33 +4760,22 @@ abstract WebGL2RenderContext(Dynamic) from Dynamic to Dynamic
 	public inline function uniformMatrix2fv(location:GLUniformLocation, transpose:Bool, v:Dynamic, ?srcOffset:Int, ?srcLength:Int):Void
 	#end
 	{
-		var count = 0;
-		if (srcLength != null) count = srcLength;
-		else if (v != null) count = v.length >> 2;
-		__tempPointer.set(v, srcOffset);
-		this.uniformMatrix2fv(location, count, transpose, __tempPointer);
+		var count = Std.int(__viewElements(v, srcOffset, srcLength) / 4);
+		this.uniformMatrix2fv(location, count, transpose, __viewPointer(v, srcOffset));
 	}
 
 	public function uniformMatrix2x3fv(location:GLUniformLocation, transpose:Bool, v:Float32Array, srcOffset:Int = 0, ?srcLength:Int):Void
 	{
-		var count = 0;
-		if (srcLength != null) count = srcLength;
-		else if (v != null) count = Std.int(v.length / 6);
+		var count = Std.int(__viewElements(v, srcOffset, srcLength) / 6);
 
-		__tempPointer.set(v, srcOffset);
-
-		this.uniformMatrix2x3fv(location, count, transpose, __tempPointer);
+		this.uniformMatrix2x3fv(location, count, transpose, __viewPointer(v, srcOffset));
 	}
 
 	public function uniformMatrix2x4fv(location:GLUniformLocation, transpose:Bool, v:Float32Array, srcOffset:Int = 0, ?srcLength:Int):Void
 	{
-		var count = 0;
-		if (srcLength != null) count = srcLength;
-		else if (v != null) count = Std.int(v.length / 8);
+		var count = Std.int(__viewElements(v, srcOffset, srcLength) / 8);
 
-		__tempPointer.set(v, srcOffset);
-
-		this.uniformMatrix2x4fv(location, count, transpose, __tempPointer);
+		this.uniformMatrix2x4fv(location, count, transpose, __viewPointer(v, srcOffset));
 	}
 
 	#if !lime_webgl
@@ -4783,33 +4784,22 @@ abstract WebGL2RenderContext(Dynamic) from Dynamic to Dynamic
 	public inline function uniformMatrix3fv(location:GLUniformLocation, transpose:Bool, v:Dynamic, ?srcOffset:Int, ?srcLength:Int):Void
 	#end
 	{
-		var count = 0;
-		if (srcLength != null) count = srcLength;
-		else if (v != null) count = Std.int(v.length / 9);
-		__tempPointer.set(v, srcOffset);
-		this.uniformMatrix3fv(location, count, transpose, __tempPointer);
+		var count = Std.int(__viewElements(v, srcOffset, srcLength) / 9);
+		this.uniformMatrix3fv(location, count, transpose, __viewPointer(v, srcOffset));
 	}
 
 	public function uniformMatrix3x2fv(location:GLUniformLocation, transpose:Bool, v:Float32Array, srcOffset:Int = 0, ?srcLength:Int):Void
 	{
-		var count = 0;
-		if (srcLength != null) count = srcLength;
-		else if (v != null) count = Std.int(v.length / 6);
+		var count = Std.int(__viewElements(v, srcOffset, srcLength) / 6);
 
-		__tempPointer.set(v, srcOffset);
-
-		this.uniformMatrix3x2fv(location, count, transpose, __tempPointer);
+		this.uniformMatrix3x2fv(location, count, transpose, __viewPointer(v, srcOffset));
 	}
 
 	public function uniformMatrix3x4fv(location:GLUniformLocation, transpose:Bool, v:Float32Array, srcOffset:Int = 0, ?srcLength:Int):Void
 	{
-		var count = 0;
-		if (srcLength != null) count = srcLength;
-		else if (v != null) count = Std.int(v.length / 12);
+		var count = Std.int(__viewElements(v, srcOffset, srcLength) / 12);
 
-		__tempPointer.set(v, srcOffset);
-
-		this.uniformMatrix3x4fv(location, count, transpose, __tempPointer);
+		this.uniformMatrix3x4fv(location, count, transpose, __viewPointer(v, srcOffset));
 	}
 
 	#if !lime_webgl
@@ -4818,33 +4808,22 @@ abstract WebGL2RenderContext(Dynamic) from Dynamic to Dynamic
 	public inline function uniformMatrix4fv(location:GLUniformLocation, transpose:Bool, v:Dynamic, ?srcOffset:Int, ?srcLength:Int):Void
 	#end
 	{
-		var count = 0;
-		if (srcLength != null) count = srcLength;
-		else if (v != null) count = v.length >> 4;
-		__tempPointer.set(v, srcOffset);
-		this.uniformMatrix4fv(location, count, transpose, __tempPointer);
+		var count = Std.int(__viewElements(v, srcOffset, srcLength) / 16);
+		this.uniformMatrix4fv(location, count, transpose, __viewPointer(v, srcOffset));
 	}
 
 	public function uniformMatrix4x2fv(location:GLUniformLocation, transpose:Bool, v:Float32Array, srcOffset:Int = 0, ?srcLength:Int):Void
 	{
-		var count = 0;
-		if (srcLength != null) count = srcLength;
-		else if (v != null) count = Std.int(v.length / 8);
+		var count = Std.int(__viewElements(v, srcOffset, srcLength) / 8);
 
-		__tempPointer.set(v, srcOffset);
-
-		this.uniformMatrix4x2fv(location, count, transpose, __tempPointer);
+		this.uniformMatrix4x2fv(location, count, transpose, __viewPointer(v, srcOffset));
 	}
 
 	public function uniformMatrix4x3fv(location:GLUniformLocation, transpose:Bool, v:Float32Array, srcOffset:Int = 0, ?srcLength:Int):Void
 	{
-		var count = 0;
-		if (srcLength != null) count = srcLength;
-		else if (v != null) count = Std.int(v.length / 12);
+		var count = Std.int(__viewElements(v, srcOffset, srcLength) / 12);
 
-		__tempPointer.set(v, srcOffset);
-
-		this.uniformMatrix4x3fv(location, count, transpose, __tempPointer);
+		this.uniformMatrix4x3fv(location, count, transpose, __viewPointer(v, srcOffset));
 	}
 
 	public inline function useProgram(program:GLProgram):Void

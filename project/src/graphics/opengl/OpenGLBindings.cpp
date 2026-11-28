@@ -1,9 +1,12 @@
 #include <system/CFFI.h>
 #include <system/CFFIPointer.h>
 #include <system/Mutex.h>
+#include <system/System.h>
 #include <utils/Bytes.h>
+#include <utils/DataPointer.h>
 #include "OpenGL.h"
 #include "OpenGLBindings.h"
+#include "OpenGLShareGroups.h"
 #include <map>
 #include <string>
 #include <vector>
@@ -96,49 +99,142 @@ namespace lime {
 	GL_DebugMessageCallback_Func glDebugMessageCallback_ptr = 0;
 	#endif
 
-	std::map<GLObjectType, std::map <GLuint, void*> > glObjects;
+	// Objects are found by type, by the context or group of contexts whose
+	// objects they are, and by name, as each context has names of its own for
+	// the objects it doesn't share
+	std::map<GLObjectType, std::map<std::pair<int, GLuint>, void*> > glObjects;
 	std::map<void*, GLuint> glObjectIDs;
 	std::map<void*, void*> glObjectPtrs;
+	std::map<void*, int> glObjectScopes;
 	std::map<void*, GLObjectType> glObjectTypes;
 
-	std::vector<GLuint> gc_gl_id;
-	std::vector<void*> gc_gl_ptr;
-	std::vector<GLObjectType> gc_gl_type;
+	// A collected object, deleted where a context it belongs to is current
+	struct GCGLObject {
+
+		GLObjectType type;
+		GLuint id;
+		void* ptr;
+		int scope;
+
+	};
+
+	std::vector<GCGLObject> gc_gl_queue;
 	Mutex gc_gl_mutex;
+
+
+	static void* gl_current_context () {
+
+		#ifdef LIME_SDL
+		return SDL_GL_GetCurrentContext ();
+		#else
+		return NULL;
+		#endif
+
+	}
+
+
+	// Framebuffers, vertex arrays, transform feedbacks and queries belong to
+	// the context that made them. Other objects belong to its group, the
+	// contexts that share them.
+	static bool gl_type_is_per_context (GLObjectType type) {
+
+		switch (type) {
+
+			case TYPE_FRAMEBUFFER:
+			case TYPE_QUERY:
+			case TYPE_TRANSFORM_FEEDBACK:
+			case TYPE_VERTEX_ARRAY_OBJECT:
+
+				return true;
+
+			default:
+
+				return false;
+
+		}
+
+	}
+
+
+	// The context or group whose objects of a type are used where the current
+	// context is, or 0 for a context Lime didn't make
+	static int gl_current_scope (GLObjectType type) {
+
+		void* context = gl_current_context ();
+		return gl_type_is_per_context (type) ? OpenGLShareGroups::GetContextId (context) : OpenGLShareGroups::Get (context);
+
+	}
+
+
+	static bool gl_scope_exists (GLObjectType type, int scope) {
+
+		return gl_type_is_per_context (type) ? OpenGLShareGroups::ContextExists (scope) : OpenGLShareGroups::Exists (scope);
+
+	}
+
+
+	// Removes an object from the maps, called under the lock. The entry for its
+	// name is only removed if it is still this object's.
+	static void gl_forget_object (void* object) {
+
+		std::map<void*, GLObjectType>::iterator type = glObjectTypes.find (object);
+		std::map<void*, GLuint>::iterator id = glObjectIDs.find (object);
+		std::map<void*, int>::iterator scope = glObjectScopes.find (object);
+
+		if (type != glObjectTypes.end () && id != glObjectIDs.end ()) {
+
+			std::map<std::pair<int, GLuint>, void*>& objects = glObjects[type->second];
+			std::map<std::pair<int, GLuint>, void*>::iterator entry = objects.find (std::make_pair (scope != glObjectScopes.end () ? scope->second : 0, id->second));
+			if (entry != objects.end () && entry->second == object) objects.erase (entry);
+
+		}
+
+		if (type != glObjectTypes.end ()) glObjectTypes.erase (type);
+		if (id != glObjectIDs.end ()) glObjectIDs.erase (id);
+		if (scope != glObjectScopes.end ()) glObjectScopes.erase (scope);
+
+	}
+
+
+	// Queues a collected object to be deleted, called under the lock
+	static void gc_gl_queue_object (void* object) {
+
+		std::map<void*, GLObjectType>::iterator type = glObjectTypes.find (object);
+		if (type == glObjectTypes.end ()) return;
+
+		GCGLObject collected;
+		collected.type = type->second;
+		collected.id = glObjectIDs.find (object) != glObjectIDs.end () ? glObjectIDs[object] : 0;
+		collected.ptr = collected.type == TYPE_SYNC && glObjectPtrs.find (object) != glObjectPtrs.end () ? glObjectPtrs[object] : NULL;
+		collected.scope = glObjectScopes.find (object) != glObjectScopes.end () ? glObjectScopes[object] : 0;
+		gc_gl_queue.push_back (collected);
+
+		gl_forget_object (object);
+		glObjectPtrs.erase (object);
+
+	}
+
+
+	// The finalizers change the maps above, and can run on another thread, so
+	// registering and deregistering take the same lock. A thread that has to
+	// wait is blocked for the collector, which may need it to stop.
+	void lock_gl_objects () {
+
+		if (!gc_gl_mutex.TryLock ()) {
+
+			System::GCEnterBlocking ();
+			gc_gl_mutex.Lock ();
+			System::GCExitBlocking ();
+
+		}
+
+	}
 
 
 	void gc_gl_object (value object) {
 
 		gc_gl_mutex.Lock ();
-
-		if (glObjectTypes.find (object) != glObjectTypes.end ()) {
-
-			GLObjectType type = glObjectTypes[object];
-
-			if (type != TYPE_SYNC) {
-
-				GLuint id = glObjectIDs[object];
-
-				gc_gl_id.push_back (id);
-				gc_gl_type.push_back (type);
-
-				glObjects[type].erase (id);
-				glObjectIDs.erase (object);
-				glObjectTypes.erase (object);
-
-			} else {
-
-				void* ptr = glObjectPtrs[object];
-
-				gc_gl_ptr.push_back (ptr);
-
-				glObjectPtrs.erase (object);
-				glObjectTypes.erase (object);
-
-			}
-
-		}
-
+		gc_gl_queue_object (object);
 		gc_gl_mutex.Unlock ();
 
 	}
@@ -147,37 +243,7 @@ namespace lime {
 	void hl_gc_gl_object (HL_CFFIPointer* handle) {
 
 		gc_gl_mutex.Lock ();
-
-		void* object = handle->ptr;
-
-		if (glObjectTypes.find (object) != glObjectTypes.end ()) {
-
-			GLObjectType type = glObjectTypes[object];
-
-			if (type != TYPE_SYNC) {
-
-				GLuint id = glObjectIDs[object];
-
-				gc_gl_id.push_back (id);
-				gc_gl_type.push_back (type);
-
-				glObjects[type].erase (id);
-				glObjectIDs.erase (object);
-				glObjectTypes.erase (object);
-
-			} else {
-
-				void* ptr = glObjectPtrs[object];
-
-				gc_gl_ptr.push_back (ptr);
-
-				glObjectPtrs.erase (object);
-				glObjectTypes.erase (object);
-
-			}
-
-		}
-
+		gc_gl_queue_object (handle->ptr);
 		gc_gl_mutex.Unlock ();
 
 	}
@@ -185,19 +251,31 @@ namespace lime {
 
 	void gc_gl_run () {
 
-		if (gc_gl_id.size () > 0) {
+		// The finalizers fill the queues from any thread, so they are read
+		// under the lock
+		lock_gl_objects ();
 
-			gc_gl_mutex.Lock ();
+		if (!gc_gl_queue.empty ()) {
 
-			int size = gc_gl_id.size ();
+			void* context = gl_current_context ();
+			int group = OpenGLShareGroups::Get (context);
+			int contextId = OpenGLShareGroups::GetContextId (context);
+			std::vector<GCGLObject> kept;
 
-			GLuint id;
-			GLObjectType type;
+			for (size_t i = 0; i < gc_gl_queue.size (); i++) {
 
-			for (int i = 0; i < size; i++) {
+				GLuint id = gc_gl_queue[i].id;
+				GLObjectType type = gc_gl_queue[i].type;
+				int scope = gl_type_is_per_context (type) ? contextId : group;
 
-				id = gc_gl_id[i];
-				type = gc_gl_type[i];
+				if (gc_gl_queue[i].scope != scope) {
+
+					// Left for a context it belongs to, unless they are all gone,
+					// and the object with them
+					if (gl_scope_exists (type, gc_gl_queue[i].scope)) kept.push_back (gc_gl_queue[i]);
+					continue;
+
+				}
 
 				switch (type) {
 
@@ -248,6 +326,13 @@ namespace lime {
 						if (glIsTexture (id)) glDeleteTextures (1, &id);
 						break;
 
+					#ifdef LIME_GLES3_API
+					case TYPE_TRANSFORM_FEEDBACK:
+
+						if (glIsTransformFeedback && glDeleteTransformFeedbacks && glIsTransformFeedback (id)) glDeleteTransformFeedbacks (1, &id);
+						break;
+					#endif
+
 					#if defined(LIME_GLES3_API) || !defined(LIME_GLES)
 					case TYPE_VERTEX_ARRAY_OBJECT:
 					
@@ -265,33 +350,24 @@ namespace lime {
 						break;
 					#endif
 
+					#ifdef LIME_GLES3_API
+					case TYPE_SYNC:
+
+						if (glIsSync ((GLsync)gc_gl_queue[i].ptr)) glDeleteSync ((GLsync)gc_gl_queue[i].ptr);
+						break;
+					#endif
+
 					default: break;
 
 				}
 
 			}
 
-			size = gc_gl_ptr.size ();
-			void* ptr;
-
-			for (int i = 0; i < size; i++) {
-
-				ptr = gc_gl_ptr[i];
-				//type = gc_gl_type[i];
-
-				#ifdef LIME_GLES3_API
-				if (glIsSync ((GLsync)ptr)) glDeleteSync ((GLsync)ptr);
-				#endif
-
-			}
-
-			gc_gl_id.clear ();
-			gc_gl_ptr.clear ();
-			gc_gl_type.clear ();
-
-			gc_gl_mutex.Unlock ();
+			gc_gl_queue.swap (kept);
 
 		}
+
+		gc_gl_mutex.Unlock ();
 
 	}
 
@@ -418,7 +494,7 @@ namespace lime {
 	void lime_gl_bind_buffer_range (int target, int index, int buffer, double offset, int size) {
 
 		#ifdef LIME_GLES3_API
-		glBindBufferRange (target, index, buffer, (GLintptr)(uintptr_t)offset, size);
+		glBindBufferRange (target, index, buffer, (GLintptr)DataPointerToAddress (offset), size);
 		#endif
 
 
@@ -428,7 +504,7 @@ namespace lime {
 	HL_PRIM void HL_NAME(hl_gl_bind_buffer_range) (int target, int index, int buffer, double offset, int size) {
 
 		#ifdef LIME_GLES3_API
-		glBindBufferRange (target, index, buffer, (GLintptr)(uintptr_t)offset, size);
+		glBindBufferRange (target, index, buffer, (GLintptr)DataPointerToAddress (offset), size);
 		#endif
 
 
@@ -669,28 +745,28 @@ namespace lime {
 
 	void lime_gl_buffer_data (int target, int size, double data, int usage) {
 
-		glBufferData (target, size, (void*)(uintptr_t)data, usage);
+		glBufferData (target, size, (void*)DataPointerToAddress (data), usage);
 
 	}
 
 
 	HL_PRIM void HL_NAME(hl_gl_buffer_data) (int target, int size, double data, int usage) {
 
-		glBufferData (target, size, (void*)(uintptr_t)data, usage);
+		glBufferData (target, size, (void*)DataPointerToAddress (data), usage);
 
 	}
 
 
 	void lime_gl_buffer_sub_data (int target, int offset, int size, double data) {
 
-		glBufferSubData (target, offset, size, (void*)(uintptr_t)data);
+		glBufferSubData (target, offset, size, (void*)DataPointerToAddress (data));
 
 	}
 
 
 	HL_PRIM void HL_NAME(hl_gl_buffer_sub_data) (int target, int offset, int size, double data) {
 
-		glBufferSubData (target, offset, size, (void*)(uintptr_t)data);
+		glBufferSubData (target, offset, size, (void*)DataPointerToAddress (data));
 
 	}
 
@@ -751,7 +827,7 @@ namespace lime {
 
 		#if defined (LIME_GLES3_API) || !defined (LIME_GLES)
 		if (glClearBufferfv) {
-			glClearBufferfv (buffer, drawBuffer, (GLfloat*)(uintptr_t)data);
+			glClearBufferfv (buffer, drawBuffer, (GLfloat*)DataPointerToAddress (data));
 		}
 		#endif
 
@@ -762,7 +838,7 @@ namespace lime {
 
 		#if defined (LIME_GLES3_API) || !defined (LIME_GLES)
 		if (glClearBufferfv) {
-			glClearBufferfv (buffer, drawBuffer, (GLfloat*)(uintptr_t)data);
+			glClearBufferfv (buffer, drawBuffer, (GLfloat*)DataPointerToAddress (data));
 		}
 		#endif
 
@@ -773,7 +849,7 @@ namespace lime {
 
 		#if defined (LIME_GLES3_API) || !defined (LIME_GLES)
 		if (glClearBufferiv) {
-			glClearBufferiv (buffer, drawBuffer, (GLint*)(uintptr_t)data);
+			glClearBufferiv (buffer, drawBuffer, (GLint*)DataPointerToAddress (data));
 		}
 		#endif
 
@@ -784,7 +860,7 @@ namespace lime {
 
 		#if defined (LIME_GLES3_API) || !defined (LIME_GLES)
 		if (glClearBufferiv) {
-			glClearBufferiv (buffer, drawBuffer, (GLint*)(uintptr_t)data);
+			glClearBufferiv (buffer, drawBuffer, (GLint*)DataPointerToAddress (data));
 		}
 		#endif
 
@@ -795,7 +871,7 @@ namespace lime {
 
 		#if defined (LIME_GLES3_API) || !defined (LIME_GLES)
 		if (glClearBufferuiv) {
-			glClearBufferuiv (buffer, drawBuffer, (GLuint*)(uintptr_t)data);
+			glClearBufferuiv (buffer, drawBuffer, (GLuint*)DataPointerToAddress (data));
 		}
 		#endif
 
@@ -806,7 +882,7 @@ namespace lime {
 
 		#if defined (LIME_GLES3_API) || !defined (LIME_GLES)
 		if (glClearBufferuiv) {
-			glClearBufferuiv (buffer, drawBuffer, (GLuint*)(uintptr_t)data);
+			glClearBufferuiv (buffer, drawBuffer, (GLuint*)DataPointerToAddress (data));
 		}
 		#endif
 
@@ -917,14 +993,14 @@ namespace lime {
 
 	void lime_gl_compressed_tex_image_2d (int target, int level, int internalformat, int width, int height, int border, int imageSize, double data) {
 
-		glCompressedTexImage2D (target, level, internalformat, width, height, border, imageSize, (void*)(uintptr_t)data);
+		glCompressedTexImage2D (target, level, internalformat, width, height, border, imageSize, (void*)DataPointerToAddress (data));
 
 	}
 
 
 	HL_PRIM void HL_NAME(hl_gl_compressed_tex_image_2d) (int target, int level, int internalformat, int width, int height, int border, int imageSize, double data) {
 
-		glCompressedTexImage2D (target, level, internalformat, width, height, border, imageSize, (void*)(uintptr_t)data);
+		glCompressedTexImage2D (target, level, internalformat, width, height, border, imageSize, (void*)DataPointerToAddress (data));
 
 	}
 
@@ -933,7 +1009,7 @@ namespace lime {
 
 		#if defined (LIME_GLES3_API) || !defined (LIME_GLES)
 		if (glCompressedTexImage3D) {
-			glCompressedTexImage3D (target, level, internalformat, width, height, depth, border, imageSize, (void*)(uintptr_t)data);
+			glCompressedTexImage3D (target, level, internalformat, width, height, depth, border, imageSize, (void*)DataPointerToAddress (data));
 		}
 		#endif
 
@@ -944,7 +1020,7 @@ namespace lime {
 
 		#if defined (LIME_GLES3_API) || !defined (LIME_GLES)
 		if (glCompressedTexImage3D) {
-			glCompressedTexImage3D (target, level, internalformat, width, height, depth, border, imageSize, (void*)(uintptr_t)data);
+			glCompressedTexImage3D (target, level, internalformat, width, height, depth, border, imageSize, (void*)DataPointerToAddress (data));
 		}
 		#endif
 
@@ -953,14 +1029,14 @@ namespace lime {
 
 	void lime_gl_compressed_tex_sub_image_2d (int target, int level, int xoffset, int yoffset, int width, int height, int format, int imageSize, double data) {
 
-		glCompressedTexSubImage2D (target, level, xoffset, yoffset, width, height, format, imageSize, (void*)(uintptr_t)data);
+		glCompressedTexSubImage2D (target, level, xoffset, yoffset, width, height, format, imageSize, (void*)DataPointerToAddress (data));
 
 	}
 
 
 	HL_PRIM void HL_NAME(hl_gl_compressed_tex_sub_image_2d) (int target, int level, int xoffset, int yoffset, int width, int height, int format, int imageSize, double data) {
 
-		glCompressedTexSubImage2D (target, level, xoffset, yoffset, width, height, format, imageSize, (void*)(uintptr_t)data);
+		glCompressedTexSubImage2D (target, level, xoffset, yoffset, width, height, format, imageSize, (void*)DataPointerToAddress (data));
 
 	}
 
@@ -969,7 +1045,7 @@ namespace lime {
 
 		#if defined (LIME_GLES3_API) || !defined (LIME_GLES)
 		if (glCompressedTexSubImage3D) {
-			glCompressedTexSubImage3D (target, level, xoffset, yoffset, zoffset, width, height, depth, format, imageSize, (void*)(uintptr_t)data);
+			glCompressedTexSubImage3D (target, level, xoffset, yoffset, zoffset, width, height, depth, format, imageSize, (void*)DataPointerToAddress (data));
 		}
 		#endif
 
@@ -980,7 +1056,7 @@ namespace lime {
 
 		#if defined (LIME_GLES3_API) || !defined (LIME_GLES)
 		if (glCompressedTexSubImage3D) {
-			glCompressedTexSubImage3D (target, level, xoffset, yoffset, zoffset, width, height, depth, format, imageSize, (void*)(uintptr_t)data);
+			glCompressedTexSubImage3D (target, level, xoffset, yoffset, zoffset, width, height, depth, format, imageSize, (void*)DataPointerToAddress (data));
 		}
 		#endif
 
@@ -991,7 +1067,7 @@ namespace lime {
 
 		#if defined (LIME_GLES3_API) || !defined (LIME_GLES)
 		if (glCopyBufferSubData) {
-			glCopyBufferSubData (readTarget, writeTarget, (GLintptr)(uintptr_t)readOffset, (GLintptr)(uintptr_t)writeOffset, size);
+			glCopyBufferSubData (readTarget, writeTarget, (GLintptr)DataPointerToAddress (readOffset), (GLintptr)DataPointerToAddress (writeOffset), size);
 		}
 		#endif
 
@@ -1002,7 +1078,7 @@ namespace lime {
 
 		#if defined (LIME_GLES3_API) || !defined (LIME_GLES)
 		if (glCopyBufferSubData) {
-			glCopyBufferSubData (readTarget, writeTarget, (GLintptr)(uintptr_t)readOffset, (GLintptr)(uintptr_t)writeOffset, size);
+			glCopyBufferSubData (readTarget, writeTarget, (GLintptr)DataPointerToAddress (readOffset), (GLintptr)DataPointerToAddress (writeOffset), size);
 		}
 		#endif
 
@@ -1417,7 +1493,16 @@ namespace lime {
 
 		#ifdef LIME_GLES3_API
 		if (val_is_null (sync)) return;
-		glDeleteSync ((GLsync)val_data (sync));
+
+		// Forgotten first, so that collecting it later doesn't delete another
+		// sync that has been given the same address
+		lock_gl_objects ();
+		bool registered = glObjectTypes.erase (sync) > 0;
+		glObjectPtrs.erase (sync);
+		glObjectScopes.erase (sync);
+		gc_gl_mutex.Unlock ();
+
+		if (registered) glDeleteSync ((GLsync)val_data (sync));
 		#endif
 
 	}
@@ -1426,8 +1511,16 @@ namespace lime {
 	HL_PRIM void HL_NAME(hl_gl_delete_sync) (HL_CFFIPointer* sync) {
 
 		#ifdef LIME_GLES3_API
-		if (!sync) return;
-		glDeleteSync ((GLsync)sync->ptr);
+		if (!sync || !sync->ptr) return;
+
+		lock_gl_objects ();
+		bool registered = glObjectTypes.erase (sync->ptr) > 0;
+		glObjectPtrs.erase (sync->ptr);
+		glObjectScopes.erase (sync->ptr);
+		gc_gl_mutex.Unlock ();
+
+		sync->finalizer = NULL;
+		if (registered) glDeleteSync ((GLsync)sync->ptr);
 		#endif
 
 	}
@@ -1661,14 +1754,14 @@ namespace lime {
 
 	void lime_gl_draw_elements (int mode, int count, int type, double offset) {
 
-		glDrawElements (mode, count, type, (void*)(uintptr_t)offset);
+		glDrawElements (mode, count, type, (void*)DataPointerToAddress (offset));
 
 	}
 
 
 	HL_PRIM void HL_NAME(hl_gl_draw_elements) (int mode, int count, int type, double offset) {
 
-		glDrawElements (mode, count, type, (void*)(uintptr_t)offset);
+		glDrawElements (mode, count, type, (void*)DataPointerToAddress (offset));
 
 	}
 
@@ -1677,7 +1770,7 @@ namespace lime {
 
 		#if defined (LIME_GLES3_API) || !defined (LIME_GLES)
 		if (glDrawElementsInstanced) {
-			glDrawElementsInstanced (mode, count, type, (void*)(uintptr_t)offset, instanceCount);
+			glDrawElementsInstanced (mode, count, type, (void*)DataPointerToAddress (offset), instanceCount);
 		}
 		#endif
 
@@ -1688,7 +1781,7 @@ namespace lime {
 
 		#if defined (LIME_GLES3_API) || !defined (LIME_GLES)
 		if (glDrawElementsInstanced) {
-			glDrawElementsInstanced (mode, count, type, (void*)(uintptr_t)offset, instanceCount);
+			glDrawElementsInstanced (mode, count, type, (void*)DataPointerToAddress (offset), instanceCount);
 		}
 		#endif
 
@@ -1699,7 +1792,7 @@ namespace lime {
 
 		#if defined (LIME_GLES3_API) || !defined (LIME_GLES)
 		if (glDrawRangeElements) {
-			glDrawRangeElements (mode, start, end, count, type, (void*)(uintptr_t)offset);
+			glDrawRangeElements (mode, start, end, count, type, (void*)DataPointerToAddress (offset));
 		}
 		#endif
 
@@ -1710,7 +1803,7 @@ namespace lime {
 
 		#if defined (LIME_GLES3_API) || !defined (LIME_GLES)
 		if (glDrawRangeElements) {
-			glDrawRangeElements (mode, start, end, count, type, (void*)(uintptr_t)offset);
+			glDrawRangeElements (mode, start, end, count, type, (void*)DataPointerToAddress (offset));
 		}
 		#endif
 
@@ -1786,7 +1879,18 @@ namespace lime {
 		#ifdef LIME_GLES3_API
 		GLsync result = glFenceSync (condition, flags);
 		value handle = CFFIPointer (result, gc_gl_object);
-		glObjectPtrs[handle] = result;
+
+		// Registered as a sync, so that its finalizer queues it for deleting
+		if (!val_is_null (handle)) {
+
+			lock_gl_objects ();
+			glObjectTypes[handle] = TYPE_SYNC;
+			glObjectPtrs[handle] = result;
+			glObjectScopes[handle] = gl_current_scope (TYPE_SYNC);
+			gc_gl_mutex.Unlock ();
+
+		}
+
 		return handle;
 		#else
 		return alloc_null ();
@@ -1800,7 +1904,18 @@ namespace lime {
 		#ifdef LIME_GLES3_API
 		GLsync result = glFenceSync (condition, flags);
 		HL_CFFIPointer* handle = HLCFFIPointer (result, (hl_finalizer)hl_gc_gl_object);
-		glObjectPtrs[handle] = result;
+
+		// The finalizer is given the sync itself, so it is registered by that
+		if (handle) {
+
+			lock_gl_objects ();
+			glObjectTypes[result] = TYPE_SYNC;
+			glObjectPtrs[result] = result;
+			glObjectScopes[result] = gl_current_scope (TYPE_SYNC);
+			gc_gl_mutex.Unlock ();
+
+		}
+
 		return handle;
 		#else
 		return NULL;
@@ -1917,17 +2032,20 @@ namespace lime {
 
 	value lime_gl_get_active_attrib (int program, int index) {
 
-		value result = alloc_empty_object ();
+		// GL_ACTIVE_ATTRIBUTE_MAX_LENGTH names the query for the longest name, with its terminator
+		GLint maxLength = 0;
+		glGetProgramiv (program, GL_ACTIVE_ATTRIBUTE_MAX_LENGTH, &maxLength);
 
-		std::string buffer (GL_ACTIVE_ATTRIBUTE_MAX_LENGTH, 0);
+		std::string buffer (maxLength > 0 ? maxLength : 1, 0);
 		GLsizei outLen = 0;
-		GLsizei size = 0;
+		GLint size = 0;
 		GLenum type = 0;
 
-		glGetActiveAttrib (program, index, GL_ACTIVE_ATTRIBUTE_MAX_LENGTH, &outLen, &size, &type, &buffer[0]);
+		glGetActiveAttrib (program, index, (GLsizei)buffer.size (), &outLen, &size, &type, &buffer[0]);
 
 		buffer.resize (outLen);
 
+		value result = alloc_empty_object ();
 		alloc_field (result, val_id ("size"), alloc_int (size));
 		alloc_field (result, val_id ("type"), alloc_int (type));
 		alloc_field (result, val_id ("name"), alloc_string (buffer.c_str ()));
@@ -1939,16 +2057,18 @@ namespace lime {
 
 	HL_PRIM vdynamic* HL_NAME(hl_gl_get_active_attrib) (int program, int index) {
 
-		char buffer[GL_ACTIVE_ATTRIBUTE_MAX_LENGTH];
+		GLint maxLength = 0;
+		glGetProgramiv (program, GL_ACTIVE_ATTRIBUTE_MAX_LENGTH, &maxLength);
+		if (maxLength < 1) maxLength = 1;
+
+		// The collector owns the name, as it does other strings given to Haxe
+		char* name = (char*)hl_alloc_bytes (maxLength);
 		GLsizei outLen = 0;
-		GLsizei size = 0;
+		GLint size = 0;
 		GLenum type = 0;
 
-		glGetActiveAttrib (program, index, GL_ACTIVE_ATTRIBUTE_MAX_LENGTH, &outLen, &size, &type, &buffer[0]);
-
-		char* _buffer = (char*)malloc (outLen + 1);
-		memcpy (_buffer, &buffer, outLen);
-		_buffer[outLen] = '\0';
+		glGetActiveAttrib (program, index, maxLength, &outLen, &size, &type, name);
+		name[outLen] = 0;
 
 		const int id_size = hl_hash_utf8 ("size");
 		const int id_type = hl_hash_utf8 ("type");
@@ -1957,7 +2077,7 @@ namespace lime {
 		vdynamic *result = (vdynamic*)hl_alloc_dynobj();
 		hl_dyn_seti (result, id_size, &hlt_i32, size);
 		hl_dyn_seti (result, id_type, &hlt_i32, type);
-		hl_dyn_setp (result, id_name, &hlt_bytes, _buffer);
+		hl_dyn_setp (result, id_name, &hlt_bytes, name);
 
 		return result;
 
@@ -1966,12 +2086,16 @@ namespace lime {
 
 	value lime_gl_get_active_uniform (int program, int index) {
 
-		std::string buffer (GL_ACTIVE_UNIFORM_MAX_LENGTH, 0);
-		GLsizei outLen = 0;
-		GLsizei size = 0;
-		GLenum  type = 0;
+		// GL_ACTIVE_UNIFORM_MAX_LENGTH names the query for the longest name, with its terminator
+		GLint maxLength = 0;
+		glGetProgramiv (program, GL_ACTIVE_UNIFORM_MAX_LENGTH, &maxLength);
 
-		glGetActiveUniform (program, index, GL_ACTIVE_UNIFORM_MAX_LENGTH, &outLen, &size, &type, &buffer[0]);
+		std::string buffer (maxLength > 0 ? maxLength : 1, 0);
+		GLsizei outLen = 0;
+		GLint size = 0;
+		GLenum type = 0;
+
+		glGetActiveUniform (program, index, (GLsizei)buffer.size (), &outLen, &size, &type, &buffer[0]);
 
 		buffer.resize (outLen);
 
@@ -1987,16 +2111,18 @@ namespace lime {
 
 	HL_PRIM vdynamic* HL_NAME(hl_gl_get_active_uniform) (int program, int index) {
 
-		char* buffer[GL_ACTIVE_UNIFORM_MAX_LENGTH];
+		GLint maxLength = 0;
+		glGetProgramiv (program, GL_ACTIVE_UNIFORM_MAX_LENGTH, &maxLength);
+		if (maxLength < 1) maxLength = 1;
+
+		// The collector owns the name, as it does other strings given to Haxe
+		char* name = (char*)hl_alloc_bytes (maxLength);
 		GLsizei outLen = 0;
-		GLsizei size = 0;
+		GLint size = 0;
 		GLenum type = 0;
 
-		glGetActiveUniform (program, index, GL_ACTIVE_UNIFORM_MAX_LENGTH, &outLen, &size, &type, (GLchar*)&buffer);
-
-		char* _buffer = (char*)malloc (outLen + 1);
-		memcpy (_buffer, &buffer, outLen);
-		_buffer[outLen] = '\0';
+		glGetActiveUniform (program, index, maxLength, &outLen, &size, &type, name);
+		name[outLen] = 0;
 
 		const int id_size = hl_hash_utf8 ("size");
 		const int id_type = hl_hash_utf8 ("type");
@@ -2005,7 +2131,7 @@ namespace lime {
 		vdynamic *result = (vdynamic*)hl_alloc_dynobj();
 		hl_dyn_seti (result, id_size, &hlt_i32, size);
 		hl_dyn_seti (result, id_type, &hlt_i32, type);
-		hl_dyn_setp (result, id_name, &hlt_bytes, _buffer);
+		hl_dyn_setp (result, id_name, &hlt_bytes, name);
 
 		return result;
 
@@ -2037,7 +2163,7 @@ namespace lime {
 	void lime_gl_get_active_uniform_blockiv (int program, int uniformBlockIndex, int pname, double params) {
 
 		#ifdef LIME_GLES3_API
-		glGetActiveUniformBlockiv (program, uniformBlockIndex, pname, (GLint*)(uintptr_t)params);
+		glGetActiveUniformBlockiv (program, uniformBlockIndex, pname, (GLint*)DataPointerToAddress (params));
 		#endif
 
 	}
@@ -2046,7 +2172,7 @@ namespace lime {
 	HL_PRIM void HL_NAME(hl_gl_get_active_uniform_blockiv) (int program, int uniformBlockIndex, int pname, double params) {
 
 		#ifdef LIME_GLES3_API
-		glGetActiveUniformBlockiv (program, uniformBlockIndex, pname, (GLint*)(uintptr_t)params);
+		glGetActiveUniformBlockiv (program, uniformBlockIndex, pname, (GLint*)DataPointerToAddress (params));
 		#endif
 
 	}
@@ -2101,7 +2227,7 @@ namespace lime {
 
 		}
 
-		glGetActiveUniformsiv (program, size, _uniformIndices, pname, (GLint*)(uintptr_t)params);
+		glGetActiveUniformsiv (program, size, _uniformIndices, pname, (GLint*)DataPointerToAddress (params));
 		#endif
 
 	}
@@ -2111,7 +2237,7 @@ namespace lime {
 
 		#ifdef LIME_GLES3_API
 		GLsizei size = uniformIndices->size;
-		glGetActiveUniformsiv (program, size, (GLenum*)hl_aptr (uniformIndices, int), pname, (GLint*)(uintptr_t)params);
+		glGetActiveUniformsiv (program, size, (GLenum*)hl_aptr (uniformIndices, int), pname, (GLint*)DataPointerToAddress (params));
 		#endif
 
 	}
@@ -2202,14 +2328,14 @@ namespace lime {
 
 	void lime_gl_get_booleanv (int pname, double params) {
 
-		glGetBooleanv (pname, (unsigned char*)(uintptr_t)params);
+		glGetBooleanv (pname, (unsigned char*)DataPointerToAddress (params));
 
 	}
 
 
 	HL_PRIM void HL_NAME(hl_gl_get_booleanv) (int pname, double params) {
 
-		glGetBooleanv (pname, (unsigned char*)(uintptr_t)params);
+		glGetBooleanv (pname, (unsigned char*)DataPointerToAddress (params));
 
 	}
 
@@ -2235,7 +2361,7 @@ namespace lime {
 	void lime_gl_get_buffer_parameteri64v (int target, int index, double params) {
 
 		#ifdef LIME_GLES3_API
-		glGetBufferParameteri64v (target, index, (GLint64*)(uintptr_t)params);
+		glGetBufferParameteri64v (target, index, (GLint64*)DataPointerToAddress (params));
 		#endif
 
 	}
@@ -2244,7 +2370,7 @@ namespace lime {
 	HL_PRIM void HL_NAME(hl_gl_get_buffer_parameteri64v) (int target, int index, double params) {
 
 		#ifdef LIME_GLES3_API
-		glGetBufferParameteri64v (target, index, (GLint64*)(uintptr_t)params);
+		glGetBufferParameteri64v (target, index, (GLint64*)DataPointerToAddress (params));
 		#endif
 
 	}
@@ -2252,14 +2378,14 @@ namespace lime {
 
 	void lime_gl_get_buffer_parameteriv (int target, int index, double params) {
 
-		glGetBufferParameteriv (target, index, (GLint*)(uintptr_t)params);
+		glGetBufferParameteriv (target, index, (GLint*)DataPointerToAddress (params));
 
 	}
 
 
 	HL_PRIM void HL_NAME(hl_gl_get_buffer_parameteriv) (int target, int index, double params) {
 
-		glGetBufferParameteriv (target, index, (GLint*)(uintptr_t)params);
+		glGetBufferParameteriv (target, index, (GLint*)DataPointerToAddress (params));
 
 	}
 
@@ -2289,7 +2415,7 @@ namespace lime {
 	void lime_gl_get_buffer_sub_data (int target, double offset, int size, double data) {
 
 		#ifndef LIME_GLES
-		glGetBufferSubData (target, (GLintptr)(uintptr_t)offset, size, (void*)(uintptr_t)data);
+		glGetBufferSubData (target, (GLintptr)DataPointerToAddress (offset), size, (void*)DataPointerToAddress (data));
 		#endif
 
 	}
@@ -2298,7 +2424,7 @@ namespace lime {
 	HL_PRIM void HL_NAME(hl_gl_get_buffer_sub_data) (int target, double offset, int size, double data) {
 
 		#ifndef LIME_GLES
-		glGetBufferSubData (target, (GLintptr)(uintptr_t)offset, size, (void*)(uintptr_t)data);
+		glGetBufferSubData (target, (GLintptr)DataPointerToAddress (offset), size, (void*)DataPointerToAddress (data));
 		#endif
 
 	}
@@ -2472,14 +2598,14 @@ namespace lime {
 
 	void lime_gl_get_floatv (int pname, double params) {
 
-		glGetFloatv (pname, (GLfloat*)(uintptr_t)params);
+		glGetFloatv (pname, (GLfloat*)DataPointerToAddress (params));
 
 	}
 
 
 	HL_PRIM void HL_NAME(hl_gl_get_floatv) (int pname, double params) {
 
-		glGetFloatv (pname, (GLfloat*)(uintptr_t)params);
+		glGetFloatv (pname, (GLfloat*)DataPointerToAddress (params));
 
 	}
 
@@ -2526,14 +2652,14 @@ namespace lime {
 
 	void lime_gl_get_framebuffer_attachment_parameteriv (int target, int attachment, int pname, double params) {
 
-		glGetFramebufferAttachmentParameteriv (target, attachment, pname, (GLint*)(uintptr_t)params);
+		glGetFramebufferAttachmentParameteriv (target, attachment, pname, (GLint*)DataPointerToAddress (params));
 
 	}
 
 
 	HL_PRIM void HL_NAME(hl_gl_get_framebuffer_attachment_parameteriv) (int target, int attachment, int pname, double params) {
 
-		glGetFramebufferAttachmentParameteriv (target, attachment, pname, (GLint*)(uintptr_t)params);
+		glGetFramebufferAttachmentParameteriv (target, attachment, pname, (GLint*)DataPointerToAddress (params));
 
 	}
 
@@ -2559,7 +2685,7 @@ namespace lime {
 	void lime_gl_get_integer64v (int pname, double params) {
 
 		#ifdef LIME_GLES3_API
-		glGetInteger64v (pname, (GLint64*)(uintptr_t)params);
+		glGetInteger64v (pname, (GLint64*)DataPointerToAddress (params));
 		#endif
 
 	}
@@ -2568,7 +2694,7 @@ namespace lime {
 	HL_PRIM void HL_NAME(hl_gl_get_integer64v) (int pname, double params) {
 
 		#ifdef LIME_GLES3_API
-		glGetInteger64v (pname, (GLint64*)(uintptr_t)params);
+		glGetInteger64v (pname, (GLint64*)DataPointerToAddress (params));
 		#endif
 
 	}
@@ -2577,7 +2703,7 @@ namespace lime {
 	void lime_gl_get_integer64i_v (int pname, int index, double params) {
 
 		#ifdef LIME_GLES3_API
-		glGetInteger64i_v (pname, index, (GLint64*)(uintptr_t)params);
+		glGetInteger64i_v (pname, index, (GLint64*)DataPointerToAddress (params));
 		#endif
 
 	}
@@ -2586,7 +2712,7 @@ namespace lime {
 	HL_PRIM void HL_NAME(hl_gl_get_integer64i_v) (int pname, int index, double params) {
 
 		#ifdef LIME_GLES3_API
-		glGetInteger64i_v (pname, index, (GLint64*)(uintptr_t)params);
+		glGetInteger64i_v (pname, index, (GLint64*)DataPointerToAddress (params));
 		#endif
 
 	}
@@ -2594,14 +2720,14 @@ namespace lime {
 
 	void lime_gl_get_integerv (int pname, double params) {
 
-		glGetIntegerv (pname, (GLint*)(uintptr_t)params);
+		glGetIntegerv (pname, (GLint*)DataPointerToAddress (params));
 
 	}
 
 
 	HL_PRIM void HL_NAME(hl_gl_get_integerv) (int pname, double params) {
 
-		glGetIntegerv (pname, (GLint*)(uintptr_t)params);
+		glGetIntegerv (pname, (GLint*)DataPointerToAddress (params));
 
 	}
 
@@ -2609,7 +2735,7 @@ namespace lime {
 	void lime_gl_get_integeri_v (int pname, int index, double params) {
 
 		#ifdef LIME_GLES3_API
-		glGetIntegeri_v (pname, index, (GLint*)(uintptr_t)params);
+		glGetIntegeri_v (pname, index, (GLint*)DataPointerToAddress (params));
 		#endif
 
 	}
@@ -2618,7 +2744,7 @@ namespace lime {
 	HL_PRIM void HL_NAME(hl_gl_get_integeri_v) (int pname, int index, double params) {
 
 		#ifdef LIME_GLES3_API
-		glGetIntegeri_v (pname, index, (GLint*)(uintptr_t)params);
+		glGetIntegeri_v (pname, index, (GLint*)DataPointerToAddress (params));
 		#endif
 
 	}
@@ -2627,7 +2753,7 @@ namespace lime {
 	void lime_gl_get_internalformativ (int target, int internalformat, int pname, int bufSize, double params) {
 
 		#ifdef LIME_GLES3_API
-		glGetInternalformativ (target, internalformat, pname, (GLsizei)bufSize, (GLint*)(uintptr_t)params);
+		glGetInternalformativ (target, internalformat, pname, (GLsizei)bufSize, (GLint*)DataPointerToAddress (params));
 		#endif
 
 	}
@@ -2636,7 +2762,7 @@ namespace lime {
 	HL_PRIM void HL_NAME(hl_gl_get_internalformativ) (int target, int internalformat, int pname, int bufSize, double params) {
 
 		#ifdef LIME_GLES3_API
-		glGetInternalformativ (target, internalformat, pname, (GLsizei)bufSize, (GLint*)(uintptr_t)params);
+		glGetInternalformativ (target, internalformat, pname, (GLsizei)bufSize, (GLint*)DataPointerToAddress (params));
 		#endif
 
 	}
@@ -2744,14 +2870,14 @@ namespace lime {
 
 	void lime_gl_get_programiv (int program, int pname, double params) {
 
-		glGetProgramiv (program, pname, (GLint*)(uintptr_t)params);
+		glGetProgramiv (program, pname, (GLint*)DataPointerToAddress (params));
 
 	}
 
 
 	HL_PRIM void HL_NAME(hl_gl_get_programiv) (int program, int pname, double params) {
 
-		glGetProgramiv (program, pname, (GLint*)(uintptr_t)params);
+		glGetProgramiv (program, pname, (GLint*)DataPointerToAddress (params));
 
 	}
 
@@ -2781,7 +2907,7 @@ namespace lime {
 	void lime_gl_get_queryiv (int target, int pname, double params) {
 
 		#ifdef LIME_GLES3_API
-		glGetQueryiv (target, pname, (GLint*)(uintptr_t)params);
+		glGetQueryiv (target, pname, (GLint*)DataPointerToAddress (params));
 		#endif
 
 	}
@@ -2790,7 +2916,7 @@ namespace lime {
 	HL_PRIM void HL_NAME(hl_gl_get_queryiv) (int target, int pname, double params) {
 
 		#ifdef LIME_GLES3_API
-		glGetQueryiv (target, pname, (GLint*)(uintptr_t)params);
+		glGetQueryiv (target, pname, (GLint*)DataPointerToAddress (params));
 		#endif
 
 	}
@@ -2821,7 +2947,7 @@ namespace lime {
 	void lime_gl_get_query_objectuiv (int query, int pname, double params) {
 
 		#ifdef LIME_GLES3_API
-		glGetQueryObjectuiv (query, pname, (GLuint*)(uintptr_t)params);
+		glGetQueryObjectuiv (query, pname, (GLuint*)DataPointerToAddress (params));
 		#endif
 
 	}
@@ -2830,7 +2956,7 @@ namespace lime {
 	HL_PRIM void HL_NAME(hl_gl_get_query_objectuiv) (int query, int pname, double params) {
 
 		#ifdef LIME_GLES3_API
-		glGetQueryObjectuiv (query, pname, (GLuint*)(uintptr_t)params);
+		glGetQueryObjectuiv (query, pname, (GLuint*)DataPointerToAddress (params));
 		#endif
 
 	}
@@ -2856,14 +2982,14 @@ namespace lime {
 
 	void lime_gl_get_renderbuffer_parameteriv (int target, int pname, double params) {
 
-		glGetRenderbufferParameteriv (target, pname, (GLint*)(uintptr_t)params);
+		glGetRenderbufferParameteriv (target, pname, (GLint*)DataPointerToAddress (params));
 
 	}
 
 
 	HL_PRIM void HL_NAME(hl_gl_get_renderbuffer_parameteriv) (int target, int pname, double params) {
 
-		glGetRenderbufferParameteriv (target, pname, (GLint*)(uintptr_t)params);
+		glGetRenderbufferParameteriv (target, pname, (GLint*)DataPointerToAddress (params));
 
 	}
 
@@ -2898,7 +3024,7 @@ namespace lime {
 
 		#if defined (LIME_GLES3_API) || !defined (LIME_GLES)
 		if (glGetSamplerParameterfv) {
-			glGetSamplerParameterfv (sampler, pname, (GLfloat*)(uintptr_t)params);
+			glGetSamplerParameterfv (sampler, pname, (GLfloat*)DataPointerToAddress (params));
 		}
 		#endif
 
@@ -2909,7 +3035,7 @@ namespace lime {
 
 		#if defined (LIME_GLES3_API) || !defined (LIME_GLES)
 		if (glGetSamplerParameterfv) {
-			glGetSamplerParameterfv (sampler, pname, (GLfloat*)(uintptr_t)params);
+			glGetSamplerParameterfv (sampler, pname, (GLfloat*)DataPointerToAddress (params));
 		}
 		#endif
 
@@ -2946,7 +3072,7 @@ namespace lime {
 
 		#if defined (LIME_GLES3_API) || !defined (LIME_GLES)
 		if (glGetSamplerParameteriv) {
-			glGetSamplerParameteriv (sampler, pname, (GLint*)(uintptr_t)params);
+			glGetSamplerParameteriv (sampler, pname, (GLint*)DataPointerToAddress (params));
 		}
 		#endif
 
@@ -2957,7 +3083,7 @@ namespace lime {
 
 		#if defined (LIME_GLES3_API) || !defined (LIME_GLES)
 		if (glGetSamplerParameteriv) {
-			glGetSamplerParameteriv (sampler, pname, (GLint*)(uintptr_t)params);
+			glGetSamplerParameteriv (sampler, pname, (GLint*)DataPointerToAddress (params));
 		}
 		#endif
 
@@ -3029,14 +3155,14 @@ namespace lime {
 
 	void lime_gl_get_shaderiv (int shader, int pname, double params) {
 
-		glGetShaderiv (shader, pname, (GLint*)(uintptr_t)params);
+		glGetShaderiv (shader, pname, (GLint*)DataPointerToAddress (params));
 
 	}
 
 
 	HL_PRIM void HL_NAME(hl_gl_get_shaderiv) (int shader, int pname, double params) {
 
-		glGetShaderiv (shader, pname, (GLint*)(uintptr_t)params);
+		glGetShaderiv (shader, pname, (GLint*)DataPointerToAddress (params));
 
 	}
 
@@ -3279,14 +3405,14 @@ namespace lime {
 
 	void lime_gl_get_tex_parameterfv (int target, int pname, double params) {
 
-		glGetTexParameterfv (target, pname, (GLfloat*)(uintptr_t)params);
+		glGetTexParameterfv (target, pname, (GLfloat*)DataPointerToAddress (params));
 
 	}
 
 
 	HL_PRIM void HL_NAME(hl_gl_get_tex_parameterfv) (int target, int pname, double params) {
 
-		glGetTexParameterfv (target, pname, (GLfloat*)(uintptr_t)params);
+		glGetTexParameterfv (target, pname, (GLfloat*)DataPointerToAddress (params));
 
 	}
 
@@ -3311,14 +3437,14 @@ namespace lime {
 
 	void lime_gl_get_tex_parameteriv (int target, int pname, double params) {
 
-		glGetTexParameteriv (target, pname, (GLint*)(uintptr_t)params);
+		glGetTexParameteriv (target, pname, (GLint*)DataPointerToAddress (params));
 
 	}
 
 
 	HL_PRIM void HL_NAME(hl_gl_get_tex_parameteriv) (int target, int pname, double params) {
 
-		glGetTexParameteriv (target, pname, (GLint*)(uintptr_t)params);
+		glGetTexParameteriv (target, pname, (GLint*)DataPointerToAddress (params));
 
 	}
 
@@ -3408,14 +3534,14 @@ namespace lime {
 
 	void lime_gl_get_uniformfv (int program, int location, double params) {
 
-		glGetUniformfv (program, location, (GLfloat*)(uintptr_t)params);
+		glGetUniformfv (program, location, (GLfloat*)DataPointerToAddress (params));
 
 	}
 
 
 	HL_PRIM void HL_NAME(hl_gl_get_uniformfv) (int program, int location, double params) {
 
-		glGetUniformfv (program, location, (GLfloat*)(uintptr_t)params);
+		glGetUniformfv (program, location, (GLfloat*)DataPointerToAddress (params));
 
 	}
 
@@ -3440,14 +3566,14 @@ namespace lime {
 
 	void lime_gl_get_uniformiv (int program, int location, double params) {
 
-		glGetUniformiv (program, location, (GLint*)(uintptr_t)params);
+		glGetUniformiv (program, location, (GLint*)DataPointerToAddress (params));
 
 	}
 
 
 	HL_PRIM void HL_NAME(hl_gl_get_uniformiv) (int program, int location, double params) {
 
-		glGetUniformiv (program, location, (GLint*)(uintptr_t)params);
+		glGetUniformiv (program, location, (GLint*)DataPointerToAddress (params));
 
 	}
 
@@ -3477,7 +3603,7 @@ namespace lime {
 	void lime_gl_get_uniformuiv (int program, int location, double params) {
 
 		#ifdef LIME_GLES3_API
-		glGetUniformuiv (program, location, (GLuint*)(uintptr_t)params);
+		glGetUniformuiv (program, location, (GLuint*)DataPointerToAddress (params));
 		#endif
 
 	}
@@ -3486,7 +3612,7 @@ namespace lime {
 	HL_PRIM void HL_NAME(hl_gl_get_uniformuiv) (int program, int location, double params) {
 
 		#ifdef LIME_GLES3_API
-		glGetUniformuiv (program, location, (GLuint*)(uintptr_t)params);
+		glGetUniformuiv (program, location, (GLuint*)DataPointerToAddress (params));
 		#endif
 
 	}
@@ -3548,14 +3674,14 @@ namespace lime {
 
 	void lime_gl_get_vertex_attribfv (int index, int pname, double params) {
 
-		glGetVertexAttribfv (index, pname, (GLfloat*)(uintptr_t)params);
+		glGetVertexAttribfv (index, pname, (GLfloat*)DataPointerToAddress (params));
 
 	}
 
 
 	HL_PRIM void HL_NAME(hl_gl_get_vertex_attribfv) (int index, int pname, double params) {
 
-		glGetVertexAttribfv (index, pname, (GLfloat*)(uintptr_t)params);
+		glGetVertexAttribfv (index, pname, (GLfloat*)DataPointerToAddress (params));
 
 	}
 
@@ -3580,14 +3706,14 @@ namespace lime {
 
 	void lime_gl_get_vertex_attribiv (int index, int pname, double params) {
 
-		glGetVertexAttribiv (index, pname, (GLint*)(uintptr_t)params);
+		glGetVertexAttribiv (index, pname, (GLint*)DataPointerToAddress (params));
 
 	}
 
 
 	HL_PRIM void HL_NAME(hl_gl_get_vertex_attribiv) (int index, int pname, double params) {
 
-		glGetVertexAttribiv (index, pname, (GLint*)(uintptr_t)params);
+		glGetVertexAttribiv (index, pname, (GLint*)DataPointerToAddress (params));
 
 	}
 
@@ -3617,7 +3743,7 @@ namespace lime {
 	void lime_gl_get_vertex_attribiiv (int index, int pname, double params) {
 
 		#ifdef LIME_GLES3_API
-		glGetVertexAttribIiv (index, pname, (GLint*)(uintptr_t)params);
+		glGetVertexAttribIiv (index, pname, (GLint*)DataPointerToAddress (params));
 		#endif
 
 	}
@@ -3626,7 +3752,7 @@ namespace lime {
 	HL_PRIM void HL_NAME(hl_gl_get_vertex_attribiiv) (int index, int pname, double params) {
 
 		#ifdef LIME_GLES3_API
-		glGetVertexAttribIiv (index, pname, (GLint*)(uintptr_t)params);
+		glGetVertexAttribIiv (index, pname, (GLint*)DataPointerToAddress (params));
 		#endif
 
 	}
@@ -3657,7 +3783,7 @@ namespace lime {
 	void lime_gl_get_vertex_attribiuiv (int index, int pname, double params) {
 
 		#ifdef LIME_GLES3_API
-		glGetVertexAttribIuiv (index, pname, (GLuint*)(uintptr_t)params);
+		glGetVertexAttribIuiv (index, pname, (GLuint*)DataPointerToAddress (params));
 		#endif
 
 	}
@@ -3666,7 +3792,7 @@ namespace lime {
 	HL_PRIM void HL_NAME(hl_gl_get_vertex_attribiuiv) (int index, int pname, double params) {
 
 		#ifdef LIME_GLES3_API
-		glGetVertexAttribIuiv (index, pname, (GLuint*)(uintptr_t)params);
+		glGetVertexAttribIuiv (index, pname, (GLuint*)DataPointerToAddress (params));
 		#endif
 
 	}
@@ -4012,6 +4138,27 @@ namespace lime {
 	}
 
 
+	// Desktop OpenGL only; OpenGL ES and WebGL draw polygons filled
+	void lime_gl_polygon_mode (int face, int mode) {
+
+		#ifndef LIME_GLES
+		// Loaded at run time on desktop, as other functions OpenGL ES lacks
+		if (glPolygonMode) glPolygonMode (face, mode);
+		#endif
+
+	}
+
+
+	HL_PRIM void HL_NAME(hl_gl_polygon_mode) (int face, int mode) {
+
+		#ifndef LIME_GLES
+		// Loaded at run time on desktop, as other functions OpenGL ES lacks
+		if (glPolygonMode) glPolygonMode (face, mode);
+		#endif
+
+	}
+
+
 	void lime_gl_link_program (int program) {
 
 		glLinkProgram (program);
@@ -4029,7 +4176,7 @@ namespace lime {
 	double lime_gl_map_buffer_range (int target, double offset, int length, int access) {
 
 		#if defined (LIME_GLES3_API) || !defined (LIME_GLES)
-		if (glMapBufferRange) return (double)(uintptr_t)glMapBufferRange (target, (GLintptr)(uintptr_t)offset, length, access);
+		if (glMapBufferRange) return DataPointerFromAddress ((uintptr_t)glMapBufferRange (target, (GLintptr)DataPointerToAddress (offset), length, access));
 		#endif
 		return 0;
 
@@ -4039,7 +4186,7 @@ namespace lime {
 	HL_PRIM double HL_NAME(hl_gl_map_buffer_range) (int target, double offset, int length, int access) {
 
 		#if defined (LIME_GLES3_API) || !defined (LIME_GLES)
-		if (glMapBufferRange) return (double)(uintptr_t)glMapBufferRange (target, (GLintptr)(uintptr_t)offset, length, access);
+		if (glMapBufferRange) return DataPointerFromAddress ((uintptr_t)glMapBufferRange (target, (GLintptr)DataPointerToAddress (offset), length, access));
 		#endif
 		return 0;
 
@@ -4048,40 +4195,32 @@ namespace lime {
 
 	void lime_gl_object_deregister (value object) {
 
-		if (glObjectIDs.find (object) != glObjectIDs.end ()) {
+		value handle = 0;
 
-			GLuint id = glObjectIDs[object];
-			GLObjectType type = glObjectTypes[object];
+		lock_gl_objects ();
 
-			glObjects[type].erase (id);
-			glObjectTypes.erase (object);
-			glObjectIDs.erase (object);
-
-		}
+		gl_forget_object (object);
 
 		if (glObjectPtrs.find (object) != glObjectPtrs.end ()) {
 
-			value handle = (value)glObjectPtrs[object];
-			val_gc (handle, 0);
+			handle = (value)glObjectPtrs[object];
 			glObjectPtrs.erase (object);
 
 		}
+
+		gc_gl_mutex.Unlock ();
+
+		// Outside the lock, as the collector keeps its finalizers under a lock of its own
+		if (handle) val_gc (handle, 0);
 
 	}
 
 
 	HL_PRIM void HL_NAME(hl_gl_object_deregister) (void* object) {
 
-		if (glObjectIDs.find (object) != glObjectIDs.end ()) {
+		lock_gl_objects ();
 
-			GLuint id = glObjectIDs[object];
-			GLObjectType type = glObjectTypes[object];
-
-			glObjects[type].erase (id);
-			glObjectTypes.erase (object);
-			glObjectIDs.erase (object);
-
-		}
+		gl_forget_object (object);
 
 		if (glObjectPtrs.find (object) != glObjectPtrs.end ()) {
 
@@ -4092,22 +4231,25 @@ namespace lime {
 
 		}
 
+		gc_gl_mutex.Unlock ();
+
 	}
 
 
 	value lime_gl_object_from_id (int id, int type) {
 
 		GLObjectType _type = (GLObjectType)type;
+		value object = 0;
 
-		if (glObjects[_type].find (id) != glObjects[_type].end ()) {
+		lock_gl_objects ();
 
-			return (value)glObjects[_type][id];
+		std::map<std::pair<int, GLuint>, void*>& objects = glObjects[_type];
+		std::map<std::pair<int, GLuint>, void*>::iterator found = objects.find (std::make_pair (gl_current_scope (_type), (GLuint)id));
+		if (found != objects.end ()) object = (value)found->second;
 
-		} else {
+		gc_gl_mutex.Unlock ();
 
-			return alloc_null ();
-
-		}
+		return object ? object : alloc_null ();
 
 	}
 
@@ -4115,16 +4257,17 @@ namespace lime {
 	HL_PRIM void* HL_NAME(hl_gl_object_from_id) (int id, int type) {
 
 		GLObjectType _type = (GLObjectType)type;
+		void* object = NULL;
 
-		if (glObjects[_type].find (id) != glObjects[_type].end ()) {
+		lock_gl_objects ();
 
-			return glObjects[_type][id];
+		std::map<std::pair<int, GLuint>, void*>& objects = glObjects[_type];
+		std::map<std::pair<int, GLuint>, void*>::iterator found = objects.find (std::make_pair (gl_current_scope (_type), (GLuint)id));
+		if (found != objects.end ()) object = found->second;
 
-		} else {
+		gc_gl_mutex.Unlock ();
 
-			return NULL;
-
-		}
+		return object;
 
 	}
 
@@ -4146,10 +4289,17 @@ namespace lime {
 			//
 		//}
 
+		// The handle is made first, outside the lock, as making it may collect
+		lock_gl_objects ();
+
+		int scope = gl_current_scope (_type);
 		glObjectTypes[object] = (GLObjectType)type;
 		glObjectIDs[object] = id;
-		glObjects[_type][id] = object;
+		glObjectScopes[object] = scope;
+		glObjects[_type][std::make_pair (scope, (GLuint)id)] = object;
 		glObjectPtrs[object] = handle;
+
+		gc_gl_mutex.Unlock ();
 
 		return handle;
 
@@ -4173,10 +4323,17 @@ namespace lime {
 			//
 		//}
 
+		// The handle is made first, outside the lock, as making it may collect
+		lock_gl_objects ();
+
+		int scope = gl_current_scope (_type);
 		glObjectTypes[object] = (GLObjectType)type;
 		glObjectIDs[object] = id;
-		glObjects[_type][id] = object;
+		glObjectScopes[object] = scope;
+		glObjects[_type][std::make_pair (scope, (GLuint)id)] = object;
 		glObjectPtrs[object] = handle;
+
+		gc_gl_mutex.Unlock ();
 
 		return handle;
 
@@ -4232,7 +4389,7 @@ namespace lime {
 	void lime_gl_program_binary (int program, int binaryFormat, double binary, int length) {
 
 		#ifdef LIME_GLES3_API
-		glProgramBinary (program, binaryFormat, (void*)(uintptr_t)binary, length);
+		glProgramBinary (program, binaryFormat, (void*)DataPointerToAddress (binary), length);
 		#endif
 
 	}
@@ -4241,7 +4398,7 @@ namespace lime {
 	HL_PRIM void HL_NAME(hl_gl_program_binary) (int program, int binaryFormat, double binary, int length) {
 
 		#ifdef LIME_GLES3_API
-		glProgramBinary (program, binaryFormat, (void*)(uintptr_t)binary, length);
+		glProgramBinary (program, binaryFormat, (void*)DataPointerToAddress (binary), length);
 		#endif
 
 	}
@@ -4291,7 +4448,7 @@ namespace lime {
 
 		#ifdef EMSCRIPTEN
 		if (format == LIME_GL_BGRA_EXT && type == GL_UNSIGNED_BYTE) {
-			void* dest = (void*) (uintptr_t) pixels;
+			void* dest = (void*) DataPointerToAddress (pixels);
 			if (dest != NULL && width > 0 && height > 0) {
 				glReadPixels (x, y, width, height, GL_RGBA, type, dest);
 				lime_gl_swap_rb_in_place (dest, (size_t) width * (size_t) height);
@@ -4300,14 +4457,14 @@ namespace lime {
 		}
 		#endif
 
-		glReadPixels (x, y, width, height, format, type, (void*)(uintptr_t)pixels);
+		glReadPixels (x, y, width, height, format, type, (void*)DataPointerToAddress (pixels));
 
 	}
 
 
 	HL_PRIM void HL_NAME(hl_gl_read_pixels) (int x, int y, int width, int height, int format, int type, double pixels) {
 
-		glReadPixels (x, y, width, height, format, type, (void*)(uintptr_t)pixels);
+		glReadPixels (x, y, width, height, format, type, (void*)DataPointerToAddress (pixels));
 
 	}
 
@@ -4472,7 +4629,7 @@ namespace lime {
 
 		}
 
-		glShaderBinary (size, _shaders, binaryformat, (void*)(uintptr_t)binary, length);
+		glShaderBinary (size, _shaders, binaryformat, (void*)DataPointerToAddress (binary), length);
 		#endif
 
 	}
@@ -4482,7 +4639,7 @@ namespace lime {
 
 		#ifdef LIME_GLES3_API
 		GLsizei size = shaders->size;
-		glShaderBinary (size, (GLenum*)hl_aptr (shaders, int), binaryformat, (void*)(uintptr_t)binary, length);
+		glShaderBinary (size, (GLenum*)hl_aptr (shaders, int), binaryformat, (void*)DataPointerToAddress (binary), length);
 		#endif
 
 	}
@@ -4591,7 +4748,7 @@ namespace lime {
 
 		#ifdef EMSCRIPTEN
 		if (format == LIME_GL_BGRA_EXT && type == GL_UNSIGNED_BYTE) {
-			const void* src = (const void*) (uintptr_t) data;
+			const void* src = (const void*) DataPointerToAddress (data);
 			GLint internalRGBA = (internalformat == LIME_GL_BGRA_EXT) ? GL_RGBA : internalformat;
 			if (src != NULL && width > 0 && height > 0) {
 				const void* swapped = lime_gl_swap_rb (src, (size_t) width * (size_t) height);
@@ -4604,14 +4761,14 @@ namespace lime {
 		if (internalformat == LIME_GL_BGRA_EXT) internalformat = GL_RGBA;
 		#endif
 
-		glTexImage2D (target, level, internalformat, width, height, border, format, type, (void*)(uintptr_t)data);
+		glTexImage2D (target, level, internalformat, width, height, border, format, type, (void*)DataPointerToAddress (data));
 
 	}
 
 
 	HL_PRIM void HL_NAME(hl_gl_tex_image_2d) (int target, int level, int internalformat, int width, int height, int border, int format, int type, double data) {
 
-		glTexImage2D (target, level, internalformat, width, height, border, format, type, (void*)(uintptr_t)data);
+		glTexImage2D (target, level, internalformat, width, height, border, format, type, (void*)DataPointerToAddress (data));
 
 	}
 
@@ -4620,7 +4777,7 @@ namespace lime {
 
 		#if defined (LIME_GLES3_API) || !defined (LIME_GLES)
 		if (glTexImage3D) {
-			glTexImage3D (target, level, internalformat, width, height, depth, border, format, type, (void*)(uintptr_t)data);
+			glTexImage3D (target, level, internalformat, width, height, depth, border, format, type, (void*)DataPointerToAddress (data));
 		}
 		#endif
 
@@ -4631,7 +4788,7 @@ namespace lime {
 
 		#if defined (LIME_GLES3_API) || !defined (LIME_GLES)
 		if (glTexImage3D) {
-			glTexImage3D (target, level, internalformat, width, height, depth, border, format, type, (void*)(uintptr_t)data);
+			glTexImage3D (target, level, internalformat, width, height, depth, border, format, type, (void*)DataPointerToAddress (data));
 		}
 		#endif
 
@@ -4714,7 +4871,7 @@ namespace lime {
 
 		#ifdef EMSCRIPTEN
 		if (format == LIME_GL_BGRA_EXT && type == GL_UNSIGNED_BYTE) {
-			const void* src = (const void*) (uintptr_t) data;
+			const void* src = (const void*) DataPointerToAddress (data);
 			if (src != NULL && width > 0 && height > 0) {
 				const void* swapped = lime_gl_swap_rb (src, (size_t) width * (size_t) height);
 				glTexSubImage2D (target, level, xoffset, yoffset, width, height, GL_RGBA, type, swapped);
@@ -4723,14 +4880,14 @@ namespace lime {
 		}
 		#endif
 
-		glTexSubImage2D (target, level, xoffset, yoffset, width, height, format, type, (void*)(uintptr_t)data);
+		glTexSubImage2D (target, level, xoffset, yoffset, width, height, format, type, (void*)DataPointerToAddress (data));
 
 	}
 
 
 	HL_PRIM void HL_NAME(hl_gl_tex_sub_image_2d) (int target, int level, int xoffset, int yoffset, int width, int height, int format, int type, double data) {
 
-		glTexSubImage2D (target, level, xoffset, yoffset, width, height, format, type, (void*)(uintptr_t)data);
+		glTexSubImage2D (target, level, xoffset, yoffset, width, height, format, type, (void*)DataPointerToAddress (data));
 
 	}
 
@@ -4739,7 +4896,7 @@ namespace lime {
 
 		#if defined (LIME_GLES3_API) || !defined (LIME_GLES)
 		if (glTexSubImage3D) {
-			glTexSubImage3D (target, level, xoffset, yoffset, zoffset, width, height, depth, format, type, (void*)(uintptr_t)data);
+			glTexSubImage3D (target, level, xoffset, yoffset, zoffset, width, height, depth, format, type, (void*)DataPointerToAddress (data));
 		}
 		#endif
 
@@ -4750,7 +4907,7 @@ namespace lime {
 
 		#if defined (LIME_GLES3_API) || !defined (LIME_GLES)
 		if (glTexSubImage3D) {
-			glTexSubImage3D (target, level, xoffset, yoffset, zoffset, width, height, depth, format, type, (void*)(uintptr_t)data);
+			glTexSubImage3D (target, level, xoffset, yoffset, zoffset, width, height, depth, format, type, (void*)DataPointerToAddress (data));
 		}
 		#endif
 
@@ -4801,14 +4958,14 @@ namespace lime {
 
 	void lime_gl_uniform1fv (int location, int count, double _value) {
 
-		glUniform1fv (location, count, (GLfloat*)(uintptr_t)_value);
+		glUniform1fv (location, count, (GLfloat*)DataPointerToAddress (_value));
 
 	}
 
 
 	HL_PRIM void HL_NAME(hl_gl_uniform1fv) (int location, int count, double _value) {
 
-		glUniform1fv (location, count, (GLfloat*)(uintptr_t)_value);
+		glUniform1fv (location, count, (GLfloat*)DataPointerToAddress (_value));
 
 	}
 
@@ -4829,14 +4986,14 @@ namespace lime {
 
 	void lime_gl_uniform1iv (int location, int count, double _value) {
 
-		glUniform1iv (location, count, (GLint*)(uintptr_t)_value);
+		glUniform1iv (location, count, (GLint*)DataPointerToAddress (_value));
 
 	}
 
 
 	HL_PRIM void HL_NAME(hl_gl_uniform1iv) (int location, int count, double _value) {
 
-		glUniform1iv (location, count, (GLint*)(uintptr_t)_value);
+		glUniform1iv (location, count, (GLint*)DataPointerToAddress (_value));
 
 	}
 
@@ -4862,7 +5019,7 @@ namespace lime {
 	void lime_gl_uniform1uiv (int location, int count, double _value) {
 
 		#ifdef LIME_GLES3_API
-		glUniform1uiv (location, count, (GLuint*)(uintptr_t)_value);
+		glUniform1uiv (location, count, (GLuint*)DataPointerToAddress (_value));
 		#endif
 
 	}
@@ -4871,7 +5028,7 @@ namespace lime {
 	HL_PRIM void HL_NAME(hl_gl_uniform1uiv) (int location, int count, double _value) {
 
 		#ifdef LIME_GLES3_API
-		glUniform1uiv (location, count, (GLuint*)(uintptr_t)_value);
+		glUniform1uiv (location, count, (GLuint*)DataPointerToAddress (_value));
 		#endif
 
 	}
@@ -4893,14 +5050,14 @@ namespace lime {
 
 	void lime_gl_uniform2fv (int location, int count, double _value) {
 
-		glUniform2fv (location, count, (GLfloat*)(uintptr_t)_value);
+		glUniform2fv (location, count, (GLfloat*)DataPointerToAddress (_value));
 
 	}
 
 
 	HL_PRIM void HL_NAME(hl_gl_uniform2fv) (int location, int count, double _value) {
 
-		glUniform2fv (location, count, (GLfloat*)(uintptr_t)_value);
+		glUniform2fv (location, count, (GLfloat*)DataPointerToAddress (_value));
 
 	}
 
@@ -4921,14 +5078,14 @@ namespace lime {
 
 	void lime_gl_uniform2iv (int location, int count, double _value) {
 
-		glUniform2iv (location, count, (GLint*)(uintptr_t)_value);
+		glUniform2iv (location, count, (GLint*)DataPointerToAddress (_value));
 
 	}
 
 
 	HL_PRIM void HL_NAME(hl_gl_uniform2iv) (int location, int count, double _value) {
 
-		glUniform2iv (location, count, (GLint*)(uintptr_t)_value);
+		glUniform2iv (location, count, (GLint*)DataPointerToAddress (_value));
 
 	}
 
@@ -4954,7 +5111,7 @@ namespace lime {
 	void lime_gl_uniform2uiv (int location, int count, double _value) {
 
 		#ifdef LIME_GLES3_API
-		glUniform2uiv (location, count, (GLuint*)(uintptr_t)_value);
+		glUniform2uiv (location, count, (GLuint*)DataPointerToAddress (_value));
 		#endif
 
 	}
@@ -4963,7 +5120,7 @@ namespace lime {
 	HL_PRIM void HL_NAME(hl_gl_uniform2uiv) (int location, int count, double _value) {
 
 		#ifdef LIME_GLES3_API
-		glUniform2uiv (location, count, (GLuint*)(uintptr_t)_value);
+		glUniform2uiv (location, count, (GLuint*)DataPointerToAddress (_value));
 		#endif
 
 	}
@@ -4985,14 +5142,14 @@ namespace lime {
 
 	void lime_gl_uniform3fv (int location, int count, double _value) {
 
-		glUniform3fv (location, count, (GLfloat*)(uintptr_t)_value);
+		glUniform3fv (location, count, (GLfloat*)DataPointerToAddress (_value));
 
 	}
 
 
 	HL_PRIM void HL_NAME(hl_gl_uniform3fv) (int location, int count, double _value) {
 
-		glUniform3fv (location, count, (GLfloat*)(uintptr_t)_value);
+		glUniform3fv (location, count, (GLfloat*)DataPointerToAddress (_value));
 
 	}
 
@@ -5013,14 +5170,14 @@ namespace lime {
 
 	void lime_gl_uniform3iv (int location, int count, double _value) {
 
-		glUniform3iv (location, count, (GLint*)(uintptr_t)_value);
+		glUniform3iv (location, count, (GLint*)DataPointerToAddress (_value));
 
 	}
 
 
 	HL_PRIM void HL_NAME(hl_gl_uniform3iv) (int location, int count, double _value) {
 
-		glUniform3iv (location, count, (GLint*)(uintptr_t)_value);
+		glUniform3iv (location, count, (GLint*)DataPointerToAddress (_value));
 
 	}
 
@@ -5046,7 +5203,7 @@ namespace lime {
 	void lime_gl_uniform3uiv (int location, int count, double _value) {
 
 		#ifdef LIME_GLES3_API
-		glUniform3uiv (location, count, (GLuint*)(uintptr_t)_value);
+		glUniform3uiv (location, count, (GLuint*)DataPointerToAddress (_value));
 		#endif
 
 	}
@@ -5055,7 +5212,7 @@ namespace lime {
 	HL_PRIM void HL_NAME(hl_gl_uniform3uiv) (int location, int count, double _value) {
 
 		#ifdef LIME_GLES3_API
-		glUniform3uiv (location, count, (GLuint*)(uintptr_t)_value);
+		glUniform3uiv (location, count, (GLuint*)DataPointerToAddress (_value));
 		#endif
 
 	}
@@ -5077,14 +5234,14 @@ namespace lime {
 
 	void lime_gl_uniform4fv (int location, int count, double _value) {
 
-		glUniform4fv (location, count, (GLfloat*)(uintptr_t)_value);
+		glUniform4fv (location, count, (GLfloat*)DataPointerToAddress (_value));
 
 	}
 
 
 	HL_PRIM void HL_NAME(hl_gl_uniform4fv) (int location, int count, double _value) {
 
-		glUniform4fv (location, count, (GLfloat*)(uintptr_t)_value);
+		glUniform4fv (location, count, (GLfloat*)DataPointerToAddress (_value));
 
 	}
 
@@ -5105,14 +5262,14 @@ namespace lime {
 
 	void lime_gl_uniform4iv (int location, int count, double _value) {
 
-		glUniform4iv (location, count, (GLint*)(uintptr_t)_value);
+		glUniform4iv (location, count, (GLint*)DataPointerToAddress (_value));
 
 	}
 
 
 	HL_PRIM void HL_NAME(hl_gl_uniform4iv) (int location, int count, double _value) {
 
-		glUniform4iv (location, count, (GLint*)(uintptr_t)_value);
+		glUniform4iv (location, count, (GLint*)DataPointerToAddress (_value));
 
 	}
 
@@ -5138,7 +5295,7 @@ namespace lime {
 	void lime_gl_uniform4uiv (int location, int count, double _value) {
 
 		#ifdef LIME_GLES3_API
-		glUniform4uiv (location, count, (GLuint*)(uintptr_t)_value);
+		glUniform4uiv (location, count, (GLuint*)DataPointerToAddress (_value));
 		#endif
 
 	}
@@ -5147,7 +5304,7 @@ namespace lime {
 	HL_PRIM void HL_NAME(hl_gl_uniform4uiv) (int location, int count, double _value) {
 
 		#ifdef LIME_GLES3_API
-		glUniform4uiv (location, count, (GLuint*)(uintptr_t)_value);
+		glUniform4uiv (location, count, (GLuint*)DataPointerToAddress (_value));
 		#endif
 
 	}
@@ -5173,14 +5330,14 @@ namespace lime {
 
 	void lime_gl_uniform_matrix2fv (int location, int count, bool transpose, double _value) {
 
-		glUniformMatrix2fv (location, count, transpose, (GLfloat*)(uintptr_t)_value);
+		glUniformMatrix2fv (location, count, transpose, (GLfloat*)DataPointerToAddress (_value));
 
 	}
 
 
 	HL_PRIM void HL_NAME(hl_gl_uniform_matrix2fv) (int location, int count, bool transpose, double _value) {
 
-		glUniformMatrix2fv (location, count, transpose, (GLfloat*)(uintptr_t)_value);
+		glUniformMatrix2fv (location, count, transpose, (GLfloat*)DataPointerToAddress (_value));
 
 	}
 
@@ -5188,7 +5345,7 @@ namespace lime {
 	void lime_gl_uniform_matrix2x3fv (int location, int count, bool transpose, double _value) {
 
 		#ifdef LIME_GLES3_API
-		glUniformMatrix2x3fv (location, count, transpose, (GLfloat*)(uintptr_t)_value);
+		glUniformMatrix2x3fv (location, count, transpose, (GLfloat*)DataPointerToAddress (_value));
 		#endif
 
 	}
@@ -5197,7 +5354,7 @@ namespace lime {
 	HL_PRIM void HL_NAME(hl_gl_uniform_matrix2x3fv) (int location, int count, bool transpose, double _value) {
 
 		#ifdef LIME_GLES3_API
-		glUniformMatrix2x3fv (location, count, transpose, (GLfloat*)(uintptr_t)_value);
+		glUniformMatrix2x3fv (location, count, transpose, (GLfloat*)DataPointerToAddress (_value));
 		#endif
 
 	}
@@ -5206,7 +5363,7 @@ namespace lime {
 	void lime_gl_uniform_matrix2x4fv (int location, int count, bool transpose, double _value) {
 
 		#ifdef LIME_GLES3_API
-		glUniformMatrix2x4fv (location, count, transpose, (GLfloat*)(uintptr_t)_value);
+		glUniformMatrix2x4fv (location, count, transpose, (GLfloat*)DataPointerToAddress (_value));
 		#endif
 
 	}
@@ -5215,7 +5372,7 @@ namespace lime {
 	HL_PRIM void HL_NAME(hl_gl_uniform_matrix2x4fv) (int location, int count, bool transpose, double _value) {
 
 		#ifdef LIME_GLES3_API
-		glUniformMatrix2x4fv (location, count, transpose, (GLfloat*)(uintptr_t)_value);
+		glUniformMatrix2x4fv (location, count, transpose, (GLfloat*)DataPointerToAddress (_value));
 		#endif
 
 	}
@@ -5223,14 +5380,14 @@ namespace lime {
 
 	void lime_gl_uniform_matrix3fv (int location, int count, bool transpose, double _value) {
 
-		glUniformMatrix3fv (location, count, transpose, (GLfloat*)(uintptr_t)_value);
+		glUniformMatrix3fv (location, count, transpose, (GLfloat*)DataPointerToAddress (_value));
 
 	}
 
 
 	HL_PRIM void HL_NAME(hl_gl_uniform_matrix3fv) (int location, int count, bool transpose, double _value) {
 
-		glUniformMatrix3fv (location, count, transpose, (GLfloat*)(uintptr_t)_value);
+		glUniformMatrix3fv (location, count, transpose, (GLfloat*)DataPointerToAddress (_value));
 
 	}
 
@@ -5238,7 +5395,7 @@ namespace lime {
 	void lime_gl_uniform_matrix3x2fv (int location, int count, bool transpose, double _value) {
 
 		#ifdef LIME_GLES3_API
-		glUniformMatrix3x2fv (location, count, transpose, (GLfloat*)(uintptr_t)_value);
+		glUniformMatrix3x2fv (location, count, transpose, (GLfloat*)DataPointerToAddress (_value));
 		#endif
 
 	}
@@ -5247,7 +5404,7 @@ namespace lime {
 	HL_PRIM void HL_NAME(hl_gl_uniform_matrix3x2fv) (int location, int count, bool transpose, double _value) {
 
 		#ifdef LIME_GLES3_API
-		glUniformMatrix3x2fv (location, count, transpose, (GLfloat*)(uintptr_t)_value);
+		glUniformMatrix3x2fv (location, count, transpose, (GLfloat*)DataPointerToAddress (_value));
 		#endif
 
 	}
@@ -5256,7 +5413,7 @@ namespace lime {
 	void lime_gl_uniform_matrix3x4fv (int location, int count, bool transpose, double _value) {
 
 		#ifdef LIME_GLES3_API
-		glUniformMatrix3x4fv (location, count, transpose, (GLfloat*)(uintptr_t)_value);
+		glUniformMatrix3x4fv (location, count, transpose, (GLfloat*)DataPointerToAddress (_value));
 		#endif
 
 	}
@@ -5265,7 +5422,7 @@ namespace lime {
 	HL_PRIM void HL_NAME(hl_gl_uniform_matrix3x4fv) (int location, int count, bool transpose, double _value) {
 
 		#ifdef LIME_GLES3_API
-		glUniformMatrix3x4fv (location, count, transpose, (GLfloat*)(uintptr_t)_value);
+		glUniformMatrix3x4fv (location, count, transpose, (GLfloat*)DataPointerToAddress (_value));
 		#endif
 
 	}
@@ -5273,14 +5430,14 @@ namespace lime {
 
 	void lime_gl_uniform_matrix4fv (int location, int count, bool transpose, double _value) {
 
-		glUniformMatrix4fv (location, count, transpose, (GLfloat*)(uintptr_t)_value);
+		glUniformMatrix4fv (location, count, transpose, (GLfloat*)DataPointerToAddress (_value));
 
 	}
 
 
 	HL_PRIM void HL_NAME(hl_gl_uniform_matrix4fv) (int location, int count, bool transpose, double _value) {
 
-		glUniformMatrix4fv (location, count, transpose, (GLfloat*)(uintptr_t)_value);
+		glUniformMatrix4fv (location, count, transpose, (GLfloat*)DataPointerToAddress (_value));
 
 	}
 
@@ -5288,7 +5445,7 @@ namespace lime {
 	void lime_gl_uniform_matrix4x2fv (int location, int count, bool transpose, double _value) {
 
 		#ifdef LIME_GLES3_API
-		glUniformMatrix4x2fv (location, count, transpose, (GLfloat*)(uintptr_t)_value);
+		glUniformMatrix4x2fv (location, count, transpose, (GLfloat*)DataPointerToAddress (_value));
 		#endif
 
 	}
@@ -5297,7 +5454,7 @@ namespace lime {
 	HL_PRIM void HL_NAME(hl_gl_uniform_matrix4x2fv) (int location, int count, bool transpose, double _value) {
 
 		#ifdef LIME_GLES3_API
-		glUniformMatrix4x2fv (location, count, transpose, (GLfloat*)(uintptr_t)_value);
+		glUniformMatrix4x2fv (location, count, transpose, (GLfloat*)DataPointerToAddress (_value));
 		#endif
 
 	}
@@ -5306,7 +5463,7 @@ namespace lime {
 	void lime_gl_uniform_matrix4x3fv (int location, int count, bool transpose, double _value) {
 
 		#ifdef LIME_GLES3_API
-		glUniformMatrix4x3fv (location, count, transpose, (GLfloat*)(uintptr_t)_value);
+		glUniformMatrix4x3fv (location, count, transpose, (GLfloat*)DataPointerToAddress (_value));
 		#endif
 
 	}
@@ -5315,7 +5472,7 @@ namespace lime {
 	HL_PRIM void HL_NAME(hl_gl_uniform_matrix4x3fv) (int location, int count, bool transpose, double _value) {
 
 		#ifdef LIME_GLES3_API
-		glUniformMatrix4x3fv (location, count, transpose, (GLfloat*)(uintptr_t)_value);
+		glUniformMatrix4x3fv (location, count, transpose, (GLfloat*)DataPointerToAddress (_value));
 		#endif
 
 	}
@@ -5394,7 +5551,7 @@ namespace lime {
 	void lime_gl_vertex_attrib_ipointer (int index, int size, int type, int stride, double offset) {
 
 		#ifdef LIME_GLES3_API
-		glVertexAttribIPointer (index, size, type, stride, (void*)(uintptr_t)offset);
+		glVertexAttribIPointer (index, size, type, stride, (void*)DataPointerToAddress (offset));
 		#endif
 
 	}
@@ -5403,7 +5560,7 @@ namespace lime {
 	HL_PRIM void HL_NAME(hl_gl_vertex_attrib_ipointer) (int index, int size, int type, int stride, double offset) {
 
 		#ifdef LIME_GLES3_API
-		glVertexAttribIPointer (index, size, type, stride, (void*)(uintptr_t)offset);
+		glVertexAttribIPointer (index, size, type, stride, (void*)DataPointerToAddress (offset));
 		#endif
 
 	}
@@ -5411,14 +5568,14 @@ namespace lime {
 
 	void lime_gl_vertex_attrib_pointer (int index, int size, int type, bool normalized, int stride, double offset) {
 
-		glVertexAttribPointer (index, size, type, normalized, stride, (void*)(uintptr_t)offset);
+		glVertexAttribPointer (index, size, type, normalized, stride, (void*)DataPointerToAddress (offset));
 
 	}
 
 
 	HL_PRIM void HL_NAME(hl_gl_vertex_attrib_pointer) (int index, int size, int type, bool normalized, int stride, double offset) {
 
-		glVertexAttribPointer (index, size, type, normalized, stride, (void*)(uintptr_t)offset);
+		glVertexAttribPointer (index, size, type, normalized, stride, (void*)DataPointerToAddress (offset));
 
 	}
 
@@ -5444,7 +5601,7 @@ namespace lime {
 	void lime_gl_vertex_attribi4iv (int index, double v) {
 
 		#ifdef LIME_GLES3_API
-		glVertexAttribI4iv (index, (GLint*)(uintptr_t)v);
+		glVertexAttribI4iv (index, (GLint*)DataPointerToAddress (v));
 		#endif
 
 	}
@@ -5453,7 +5610,7 @@ namespace lime {
 	HL_PRIM void HL_NAME(hl_gl_vertex_attribi4iv) (int index, double v) {
 
 		#ifdef LIME_GLES3_API
-		glVertexAttribI4iv (index, (GLint*)(uintptr_t)v);
+		glVertexAttribI4iv (index, (GLint*)DataPointerToAddress (v));
 		#endif
 
 	}
@@ -5480,7 +5637,7 @@ namespace lime {
 	void lime_gl_vertex_attribi4uiv (int index, double v) {
 
 		#ifdef LIME_GLES3_API
-		glVertexAttribI4uiv (index, (GLuint*)(uintptr_t)v);
+		glVertexAttribI4uiv (index, (GLuint*)DataPointerToAddress (v));
 		#endif
 
 	}
@@ -5489,7 +5646,7 @@ namespace lime {
 	HL_PRIM void HL_NAME(hl_gl_vertex_attribi4uiv) (int index, double v) {
 
 		#ifdef LIME_GLES3_API
-		glVertexAttribI4uiv (index, (GLuint*)(uintptr_t)v);
+		glVertexAttribI4uiv (index, (GLuint*)DataPointerToAddress (v));
 		#endif
 
 	}
@@ -5511,14 +5668,14 @@ namespace lime {
 
 	void lime_gl_vertex_attrib1fv (int index, double v) {
 
-		glVertexAttrib1fv (index, (GLfloat*)(uintptr_t)v);
+		glVertexAttrib1fv (index, (GLfloat*)DataPointerToAddress (v));
 
 	}
 
 
 	HL_PRIM void HL_NAME(hl_gl_vertex_attrib1fv) (int index, double v) {
 
-		glVertexAttrib1fv (index, (GLfloat*)(uintptr_t)v);
+		glVertexAttrib1fv (index, (GLfloat*)DataPointerToAddress (v));
 
 	}
 
@@ -5539,14 +5696,14 @@ namespace lime {
 
 	void lime_gl_vertex_attrib2fv (int index, double v) {
 
-		glVertexAttrib2fv (index, (GLfloat*)(uintptr_t)v);
+		glVertexAttrib2fv (index, (GLfloat*)DataPointerToAddress (v));
 
 	}
 
 
 	HL_PRIM void HL_NAME(hl_gl_vertex_attrib2fv) (int index, double v) {
 
-		glVertexAttrib2fv (index, (GLfloat*)(uintptr_t)v);
+		glVertexAttrib2fv (index, (GLfloat*)DataPointerToAddress (v));
 
 	}
 
@@ -5567,14 +5724,14 @@ namespace lime {
 
 	void lime_gl_vertex_attrib3fv (int index, double v) {
 
-		glVertexAttrib3fv (index, (GLfloat*)(uintptr_t)v);
+		glVertexAttrib3fv (index, (GLfloat*)DataPointerToAddress (v));
 
 	}
 
 
 	HL_PRIM void HL_NAME(hl_gl_vertex_attrib3fv) (int index, double v) {
 
-		glVertexAttrib3fv (index, (GLfloat*)(uintptr_t)v);
+		glVertexAttrib3fv (index, (GLfloat*)DataPointerToAddress (v));
 
 	}
 
@@ -5595,14 +5752,14 @@ namespace lime {
 
 	void lime_gl_vertex_attrib4fv (int index, double v) {
 
-		glVertexAttrib4fv (index, (GLfloat*)(uintptr_t)v);
+		glVertexAttrib4fv (index, (GLfloat*)DataPointerToAddress (v));
 
 	}
 
 
 	HL_PRIM void HL_NAME(hl_gl_vertex_attrib4fv) (int index, double v) {
 
-		glVertexAttrib4fv (index, (GLfloat*)(uintptr_t)v);
+		glVertexAttrib4fv (index, (GLfloat*)DataPointerToAddress (v));
 
 	}
 
@@ -5648,6 +5805,7 @@ namespace lime {
 		if (!initialized) {
 
 			initialized = true;
+			result = true;
 
 			#ifdef HX_LINUX
 
@@ -5694,6 +5852,14 @@ namespace lime {
 		}
 
 		return result;
+
+	}
+
+
+	// The next Init looks the functions up again, as after SDL loads another OpenGL library
+	void OpenGLBindings::Reload () {
+
+		initialized = false;
 
 	}
 
@@ -5877,6 +6043,7 @@ namespace lime {
 	DEFINE_PRIME1 (lime_gl_is_transform_feedback);
 	DEFINE_PRIME1 (lime_gl_is_vertex_array);
 	DEFINE_PRIME1v (lime_gl_line_width);
+	DEFINE_PRIME2v (lime_gl_polygon_mode);
 	DEFINE_PRIME1v (lime_gl_link_program);
 	DEFINE_PRIME4 (lime_gl_map_buffer_range);
 	DEFINE_PRIME1v (lime_gl_object_deregister);
@@ -6155,6 +6322,7 @@ namespace lime {
 	DEFINE_HL_PRIM (_BOOL, hl_gl_is_transform_feedback, _I32);
 	DEFINE_HL_PRIM (_BOOL, hl_gl_is_vertex_array, _I32);
 	DEFINE_HL_PRIM (_VOID, hl_gl_line_width, _F32);
+	DEFINE_HL_PRIM (_VOID, hl_gl_polygon_mode, _I32 _I32);
 	DEFINE_HL_PRIM (_VOID, hl_gl_link_program, _I32);
 	DEFINE_HL_PRIM (_F64, hl_gl_map_buffer_range, _I32 _F64 _I32 _I32);
 	DEFINE_HL_PRIM (_VOID, hl_gl_object_deregister, _TGLOBJECT);

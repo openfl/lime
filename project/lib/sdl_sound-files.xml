@@ -118,7 +118,8 @@
         <file name="${NATIVE_TOOLKIT_PATH}/sdl_sound/src/SDL_sound.c" />
         <file name="${NATIVE_TOOLKIT_PATH}/sdl_sound/src/SDL_sound_aiff.c" />
         <file name="${NATIVE_TOOLKIT_PATH}/sdl_sound/src/SDL_sound_au.c" />
-        <file name="${NATIVE_TOOLKIT_PATH}/sdl_sound/src/SDL_sound_coreaudio.c" />
+        <!-- Lime's copy, which takes a sample without an extension and doesn't close a file it couldn't open -->
+        <file name="${NATIVE_TOOLKIT_PATH}/custom/sdl_sound/src/SDL_sound_coreaudio.c" />
         <file name="${NATIVE_TOOLKIT_PATH}/sdl_sound/src/SDL_sound_flac.c" />
         <file name="${NATIVE_TOOLKIT_PATH}/sdl_sound/src/SDL_sound_midi.c" />
         <file name="${NATIVE_TOOLKIT_PATH}/sdl_sound/src/SDL_sound_modplug.c" />

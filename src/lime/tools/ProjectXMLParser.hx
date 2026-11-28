@@ -22,12 +22,31 @@ class ProjectXMLParser extends HXProject
 {
 	public var includePaths:Array<String>;
 
+	/**
+		The files and haxelibs read so far for the project being parsed, shared by the parser of
+		the project file and those of the files it includes, so each is read once.
+	**/
+	private static var readOnce:{files:Array<String>, haxelibs:Array<String>} = null;
+
+	/**
+		What this file, and the files it included, changed with `<define>`, `<set>`, `<setenv>`,
+		`<haxedef>`, `<undefine>` and `<unset>`. A null value was removed. The file that included
+		this one applies the same changes, as if the tags had been written in its place.
+	**/
+	private var changedDefines:Map<String, Null<String>>;
+	private var changedEnvironment:Map<String, Null<String>>;
+	private var changedHaxedefs:Map<String, Null<String>>;
+
 	private static var doubleVarMatch = new EReg("\\$\\${(.*?)}", "");
 	private static var varMatch = new EReg("\\${(.*?)}", "");
 
 	public function new(path:String = "", defines:Map<String, Dynamic> = null, includePaths:Array<String> = null, useExtensionPath:Bool = false)
 	{
 		super(defines);
+
+		changedDefines = new Map();
+		changedEnvironment = new Map();
+		changedHaxedefs = new Map();
 
 		if (includePaths != null)
 		{
@@ -40,96 +59,259 @@ class ProjectXMLParser extends HXProject
 
 		if (path != "")
 		{
-			process(path, useExtensionPath);
+			projectFilePath = path;
+
+			var outermost = (readOnce == null);
+
+			if (outermost)
+			{
+				readOnce = {files: [], haxelibs: []};
+			}
+
+			firstRead(path);
+
+			try
+			{
+				process(path, useExtensionPath);
+			}
+			catch (e:Dynamic)
+			{
+				if (outermost) readOnce = null;
+				throw e;
+			}
+
+			if (outermost)
+			{
+				readOnce = null;
+			}
 		}
+	}
+
+	/**
+		Records that the file at `path` is being read, and returns false if it already was.
+	**/
+	private static function firstRead(path:String):Bool
+	{
+		if (readOnce == null) return true;
+
+		var key = FileSystem.fullPath(path);
+
+		if (System.hostPlatform == WINDOWS)
+		{
+			key = key.toLowerCase();
+		}
+
+		if (readOnce.files.indexOf(key) > -1) return false;
+
+		readOnce.files.push(key);
+		return true;
+	}
+
+	/**
+		Merges a project read from an included file, then applies the values it defined, set or
+		removed, so they replace earlier ones as they would have in this file.
+	**/
+	private function mergeIncluded(project:HXProject):Void
+	{
+		merge(project);
+
+		var parser = Std.downcast(project, ProjectXMLParser);
+
+		if (parser == null) return;
+
+		for (name in parser.changedDefines.keys())
+		{
+			changeValue(defines, changedDefines, name, parser.changedDefines.get(name));
+		}
+
+		for (name in parser.changedEnvironment.keys())
+		{
+			changeValue(environment, changedEnvironment, name, parser.changedEnvironment.get(name));
+		}
+
+		for (name in parser.changedHaxedefs.keys())
+		{
+			changeValue(haxedefs, changedHaxedefs, name, parser.changedHaxedefs.get(name));
+		}
+	}
+
+	/**
+		The value a `<set>` or `<define>` gives a name. Without a value, it only says the name is defined:
+		a value the name already has, such as the version a haxelib's name is defined to, is kept.
+	**/
+	private static function valueOrExisting(values:Map<String, Dynamic>, name:String, value:Null<String>):String
+	{
+		if (value != null) return value;
+		return values.exists(name) ? Std.string(values.get(name)) : "";
+	}
+
+	private static function changeValue(values:Map<String, Dynamic>, changes:Map<String, Null<String>>, name:String, value:Null<String>):Void
+	{
+		if (value == null)
+		{
+			values.remove(name);
+		}
+		else
+		{
+			values.set(name, value);
+		}
+
+		changes.set(name, value);
+	}
+
+	/**
+		Reads an `if` or `unless` condition: names of values, where spaces and `&&` mean
+		"and", `|` and `||` mean "or", `!` means "not" and parentheses group, as in
+		Haxe's `#if`. "Not" comes first, then "and", then "or". A name is true when it is
+		set or defined, is in the environment or is the command, and `true` and `false`
+		are themselves. A condition that can't be read is false, with a warning.
+	**/
+	private function isConditionTrue(condition:String):Bool
+	{
+		var text = substitute(condition);
+		var tokens = [];
+		var i = 0;
+
+		while (i < text.length)
+		{
+			var char = text.charAt(i);
+
+			if (StringTools.isSpace(text, i))
+			{
+				i++;
+			}
+			else if (char == "(" || char == ")" || char == "!")
+			{
+				tokens.push(char);
+				i++;
+			}
+			else if (char == "|")
+			{
+				tokens.push("||");
+				i += (text.charAt(i + 1) == "|") ? 2 : 1;
+			}
+			else if (char == "&")
+			{
+				if (text.charAt(i + 1) != "&") return unreadableCondition(condition);
+				tokens.push("&&");
+				i += 2;
+			}
+			else
+			{
+				var start = i;
+				while (i < text.length && !StringTools.isSpace(text, i) && "()!|&".indexOf(text.charAt(i)) == -1)
+				{
+					i++;
+				}
+				tokens.push(text.substring(start, i));
+			}
+		}
+
+		if (tokens.length == 0) return true;
+
+		var position = 0;
+		var failed = false;
+
+		function isOperator(token:String):Bool
+		{
+			return token == "(" || token == ")" || token == "!" || token == "||" || token == "&&";
+		}
+
+		// Read before it is written, as a parenthesis inside reads it again
+		var readOr:Void->Bool = null;
+
+		function readUnary():Bool
+		{
+			if (position >= tokens.length)
+			{
+				failed = true;
+				return false;
+			}
+
+			var token = tokens[position++];
+
+			if (token == "!")
+			{
+				return !readUnary();
+			}
+			else if (token == "(")
+			{
+				var value = readOr();
+				if (position >= tokens.length || tokens[position] != ")") failed = true else position++;
+				return value;
+			}
+			else if (isOperator(token))
+			{
+				failed = true;
+				return false;
+			}
+			else if (token == "true")
+			{
+				return true;
+			}
+			else if (token == "false")
+			{
+				return false;
+			}
+
+			return defines.exists(token) || (environment != null && environment.exists(token)) || token == command;
+		}
+
+		function readAnd():Bool
+		{
+			var value = readUnary();
+
+			while (position < tokens.length && tokens[position] != "||" && tokens[position] != ")")
+			{
+				if (tokens[position] == "&&") position++;
+				// Every part is read, so a part that can't be is found whatever comes before it
+				var next = readUnary();
+				value = value && next;
+			}
+
+			return value;
+		}
+
+		readOr = function():Bool
+		{
+			var value = readAnd();
+
+			while (position < tokens.length && tokens[position] == "||")
+			{
+				position++;
+				var next = readAnd();
+				value = value || next;
+			}
+
+			return value;
+		};
+
+		var value = readOr();
+
+		if (failed || position < tokens.length)
+		{
+			return unreadableCondition(condition);
+		}
+
+		return value;
+	}
+
+	private function unreadableCondition(condition:String):Bool
+	{
+		Log.warn("Could not read the condition \"" + condition + "\", so it is false");
+		return false;
 	}
 
 	private function isValidElement(element:Access, section:String):Bool
 	{
-		if (element.x.get("if") != null)
+		if (element.x.get("if") != null && !isConditionTrue(element.x.get("if")))
 		{
-			var value = element.x.get("if");
-			var optionalDefines = value.split("||");
-			var matchOptional = false;
-
-			for (optional in optionalDefines)
-			{
-				optional = substitute(optional);
-				var requiredDefines = optional.split(" ");
-				var matchRequired = true;
-
-				for (required in requiredDefines)
-				{
-					required = substitute(required);
-					var check = StringTools.trim(required);
-
-					if (check == "false")
-					{
-						matchRequired = false;
-					}
-					else if (check != ""
-						&& check != "true"
-						&& !defines.exists(check)
-						&& (environment == null || !environment.exists(check))
-						&& check != command)
-					{
-						matchRequired = false;
-					}
-				}
-
-				if (matchRequired)
-				{
-					matchOptional = true;
-				}
-			}
-
-			if (optionalDefines.length > 0 && !matchOptional)
-			{
-				return false;
-			}
+			return false;
 		}
 
-		if (element.has.unless)
+		if (element.has.unless && isConditionTrue(element.att.unless))
 		{
-			var value = substitute(element.att.unless);
-			var optionalDefines = value.split("||");
-			var matchOptional = false;
-
-			for (optional in optionalDefines)
-			{
-				optional = substitute(optional);
-				var requiredDefines = optional.split(" ");
-				var matchRequired = true;
-
-				for (required in requiredDefines)
-				{
-					required = substitute(required);
-					var check = StringTools.trim(required);
-
-					if (check == "false")
-					{
-						matchRequired = false;
-					}
-					else if (check != ""
-						&& check != "true"
-						&& !defines.exists(check)
-						&& (environment == null || !environment.exists(check))
-						&& check != command)
-					{
-						matchRequired = false;
-					}
-				}
-
-				if (matchRequired)
-				{
-					matchOptional = true;
-				}
-			}
-
-			if (optionalDefines.length > 0 && matchOptional)
-			{
-				return false;
-			}
+			return false;
 		}
 
 		if (section != "")
@@ -293,7 +475,9 @@ class ProjectXMLParser extends HXProject
 		}
 	}
 
-	private function parseAssetsElement(element:Access, basePath:String = "", isTemplate:Bool = false):Void
+	// parent is what a nested node takes from the node around it: its rename
+	// as the base of this one's, and its embed, library, type and glyphs
+	private function parseAssetsElement(element:Access, basePath:String = "", isTemplate:Bool = false, parent:AssetsParent = null):Void
 	{
 		var path = "";
 		var embed:Null<Bool> = null;
@@ -305,6 +489,11 @@ class ProjectXMLParser extends HXProject
 		if (element.has.path)
 		{
 			path = Path.combine(basePath, substitute(element.att.path));
+		}
+		else if (parent != null)
+		{
+			// A nested node that only groups others starts where its parent is
+			path = basePath;
 		}
 
 		if (element.has.embed)
@@ -329,6 +518,15 @@ class ProjectXMLParser extends HXProject
 		if (element.has.glyphs)
 		{
 			glyphs = substitute(element.att.glyphs);
+		}
+
+		if (parent != null)
+		{
+			if (parent.targetPath != "") targetPath = (targetPath == "") ? parent.targetPath : parent.targetPath + "/" + targetPath;
+			if (embed == null) embed = parent.embed;
+			if (library == null) library = parent.library;
+			if (glyphs == null) glyphs = parent.glyphs;
+			type = parent.type;
 		}
 
 		if (isTemplate)
@@ -452,6 +650,9 @@ class ProjectXMLParser extends HXProject
 		}
 		else
 		{
+			var parentPath = path;
+			var parentTargetPath = targetPath;
+
 			if (path != "")
 			{
 				path += "/";
@@ -466,7 +667,28 @@ class ProjectXMLParser extends HXProject
 			{
 				var isValid = isValidElement(childElement, "");
 
-				if (isValid)
+				if (isValid && __isAssetsGroup(childElement, path))
+				{
+					// Read as an <assets> node is at the top level, under this one
+					var childType = switch (childElement.name)
+					{
+						case "image", "sound", "music", "font", "template", "binary", "text":
+							Reflect.field(AssetType, childElement.name.toUpperCase());
+						case "library", "manifest":
+							AssetType.MANIFEST;
+						default:
+							type;
+					}
+
+					parseAssetsElement(childElement, parentPath, childType == AssetType.TEMPLATE, {
+						targetPath: parentTargetPath,
+						embed: embed,
+						library: library,
+						glyphs: glyphs,
+						type: childType
+					});
+				}
+				else if (isValid)
 				{
 					var childPath = substitute(childElement.has.name ? childElement.att.name : childElement.att.path);
 					var childTargetPath = childPath;
@@ -497,7 +719,7 @@ class ProjectXMLParser extends HXProject
 
 					switch (childElement.name)
 					{
-						case "image", "sound", "music", "font", "template":
+						case "image", "sound", "music", "font", "template", "binary", "text":
 							childType = Reflect.field(AssetType, childElement.name.toUpperCase());
 
 						case "library", "manifest":
@@ -531,6 +753,18 @@ class ProjectXMLParser extends HXProject
 				}
 			}
 		}
+	}
+
+	// A nested node that is more than one file: an <assets> node, or one that
+	// names a directory, picks files with include or exclude, or has children
+	private function __isAssetsGroup(element:Access, parentPath:String):Bool
+	{
+		if (element.has.name) return false;
+		if (element.name == "assets" || element.has.include || element.has.exclude || element.elements.hasNext()) return true;
+		if (!element.has.path) return false;
+
+		var path = parentPath + substitute(element.att.path);
+		return FileSystem.exists(path) && FileSystem.isDirectory(path) && Path.extension(path) != "bundle";
 	}
 
 	private function parseAssetsElementDirectory(path:String, targetPath:String, include:String, exclude:String, type:AssetType, embed:Null<Bool>,
@@ -582,10 +816,11 @@ class ProjectXMLParser extends HXProject
 	{
 		var includePath = findIncludeFile(path);
 
-		if (includePath != null && includePath != "" && FileSystem.exists(includePath) && !FileSystem.isDirectory(includePath))
+		if (includePath != null && includePath != "" && FileSystem.exists(includePath) && !FileSystem.isDirectory(includePath)
+			&& firstRead(includePath))
 		{
 			var includeProject = new ProjectXMLParser(includePath, defines);
-			merge(includeProject);
+			mergeIncluded(includeProject);
 		}
 
 		var processedLibrary = false;
@@ -830,45 +1065,35 @@ class ProjectXMLParser extends HXProject
 			{
 				case "set":
 					var name = element.att.name;
-					var value = "";
-
-					if (element.has.value)
-					{
-						value = substitute(element.att.value);
-					}
+					var value:Null<String> = element.has.value ? substitute(element.att.value) : null;
 
 					switch (name)
 					{
-						case "BUILD_DIR": app.path = value;
-						case "SWF_VERSION": app.swfVersion = Std.parseFloat(value);
-						case "PRERENDERED_ICON": config.set("ios.prerenderedIcon", value);
-						case "ANDROID_INSTALL_LOCATION": config.set("android.install-location", value);
+						case "BUILD_DIR": app.path = valueOrExisting(defines, name, value);
+						case "SWF_VERSION": app.swfVersion = Std.parseFloat(valueOrExisting(defines, name, value));
+						case "PRERENDERED_ICON": config.set("ios.prerenderedIcon", valueOrExisting(defines, name, value));
+						case "ANDROID_INSTALL_LOCATION": config.set("android.install-location", valueOrExisting(defines, name, value));
 					}
 
-					defines.set(name, value);
-					environment.set(name, value);
+					changeValue(defines, changedDefines, name, valueOrExisting(defines, name, value));
+					changeValue(environment, changedEnvironment, name, valueOrExisting(environment, name, value));
 
 				case "unset":
-					defines.remove(element.att.name);
-					environment.remove(element.att.name);
+					changeValue(defines, changedDefines, element.att.name, null);
+					changeValue(environment, changedEnvironment, element.att.name, null);
 
 				case "define":
 					var name = element.att.name;
-					var value = "";
+					var value:Null<String> = element.has.value ? substitute(element.att.value) : null;
 
-					if (element.has.value)
-					{
-						value = substitute(element.att.value);
-					}
-
-					defines.set(name, value);
-					haxedefs.set(name, value);
-					environment.set(name, value);
+					changeValue(defines, changedDefines, name, valueOrExisting(defines, name, value));
+					changeValue(haxedefs, changedHaxedefs, name, valueOrExisting(haxedefs, name, value));
+					changeValue(environment, changedEnvironment, name, valueOrExisting(environment, name, value));
 
 				case "undefine":
-					defines.remove(element.att.name);
-					haxedefs.remove(element.att.name);
-					environment.remove(element.att.name);
+					changeValue(defines, changedDefines, element.att.name, null);
+					changeValue(haxedefs, changedHaxedefs, element.att.name, null);
+					changeValue(environment, changedEnvironment, element.att.name, null);
 
 				case "setenv":
 					var value = "";
@@ -884,8 +1109,8 @@ class ProjectXMLParser extends HXProject
 
 					var name = substitute(element.att.name);
 
-					defines.set(name, value);
-					environment.set(name, value);
+					changeValue(defines, changedDefines, name, value);
+					changeValue(environment, changedEnvironment, name, value);
 					setenv(name, value);
 
 					if (needRerun) return;
@@ -970,6 +1195,8 @@ class ProjectXMLParser extends HXProject
 
 					if (path != null && path != "" && FileSystem.exists(path) && !FileSystem.isDirectory(path))
 					{
+						if (!firstRead(path)) continue;
+
 						var includeProject = new ProjectXMLParser(path, defines);
 
 						if (includeProject != null && haxelib != null)
@@ -993,7 +1220,7 @@ class ProjectXMLParser extends HXProject
 							}
 						}
 
-						merge(includeProject);
+						mergeIncluded(includeProject);
 					}
 					else if (!element.has.noerror)
 					{
@@ -1089,7 +1316,8 @@ class ProjectXMLParser extends HXProject
 					}
 					else
 					{
-						path = Path.tryFullPath(Path.combine(extensionPath, path));
+						// Already combined with this file's folder above
+						path = Path.tryFullPath(path);
 
 						if (version != "")
 						{
@@ -1108,6 +1336,14 @@ class ProjectXMLParser extends HXProject
 
 					haxelibs.push(haxelib);
 
+					var includeKey = HXProject.getHaxelibIncludeKey(haxelib);
+
+					if (readOnce != null)
+					{
+						if (readOnce.haxelibs.indexOf(includeKey) > -1) continue;
+						readOnce.haxelibs.push(includeKey);
+					}
+
 					var includeProject = HXProject.fromHaxelib(haxelib, defines);
 
 					if (includeProject != null)
@@ -1120,8 +1356,8 @@ class ProjectXMLParser extends HXProject
 							}
 						}
 
-						ArrayTools.addUnique(processedHaxelibIncludes, HXProject.getHaxelibIncludeKey(haxelib));
-						merge(includeProject);
+						ArrayTools.addUnique(processedHaxelibIncludes, includeKey);
+						mergeIncluded(includeProject);
 					}
 
 				case "ndll":
@@ -1418,7 +1654,23 @@ class ProjectXMLParser extends HXProject
 						}
 					}
 
-					icons.push(icon);
+					var knownLayer = true;
+
+					if (element.has.adaptive)
+					{
+						var layer = substitute(element.att.adaptive);
+						switch (layer)
+						{
+							case "foreground", "background", "monochrome":
+								icon.adaptive = layer;
+							default:
+								// Not taken as the application's icon, which a mistyped layer isn't meant to be
+								Log.warn("Ignoring an icon with unknown adaptive=\"" + element.att.adaptive + "\", which can be foreground, background or monochrome");
+								knownLayer = false;
+						}
+					}
+
+					if (knownLayer) icons.push(icon);
 
 				case "source", "classpath":
 					var path = "";
@@ -1440,7 +1692,7 @@ class ProjectXMLParser extends HXProject
 				case "haxedef":
 					if (element.has.remove)
 					{
-						haxedefs.remove(substitute(element.att.remove));
+						changeValue(haxedefs, changedHaxedefs, substitute(element.att.remove), null);
 					}
 					else
 					{
@@ -1452,7 +1704,7 @@ class ProjectXMLParser extends HXProject
 							value = substitute(element.att.value);
 						}
 
-						haxedefs.set(name, value);
+						changeValue(haxedefs, changedHaxedefs, name, value);
 					}
 
 				case "haxeflag", "compilerflag":
@@ -1886,7 +2138,7 @@ class ProjectXMLParser extends HXProject
 					}
 
 				case "config":
-					config.parse(element, substitute);
+					config.parse(filterConfigElement(element, section), substitute);
 
 				case "prebuild":
 					parseCommandElement(element, preBuildCallbacks);
@@ -1897,10 +2149,57 @@ class ProjectXMLParser extends HXProject
 				default:
 					if (StringTools.startsWith(element.name, "config:"))
 					{
-						config.parse(element, substitute);
+						config.parse(filterConfigElement(element, section), substitute);
 					}
 			}
 		}
+	}
+
+	/**
+		A copy of a `<config>` element without the tags inside it whose `if` or `unless` fails,
+		and without `if` and `unless` themselves, so they are never read as config values.
+	**/
+	private function filterConfigElement(element:Access, section:String):Access
+	{
+		return new Access(copyValidXml(element.x, section));
+	}
+
+	private function copyValidXml(xml:Xml, section:String):Xml
+	{
+		var copy = Xml.createElement(xml.nodeName);
+
+		for (attribute in xml.attributes())
+		{
+			if (attribute != "if" && attribute != "unless")
+			{
+				copy.set(attribute, xml.get(attribute));
+			}
+		}
+
+		for (child in xml)
+		{
+			switch (child.nodeType)
+			{
+				case Element:
+					if (isValidElement(new Access(child), section))
+					{
+						copy.addChild(copyValidXml(child, section));
+					}
+
+				case PCData:
+					copy.addChild(Xml.createPCData(child.nodeValue));
+
+				case CData:
+					copy.addChild(Xml.createCData(child.nodeValue));
+
+				case Comment:
+					copy.addChild(Xml.createComment(child.nodeValue));
+
+				default:
+			}
+		}
+
+		return copy;
 	}
 
 	private function parseWindowElement(element:Access):Void
@@ -1969,7 +2268,8 @@ class ProjectXMLParser extends HXProject
 						windows[id].orientation = orientation;
 					}
 
-				case "height", "width", "fps", "antialiasing":
+				// x and y are whole numbers, as WindowAttributes takes them
+				case "height", "width", "fps", "antialiasing", "x", "y", "display":
 					var parsedValue = Std.parseInt(value);
 					if (parsedValue == null)
 					{
@@ -1982,15 +2282,6 @@ class ProjectXMLParser extends HXProject
 
 				case "parameters", "title":
 					Reflect.setField(windows[id], name, Std.string(value));
-
-				case "renderer":
-					var renderType = Std.string(value).toLowerCase();
-					Reflect.setField(windows[id], "renderType", renderType);
-					if (renderType == "vulkan")
-					{
-						defines.set("lime-vulkan", "");
-						haxedefs.set("lime-vulkan", "");
-					}
 
 				case "allow-high-dpi":
 					Reflect.setField(windows[id], "allowHighDPI", value == "true");
@@ -2087,4 +2378,13 @@ class ProjectXMLParser extends HXProject
 				return null;
 		}
 	}
+}
+
+private typedef AssetsParent =
+{
+	var targetPath:String;
+	var embed:Null<Bool>;
+	var library:String;
+	var glyphs:String;
+	var type:AssetType;
 }

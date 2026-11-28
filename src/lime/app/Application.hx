@@ -41,7 +41,8 @@ class Application extends Module
 		Whether the application has its own menu bar, set using `menu`.
 
 		This is `true` on macOS, where the menu bar belongs to the application
-		rather than to its windows. Elsewhere, use `Window.menu` when
+		rather than to its windows, and on HTML5, where windows without a menu
+		of their own show it. Elsewhere, use `Window.menu` when
 		`Window.supportsMenu` is `true`.
 	**/
 	public static var supportsMenu(get, never):Bool;
@@ -148,6 +149,7 @@ class Application extends Module
 	@:noCompletion private var __preloader:Preloader;
 	@:noCompletion private var __vsyncMode:VSyncMode;
 	@:noCompletion private var __window:Window;
+	@:noCompletion private var __windowCreationError:String;
 	@:noCompletion private var __windowByID:Map<Int, Window>;
 	@:noCompletion private var __windows:Array<Window>;
 
@@ -187,14 +189,15 @@ class Application extends Module
 		__frameConfigured = false;
 		__frameOptions =
 			{
-				timePrecision: TimePrecision.Auto,
-				busyWait: BusyWaitMode.Auto,
-				uncapMode: UncapMode.Off
+				timePrecision: TimePrecision.AUTO,
+				busyWait: BusyWaitMode.AUTO,
+				uncapMode: UncapMode.OFF,
+				backgroundFrameRate: 30
 			};
-		__frameProfile = FrameProfile.Balanced;
+		__frameProfile = FrameProfile.BALANCED;
 		__windowByID = new Map();
 		__windows = new Array();
-		__vsyncMode = VSyncMode.Off;
+		__vsyncMode = VSyncMode.OFF;
 
 		__backend = new ApplicationBackend(this);
 		__backend.configureFrameTiming(__frameProfile, __frameRate, __copyFrameOptions(__frameOptions));
@@ -220,6 +223,7 @@ class Application extends Module
 	/**
 		Creates a new Window and adds it to the Application
 		@param	attributes	A set of parameters to initialize the window
+		@return	The new Window, or null if it could not be created
 	**/
 	public function createWindow(attributes:WindowAttributes):Window
 	{
@@ -596,6 +600,7 @@ class Application extends Module
 
 	@:noCompletion private function __createWindow(attributes:WindowAttributes):Window
 	{
+		__windowCreationError = null;
 		var window = new Window(this, attributes);
 		if (window.id == -1) return null;
 		__seedFrameConfiguration(attributes);
@@ -757,6 +762,8 @@ class Application extends Module
 	{
 		#if (lime_cffi && !macro)
 		return (lime._internal.backend.native.NativeMenu.getSupport() & lime._internal.backend.native.NativeMenu.SUPPORT_APPLICATION) != 0;
+		#elseif (js && html5)
+		return true;
 		#else
 		return false;
 		#end
@@ -837,16 +844,18 @@ class Application extends Module
 		if (value == null)
 		{
 			return {
-				timePrecision: TimePrecision.Auto,
-				busyWait: BusyWaitMode.Auto,
-				uncapMode: UncapMode.Off
+				timePrecision: TimePrecision.AUTO,
+				busyWait: BusyWaitMode.AUTO,
+				uncapMode: UncapMode.OFF,
+				backgroundFrameRate: 30
 			};
 		}
 
 		return {
 			timePrecision: value.timePrecision,
 			busyWait: value.busyWait,
-			uncapMode: value.uncapMode
+			uncapMode: value.uncapMode,
+			backgroundFrameRate: Reflect.hasField(value, "backgroundFrameRate") ? value.backgroundFrameRate : 30
 		};
 	}
 
@@ -862,6 +871,7 @@ class Application extends Module
 		if (Reflect.hasField(value, "timePrecision")) base.timePrecision = value.timePrecision;
 		if (Reflect.hasField(value, "busyWait")) base.busyWait = value.busyWait;
 		if (Reflect.hasField(value, "uncapMode")) base.uncapMode = value.uncapMode;
+		if (Reflect.hasField(value, "backgroundFrameRate")) base.backgroundFrameRate = value.backgroundFrameRate;
 
 		return base;
 	}
@@ -934,7 +944,7 @@ class Application extends Module
 
 			if (Reflect.hasField(context, "vsync") && context.vsync)
 			{
-				return VSyncMode.On;
+				return VSyncMode.ON;
 			}
 		}
 
@@ -955,7 +965,15 @@ class Application extends Module
 
 	@:noCompletion private function __setFrameRateFromWindow(value:Float):Float
 	{
-		__frameRate = __normalizeFrameRate(value);
+		var frameRate = __normalizeFrameRate(value);
+
+		// Setting the frame rate it has, as applications that set it often do, changes nothing
+		if (frameRate == __frameRate && __frameConfigured)
+		{
+			return __frameRate;
+		}
+
+		__frameRate = frameRate;
 		__applyFrameConfiguration(__frameProfile, __frameOptions, __vsyncMode, true);
 		return __frameRate;
 	}

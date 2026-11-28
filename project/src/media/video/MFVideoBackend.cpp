@@ -21,6 +21,7 @@
 #include <initguid.h>
 #include <d3d11.h>
 #include <d3d11_1.h>
+#include <dxgi1_3.h>
 #include <d3d10.h>
 #include <mfapi.h>
 #include <mfidl.h>
@@ -31,10 +32,17 @@
 #include <deque>
 #include <map>
 #include <mutex>
+#include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <string>
 #include <utility>
 #include <vector>
+
+#ifdef LIME_VORBIS
+#include <mkvparser/mkvparser.h>
+#include <vorbis/codec.h>
+#endif
 
 #ifndef NATIVE_TOOLKIT_SDL_ANGLE
 #include <GL/gl.h>
@@ -44,6 +52,7 @@
 #endif
 
 #include <media/VideoDecoder.h>
+#include "../../graphics/opengl/OpenGLShareGroups.h"
 
 
 #ifdef LIME_VIDEO_MEDIA_FOUNDATION
@@ -915,6 +924,373 @@ namespace lime {
 	};
 
 
+	#ifdef LIME_VORBIS
+	// Reads a local file for mkvparser
+	class MFMatroskaFile : public mkvparser::IMkvReader {
+
+
+		public:
+
+			MFMatroskaFile () : file (NULL), length (0) {}
+			~MFMatroskaFile () { Close (); }
+
+			void Close () {
+
+				if (file) fclose (file);
+				file = NULL;
+				length = 0;
+
+			}
+
+			bool Open (const std::wstring& path) {
+
+				Close ();
+
+				if (_wfopen_s (&file, path.c_str (), L"rb") != 0) {
+
+					file = NULL;
+					return false;
+
+				}
+
+				if (_fseeki64 (file, 0, SEEK_END) == 0) length = _ftelli64 (file);
+				return length > 0;
+
+			}
+
+			int Length (long long* total, long long* available) {
+
+				if (!file) return -1;
+				if (total) *total = length;
+				if (available) *available = length;
+				return 0;
+
+			}
+
+			int Read (long long position, long size, unsigned char* buffer) {
+
+				if (!file || position < 0 || size < 0 || position + size > length) return -1;
+				if (size == 0) return 0;
+				if (_fseeki64 (file, position, SEEK_SET) != 0) return -1;
+				return fread (buffer, 1, size, file) == (size_t)size ? 0 : -1;
+
+			}
+
+
+		private:
+
+			FILE* file;
+			long long length;
+
+
+	};
+
+
+	// Media Foundation has no Vorbis decoder, so the Vorbis track of a Matroska
+	// or WebM file is read with mkvparser and decoded with libvorbis
+	class MFVorbisTrack {
+
+
+		public:
+
+			MFVorbisTrack () : channels (0), sampleRate (0), blockSamples (0), blockTime (0), cluster (NULL), decoding (false), entry (NULL), frameIndex (0), headers (false), segment (NULL), skipUntil (-1), trackNumber (0) {}
+			~MFVorbisTrack () { Close (); }
+
+			void Close () {
+
+				if (decoding) {
+
+					vorbis_block_clear (&block);
+					vorbis_dsp_clear (&dsp);
+
+				}
+
+				if (headers) {
+
+					vorbis_comment_clear (&comment);
+					vorbis_info_clear (&info);
+
+				}
+
+				delete segment;
+				file.Close ();
+
+				blockSamples = 0;
+				blockTime = 0;
+				channels = 0;
+				cluster = NULL;
+				decoding = false;
+				entry = NULL;
+				frameIndex = 0;
+				headers = false;
+				packet.clear ();
+				samples.clear ();
+				samples.shrink_to_fit ();
+				sampleRate = 0;
+				segment = NULL;
+				skipUntil = -1;
+				trackNumber = 0;
+
+			}
+
+			// Sets samples to the next packet's audio, as interleaved signed 16-bit
+			// PCM in the WAVE channel order
+			VideoDecodeResult Decode (double* time) {
+
+				samples.clear ();
+
+				while (true) {
+
+					float** output = NULL;
+					int frames = vorbis_synthesis_pcmout (&dsp, &output);
+
+					if (frames > 0) {
+
+						// A block's time is that of the audio its first packet
+						// gives, and laced packets follow on from it
+						double start = blockTime + (double)blockSamples / sampleRate;
+						blockSamples += frames;
+						vorbis_synthesis_read (&dsp, frames);
+
+						// Audio that ends before a seek target is dropped, so the
+						// stream starts at or just before it
+						if (skipUntil >= 0 && blockTime + (double)blockSamples / sampleRate <= skipUntil) continue;
+						skipUntil = -1;
+
+						static const int order[8][8] = { { 0 }, { 0, 1 }, { 0, 2, 1 }, { 0, 1, 2, 3 }, { 0, 2, 1, 3, 4 }, { 0, 2, 1, 5, 3, 4 }, { 0, 2, 1, 6, 3, 4, 5 }, { 0, 2, 1, 7, 5, 6, 3, 4 } };
+						const int* map = order[channels - 1];
+
+						samples.resize ((size_t)frames * channels);
+
+						for (int channel = 0; channel < channels; channel++) {
+
+							const float* in = output[map[channel]];
+							short* out = samples.data () + channel;
+
+							for (int i = 0; i < frames; i++) {
+
+								float value = in[i] * 32767.0f;
+								out[i * channels] = (short)(value > 32767.0f ? 32767.0f : (value < -32768.0f ? -32768.0f : value));
+
+							}
+
+						}
+
+						*time = start;
+						return VIDEO_DECODE_OK;
+
+					}
+
+					double packetTime = -1;
+					int read = ReadPacket (&packetTime);
+					if (read <= 0) return read < 0 ? VIDEO_DECODE_ERROR : VIDEO_DECODE_END;
+
+					if (packetTime >= 0) {
+
+						blockTime = packetTime;
+						blockSamples = 0;
+
+					}
+
+					ogg_packet op = {};
+					op.packet = packet.data ();
+					op.bytes = (long)packet.size ();
+					op.granulepos = -1;
+
+					// A damaged packet is skipped
+					if (vorbis_synthesis (&block, &op) == 0) vorbis_synthesis_blockin (&dsp, &block);
+
+				}
+
+			}
+
+			double GetDuration () {
+
+				return segment && segment->GetDuration () > 0 ? segment->GetDuration () / 1000000000.0 : 0;
+
+			}
+
+			bool Open (const std::wstring& path) {
+
+				Close ();
+
+				long long position = 0;
+				mkvparser::EBMLHeader header;
+
+				if (!file.Open (path) || header.Parse (&file, position) != 0 || mkvparser::Segment::CreateInstance (&file, position, segment) != 0 || !segment || segment->Load () < 0) {
+
+					Close ();
+					return false;
+
+				}
+
+				// The first audio track, which is the one Media Foundation found
+				const mkvparser::Tracks* tracks = segment->GetTracks ();
+				const mkvparser::Track* track = NULL;
+
+				for (unsigned long i = 0; tracks && i < tracks->GetTracksCount (); i++) {
+
+					const mkvparser::Track* candidate = tracks->GetTrackByIndex (i);
+
+					if (candidate && candidate->GetType () == mkvparser::Track::kAudio) {
+
+						track = candidate;
+						break;
+
+					}
+
+				}
+
+				if (!track || !track->GetCodecId () || strcmp (track->GetCodecId (), "A_VORBIS") != 0 || !OpenHeaders (track)) {
+
+					Close ();
+					return false;
+
+				}
+
+				trackNumber = track->GetNumber ();
+				cluster = segment->GetFirst ();
+				return true;
+
+			}
+
+			void Seek (double time) {
+
+				// Decoding starts a little early, as the first packet after a seek
+				// only primes the decoder
+				double start = time - 0.5;
+				cluster = segment->FindCluster (start > 0 ? (long long)(start * 1000000000.0) : 0);
+				entry = NULL;
+				frameIndex = 0;
+				skipUntil = time;
+
+				vorbis_synthesis_restart (&dsp);
+
+			}
+
+			int channels;
+			std::vector<short> samples;
+			int sampleRate;
+
+
+		private:
+
+			// The three Xiph-laced headers in the track's CodecPrivate
+			bool OpenHeaders (const mkvparser::Track* track) {
+
+				size_t size = 0;
+				const unsigned char* data = track->GetCodecPrivate (size);
+				if (!data || size < 3 || data[0] != 2) return false;
+
+				size_t offset = 1;
+				size_t lengths[3] = { 0, 0, 0 };
+
+				for (int i = 0; i < 2; i++) {
+
+					unsigned char value = 255;
+
+					while (value == 255) {
+
+						if (offset >= size) return false;
+						value = data[offset++];
+						lengths[i] += value;
+
+					}
+
+				}
+
+				if (lengths[0] + lengths[1] >= size - offset) return false;
+				lengths[2] = size - offset - lengths[0] - lengths[1];
+
+				vorbis_info_init (&info);
+				vorbis_comment_init (&comment);
+				headers = true;
+
+				for (int i = 0; i < 3; i++) {
+
+					ogg_packet op = {};
+					op.packet = (unsigned char*)data + offset;
+					op.bytes = (long)lengths[i];
+					op.b_o_s = (i == 0);
+					op.granulepos = -1;
+					op.packetno = i;
+
+					if (vorbis_synthesis_headerin (&info, &comment, &op) != 0) return false;
+					offset += lengths[i];
+
+				}
+
+				if (info.channels < 1 || info.channels > 8 || info.rate <= 0 || vorbis_synthesis_init (&dsp, &info) != 0) return false;
+
+				vorbis_block_init (&dsp, &block);
+				decoding = true;
+				channels = info.channels;
+				sampleRate = (int)info.rate;
+				return true;
+
+			}
+
+			// Reads the track's next packet, and the time of its block when it is
+			// the block's first, returning 0 at the end and -1 on an error
+			int ReadPacket (double* time) {
+
+				while (cluster && !cluster->EOS ()) {
+
+					if (!entry && cluster->GetFirst (entry) < 0) return -1;
+
+					while (entry && !entry->EOS ()) {
+
+						const mkvparser::Block* data = entry->GetBlock ();
+
+						if (data->GetTrackNumber () == trackNumber && frameIndex < data->GetFrameCount ()) {
+
+							const mkvparser::Block::Frame& frame = data->GetFrame (frameIndex);
+							if (frameIndex == 0) *time = data->GetTime (cluster) / 1000000000.0;
+							frameIndex++;
+
+							if (frame.len <= 0) continue;
+							packet.resize (frame.len);
+							return frame.Read (&file, packet.data ()) < 0 ? -1 : 1;
+
+						}
+
+						frameIndex = 0;
+						if (cluster->GetNext (entry, entry) < 0) return -1;
+
+					}
+
+					cluster = segment->GetNext (cluster);
+					entry = NULL;
+					frameIndex = 0;
+
+				}
+
+				return 0;
+
+			}
+
+			vorbis_block block;
+			long long blockSamples;
+			double blockTime;
+			const mkvparser::Cluster* cluster;
+			vorbis_comment comment;
+			bool decoding;
+			vorbis_dsp_state dsp;
+			const mkvparser::BlockEntry* entry;
+			MFMatroskaFile file;
+			int frameIndex;
+			bool headers;
+			vorbis_info info;
+			std::vector<unsigned char> packet;
+			mkvparser::Segment* segment;
+			double skipUntil;
+			long long trackNumber;
+
+
+	};
+	#endif
+
+
 	class MFVideoBackend : public VideoBackend {
 
 
@@ -943,6 +1319,9 @@ namespace lime {
 			VideoDecodeResult MapStaging (VideoPlanes* planes, double* time, double* duration);
 			bool OpenAudio ();
 			bool OpenVideo (bool hardware);
+			#ifdef LIME_VORBIS
+			bool OpenVorbisAudio ();
+			#endif
 			void ReadAudioFormat ();
 			bool OpenVideoReader (bool hardware, bool advanced, bool keepDevice = false);
 			HRESULT ReadSample (IMFSourceReader* reader, DWORD stream, MFConnection* connection, DWORD* flags, LONGLONG* timestamp, IMFSample** sample);
@@ -990,6 +1369,11 @@ namespace lime {
 			std::condition_variable outputCondition;
 			std::mutex outputMutex;
 			ID3D11Query* outputQuery;
+			// Set by DXGI once the GPU has run the commands sent before it, so that
+			// waiting for a frame blocks rather than spins
+			HANDLE outputEvent;
+			IDXGIDevice2* outputEventDevice;
+			bool outputEventChecked;
 			MFOutputTexture outputs[OUTPUT_TEXTURES];
 			ID3D11VideoProcessor* processor;
 			ID3D11VideoProcessorEnumerator* processorEnumerator;
@@ -1005,6 +1389,7 @@ namespace lime {
 			HANDLE interopDevice;
 			void* interopContext;
 			bool interopFailed;
+			int interopGroup;
 			LONGLONG lastFrameTime;
 			IMF2DBuffer* locked2D;
 			IMFMediaBuffer* lockedBuffer;
@@ -1035,6 +1420,9 @@ namespace lime {
 			MFConnection videoConnection;
 			IMFSourceReader* videoReader;
 			bool videoStreamFound;
+			#ifdef LIME_VORBIS
+			MFVorbisTrack vorbisTrack;
+			#endif
 
 
 	};
@@ -1067,11 +1455,15 @@ namespace lime {
 		interopContext = NULL;
 		interopDevice = NULL;
 		interopFailed = false;
+		interopGroup = 0;
 		interrupted = false;
 		lastFrameTime = -1;
 		locked2D = NULL;
 		lockedBuffer = NULL;
 		outputQuery = NULL;
+		outputEvent = NULL;
+		outputEventDevice = NULL;
+		outputEventChecked = false;
 		pixelAspectRatio = 0;
 		processor = NULL;
 		processorEnumerator = NULL;
@@ -1121,6 +1513,7 @@ namespace lime {
 	struct MFOrphan {
 
 		void* context;
+		int group;
 		ID3D11Device* device;
 		HANDLE interopDevice;
 		std::vector<HANDLE> interops;
@@ -1153,9 +1546,17 @@ namespace lime {
 		for (size_t i = 0; i < list.size (); i++) {
 
 			MFOrphan& orphan = list[i];
+			bool current = orphan.interopDevice && OpenGLShareGroups::Shares (orphan.context, orphan.group, context);
 
-			// Objects from a context that is no longer current are left with it
-			bool current = orphan.interopDevice && orphan.context == context;
+			// Kept for a context of their group while one is left. Once none
+			// is, the GL objects went with them, and only DirectX's are released.
+			if (!current && orphan.interopDevice && OpenGLShareGroups::Exists (orphan.group)) {
+
+				std::lock_guard<std::mutex> lock (*orphanMutex);
+				orphans->push_back (orphan);
+				continue;
+
+			}
 
 			for (size_t j = 0; j < orphan.interops.size (); j++) {
 
@@ -1193,6 +1594,7 @@ namespace lime {
 		#ifdef LIME_VIDEO_WGL_INTEROP
 		MFOrphan orphan;
 		orphan.context = interopContext;
+		orphan.group = interopGroup;
 		orphan.device = NULL;
 		orphan.interopDevice = interopDevice;
 		#endif
@@ -1236,10 +1638,14 @@ namespace lime {
 		interopContext = NULL;
 		interopDevice = NULL;
 		interopFailed = false;
+		interopGroup = 0;
 
 		UnlockVideo ();
 		ReleaseReader (&videoReader, network);
 		ReleaseReader (&audioReader, network);
+		#ifdef LIME_VORBIS
+		vorbisTrack.Close ();
+		#endif
 
 		SetByteStream (&audioConnection, NULL);
 		SetByteStream (&videoConnection, NULL);
@@ -1545,6 +1951,30 @@ namespace lime {
 			if (result != VIDEO_DECODE_OK) return result;
 
 		}
+
+		#ifdef LIME_VORBIS
+		if (vorbisTrack.channels > 0) {
+
+			VideoDecodeResult result = vorbisTrack.Decode (time);
+			if (result != VIDEO_DECODE_OK) return result;
+
+			const short* data = vorbisTrack.samples.data ();
+			int frames = (int)(vorbisTrack.samples.size () / audioSourceChannels);
+
+			if (audioSourceChannels == audioChannels) {
+
+				pcm->insert (pcm->end (), (const unsigned char*)data, (const unsigned char*)(data + vorbisTrack.samples.size ()));
+
+			} else {
+
+				ConvertAudio (data, frames, audioSourceChannels, audioSampleRate, audioChannels, audioSampleRate, &audioConverter, pcm);
+
+			}
+
+			return VIDEO_DECODE_OK;
+
+		}
+		#endif
 
 		if (!audioReader) return VIDEO_DECODE_END;
 
@@ -1895,6 +2325,10 @@ namespace lime {
 		info->hasVideo = OpenVideo (hardwareDecoding) || (hardwareDecoding && OpenVideo (false));
 		info->hasAudio = OpenAudio ();
 
+		#ifdef LIME_VORBIS
+		if (!info->hasAudio && audioStreamFound && !network) info->hasAudio = OpenVorbisAudio ();
+		#endif
+
 		// A stream that was found but cannot be decoded, such as one in a codec
 		// that is not installed
 		info->videoUnsupported = !info->hasVideo && videoStreamFound;
@@ -1906,7 +2340,11 @@ namespace lime {
 		PROPVARIANT duration;
 		PropVariantInit (&duration);
 
-		if (SUCCEEDED (reader->GetPresentationAttribute (MF_SOURCE_READER_MEDIASOURCE, MF_PD_DURATION, &duration)) && duration.vt == VT_UI8) {
+		#ifdef LIME_VORBIS
+		if (!reader) info->duration = vorbisTrack.GetDuration ();
+		#endif
+
+		if (reader && SUCCEEDED (reader->GetPresentationAttribute (MF_SOURCE_READER_MEDIASOURCE, MF_PD_DURATION, &duration)) && duration.vt == VT_UI8) {
 
 			info->duration = duration.uhVal.QuadPart / 10000000.0;
 
@@ -1917,7 +2355,7 @@ namespace lime {
 		PROPVARIANT characteristics;
 		PropVariantInit (&characteristics);
 
-		if (SUCCEEDED (reader->GetPresentationAttribute (MF_SOURCE_READER_MEDIASOURCE, MF_SOURCE_READER_MEDIASOURCE_CHARACTERISTICS, &characteristics)) && characteristics.vt == VT_UI4) {
+		if (reader && SUCCEEDED (reader->GetPresentationAttribute (MF_SOURCE_READER_MEDIASOURCE, MF_SOURCE_READER_MEDIASOURCE_CHARACTERISTICS, &characteristics)) && characteristics.vt == VT_UI4) {
 
 			canSeek = (characteristics.ulVal & MFMEDIASOURCE_CAN_SEEK) != 0;
 
@@ -2013,6 +2451,26 @@ namespace lime {
 		return true;
 
 	}
+
+
+	#ifdef LIME_VORBIS
+	bool MFVideoBackend::OpenVorbisAudio () {
+
+		// Media Foundation finds the Vorbis track of a Matroska or WebM file, but
+		// has no decoder for it
+		if (!vorbisTrack.Open (url)) return false;
+
+		audioSampleRate = vorbisTrack.sampleRate;
+		audioSourceChannels = vorbisTrack.channels;
+		audioChannels = audioSourceChannels > 2 ? 2 : audioSourceChannels;
+		audioConverter.Reset ();
+		audioPacketChannels = audioSourceChannels;
+		audioPacketRate = audioSampleRate;
+
+		return true;
+
+	}
+	#endif
 
 
 	void MFVideoBackend::ReadAudioFormat () {
@@ -2466,6 +2924,22 @@ namespace lime {
 
 		}
 
+		if (outputEventDevice) {
+
+			outputEventDevice->Release ();
+			outputEventDevice = NULL;
+
+		}
+
+		if (outputEvent) {
+
+			CloseHandle (outputEvent);
+			outputEvent = NULL;
+
+		}
+
+		outputEventChecked = false;
+
 		for (int i = 0; i < OUTPUT_TEXTURES; i++) {
 
 			// Textures still shared with OpenGL are left for ReleaseTextures
@@ -2568,6 +3042,10 @@ namespace lime {
 			success = SUCCEEDED (audioReader->SetCurrentPosition (TIME_FORMAT_100NS, position)) && success;
 
 		}
+
+		#ifdef LIME_VORBIS
+		if (vorbisTrack.channels > 0) vorbisTrack.Seek (time);
+		#endif
 
 		audioConverter.Reset ();
 		return success;
@@ -2809,25 +3287,59 @@ namespace lime {
 					} else {
 
 						// OpenGL samples the shared texture through another API, so wait
-						// for the GPU to finish writing it before the frame is queued
-						if (!outputQuery) {
+						// for the GPU to finish writing it before the frame is queued.
+						// DXGI 1.3 sets an event for that, which the thread waits on.
+						if (!outputEventChecked) {
 
-							D3D11_QUERY_DESC queryDesc = {};
-							queryDesc.Query = D3D11_QUERY_EVENT;
-							device->CreateQuery (&queryDesc, &outputQuery);
+							outputEventChecked = true;
+
+							if (SUCCEEDED (device->QueryInterface (IID_PPV_ARGS (&outputEventDevice)))) {
+
+								outputEvent = CreateEvent (NULL, FALSE, FALSE, NULL);
+
+							} else {
+
+								outputEventDevice = NULL;
+
+							}
 
 						}
 
-						if (outputQuery) {
+						if (outputEventDevice && outputEvent && SUCCEEDED (outputEventDevice->EnqueueSetEvent (outputEvent))) {
 
-							context->End (outputQuery);
-							context->Flush ();
-							BOOL done = FALSE;
-							while (context->GetData (outputQuery, &done, sizeof (done), 0) == S_FALSE) std::this_thread::yield ();
+							// A second at most, so that a lost device can't hold the thread
+							WaitForSingleObject (outputEvent, 1000);
 
 						} else {
 
-							context->Flush ();
+							if (!outputQuery) {
+
+								D3D11_QUERY_DESC queryDesc = {};
+								queryDesc.Query = D3D11_QUERY_EVENT;
+								device->CreateQuery (&queryDesc, &outputQuery);
+
+							}
+
+							if (outputQuery) {
+
+								context->End (outputQuery);
+								context->Flush ();
+								BOOL done = FALSE;
+								int polls = 0;
+
+								// Polled, giving the core up after the first few tries
+								while (context->GetData (outputQuery, &done, sizeof (done), 0) == S_FALSE) {
+
+									if (++polls < 64) std::this_thread::yield ();
+									else Sleep (1);
+
+								}
+
+							} else {
+
+								context->Flush ();
+
+							}
 
 						}
 
@@ -2872,12 +3384,27 @@ namespace lime {
 		MFOutputTexture& output = outputs[((MFTextureFrame*)frame)->index];
 		HGLRC glContext = wglGetCurrentContext ();
 
-		if (interopDevice && glContext != interopContext) {
+		if (interopDevice && !OpenGLShareGroups::Shares (interopContext, interopGroup, glContext)) {
 
-			// Another context is current, such as another window's, where the
-			// textures shared with the first one do not exist, so they are shared
-			// again and the first context keeps its own until it is deleted
+			// Every window's context shares the textures, but in one that does
+			// not they are shared with OpenGL again, and the first context's are
+			// released where it is current, while it lasts
+			MFOrphan orphan;
+			orphan.context = interopContext;
+			orphan.group = interopGroup;
+			orphan.device = NULL;
+			orphan.interopDevice = interopDevice;
+
 			for (int i = 0; i < OUTPUT_TEXTURES; i++) {
+
+				if (outputs[i].interop) {
+
+					orphan.interops.push_back (outputs[i].interop);
+					orphan.glTextures.push_back (outputs[i].glTexture);
+					orphan.locked.push_back (outputs[i].locked);
+					orphan.textures.push_back (NULL);
+
+				}
 
 				outputs[i].glTexture = 0;
 				outputs[i].interop = NULL;
@@ -2885,8 +3412,24 @@ namespace lime {
 
 			}
 
+			if (OpenGLShareGroups::Exists (orphan.group)) {
+
+				if (device) {
+
+					device->AddRef ();
+					orphan.device = device;
+
+				}
+
+				std::lock_guard<std::mutex> lock (*orphanMutex);
+				orphans->push_back (orphan);
+
+			}
+
+			interopContext = NULL;
 			interopDevice = NULL;
 			interopFailed = false;
+			interopGroup = 0;
 
 		}
 
@@ -2905,6 +3448,7 @@ namespace lime {
 
 				interopDevice = _wglDXOpenDeviceNV (device);
 				interopContext = glContext;
+				interopGroup = OpenGLShareGroups::Get (glContext);
 
 			}
 
@@ -3011,7 +3555,7 @@ namespace lime {
 	void MFVideoBackend::ReleaseTextures () {
 
 		#ifdef LIME_VIDEO_WGL_INTEROP
-		bool current = interopDevice && wglGetCurrentContext () == interopContext;
+		bool current = interopDevice && OpenGLShareGroups::Shares (interopContext, interopGroup, wglGetCurrentContext ());
 
 		for (int i = 0; i < OUTPUT_TEXTURES; i++) {
 
@@ -3034,7 +3578,7 @@ namespace lime {
 		}
 
 		// Objects from a context that is no longer current are left with it
-		if (interopDevice && wglGetCurrentContext () == interopContext) {
+		if (current) {
 
 			_wglDXCloseDeviceNV (interopDevice);
 
@@ -3042,6 +3586,7 @@ namespace lime {
 
 		interopContext = NULL;
 		interopDevice = NULL;
+		interopGroup = 0;
 		#endif
 
 		interopFailed = false;
@@ -3132,7 +3677,8 @@ namespace lime {
 
 		#ifdef LIME_VIDEO_WGL_INTEROP
 		MFOutputTexture& output = outputs[((MFTextureFrame*)frame)->index];
-		if (interopDevice && output.interop && output.locked) _wglDXUnlockObjectsNV (interopDevice, 1, &output.interop);
+		if (interopDevice && output.interop && output.locked && OpenGLShareGroups::Shares (interopContext, interopGroup, wglGetCurrentContext ()))
+			_wglDXUnlockObjectsNV (interopDevice, 1, &output.interop);
 		output.locked = false;
 		#endif
 

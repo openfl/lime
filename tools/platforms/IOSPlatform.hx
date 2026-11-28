@@ -17,6 +17,7 @@ import lime.tools.Asset;
 import lime.tools.AssetHelper;
 import lime.tools.AssetType;
 import lime.tools.CPPHelper;
+import lime.tools.Dependency;
 import lime.tools.DeploymentHelper;
 import lime.tools.HXProject;
 import lime.tools.Icon;
@@ -25,6 +26,7 @@ import lime.tools.ImageHelper;
 import lime.tools.IOSHelper;
 import lime.tools.Keystore;
 import lime.tools.LaunchStoryboard;
+import lime.tools.NativeSourcesHelper;
 import lime.tools.Orientation;
 import lime.tools.Platform;
 import lime.tools.PlatformTarget;
@@ -99,7 +101,8 @@ class IOSPlatform extends PlatformTarget
 
 		for (i in 1...project.windows.length)
 		{
-			defaults.windows.push(defaults.window);
+			// A copy each, as merge() copies each project window into its own default
+			defaults.windows.push(hxp.ObjectTools.copyFields(defaults.window, {}));
 		}
 
 		defaults.merge(project);
@@ -316,7 +319,7 @@ class IOSPlatform extends PlatformTarget
 			case "ipad": "2";
 			default: "1,2";
 		}
-		context.DEPLOYMENT = project.config.getString("ios.deployment", "13.6");
+		context.DEPLOYMENT = project.config.getString("ios.deployment", "15.0");
 
 		if (project.config.getString("ios.compiler") == "llvm" || project.config.getString("ios.compiler", "clang") == "clang")
 		{
@@ -333,10 +336,64 @@ class IOSPlatform extends PlatformTarget
 		context.IOS_LINKER_FLAGS = ["-stdlib=libc++"].concat(project.config.getArrayString("ios.linker-flags"));
 		context.IOS_NON_EXEMPT_ENCRYPTION = project.config.getBool("ios.non-exempt-encryption", false);
 
+		if (project.config.exists("ios.camera-usage-description"))
+		{
+			context.IOS_CAMERA_USAGE_DESCRIPTION = StringTools.htmlEscape(project.config.getString("ios.camera-usage-description"), true);
+		}
+
 		if (project.config.exists("ios.microphone-usage-description"))
 		{
-			context.IOS_MICROPHONE_USAGE_DESCRIPTION = project.config.getString("ios.microphone-usage-description");
+			// Info.plist is XML, so a description with & or < would break it
+			context.IOS_MICROPHONE_USAGE_DESCRIPTION = StringTools.htmlEscape(project.config.getString("ios.microphone-usage-description"), true);
 		}
+
+		// ProMotion iPhones run Core Animation above 60 Hz only with this key, which iPads
+		// don't need. It is set when a window asks for more than 60 frames a second, so an
+		// application at 60 isn't woken at 120 for frames it skips.
+		var highFrameRate = false;
+
+		for (window in project.windows)
+		{
+			if (window.fps != null && window.fps > 60) highFrameRate = true;
+		}
+
+		context.IOS_HIGH_FRAME_RATE = project.config.getBool("ios.high-frame-rate", highFrameRate);
+
+		// The privacy manifest gives App Store Connect a reason for each required reason
+		// API the application calls: Lime's frame clock reads the system boot time, and
+		// hxcpp's sys.FileSystem file timestamps. An application adds its own with
+		// <config:ios privacy-accessed-api="TYPE REASON..." />.
+		var privacyTypes:Array<{type:String, reasons:Array<String>}> = [
+			{type: "NSPrivacyAccessedAPICategorySystemBootTime", reasons: ["35F9.1"]},
+			{type: "NSPrivacyAccessedAPICategoryFileTimestamp", reasons: ["C617.1"]}
+		];
+
+		for (entry in project.config.getArrayString("ios.privacy-accessed-api"))
+		{
+			var words = [for (word in ~/\s+/g.split(StringTools.trim(entry))) if (word != "") word];
+			if (words.length < 2) continue;
+
+			var type = words.shift();
+			var existing = null;
+
+			for (privacyType in privacyTypes)
+			{
+				if (privacyType.type == type) existing = privacyType;
+			}
+
+			if (existing == null)
+			{
+				existing = {type: type, reasons: []};
+				privacyTypes.push(existing);
+			}
+
+			for (reason in words)
+			{
+				if (existing.reasons.indexOf(reason) == -1) existing.reasons.push(reason);
+			}
+		}
+
+		context.IOS_PRIVACY_ACCESSED_API_TYPES = privacyTypes;
 
 		switch (project.window.orientation)
 		{
@@ -356,14 +413,29 @@ class IOSPlatform extends PlatformTarget
 		context.ADDL_PBX_FILE_REFERENCE = "";
 		context.ADDL_PBX_FRAMEWORKS_BUILD_PHASE = "";
 		context.ADDL_PBX_FRAMEWORK_GROUP = "";
+		context.ADDL_PBX_COPY_FILES_BUILD_PHASE = "";
+		context.ADDL_PBX_BUILD_PHASE_LIST = "";
+		context.ADDL_PBX_RUNPATH_SEARCH_PATHS = "";
 
 		context.frameworkSearchPaths = [];
 
-		for (dependency in project.dependencies)
+		var dependencies = project.dependencies.copy();
+		var embeddedFrameworks = "";
+
+		// libhxcpp's TLS checks certificates with the system's trust store, and leaves
+		// Security.framework to the app's link
+		if (IOSHelper.linksSecurityFramework(project.config.getString("cpp.buildLibrary", "hxcpp"))
+			&& !Lambda.exists(dependencies, function(dependency) return dependency.name == "Security.framework"))
+		{
+			dependencies.push(new Dependency("Security.framework", null));
+		}
+
+		for (dependency in dependencies)
 		{
 			var name:String = null;
 			var path:String = null;
 			var fileType:String = null;
+			var local = false;
 
 			if (Path.extension(dependency.name) == "framework")
 			{
@@ -382,12 +454,14 @@ class IOSPlatform extends PlatformTarget
 				name = Path.withoutDirectory(dependency.path);
 				path = Path.tryFullPath(dependency.path);
 				fileType = "wrapper.framework";
+				local = true;
 			}
 			else if (Path.extension(dependency.path) == "xcframework")
 			{
 				name = Path.withoutDirectory(dependency.path);
 				path = Path.tryFullPath(dependency.path);
 				fileType = "wrapper.xcframework";
+				local = true;
 			}
 
 			if (name != null)
@@ -403,7 +477,35 @@ class IOSPlatform extends PlatformTarget
 					+ "\"; name = \"" + name + "\"; path = \"" + path + "\"; sourceTree = SDKROOT; };\n";
 				context.ADDL_PBX_FRAMEWORKS_BUILD_PHASE += "				" + frameworkID + " /* " + name + " in Frameworks */,\n";
 				context.ADDL_PBX_FRAMEWORK_GROUP += "				" + fileID + " /* " + name + " */,\n";
+
+				// A framework of the project's own that asks to be embedded is copied into the app and
+				// signed, when it is dynamic. A static one is linked into the app, so it is left out.
+				if (dependency.embed && local)
+				{
+					if (isDynamicFramework(path))
+					{
+						var embedID = "11C0000000000018" + StringTools.getUniqueID();
+						context.ADDL_PBX_BUILD_FILE += "		" + embedID + " /* " + name + " in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = " + fileID
+							+ " /* " + name + " */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };\n";
+						embeddedFrameworks += "				" + embedID + " /* " + name + " in Embed Frameworks */,\n";
+					}
+					else
+					{
+						Log.warn(name + " is not a dynamic framework, so it is linked into the application rather than embedded");
+					}
+				}
 			}
+		}
+
+		if (embeddedFrameworks != "")
+		{
+			var phaseID = "11C0000000000018" + StringTools.getUniqueID();
+			context.ADDL_PBX_COPY_FILES_BUILD_PHASE = "\n\n/* Begin PBXCopyFilesBuildPhase section */\n		" + phaseID + " /* Embed Frameworks */ = {\n"
+				+ "			isa = PBXCopyFilesBuildPhase;\n			buildActionMask = 2147483647;\n			dstPath = \"\";\n			dstSubfolderSpec = 10;\n			files = (\n"
+				+ embeddedFrameworks
+				+ "			);\n			name = \"Embed Frameworks\";\n			runOnlyForDeploymentPostprocessing = 0;\n		};\n/* End PBXCopyFilesBuildPhase section */";
+			context.ADDL_PBX_BUILD_PHASE_LIST = "\n				" + phaseID + " /* Embed Frameworks */,";
+			context.ADDL_PBX_RUNPATH_SEARCH_PATHS = "\n				LD_RUNPATH_SEARCH_PATHS = (\n					\"$(inherited)\",\n					\"@executable_path/Frameworks\",\n				);";
 		}
 
 		context.HXML_PATH = System.findTemplate(project.templatePaths, "iphone/PROJ/haxe/Build.hxml", false);
@@ -478,6 +580,9 @@ class IOSPlatform extends PlatformTarget
 			|| (project.architectures.indexOf(Architecture.ARM64) > -1 && !project.targetFlags.exists("simulator")));
 		var i386 = (project.architectures.indexOf(Architecture.X86) > -1 && project.targetFlags.exists("simulator"));
 		var x86_64 = (command == "rebuild" || project.targetFlags.exists("simulator"));
+		// The arm64 simulator is a platform of its own, apart from arm64 devices
+		var arm64Simulator = (command == "rebuild" && IOSHelper.buildsArm64Simulator(project.config.getString("cpp.buildLibrary", "hxcpp")))
+			|| (project.targetFlags.exists("simulator") && IOSHelper.useArm64Simulator(project));
 
 		var arc = (project.targetFlags.exists("arc"));
 
@@ -489,6 +594,7 @@ class IOSPlatform extends PlatformTarget
 		if (arm64) commands.push(["-Dios", "-DHXCPP_CPP11", "-DHXCPP_ARM64"]);
 		if (i386) commands.push(["-Dios", "-Dsimulator", "-DHXCPP_M32", "-DHXCPP_CPP11"]);
 		if (x86_64) commands.push(["-Dios", "-Dsimulator", "-DHXCPP_M64", "-DHXCPP_CPP11"]);
+		if (arm64Simulator) commands.push(["-Dios", "-Dsimulator", "-DHXCPP_ARM64", "-DHXCPP_CPP11"]);
 
 		if (arc)
 		{
@@ -561,8 +667,7 @@ class IOSPlatform extends PlatformTarget
 			{name: "Icon-72@2x.png", size: 144},
 			{name: "Icon-76@2x.png", size: 152},
 			{name: "Icon-83.5@2x.png", size: 167},
-			{name: "Icon-60@3x.png", size: 180},
-			{name: "Icon-Marketing.png", size: 1024}
+			{name: "Icon-60@3x.png", size: 180}
 		];
 
 		context.HAS_ICON = true;
@@ -572,7 +677,7 @@ class IOSPlatform extends PlatformTarget
 
 		var icons = project.icons;
 
-		if (icons.length == 0)
+		if (!IconHelper.hasIcons(icons))
 		{
 			icons = [new Icon(System.findTemplate(project.templatePaths, "default/icon.svg"))];
 		}
@@ -583,6 +688,12 @@ class IOSPlatform extends PlatformTarget
 			{
 				context.HAS_ICON = false;
 			}
+		}
+
+		// App Store Connect turns down an App Store icon with an alpha channel, so it is drawn over white
+		if (!IconHelper.createOpaqueIcon(icons, 1024, 1024, Path.combine(iconPath, "Icon-Marketing.png"), 0xFFFFFF))
+		{
+			context.HAS_ICON = false;
 		}
 
 		if (project.launchStoryboard != null)
@@ -775,9 +886,9 @@ class IOSPlatform extends PlatformTarget
 
 		System.mkdir(projectDirectory + "/lib");
 
-		for (archID in 0...6)
+		for (archID in 0...7)
 		{
-			var arch = ["armv6", "armv7", "armv7s", "arm64", "i386", "x86_64"][archID];
+			var arch = ["armv6", "armv7", "armv7s", "arm64", "i386", "x86_64", "arm64-simulator"][archID];
 
 			if (arch == "armv6" && !context.ARMV6) continue;
 
@@ -789,13 +900,17 @@ class IOSPlatform extends PlatformTarget
 
 			if (arch == "i386" && !context.I386) continue;
 
+			// Only where the simulator build is for arm64, as there is no other library to fall back to
+			if (arch == "arm64-simulator" && !(project.targetFlags.exists("simulator") && IOSHelper.useArm64Simulator(project))) continue;
+
 			var libExt = [
 				".iphoneos.a",
 				".iphoneos-v7.a",
 				".iphoneos-v7s.a",
 				".iphoneos-64.a",
 				".iphonesim.a",
-				".iphonesim-64.a"
+				".iphonesim-64.a",
+				".iphonesim-arm64.a"
 			][archID];
 
 			System.mkdir(projectDirectory + "/lib/" + arch);
@@ -816,10 +931,12 @@ class IOSPlatform extends PlatformTarget
 					debugLib = NDLL.getLibraryPath(ndll, "iPhone", "lib", ".iphoneos.a", true);
 				}
 
+				NativeSourcesHelper.checkLibrary(releaseLib);
 				System.copyIfNewer(releaseLib, releaseDest);
 
 				if (FileSystem.exists(debugLib) && debugLib != releaseLib)
 				{
+					NativeSourcesHelper.checkLibrary(debugLib);
 					System.copyIfNewer(debugLib, debugDest);
 				}
 				else if (FileSystem.exists(debugDest))
@@ -846,7 +963,7 @@ class IOSPlatform extends PlatformTarget
 			}
 		}
 
-		copyProjectAssets(projectDirectory, "assets");
+		copyProjectAssets(projectDirectory, "assets", context);
 
 		if (project.targetFlags.exists("xcode") && System.hostPlatform == MAC && command == "update")
 		{
@@ -878,6 +995,84 @@ class IOSPlatform extends PlatformTarget
 	@ignore public override function trace():Void {}
 
 	@ignore public override function uninstall():Void {}
+
+	/**
+		Whether a framework's binary is a dynamic library, which the app has to carry, rather than a
+		static library, which is linked into it. A universal binary is read through its first
+		architecture, and an .xcframework through its first framework.
+	**/
+	private static function isDynamicFramework(path:String):Bool
+	{
+		if (Path.extension(path) == "xcframework")
+		{
+			if (!FileSystem.exists(path) || !FileSystem.isDirectory(path)) return false;
+
+			for (slice in FileSystem.readDirectory(path))
+			{
+				var slicePath = Path.combine(path, slice);
+				if (!FileSystem.isDirectory(slicePath)) continue;
+
+				for (item in FileSystem.readDirectory(slicePath))
+				{
+					if (Path.extension(item) == "framework")
+					{
+						return isDynamicFramework(Path.combine(slicePath, item));
+					}
+				}
+			}
+
+			return false;
+		}
+
+		var binary = Path.combine(path, Path.withoutExtension(Path.withoutDirectory(path)));
+		if (!FileSystem.exists(binary) || FileSystem.isDirectory(binary)) return false;
+
+		var input = File.read(binary, true);
+
+		try
+		{
+			var header = input.read(8);
+			var offset = 0;
+
+			// A universal binary's header is big-endian, and the first architecture's offset follows
+			// its CPU type and subtype, in 32 bits, or 64 bits in a 64-bit header
+			if (header.get(0) == 0xCA && header.get(1) == 0xFE && header.get(2) == 0xBA && (header.get(3) == 0xBE || header.get(3) == 0xBF))
+			{
+				input.bigEndian = true;
+				input.read(8);
+				// A 64-bit offset's high half, which no framework comes near
+				if (header.get(3) == 0xBF) input.readInt32();
+				offset = input.readInt32();
+				input.seek(offset, sys.io.FileSeek.SeekBegin);
+				header = input.read(8);
+			}
+
+			// A static library is an ar archive. A Mach-O header gives its file type after the CPU
+			// type and subtype, in the header's own byte order, where 6 is a dynamic library.
+			var isDylib = false;
+
+			if (header.get(0) == 0xCF || header.get(0) == 0xCE)
+			{
+				input.bigEndian = false;
+				input.seek(offset + 12, sys.io.FileSeek.SeekBegin);
+				isDylib = header.get(1) == 0xFA && header.get(2) == 0xED && header.get(3) == 0xFE && input.readInt32() == 6;
+			}
+			else if (header.get(0) == 0xFE && header.get(1) == 0xED && header.get(2) == 0xFA)
+			{
+				input.bigEndian = true;
+				input.seek(offset + 12, sys.io.FileSeek.SeekBegin);
+				isDylib = input.readInt32() == 6;
+			}
+
+			input.close();
+			return isDylib;
+		}
+		catch (e:Dynamic)
+		{
+			input.close();
+			return false;
+		}
+	}
 }
 
 private typedef IconSize =

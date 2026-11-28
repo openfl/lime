@@ -37,21 +37,33 @@ abstract Bytes(HaxeBytes) from HaxeBytes to HaxeBytes
 		return HaxeBytes.alloc(length);
 	}
 
-	public function compress(algorithm:CompressionAlgorithm):Bytes
+	/**
+		Compresses the bytes with `algorithm`.
+
+		@param algorithm The compression to use.
+		@param level How hard to compress, from 0 to 9. For `DEFLATE`, `GZIP` and `ZLIB` these are
+		zlib's levels, where 0 stores the data without compressing it and 9 compresses it best,
+		slowest. For `LZMA` they are its presets, from fastest to smallest (on HTML5, 0 is taken
+		as 1). The default, -1, keeps each target's own default: 9 on native targets and 6 on
+		HTML5 for the zlib formats, and preset 5 for `LZMA`. Values above 9 are taken as 9, and
+		below -1 as 0. Flash ignores the level.
+		@return The compressed bytes.
+	**/
+	public function compress(algorithm:CompressionAlgorithm, level:Int = -1):Bytes
 	{
 		switch (algorithm)
 		{
 			case DEFLATE:
-				return Deflate.compress(this);
+				return Deflate.compress(this, level);
 
 			case GZIP:
-				return GZip.compress(this);
+				return GZip.compress(this, level);
 
 			case LZMA:
-				return LZMA.compress(this);
+				return LZMA.compress(this, level);
 
 			case ZLIB:
-				return Zlib.compress(this);
+				return Zlib.compress(this, level);
 
 			default:
 				return null;
@@ -93,11 +105,13 @@ abstract Bytes(HaxeBytes) from HaxeBytes to HaxeBytes
 
 	public static function fromFile(path:String):Bytes
 	{
+		if (path == null) return null;
+
 		#if (sys && lime_cffi && !macro)
 		#if !cs
+		// Null for a file that can't be read, and empty Bytes for an empty one
 		var bytes = Bytes.alloc(0);
-		NativeCFFI.lime_bytes_read_file(path, bytes);
-		if (bytes.length > 0) return bytes;
+		if (NativeCFFI.lime_bytes_read_file(path, bytes) != null) return bytes;
 		#else
 		var data:Dynamic = NativeCFFI.lime_bytes_read_file(path, null);
 		if (data != null) return new Bytes(data.length, data.b);

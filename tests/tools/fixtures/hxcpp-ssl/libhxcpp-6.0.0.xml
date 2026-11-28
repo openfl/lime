@@ -1,0 +1,45 @@
+<xml>
+
+<pragma once="true" />
+
+<!-- A library that bundles mbedTLS can offer it for static builds
+     (docs/MbedTLSProvider.md); sys.ssl is then built on that copy. -->
+<include name="${hxcpp_mbedtls_provider}" if="static_link hxcpp_mbedtls_provider" />
+<set name="HXCPP_MBEDTLS_FROM_PROVIDER" value="1" if="static_link HXCPP_MBEDTLS_PROVIDER_3 HXCPP_MBEDTLS_PROVIDER_FLAGS" />
+
+<include name="${HXCPP}/project/thirdparty/mbedtls-files.xml" unless="HXCPP_MBEDTLS_FROM_PROVIDER" />
+
+<files id="hxcpp_ssl" >
+  <options name="Options.txt" ifExists="Options.txt"/>
+	<depend files="hxcpp-depends"/>
+	<depend name="${this_dir}/Build.xml" dateOnly="true" />
+	<cache value="true" asLibrary="true" />
+
+	<include name="${HXCPP}/project/thirdparty/mbedtls-flags.xml" unless="HXCPP_MBEDTLS_FROM_PROVIDER" />
+	<include name="${HXCPP_MBEDTLS_PROVIDER_FLAGS}" if="HXCPP_MBEDTLS_FROM_PROVIDER" />
+	<compilerflag value="-DHXCPP_MBEDTLS_PROVIDER" if="HXCPP_MBEDTLS_FROM_PROVIDER" />
+
+	<file name="${this_dir}/SSL.cpp"/>
+</files>
+
+<target id="haxe">
+	<!-- the order is important, mbedtls needs to come after hxcpp_ssl -->
+	<files id="hxcpp_ssl" />
+	<files id="mbedtls" unless="HXCPP_MBEDTLS_FROM_PROVIDER" />
+
+	<lib name="advapi32.lib" if="windows" unless="static_link" />
+	<!-- mbedTLS 3 draws its entropy from BCryptGenRandom -->
+	<lib name="bcrypt.lib" if="windows" unless="static_link" />
+	<lib name="crypt32.lib" if="windows" unless="static_link" />
+	<lib name="ws2_32.lib" if="windows" unless="static_link" />
+
+	<flag value="-framework" if="macos"/>
+	<flag value="Security" if="macos"/>
+	<!-- A static iOS or tvOS build leaves Security to the app's link -->
+	<section if="iphoneos || iphonesim || appletvos || appletvsim" unless="static_link">
+		<flag value="-framework"/>
+		<flag value="Security"/>
+	</section>
+</target>
+
+</xml>

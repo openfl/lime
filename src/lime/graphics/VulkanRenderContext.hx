@@ -33,8 +33,8 @@ import lime._internal.backend.native.NativeCFFI;
 
 	Vulkan support is experimental: this API can change in a minor release.
 	It is available on native Windows, Linux and Android targets for windows
-	created with `<window renderer="vulkan" />`, which use OpenGL instead where
-	Vulkan is not available.
+	created with a `VULKAN` context type, or by default in applications built with
+	the `vulkan` define. They use OpenGL instead where Vulkan is not available.
 **/
 @:access(lime._internal.backend.native.NativeCFFI)
 class VulkanRenderContext

@@ -34,6 +34,7 @@ import lime.utils.UInt8Array;
 @:fileXml('tags="haxe,release"')
 @:noDebug
 #end
+@:access(lime.media.VideoDecoder)
 @:access(lime.media.VideoSource)
 @:access(lime.system.System)
 class NativeVideoSource
@@ -55,6 +56,8 @@ class NativeVideoSource
 	private static inline var AUDIO_RETRY_SECONDS:Float = 1.0;
 	private static inline var AUDIO_STEER_RATE:Float = 0.1;
 	private static inline var AUDIO_STEER_SECONDS:Float = 0.5;
+	// A wait for a frame shorter than this, as for each frame after seeking, is not reported as buffering
+	private static inline var BUFFERING_SECONDS:Float = 0.1;
 	// A looping video opens its next loop this long before the end
 	private static inline var LOOP_OPEN_SECONDS:Float = 2.0;
 	private static inline var LOOP_POLL_SECONDS:Float = 0.05;
@@ -114,6 +117,8 @@ class NativeVideoSource
 		that what is left of the queue can be panned again. Null for mono.
 	**/
 	private var bufferSounds:Array<QueuedSound>;
+	private var buffering:Bool = false;
+	private var bytesTotal:Float = 0;
 	private var buffers:Array<ALBuffer>;
 	private var bytesPerSecond:Float;
 	private var clockMode:VideoClockMode;
@@ -139,9 +144,12 @@ class NativeVideoSource
 	private var loops:Int;
 	private var pan:Float;
 	private var parent:VideoSource;
+	private var playbackRate:Float;
 	private var playing:Bool;
 	private var retiredDecoder:VideoDecoder;
 	private var timer:Timer;
+	private var readStamp:Float = -1;
+	private var waitingStamp:Float = -1;
 
 	public function new(parent:VideoSource)
 	{
@@ -188,12 +196,24 @@ class NativeVideoSource
 		loopToken = 0;
 		loops = 0;
 		pan = 0;
+		playbackRate = 1;
 		playing = false;
 	}
 
 	public function dispose():Void
 	{
 		close();
+	}
+
+	public function getBytesLoaded():Float
+	{
+		// A local file can be read at any point, so all of it counts as loaded
+		return bytesTotal;
+	}
+
+	public function getBytesTotal():Float
+	{
+		return bytesTotal;
 	}
 
 	public function getClockMode():VideoClockMode
@@ -227,6 +247,11 @@ class NativeVideoSource
 	public function getDropLateFrames():Bool
 	{
 		return dropLateFrames;
+	}
+
+	public function getFrameRate():Float
+	{
+		return decoder != null ? decoder.frameRate : 0;
 	}
 
 	public function getGain():Float
@@ -267,6 +292,11 @@ class NativeVideoSource
 	public function getPixelAspectRatio():Float
 	{
 		return decoder != null ? decoder.pixelAspectRatio : 1;
+	}
+
+	public function getRate():Float
+	{
+		return playbackRate;
 	}
 
 	public function getPlaying():Bool
@@ -310,6 +340,21 @@ class NativeVideoSource
 		{
 			source.lockAudio();
 			source.createAudio();
+			if (source.handle != null) source.resyncAudio();
+			source.unlockAudio();
+		}
+	}
+
+	@:allow(lime.media.AudioManager)
+	private static function audioOutputReopened():Void
+	{
+		// The OpenAL objects moved to the new output with the device, but it runs at
+		// its own rate and latency, so the sound starts again in step with the picture
+		timerDrift = 0;
+
+		for (source in getActiveSources())
+		{
+			source.lockAudio();
 			if (source.handle != null) source.resyncAudio();
 			source.unlockAudio();
 		}
@@ -368,11 +413,27 @@ class NativeVideoSource
 		return true;
 	}
 
+	public function openBytes(bytes:Bytes, format:VideoFrameFormat):Bool
+	{
+		close();
+
+		var decoder = new VideoDecoder();
+
+		if (!decoder.openBytes(bytes, format))
+		{
+			return false;
+		}
+
+		attach(decoder);
+		return true;
+	}
+
 	public function pause():Void
 	{
 		lockAudio();
 		pauseUnlocked();
 		unlockAudio();
+		checkBuffering(false);
 	}
 
 	@:noCompletion private function pauseUnlocked():Void
@@ -430,6 +491,7 @@ class NativeVideoSource
 	{
 		if (decoder == null || frame == null) return false;
 
+		readStamp = getStamp();
 		update();
 
 		// Updating can complete playback, and the handler can dispose of the source
@@ -472,9 +534,15 @@ class NativeVideoSource
 
 	public function setCurrentTime(value:Int):Int
 	{
-		if (decoder != null)
+		if (decoder != null && seek(value / 1000))
 		{
-			seek(value / 1000);
+			// After the call, as on HTML5, where the browser seeks in the background
+			var seeked = decoder;
+
+			Timer.delay(function()
+			{
+				if (decoder == seeked) parent.onSeek.dispatch();
+			}, 0);
 		}
 
 		return value;
@@ -499,6 +567,25 @@ class NativeVideoSource
 
 		unlockAudio();
 		return value;
+	}
+
+	public function setRate(value:Float):Float
+	{
+		if (Math.isNaN(value)) return playbackRate;
+		value = Math.max(0.25, Math.min(4, value));
+		if (value == playbackRate) return playbackRate;
+
+		lockAudio();
+		if (decoder != null) getTimeUnlocked();
+		playbackRate = value;
+		audioClockStamp = -1;
+		audioCheckStamp = -1;
+		audioRateStamp = -1;
+		clockRate = 1 + timerDrift;
+		if (handle != null) AL.sourcef(handle, AL.PITCH, playbackRate);
+		unlockAudio();
+
+		return playbackRate;
 	}
 
 	public function setLoops(value:Int):Int
@@ -554,6 +641,16 @@ class NativeVideoSource
 
 		this.decoder = decoder;
 		decoder.dropLateFrames = dropLateFrames;
+		bytesTotal = getFileSize(decoder.__temporaryPath != null ? decoder.__temporaryPath : decoder.source);
+		buffering = false;
+		waitingStamp = -1;
+
+		// Dispatched later, so listeners added after opening hear it, and not for
+		// a video closed or replaced before then
+		Timer.delay(function()
+		{
+			if (this.decoder == decoder) parent.onReady.dispatch();
+		}, 0);
 
 		audioDecoder = decoder;
 		audioOffset = 0;
@@ -598,7 +695,7 @@ class NativeVideoSource
 		// has not started yet, and Lime pausing the device while the window is
 		// hidden, are not stalls.
 		if (!playing || isWaitingForFrame() || audioSkipping || bufferTimes.length == 0 || AudioManager.__suspended
-			|| AL.getSourcei(handle, AL.SOURCE_STATE) == AL.INITIAL)
+			|| AL.__getSourceInt(handle, AL.SOURCE_STATE) == AL.INITIAL)
 		{
 			audioCheckStamp = -1;
 			return;
@@ -620,7 +717,8 @@ class NativeVideoSource
 		var elapsed = now - audioCheckStamp;
 		if (elapsed < AUDIO_CHECK_SECONDS) return;
 
-		var rate = (position - audioCheckPosition) / elapsed;
+		// Measured against the playback rate, as the sound plays faster or slower with it
+		var rate = (position - audioCheckPosition) / elapsed / playbackRate;
 
 		if (!audioStalled)
 		{
@@ -649,7 +747,7 @@ class NativeVideoSource
 		// have been more than a tenth of a second apart for a quarter of a
 		// second while the sound plays
 		if (!playing || audioSkipping || bufferTimes.length == 0 || AudioManager.__suspended
-			|| AL.getSourcei(handle, AL.SOURCE_STATE) != AL.PLAYING
+			|| AL.__getSourceInt(handle, AL.SOURCE_STATE) != AL.PLAYING
 			|| Math.abs(getAudioPosition() - getTime()) <= AUDIO_DRIFT_SECONDS)
 		{
 			audioDriftStamp = -1;
@@ -807,6 +905,7 @@ class NativeVideoSource
 		if (handle == null) return;
 
 		AL.sourcef(handle, AL.GAIN, gain);
+		AL.sourcef(handle, AL.PITCH, playbackRate);
 
 		if (decoder.audioChannels == 1)
 		{
@@ -863,7 +962,7 @@ class NativeVideoSource
 	{
 		// A stalled output is only given audio up to a little past the clock, so
 		// one that drops what it is given does not drain the decoder
-		var limit = audioStalled ? getTime() + AUDIO_AHEAD_SECONDS : Math.POSITIVE_INFINITY;
+		var limit = audioStalled ? getTime() + AUDIO_AHEAD_SECONDS * Math.max(1, playbackRate) : Math.POSITIVE_INFINITY;
 
 		while (freeBuffers.length > 0 && audioDecoder.audioTime + audioOffset < limit)
 		{
@@ -909,11 +1008,11 @@ class NativeVideoSource
 	{
 		// Stereo is balanced as it is buffered, so what the output has yet to play
 		// is queued again with the new balance, from the sample it is at
-		unqueueBuffers(AL.getSourcei(handle, AL.BUFFERS_PROCESSED));
+		unqueueBuffers(AL.__getSourceInt(handle, AL.BUFFERS_PROCESSED));
 		if (bufferTimes.length == 0 || bufferSounds[0] == null) return;
 
-		var playing = AL.getSourcei(handle, AL.SOURCE_STATE) == AL.PLAYING;
-		var skip = AL.getSourcei(handle, AL.SAMPLE_OFFSET) * blockAlign;
+		var playing = AL.__getSourceInt(handle, AL.SOURCE_STATE) == AL.PLAYING;
+		var skip = AL.__getSourceInt(handle, AL.SAMPLE_OFFSET) * blockAlign;
 		var times = bufferTimes;
 		var sounds = bufferSounds;
 
@@ -956,7 +1055,7 @@ class NativeVideoSource
 	@:noCompletion private function followAudio(position:Float):Float
 	{
 		var now = getStamp();
-		var running = playing && !AudioManager.__suspended && AL.getSourcei(handle, AL.SOURCE_STATE) == AL.PLAYING;
+		var running = playing && !AudioManager.__suspended && AL.__getSourceInt(handle, AL.SOURCE_STATE) == AL.PLAYING;
 
 		// The audio position moves each time the output mixes, at some point since
 		// the clock last read it, taken as halfway. Reads further apart cannot
@@ -964,11 +1063,11 @@ class NativeVideoSource
 		// buffer can move it by a rounding error, which is not a mix.
 		var moved = Math.abs(audioMixPosition - audioReadPosition) > AUDIO_MIX_SECONDS;
 		var timed = moved && audioReadStamp >= 0 && now - audioReadStamp <= AUDIO_READ_SECONDS;
-		var heard = position + (timed ? (now - audioReadStamp) / 2 : 0);
+		var heard = position + (timed ? (now - audioReadStamp) / 2 * playbackRate : 0);
 		audioReadPosition = audioMixPosition;
 		audioReadStamp = now;
 
-		var time = running ? clockTime + (now - clockStamp) * clockRate : clockTime;
+		var time = running ? clockTime + (now - clockStamp) * clockRate * playbackRate : clockTime;
 
 		if (audioStarting)
 		{
@@ -1039,7 +1138,7 @@ class NativeVideoSource
 
 							if (t >= AUDIO_LEARN_SECONDS && spread > 0)
 							{
-								var rate = (audioRateCount * audioRateSums[3] - audioRateSums[0] * audioRateSums[1]) / spread;
+								var rate = (audioRateCount * audioRateSums[3] - audioRateSums[0] * audioRateSums[1]) / spread / playbackRate;
 								timerDrift = Math.max(-AUDIO_STEER_RATE, Math.min(AUDIO_STEER_RATE, rate - 1));
 							}
 
@@ -1089,7 +1188,7 @@ class NativeVideoSource
 		else
 		#end
 		{
-			offset = AL.getSourcei(handle, AL.SAMPLE_OFFSET) / decoder.audioSampleRate;
+			offset = AL.__getSourceInt(handle, AL.SAMPLE_OFFSET) / decoder.audioSampleRate;
 		}
 
 		audioMixPosition = bufferTimes[0] + offset;
@@ -1165,7 +1264,7 @@ class NativeVideoSource
 		// window is inactive, so a clock on the timer alone holds then too
 		if (playing && !AudioManager.__suspended)
 		{
-			clockTime += now - clockStamp;
+			clockTime += (now - clockStamp) * playbackRate;
 		}
 
 		clockStamp = now;
@@ -1189,7 +1288,7 @@ class NativeVideoSource
 		{
 			var change = position - audioClockTime;
 
-			if (change < -AUDIO_JUMP_SECONDS || change > (now - audioClockStamp) * 2 + AUDIO_JUMP_SECONDS)
+			if (change < -AUDIO_JUMP_SECONDS || change > (now - audioClockStamp) * 2 * Math.max(1, playbackRate) + AUDIO_JUMP_SECONDS)
 			{
 				audioStalled = true;
 				audioRetryStamp = now + AUDIO_RETRY_SECONDS;
@@ -1209,6 +1308,11 @@ class NativeVideoSource
 		return !hasFrame && decoder.hasVideo && !decoder.videoComplete;
 	}
 
+	@:noCompletion private function getLoopPath():String
+	{
+		return decoder.__temporaryPath != null ? decoder.__temporaryPath : parent.source;
+	}
+
 	@:noCompletion private function openLoop():Void
 	{
 		// The next loop opens ahead of the end, so its sound and frames follow on
@@ -1220,13 +1324,13 @@ class NativeVideoSource
 		// Opening reads the file or waits for a server, so it happens on a thread
 		// of its own, which hands the decoder over under the source's lock
 		loopRequestsMutex.acquire();
-		loopRequests.push({format: decoder.format, hardwareDecoding: decoder.hardwareDecoding, path: parent.source, source: this, token: token});
+		loopRequests.push({format: decoder.format, hardwareDecoding: decoder.hardwareDecoding, path: getLoopPath(), source: this, token: token});
 		startLoopThread();
 		loopRequestsMutex.release();
 		#else
 		var next = new VideoDecoder();
 		next.hardwareDecoding = decoder.hardwareDecoding;
-		finishLoop(token, next.open(parent.source, decoder.format) ? next : null);
+		finishLoop(token, next.open(getLoopPath(), decoder.format) ? next : null);
 		#end
 	}
 
@@ -1355,6 +1459,11 @@ class NativeVideoSource
 		loopOpening = false;
 		loops--;
 
+		// A video from bytes loops on the same temporary file, which the decoder
+		// playing it deletes when it closes
+		decoder.__temporaryPath = previous.__temporaryPath;
+		previous.__temporaryPath = null;
+
 		if (audioDecoder == previous)
 		{
 			audioDecoder = decoder;
@@ -1400,7 +1509,78 @@ class NativeVideoSource
 	{
 		lockAudio();
 		updateUnlocked();
+		// Only worked out for a video something listens to
+		var waiting = (buffering || parent.onBuffering.__listeners.length > 0) && isWaitingForData();
 		unlockAudio();
+		checkBuffering(waiting);
+	}
+
+	// Called with the audio locked, as the audio thread fills its queue
+	@:noCompletion private function isWaitingForData():Bool
+	{
+		if (decoder == null || !playing || failed || completed) return false;
+
+		// The first frame, after opening or seeking, holds the clock
+		if (isWaitingForFrame()) return true;
+
+		// So does sound that has run out before its end, unless the clock runs on its own
+		if (handle != null && !audioStalled && clockMode != MONOTONIC && bufferTimes.length == 0 && audioDecoder != null
+			&& !audioDecoder.audioComplete) return true;
+
+		// Without that, the picture falls behind while frames are read: the frame shown has ended,
+		// a frame's time ago in case its duration was not known, and the next one has not come
+		// The clock is only read here, as reading it through getTime moves it on
+		var interval = decoder.frameRate > 0 ? 1 / decoder.frameRate : 0.05;
+		var time = clockTime + (getStamp() - clockStamp) * playbackRate;
+		return hasFrame && decoder.hasVideo && !decoder.videoComplete && readStamp >= 0 && getStamp() - readStamp < 0.5
+			&& time > frameEndTime + interval;
+	}
+
+	@:noCompletion private function checkBuffering(waiting:Bool):Void
+	{
+
+		if (!waiting)
+		{
+			waitingStamp = -1;
+		}
+		else if (waitingStamp < 0)
+		{
+			waitingStamp = getStamp();
+		}
+
+		var nowBuffering = waiting && getStamp() - waitingStamp >= BUFFERING_SECONDS;
+
+		if (nowBuffering != buffering)
+		{
+			buffering = nowBuffering;
+			parent.onBuffering.dispatch(buffering);
+		}
+	}
+
+	@:noCompletion private static function getFileSize(path:String):Float
+	{
+		// The size of a URL, or of a file packed in an Android application, is not known
+		if (path == null || path.indexOf("://") > -1) return 0;
+
+		#if sys
+		try
+		{
+			// An asset ID is read from the asset's path, as VideoDecoder opens it
+			if (!sys.FileSystem.exists(path) && lime.utils.Assets.exists(path))
+			{
+				var assetPath = lime.utils.Assets.getPath(path);
+				if (assetPath != null) path = assetPath;
+			}
+
+			if (sys.FileSystem.exists(path) && !sys.FileSystem.isDirectory(path))
+			{
+				return sys.FileSystem.stat(path).size;
+			}
+		}
+		catch (e:Dynamic) {}
+		#end
+
+		return 0;
 	}
 
 	@:noCompletion private function updateUnlocked():Void
@@ -1409,7 +1589,7 @@ class NativeVideoSource
 
 		if (handle != null)
 		{
-			unqueueBuffers(AL.getSourcei(handle, AL.BUFFERS_PROCESSED));
+			unqueueBuffers(AL.__getSourceInt(handle, AL.BUFFERS_PROCESSED));
 
 			if (audioStalled && playing && getStamp() >= audioRetryStamp)
 			{
@@ -1430,7 +1610,7 @@ class NativeVideoSource
 
 			if (playing && bufferTimes.length > 0 && !isWaitingForFrame())
 			{
-				var state = AL.getSourcei(handle, AL.SOURCE_STATE);
+				var state = AL.__getSourceInt(handle, AL.SOURCE_STATE);
 				var start = true;
 
 				if (state == AL.INITIAL && clockMode == MONOTONIC)
@@ -1490,7 +1670,7 @@ class NativeVideoSource
 			var videoDone = !decoder.hasVideo || (decoder.videoComplete && time >= frameEndTime)
 				|| (decoder.duration > 0 && time - loopOffset >= decoder.duration + frameDuration);
 
-			if (loops > 0 && loopDecoder == null && !loopOpening && decoder.duration > 0 && parent.source != null
+			if (loops > 0 && loopDecoder == null && !loopOpening && decoder.duration > 0 && getLoopPath() != null
 				&& time - loopOffset > decoder.duration - LOOP_OPEN_SECONDS)
 			{
 				openLoop();
@@ -1541,7 +1721,7 @@ class NativeVideoSource
 
 		if (handle != null && decoder != null && !audioSkipping && !audioStalled)
 		{
-			unqueueBuffers(AL.getSourcei(handle, AL.BUFFERS_PROCESSED));
+			unqueueBuffers(AL.__getSourceInt(handle, AL.BUFFERS_PROCESSED));
 			fillBuffers();
 		}
 
