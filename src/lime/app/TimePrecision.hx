@@ -7,10 +7,10 @@ package lime.app;
 **/
 #if (haxe_ver >= 4.0) enum #else @:enum #end abstract TimePrecision(String) to String
 {
-	/** Use Lime's default precision for the active profile and platform. **/
+	/** Use Lime's default precision, which is high resolution in every profile. **/
 	var AUTO = "auto";
 
-	/** Use millisecond precision timing. **/
+	/** Time frames in whole milliseconds, so each starts on one, up to a millisecond after it is due. **/
 	var MILLISECOND = "millisecond";
 
 	/** Use higher precision timing when it is available. **/

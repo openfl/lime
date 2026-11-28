@@ -51,6 +51,24 @@ namespace lime {
 
 			ApplicationEvent::callback->Call ();
 
+			if (event->type == IDLE) {
+
+				// The listener of an idle event answers in deltaTime: below zero when it has more to do
+
+				if (ApplicationEvent::eventObject->IsCFFIValue ()) {
+
+					value object = (value)ApplicationEvent::eventObject->Get ();
+					event->deltaTime = (int)val_number (val_field (object, id_deltaTime));
+
+				} else {
+
+					ApplicationEvent* eventObject = (ApplicationEvent*)ApplicationEvent::eventObject->Get ();
+					event->deltaTime = eventObject->deltaTime;
+
+				}
+
+			}
+
 		}
 
 	}

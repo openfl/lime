@@ -30,6 +30,10 @@ namespace lime {
 		record += payload;
 		pendingEvents.push_back (record);
 
+		// Read by the application between frames as well as in them, so that it doesn't wait
+		// for a frame that an idle frame rate has put a long way off
+		Application::RequestDeliveryOfCurrent ();
+
 	}
 
 

@@ -17,7 +17,8 @@ import wsproto.socket.Loop;
 	Every connection and server is on one loop of Lime's, which the
 	application's loop polls once a frame (`__update`) from the first one
 	on: what has arrived is read and delivered there, and what waits to go
-	is written. A client's connect runs on a thread of wsproto's, so the
+	is written. With `FrameOptions.idleFrameRate` it is polled between
+	frames as well, as often as frames would have come, while any is open. A client's connect runs on a thread of wsproto's, so the
 	loop never waits on the network. wsproto needs Haxe 4.
 **/
 #if !lime_debug
@@ -284,6 +285,7 @@ class NativeWebSocket
 		{
 			loop = new Loop();
 			NativeApplication.__updateWebSockets = __update;
+			NativeApplication.__webSocketsActive = function() return loop.active;
 
 			#if (!macro && lime_cffi)
 			// Haxe's standard library has no secure source for a client's

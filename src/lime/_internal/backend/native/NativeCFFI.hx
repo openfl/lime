@@ -67,7 +67,15 @@ class NativeCFFI
 
 	@:cffi private static function lime_application_quit(handle:Dynamic):Int;
 
+	@:cffi private static function lime_application_get_frame_delta_time(handle:Dynamic):Float;
+
+	@:cffi private static function lime_application_request_frame(handle:Dynamic):Void;
+
+	@:cffi private static function lime_application_request_timer(handle:Dynamic, milliseconds:Float):Void;
+
 	@:cffi private static function lime_application_set_idle_events(handle:Dynamic, enabled:Bool):Void;
+
+	@:cffi private static function lime_application_set_idle_frame_rate(handle:Dynamic, value:Float):Void;
 
 	@:cffi private static function lime_application_set_main_loop(handle:Dynamic, profile:Int, frameRate:Float, timePrecision:Int, busyWait:Int,
 		uncapMode:Int):Void;
@@ -1021,8 +1029,16 @@ class NativeCFFI
 	private static var lime_application_exec = new cpp.Callable<cpp.Object->Int>(cpp.Prime._loadPrime("lime", "lime_application_exec", "oi", false));
 	private static var lime_application_init = new cpp.Callable<cpp.Object->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_application_init", "ov", false));
 	private static var lime_application_quit = new cpp.Callable<cpp.Object->Int>(cpp.Prime._loadPrime("lime", "lime_application_quit", "oi", false));
+	private static var lime_application_get_frame_delta_time = new cpp.Callable<cpp.Object->Float>(cpp.Prime._loadPrime("lime",
+		"lime_application_get_frame_delta_time", "od", false));
+	private static var lime_application_request_frame = new cpp.Callable<cpp.Object->cpp.Void>(cpp.Prime._loadPrime("lime",
+		"lime_application_request_frame", "ov", false));
+	private static var lime_application_request_timer = new cpp.Callable<cpp.Object->Float->cpp.Void>(cpp.Prime._loadPrime("lime",
+		"lime_application_request_timer", "odv", false));
 	private static var lime_application_set_idle_events = new cpp.Callable<cpp.Object->Bool->cpp.Void>(cpp.Prime._loadPrime("lime",
 		"lime_application_set_idle_events", "obv", false));
+	private static var lime_application_set_idle_frame_rate = new cpp.Callable<cpp.Object->Float->cpp.Void>(cpp.Prime._loadPrime("lime",
+		"lime_application_set_idle_frame_rate", "odv", false));
 	private static var lime_application_set_main_loop = new cpp.Callable<cpp.Object->Int->Float->Int->Int->Int->cpp.Void>(cpp.Prime._loadPrime("lime",
 		"lime_application_set_main_loop", "oidiiiv", false));
 	private static var lime_application_set_modal_callbacks = new cpp.Callable<cpp.Object->cpp.Object->cpp.Object->cpp.Object->cpp.Object->cpp.Void>(cpp.Prime._loadPrime("lime", "lime_application_set_modal_callbacks", "ooooov", false));
@@ -1762,7 +1778,11 @@ class NativeCFFI
 	private static var lime_application_exec = CFFI.load("lime", "lime_application_exec", 1);
 	private static var lime_application_init = CFFI.load("lime", "lime_application_init", 1);
 	private static var lime_application_quit = CFFI.load("lime", "lime_application_quit", 1);
+	private static var lime_application_get_frame_delta_time = CFFI.load("lime", "lime_application_get_frame_delta_time", 1);
+	private static var lime_application_request_frame = CFFI.load("lime", "lime_application_request_frame", 1);
+	private static var lime_application_request_timer = CFFI.load("lime", "lime_application_request_timer", 2);
 	private static var lime_application_set_idle_events = CFFI.load("lime", "lime_application_set_idle_events", 2);
+	private static var lime_application_set_idle_frame_rate = CFFI.load("lime", "lime_application_set_idle_frame_rate", 2);
 	private static var lime_application_set_main_loop = CFFI.load("lime", "lime_application_set_main_loop", -1);
 	private static var lime_application_set_frame_rate = CFFI.load("lime", "lime_application_set_frame_rate", 2);
 	private static var lime_application_set_modal_callbacks = CFFI.load("lime", "lime_application_set_modal_callbacks", 5);
@@ -2214,8 +2234,21 @@ class NativeCFFI
 		return 0;
 	}
 
+	@:hlNative("lime", "hl_application_get_frame_delta_time") private static function lime_application_get_frame_delta_time(handle:CFFIPointer):Float
+	{
+		return 0;
+	}
+
+	@:hlNative("lime", "hl_application_request_frame") private static function lime_application_request_frame(handle:CFFIPointer):Void {}
+
+	@:hlNative("lime", "hl_application_request_timer") private static function lime_application_request_timer(handle:CFFIPointer,
+		milliseconds:Float):Void {}
+
 	@:hlNative("lime", "hl_application_set_idle_events") private static function lime_application_set_idle_events(handle:CFFIPointer,
 		enabled:Bool):Void {}
+
+	@:hlNative("lime", "hl_application_set_idle_frame_rate") private static function lime_application_set_idle_frame_rate(handle:CFFIPointer,
+		value:Float):Void {}
 
 	@:hlNative("lime", "hl_application_set_main_loop") private static function lime_application_set_main_loop(handle:CFFIPointer, profile:Int,
 		frameRate:Float, timePrecision:Int, busyWait:Int, uncapMode:Int):Void {}

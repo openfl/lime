@@ -233,6 +233,11 @@ class Timer
 		sRunningTimers.push(this);
 		mFireAt = getMS() + mTime;
 		mRunning = true;
+
+		// Timers run from the application's updates. With an idle frame rate the next update
+		// may be a long way off, so the loop is told when this one is due
+		var application = lime.app.Application.current;
+		if (application != null && @:privateAccess application.__backend != null) @:privateAccess application.__backend.__requestTimer(mTime);
 	}
 
 	public static function delay(f:Void->Void, time:Int)

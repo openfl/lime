@@ -10,6 +10,7 @@ import lime.app.Event;
 @:noDebug
 #end
 @:access(lime._internal.backend.native.NativeCFFI)
+@:access(lime.app.Application)
 class FileWatcher
 {
 	public var onAdd = new Event<String->Void>();
@@ -35,6 +36,7 @@ class FileWatcher
 		if (!__hasUpdate && Application.current != null)
 		{
 			Application.current.onUpdate.add(this_onUpdate);
+			Application.current.__onDeliver.add(this_onDeliver);
 			__hasUpdate = true;
 		}
 
@@ -92,6 +94,7 @@ class FileWatcher
 			if (!__ids.keys().hasNext())
 			{
 				Application.current.onUpdate.remove(this_onUpdate);
+				Application.current.__onDeliver.remove(this_onDeliver);
 				__hasUpdate = false;
 			}
 
@@ -127,6 +130,12 @@ class FileWatcher
 		#if (lime_cffi && !macro)
 		NativeCFFI.lime_file_watcher_update(handle);
 		#end
+	}
+
+	// What the watcher saw is heard between frames as well, where they come at an idle rate
+	@:noCompletion private function this_onDeliver():Void
+	{
+		this_onUpdate(0);
 	}
 }
 #end

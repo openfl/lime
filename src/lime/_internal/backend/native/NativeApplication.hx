@@ -95,12 +95,27 @@ class NativeApplication
 	@:noCompletion private static var __updateWebSockets:Void->Void = null;
 
 	/**
+		Whether any WebSocket or server is open. They are polled, so with an idle
+		frame rate the loop comes back for them a frame period on while one is.
+	**/
+	@:noCompletion private static var __webSocketsActive:Void->Bool = null;
+
+	/**
 		Delivers what every WebView reported, once a frame. Set by NativeWebView
 		once there is one, so an application without any compiles none of it.
 	**/
 	@:noCompletion private static var __updateWebViews:Void->Void = null;
 	// Called in the time left before a frame is due
 	@:noCompletion private var __idleCallback:Void->Void;
+	// Set by an idle callback that has more to do, to be called again before the frame
+	@:noCompletion private var __idleAgain:Bool = false;
+	// Whether frames come at an idle rate while none is asked for
+	@:noCompletion private var __idleFrameRate:Bool = false;
+	#if (haxe_ver >= 4.2)
+	#if target.threaded
+	@:noCompletion private static var __eventWatcher:sys.thread.Thread = null;
+	#end
+	#end
 	private var mouseEventInfo = new MouseEventInfo();
 	private var renderEventInfo = new RenderEventInfo(RENDER);
 	private var sensorEventInfo = new SensorEventInfo();
@@ -267,6 +282,62 @@ class NativeApplication
 			__convertBusyWaitMode(options.busyWait), __convertUncapMode(options.uncapMode));
 		var backgroundFrameRate:Null<Float> = Reflect.hasField(options, "backgroundFrameRate") ? options.backgroundFrameRate : null;
 		NativeCFFI.lime_application_set_background_frame_rate(handle, backgroundFrameRate != null ? backgroundFrameRate : 30);
+		var idleFrameRate:Null<Float> = Reflect.hasField(options, "idleFrameRate") ? options.idleFrameRate : null;
+		NativeCFFI.lime_application_set_idle_frame_rate(handle, idleFrameRate != null ? idleFrameRate : 0);
+		__idleFrameRate = (idleFrameRate != null && idleFrameRate > 0);
+		if (__idleFrameRate) __watchMainThreadEvents();
+		#end
+	}
+
+	// The main thread's events are run with the timers. One that another thread adds would
+	// wait for the next of those, which an idle frame rate may have put a long way off, so
+	// a thread waits on the event loop for as long as the application runs, and asks for the
+	// timers to run when something is added. The loop's lock is released once for each event
+	// added, and events.progress() takes what releases there are itself before it collects
+	// the events, so one this thread doesn't get to see is one the main thread is collecting.
+	@:noCompletion private function __watchMainThreadEvents():Void
+	{
+		#if (haxe_ver >= 4.2)
+		#if target.threaded
+		if (__eventWatcher != null) return;
+
+		var events = sys.thread.Thread.current().events;
+
+		__eventWatcher = sys.thread.Thread.create(function()
+		{
+			while (true)
+			{
+				if (events.wait() && __idleFrameRate) __requestTimer(0);
+			}
+		});
+		#end
+		#end
+	}
+
+	public function requestFrame():Void
+	{
+		#if (!macro && lime_cffi)
+		// From any thread: it sets a flag, and wakes the loop if it waits
+		if (handle != null) NativeCFFI.lime_application_request_frame(handle);
+		#end
+	}
+
+	// What waits to be handed over on the main thread is handed over with the timers, which
+	// run between frames where frames come at an idle rate, and in the next update elsewhere.
+	// From any thread.
+	public function requestDelivery():Void
+	{
+		__requestTimer(0);
+	}
+
+	// Asks for the timers to be run in the milliseconds given. They run from the application's
+	// updates, and with an idle frame rate the next update may be a long way off, so the loop
+	// runs them on their own when this time comes first. It keeps the earliest time asked for
+	// until they run, and they ask again then for the one after.
+	@:noCompletion private function __requestTimer(milliseconds:Float):Void
+	{
+		#if (!macro && lime_cffi)
+		if (handle != null) NativeCFFI.lime_application_request_timer(handle, milliseconds);
 		#end
 	}
 
@@ -355,9 +426,28 @@ class NativeApplication
 				if (__updateWebSockets != null) __updateWebSockets();
 				if (__updateWebViews != null) __updateWebViews();
 
+				#if (!macro && lime_cffi)
+				parent.frameDeltaTime = NativeCFFI.lime_application_get_frame_delta_time(handle);
+				#end
 				parent.onUpdate.dispatch(applicationEventInfo.deltaTime);
+			case TIMER:
+				// What is due between two updates, where frames come at an idle rate: timers,
+				// the main thread's events, what is polled for, and what threads handed over
+				throwDeferredException();
+				updateTimer();
+				if (__updateWebSockets != null) __updateWebSockets();
+				if (__updateWebViews != null) __updateWebViews();
+				parent.__onDeliver.dispatch();
 			case IDLE:
 				if (__idleCallback != null) __idleCallback();
+
+				// The loop reads the answer from deltaTime: below zero asks for another idle event
+				// before the frame, and anything else lets it sleep until the frame is due
+				if (__idleAgain)
+				{
+					__idleAgain = false;
+					applicationEventInfo.deltaTime = -1;
+				}
 			default:
 		}
 	}
@@ -388,8 +478,13 @@ class NativeApplication
 	#if (cpp && libhxcpp && HXCPP_GC_INCREMENTAL && !no_idle_gc)
 	private function __stepCollector():Void
 	{
-		// With no cycle to advance, a step would start one
-		if (hxcpp.gc.Incremental.isActive()) hxcpp.gc.Incremental.step();
+		// With no cycle to advance, a step would start one. One that is under way is advanced
+		// for as long as there is time before the frame.
+		if (hxcpp.gc.Incremental.isActive())
+		{
+			hxcpp.gc.Incremental.step();
+			__idleAgain = hxcpp.gc.Incremental.isActive();
+		}
 	}
 	#end
 
@@ -1100,6 +1195,10 @@ class NativeApplication
 	private function updateTimer():Void
 	{
 		#if (lime_cffi && !macro)
+		// The milliseconds until this should next run. The loop is asked to come back then,
+		// if that is before an update, as it may be with an idle frame rate.
+		var next = Math.POSITIVE_INFINITY;
+
 		if (Timer.sRunningTimers.length > 0)
 		{
 			var currentTime = System.__getTimer();
@@ -1128,10 +1227,31 @@ class NativeApplication
 					return val.mRunning;
 				});
 			}
+
+			currentTime = System.__getTimer();
+
+			for (timer in Timer.sRunningTimers)
+			{
+				if (timer.mRunning && timer.mFireAt - currentTime < next) next = timer.mFireAt - currentTime;
+			}
 		}
 		#if (haxe_ver >= 4.2)
 		#if target.threaded
-		sys.thread.Thread.current().events.progress();
+		switch (sys.thread.Thread.current().events.progress())
+		{
+			case Now:
+				next = 0;
+			case At(time):
+				var wait = (time - Sys.time()) * 1000;
+				if (wait < next) next = wait;
+			case AnyTime(time):
+				if (time != null)
+				{
+					var wait = (time - Sys.time()) * 1000;
+					if (wait < next) next = wait;
+				}
+			case Never:
+		}
 		#else
 		// Duplicate code required because Haxe 3 can't handle
 		// #if (haxe_ver >= 4.2 && target.threaded)
@@ -1140,6 +1260,9 @@ class NativeApplication
 		#else
 		@:privateAccess haxe.EntryPoint.processEvents();
 		#end
+
+		if (__webSocketsActive != null && __webSocketsActive()) next = 0;
+		if (next != Math.POSITIVE_INFINITY) __requestTimer(next > 0 ? next : 0);
 		#end
 	}
 }
@@ -1166,6 +1289,7 @@ class NativeApplication
 	var UPDATE = 0;
 	var EXIT = 1;
 	var IDLE = 2;
+	var TIMER = 3;
 }
 
 @:keep /*private*/ class ClipboardEventInfo

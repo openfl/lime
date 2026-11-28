@@ -26,6 +26,7 @@ class TestMain extends Application
 		var runner = new Runner();
 		runner.addCase(new app.ApplicationTest());
 		runner.addCase(new app.EventTest());
+		runner.addCase(new app.FrameLoopTest());
 		runner.addCase(new app.FrameSwapCollectorTest());
 		runner.addCase(new app.FutureTest());
 		runner.addCase(new app.HTML5FrameTest());
