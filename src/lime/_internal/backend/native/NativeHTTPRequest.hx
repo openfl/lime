@@ -636,17 +636,34 @@ class NativeHTTPRequest
 			path = path.substring(0, index);
 		}
 
-		if (StringTools.startsWith(path, "file://"))
+		if (StringTools.startsWith(path.toLowerCase(), "file:"))
 		{
-			// a file URL, as AIR's File.url gives: file:///home/user/a%20b.txt, file:///C:/dir/file.txt
-			path = StringTools.urlDecode(path.substr("file://".length));
+			// a file URL, as AIR's File.url gives: file:///home/user/a%20b.txt, file:///C:/dir/file.txt.
+			// RFC 8089 also allows file:/home/user/a.txt and file://localhost/home/user/a.txt
+			var rest = path.substr("file:".length);
 
-			#if windows
-			if (~/^\/[A-Za-z]:/.match(path))
+			if (rest.substr(0, "//localhost/".length).toLowerCase() == "//localhost/")
 			{
-				path = path.substr(1);
+				rest = rest.substr("//localhost".length);
 			}
-			#end
+			else if (StringTools.startsWith(rest, "///"))
+			{
+				rest = rest.substr("//".length);
+			}
+
+			// a file on another host, file://host/path, is left as it is, and fails to load
+			if (StringTools.startsWith(rest, "/") && !StringTools.startsWith(rest, "//"))
+			{
+				// urlDecode reads a plus as a space, as in a query, but in a path it is a plus
+				path = StringTools.urlDecode(StringTools.replace(rest, "+", "%2B"));
+
+				#if windows
+				if (~/^\/[A-Za-z]:/.match(path))
+				{
+					path = path.substr(1);
+				}
+				#end
+			}
 		}
 
 		#if (sys && !windows)
