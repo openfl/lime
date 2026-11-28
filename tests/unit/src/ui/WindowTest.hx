@@ -250,6 +250,14 @@ class WindowTest extends Test
 		Assert.equals(MouseCursor.CUSTOM, window.cursor);
 		Assert.isTrue(image.premultiplied, "the image given was changed");
 
+		// Part of a larger image, as a frame of a sheet is
+		var sheet = new Image(null, 0, 0, 48, 16, 0xFF0000FF);
+		var frame = new Image(sheet.buffer, 16, 0, 16, 16);
+		Assert.isTrue(window.setCustomCursor(frame, 15, 15), "a cursor could not be made from part of an image");
+		Assert.isFalse(window.setCustomCursor(frame, 16, 0), "a hot spot outside the part of the image was taken");
+		Assert.isFalse(window.setCustomCursor(new Image(), 0, 0), "a cursor was made from an image without pixels");
+
+		Assert.isTrue(window.setCustomCursor(image, 3, 5), "the cursor could not be made again");
 		Assert.isFalse(window.setCustomCursor(image, 16, 0), "a hot spot outside the image was taken");
 		Assert.equals(MouseCursor.CUSTOM, window.cursor, "a cursor that could not be made replaced the last one");
 

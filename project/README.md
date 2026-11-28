@@ -18,7 +18,7 @@ This directory contains two categories of code.
    - Ubunutu requires the following packages.
 
       ```bash
-      sudo apt install libgl1-mesa-dev libglu1-mesa-dev g++ g++-multilib gcc-multilib libasound2-dev libx11-dev libxext-dev libxi-dev libxrandr-dev libxinerama-dev libpulse-dev
+      sudo apt install libgl1-mesa-dev libglu1-mesa-dev g++ g++-multilib gcc-multilib libasound2-dev libx11-dev libxext-dev libxi-dev libxrandr-dev libxinerama-dev libxcursor-dev libpulse-dev
       ```
    - While Raspberry Pi OS also uses `apt`, it requires a slightly different set of packages.
 
@@ -28,7 +28,7 @@ This directory contains two categories of code.
    - Fedora requires the following packages.
 
       ```bash
-      sudo dnf install g++ glibc-devel.x86_64 libstdc++-devel.x86_64 glibc-devel.i686 libstdc++-devel.i686 alsa-lib-devel pulseaudio-libs-devel libX11-devel libXi-devel libXrandr-devel libglvnd-devel
+      sudo dnf install g++ glibc-devel.x86_64 libstdc++-devel.x86_64 glibc-devel.i686 libstdc++-devel.i686 alsa-lib-devel pulseaudio-libs-devel libX11-devel libXi-devel libXrandr-devel libXcursor-devel libglvnd-devel
       ```
 - Building HashLink requires [additional packages](https://github.com/HaxeFoundation/hashlink#readme).
 

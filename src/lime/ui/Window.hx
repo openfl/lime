@@ -5,11 +5,13 @@ import lime.app.Event;
 import lime.app.Future;
 import lime.app.VSyncMode;
 import lime.graphics.Image;
+import lime.graphics.ImageBuffer;
 import lime.graphics.RenderContext;
 import lime.graphics.RenderContextAttributes;
 import lime.math.Rectangle;
 import lime.system.Display;
 import lime.system.DisplayMode;
+import lime.utils.UInt8Array;
 #if (js && html5)
 import js.html.Element;
 #end
@@ -2925,10 +2927,17 @@ class Window
 	**/
 	public function setCustomCursor(image:Image, hotSpotX:Int = 0, hotSpotY:Int = 0):Bool
 	{
-		if (image == null || hotSpotX < 0 || hotSpotY < 0 || hotSpotX >= image.width || hotSpotY >= image.height)
+		if (image == null || image.buffer == null || hotSpotX < 0 || hotSpotY < 0 || hotSpotX >= image.width || hotSpotY >= image.height)
 		{
 			return false;
 		}
+
+		// The image alone, where it is part of a larger buffer, as a cursor is made from a whole buffer
+		if (image.offsetX != 0 || image.offsetY != 0 || image.width != image.buffer.width || image.height != image.buffer.height)
+		{
+			image = new Image(new ImageBuffer(UInt8Array.fromBytes(image.getPixels(image.rect, RGBA32)), image.width, image.height, 32, RGBA32));
+		}
+
 		return __backend.setCustomCursor(image, hotSpotX, hotSpotY);
 	}
 
