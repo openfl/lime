@@ -432,6 +432,24 @@ class System
 	}
 
 	/**
+		Whether the file or folder at `path` is hidden. On Windows, that is
+		whether it has the hidden attribute. Elsewhere, it is whether its name
+		starts with a dot, and on macOS and iOS also whether it has the hidden
+		flag that `chflags hidden` sets. A path that does not exist is not
+		hidden.
+
+		Available on native targets.
+	**/
+	public static function isHidden(path:String):Bool
+	{
+		#if (lime_cffi && !macro)
+		if (path != null && path != "") return NativeCFFI.lime_system_is_hidden(path);
+		#end
+
+		return false;
+	}
+
+	/**
 		Whether `path` is a symbolic link, without following it. On Windows,
 		junctions and other reparse points count too, as they do for AIR's
 		`File.isSymbolicLink`. A path that does not exist is not a link.
@@ -542,20 +560,6 @@ class System
 				Reflect.setField(target, field, Reflect.field(source, field));
 			}
 		}
-	}
-
-	/**
-		The attributes Windows keeps for the file or directory at `path`, its
-		`FILE_ATTRIBUTE_*` flags (`0x2` is hidden), or -1 if there is none or
-		this is not native Windows.
-	**/
-	@:noCompletion private static function __getWindowsFileAttributes(path:String):Int
-	{
-		#if (lime_cffi && !macro && windows)
-		return NativeCFFI.lime_system_get_windows_file_attributes(path);
-		#else
-		return -1;
-		#end
 	}
 
 	@:noCompletion private static function __getDirectory(type:SystemDirectory):String

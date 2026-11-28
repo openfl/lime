@@ -10,8 +10,9 @@ import sys.io.File;
 #end
 
 /**
-	`System.getFreeSpace()` and `System.isSymbolicLink()`, against what the
-	system's own tools report, in a folder of the temporary folder.
+	`System.getFreeSpace()`, `System.isSymbolicLink()` and `System.isHidden()`,
+	against what the system's own tools report and set, in a folder of the
+	temporary folder.
 **/
 class FileSystemInfoTest extends Test
 {
@@ -33,6 +34,8 @@ class FileSystemInfoTest extends Test
 		Assert.equals(-1.0, System.getFreeSpace(null));
 		Assert.isFalse(System.isSymbolicLink(""));
 		Assert.isFalse(System.isSymbolicLink(null));
+		Assert.isFalse(System.isHidden(""));
+		Assert.isFalse(System.isHidden(null));
 	}
 
 	#if (lime_cffi && !macro && (windows || mac || linux))
@@ -129,6 +132,50 @@ class FileSystemInfoTest extends Test
 		Assert.isTrue(System.isSymbolicLink(link), "a link whose target is gone is not a link");
 	}
 
+	public function testHiddenFilesAndFoldersAreFound():Void
+	{
+		var file = Path.join([folder, "file.txt"]);
+		var subfolder = Path.join([folder, "folder"]);
+		var dotFile = Path.join([folder, ".file"]);
+		var dotFolder = Path.join([folder, ".folder"]);
+		File.saveContent(file, "text");
+		FileSystem.createDirectory(subfolder);
+		File.saveContent(dotFile, "text");
+		FileSystem.createDirectory(dotFolder);
+
+		Assert.isFalse(System.isHidden(file), "a file is hidden");
+		Assert.isFalse(System.isHidden(subfolder), "a folder is hidden");
+		Assert.isFalse(System.isHidden(folder + "/."), "a folder named by . is hidden");
+		Assert.isFalse(System.isHidden(Path.join([folder, ".missing"])), "a missing path is hidden");
+
+		#if windows
+		// Explorer shows a name that starts with a dot, and hides what has the hidden attribute
+		Assert.isFalse(System.isHidden(dotFile), "a file named with a dot is hidden");
+		Assert.isFalse(System.isHidden(dotFolder), "a folder named with a dot is hidden");
+
+		Assert.isTrue(setHidden(file, true), "the hidden attribute could not be set on a file");
+		Assert.isTrue(System.isHidden(file), "a file with the hidden attribute is not hidden");
+		Assert.isTrue(setHidden(subfolder, true), "the hidden attribute could not be set on a folder");
+		Assert.isTrue(System.isHidden(subfolder), "a folder with the hidden attribute is not hidden");
+
+		Assert.isTrue(setHidden(file, false), "the hidden attribute could not be taken off");
+		Assert.isFalse(System.isHidden(file), "a file whose hidden attribute was taken off is hidden");
+		#else
+		// ls and file managers leave out a name that starts with a dot
+		Assert.isTrue(System.isHidden(dotFile), "a file named with a dot is not hidden");
+		Assert.isTrue(System.isHidden(dotFolder), "a folder named with a dot is not hidden");
+		Assert.isTrue(System.isHidden(dotFolder + "/"), "a folder named with a dot, given with a slash after it, is not hidden");
+
+		#if mac
+		// The Finder also hides what has the hidden flag
+		Assert.equals(0, Sys.command("chflags", ["hidden", file]), "the hidden flag could not be set");
+		Assert.isTrue(System.isHidden(file), "a file with the hidden flag is not hidden");
+		Assert.equals(0, Sys.command("chflags", ["nohidden", file]), "the hidden flag could not be taken off");
+		Assert.isFalse(System.isHidden(file), "a file whose hidden flag was taken off is hidden");
+		#end
+		#end
+	}
+
 	#if !neko
 	public function testPathsOutsideASCII():Void
 	{
@@ -143,6 +190,24 @@ class FileSystemInfoTest extends Test
 		Assert.isFalse(System.isSymbolicLink(named));
 		Assert.isTrue(makeLink(link, target), "the link could not be made");
 		Assert.isTrue(System.isSymbolicLink(link), "a link named outside ASCII is not a link");
+
+		var hidden = Path.join([named, #if windows "hidden é" #else ".hidden é" #end]);
+		File.saveContent(hidden, "text");
+		#if windows
+		Assert.isTrue(setHidden(hidden, true), "the hidden attribute could not be set");
+		#end
+		Assert.isFalse(System.isHidden(named), "a folder named outside ASCII is hidden");
+		Assert.isTrue(System.isHidden(hidden), "a hidden file named outside ASCII is not hidden");
+	}
+	#end
+
+	#if windows
+	private static function setHidden(path:String, hidden:Bool):Bool
+	{
+		// The hidden attribute, set by PowerShell, which takes any name
+		var item = "$item = Get-Item -LiteralPath '" + path.split("'").join("''") + "' -Force";
+		var attributes = hidden ? "$item.Attributes = $item.Attributes -bor [IO.FileAttributes]::Hidden" : "$item.Attributes = $item.Attributes -band -bnot [IO.FileAttributes]::Hidden";
+		return powerShell(item + "\n" + attributes) != null;
 	}
 	#end
 
