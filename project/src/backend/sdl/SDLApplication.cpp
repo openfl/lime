@@ -2944,6 +2944,11 @@ namespace lime
 				// was asked for is due, or an idle event or a timer before any frame. SDL's
 				// own time is a little later, in case it doesn't. An idle frame is waited for
 				// as before: late is as good for it.
+				//
+				// Only while a window can be seen. With every window minimised or hidden the
+				// background frame rate is the most frames a second, and macOS is left to save
+				// what it can, unless the application asked for its full rate there.
+				bool keepTime = !windowsHidden || requestedBackgroundFrameRate <= 0.0;
 				double until = nextUpdate;
 
 				if (idleEvents && idleArmed && nextIdle > now && nextIdle < until && nextUpdate - nextIdle >= IDLE_MIN_REMAINING)
@@ -2953,7 +2958,7 @@ namespace lime
 				if (timerAt >= 0.0 && timerAt < until)
 					until = timerAt;
 
-				if (nextUpdate <= earliestUpdate || until < nextUpdate)
+				if (keepTime && (nextUpdate <= earliestUpdate || until < nextUpdate))
 				{
 					SetStrictTimer(until - now);
 

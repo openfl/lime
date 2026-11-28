@@ -159,6 +159,7 @@ Changelog
 - Changed native frame timing to use the performance counter in every profile, so a frame starts when it is due rather than on the next whole millisecond. `TimePrecision.MILLISECOND` keeps whole milliseconds.
 - Changed Windows applications that are waiting for a frame to be woken by mouse moves, touches and raw input at most once every 2 milliseconds, or every 8 with `FrameProfile.LOW_ENERGY`, so a mouse that reports thousands of times a second no longer wakes them for every report. A key or a mouse button still wakes them at once, every event is still handled before the next frame, and `FrameProfile.PRECISION` is woken as input comes.
 - Changed the frame after one that started a whole frame period late to come a whole period after it, as on HTML5, rather than part of a period after it.
+- Fixed frames coming at a fraction of the frame rate on macOS while the application is not in front. A window that can be seen keeps its frame rate; with every window minimised or hidden, macOS may still slow the application below `FrameOptions.backgroundFrameRate`, unless that is `0`.
 - Updated pixman and platform config for LLVM assembly fixes, ARM NEON, Android NDKs, and Apple platforms.
 - Updated MojoAL and gamepad mappings.
 - Updated SDL submodule to version 2.32.10.
