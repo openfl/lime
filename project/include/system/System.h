@@ -50,6 +50,7 @@ namespace lime {
 			#if defined(HX_WINDOWS) && !defined (HX_WINRT)
 			static int GetWindowsConsoleMode (int handleType);
 			#endif
+			static bool IsHidden (const char* path);
 			static bool IsSymbolicLink (const char* path);
 			// Through native-desktop, where Lime has it; any thread may call it
 			static bool MoveToTrash (const char* path);

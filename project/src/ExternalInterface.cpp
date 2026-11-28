@@ -5313,6 +5313,22 @@ namespace lime {
 	}
 
 
+	bool lime_system_is_hidden (HxString path) {
+
+		// hxcpp keeps strings with characters beyond ASCII as UTF-16, which hxs_utf8 converts
+		return System::IsHidden (hxs_utf8 (path, nullptr));
+
+	}
+
+
+	HL_PRIM bool HL_NAME(hl_system_is_hidden) (hl_vstring* path) {
+
+		// HashLink strings are UTF-16
+		return System::IsHidden (path ? hl_to_utf8 ((const uchar*)path->bytes) : NULL);
+
+	}
+
+
 	bool lime_system_is_symbolic_link (HxString path) {
 
 		// hxcpp keeps strings with characters beyond ASCII as UTF-16, which hxs_utf8 converts
@@ -15030,6 +15046,7 @@ namespace lime {
 	DEFINE_PRIME0 (lime_system_get_timer);
 	DEFINE_PRIME1 (lime_system_get_windows_console_mode);
 	DEFINE_PRIME1 (lime_system_get_free_space);
+	DEFINE_PRIME1 (lime_system_is_hidden);
 	DEFINE_PRIME1 (lime_system_is_symbolic_link);
 	DEFINE_PRIME1 (lime_system_move_to_trash);
 	DEFINE_PRIME0 (lime_system_get_storage_volumes);
@@ -15427,6 +15444,7 @@ namespace lime {
 	DEFINE_HL_PRIM (_F64, hl_system_get_timer, _NO_ARG);
 	DEFINE_HL_PRIM (_I32, hl_system_get_windows_console_mode, _I32);
 	DEFINE_HL_PRIM (_F64, hl_system_get_free_space, _STRING);
+	DEFINE_HL_PRIM (_BOOL, hl_system_is_hidden, _STRING);
 	DEFINE_HL_PRIM (_BOOL, hl_system_is_symbolic_link, _STRING);
 	DEFINE_HL_PRIM (_BOOL, hl_system_move_to_trash, _STRING);
 	DEFINE_HL_PRIM (_BYTES, hl_system_get_storage_volumes, _NO_ARG);

@@ -445,6 +445,8 @@ class NativeCFFI
 
 	@:cffi private static function lime_system_get_free_space(path:String):Float;
 
+	@:cffi private static function lime_system_is_hidden(path:String):Bool;
+
 	@:cffi private static function lime_system_is_symbolic_link(path:String):Bool;
 
 	@:cffi private static function lime_system_move_to_trash(path:String):Bool;
@@ -1332,6 +1334,7 @@ class NativeCFFI
 		"lime_system_get_secure_random_bytes", "oiib", false));
 	private static var lime_system_get_timer = new cpp.Callable<Void->Float>(cpp.Prime._loadPrime("lime", "lime_system_get_timer", "d", false));
 	private static var lime_system_get_free_space = new cpp.Callable<String->Float>(cpp.Prime._loadPrime("lime", "lime_system_get_free_space", "sd", false));
+	private static var lime_system_is_hidden = new cpp.Callable<String->Bool>(cpp.Prime._loadPrime("lime", "lime_system_is_hidden", "sb", false));
 	private static var lime_system_is_symbolic_link = new cpp.Callable<String->Bool>(cpp.Prime._loadPrime("lime", "lime_system_is_symbolic_link", "sb",
 		false));
 	private static var lime_system_move_to_trash = new cpp.Callable<String->Bool>(cpp.Prime._loadPrime("lime", "lime_system_move_to_trash", "sb", false));
@@ -1942,6 +1945,7 @@ class NativeCFFI
 	private static var lime_system_get_secure_random_bytes = CFFI.load("lime", "lime_system_get_secure_random_bytes", 3);
 	private static var lime_system_get_timer = CFFI.load("lime", "lime_system_get_timer", 0);
 	private static var lime_system_get_free_space = CFFI.load("lime", "lime_system_get_free_space", 1);
+	private static var lime_system_is_hidden = CFFI.load("lime", "lime_system_is_hidden", 1);
 	private static var lime_system_is_symbolic_link = CFFI.load("lime", "lime_system_is_symbolic_link", 1);
 	private static var lime_system_move_to_trash = CFFI.load("lime", "lime_system_move_to_trash", 1);
 	private static var lime_system_get_storage_volumes = CFFI.load("lime", "lime_system_get_storage_volumes", 0);
@@ -2999,6 +3003,11 @@ class NativeCFFI
 	@:hlNative("lime", "hl_system_get_free_space") private static function lime_system_get_free_space(path:String):Float
 	{
 		return 0;
+	}
+
+	@:hlNative("lime", "hl_system_is_hidden") private static function lime_system_is_hidden(path:String):Bool
+	{
+		return false;
 	}
 
 	@:hlNative("lime", "hl_system_is_symbolic_link") private static function lime_system_is_symbolic_link(path:String):Bool
