@@ -148,6 +148,19 @@ class IOSOutputTest extends Test
 		Assert.isTrue(project.indexOf('path = "MyApplication/PrivacyInfo.xcprivacy"') > -1);
 	}
 
+	// The Xcode project names the assets folder among the application's resources, and Xcode 27
+	// fails a build whose folder isn't there, so it is made even when there are no assets to copy
+	public function testTheAssetsFolderIsThereWithNoAssets():Void
+	{
+		output.update('<project>
+			<app main="Main" file="MyApplication" />
+		</project>');
+
+		Assert.isTrue(output.read(XCODE_PROJECT).indexOf('path = "MyApplication/assets"') > -1, "the Xcode project does not name the assets folder");
+		Assert.isTrue(output.exists("MyApplication/assets"), "the assets folder the Xcode project names is not there");
+		Assert.isTrue(sys.FileSystem.isDirectory(output.path("MyApplication/assets")), "the assets folder is not a folder");
+	}
+
 	// <config:ios privacy-accessed-api="NSPrivacyAccessedAPICategoryUserDefaults CA92.1" />
 	public function testAnApplicationCanDeclareAPIsOfItsOwn():Void
 	{

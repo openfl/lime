@@ -324,6 +324,7 @@ Changelog
 - Fixed native HTTP requests not loading a `file:` URL, as AIR's `File.url` gives, whether written `file:///path`, `file:/path` or `file://localhost/path`.
 - Fixed `Image.colorTransform()` on native targets giving the wrong colors when two threads transform images at once.
 - Fixed a native window's size and position reading uninitialised memory when SDL can't read the window.
+- Fixed an iOS project without assets failing to build with Xcode 27, as the assets folder its Xcode project names wasn't made. tvOS projects get the folder too.
 
 8.3.2 (05/13/2026)
 ------------------
