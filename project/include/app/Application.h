@@ -32,11 +32,9 @@ namespace lime {
 			virtual void SetVSyncMode (int vsyncMode) {}
 			virtual bool Update () = 0;
 
-			// For work that ends off the main thread or between frames, from any thread. The
-			// first asks the running application for a frame, where what was done is heard of
-			// in an update. The second asks it to run what it delivers between frames, as it
-			// runs timers. Neither does anything where no application is running.
-			static void RequestFrameOfCurrent ();
+			// For work that ends off the main thread or between frames, from any thread: asks
+			// the running application to run what it delivers between frames, as it runs
+			// timers. It does nothing where no application is running.
 			static void RequestDeliveryOfCurrent ();
 
 

@@ -163,6 +163,9 @@ class Application extends Module
 	@:noCompletion private var __frameOptions:FrameOptions;
 	@:noCompletion private var __frameProfile:FrameProfile;
 	@:noCompletion private var __menu:Menu;
+	// What threads hand to the main thread is handed over in each update. Where frames come at
+	// an idle rate it is handed over between them as well, with no update or render, by this.
+	@:noCompletion private var __onDeliver = new Event<Void->Void>();
 	@:noCompletion private var __preloader:Preloader;
 	@:noCompletion private var __vsyncMode:VSyncMode;
 	@:noCompletion private var __window:Window;
@@ -581,6 +584,13 @@ class Application extends Module
 	public function requestFrame():Void
 	{
 		if (__backend != null) __backend.requestFrame();
+	}
+
+	// Asks for `__onDeliver`, for something that waits to be handed over on the main thread.
+	// From any thread. It brings no frame: a listener that changes what is drawn asks for one.
+	@:noCompletion private function __requestDelivery():Void
+	{
+		if (__backend != null) __backend.requestDelivery();
 	}
 
 	/**

@@ -90,8 +90,9 @@ namespace lime {
 		mutex->Unlock ();
 
 		// Heard of in the application's next update, which an idle frame rate may have put a
-		// long way off. This is one of the watcher's threads.
-		Application::RequestFrameOfCurrent ();
+		// long way off, so it is asked to be heard between frames. This is one of the watcher's
+		// threads.
+		Application::RequestDeliveryOfCurrent ();
 
 	}
 

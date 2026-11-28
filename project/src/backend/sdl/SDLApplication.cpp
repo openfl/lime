@@ -534,14 +534,6 @@ namespace lime
 			Wake();
 	}
 
-	void Application::RequestFrameOfCurrent()
-	{
-
-		SDLApplication *application = SDLApplication::GetCurrent();
-		if (application)
-			application->RequestFrame();
-	}
-
 	void Application::RequestDeliveryOfCurrent()
 	{
 

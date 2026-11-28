@@ -30,6 +30,7 @@ import neko.vm.Thread;
 #if !lime_debug
 @:fileXml('tags="haxe,release"')
 @:noDebug
+@:access(lime.app.Application)
 #end
 class BackgroundWorker
 {
@@ -111,6 +112,7 @@ class BackgroundWorker
 		if (Application.current != null && !Application.current.onUpdate.has(__update))
 		{
 			Application.current.onUpdate.add(__update);
+			Application.current.__onDeliver.add(__deliver);
 		}
 		#else
 		__doWork();
@@ -173,10 +175,23 @@ class BackgroundWorker
 	}
 
 	// What the worker sends is heard in the application's next update. An idle frame rate may
-	// have put that a long way off, so a frame is asked for. From the worker's thread.
+	// have put that a long way off, so it is asked to be heard between frames. From the
+	// worker's thread.
 	@:noCompletion private static inline function __requestDelivery():Void
 	{
-		if (Application.current != null) Application.current.requestFrame();
+		if (Application.current != null) Application.current.__requestDelivery();
+	}
+
+	@:noCompletion private function __stopListening():Void
+	{
+		Application.current.onUpdate.remove(__update);
+		Application.current.__onDeliver.remove(__deliver);
+	}
+
+	// The same as an update hears, between frames, where they come at an idle rate
+	@:noCompletion private function __deliver():Void
+	{
+		__update(0);
 	}
 
 	@:noCompletion private function __doWork():Void
@@ -220,25 +235,32 @@ class BackgroundWorker
 					onProgress.dispatch(message);
 
 				case COMPLETE(message):
-					Application.current.onUpdate.remove(__update);
+					__stopListening();
 					canceled = true;
 					onComplete.dispatch(message);
 					return;
 
 				case ERROR(message):
-					Application.current.onUpdate.remove(__update);
+					__stopListening();
 					canceled = true;
 					onError.dispatch(message);
 					return;
 			}
 
 			// A listener ran the worker again, and the new run is heard from the next frame
-			if (__messageQueue != queue || haxe.Timer.stamp() >= endTime) return;
+			if (__messageQueue != queue) return;
+
+			if (haxe.Timer.stamp() >= endTime)
+			{
+				// The rest may be all the worker sends, so they are asked for by name
+				__requestDelivery();
+				return;
+			}
 		}
 
 		// Nothing more is heard from a canceled run, and a job that returns once it sees it was
 		// canceled sends no completion to stop the listening
-		if (canceled) Application.current.onUpdate.remove(__update);
+		if (canceled) __stopListening();
 		#end
 	}
 }

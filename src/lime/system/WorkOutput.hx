@@ -159,15 +159,15 @@ class WorkOutput
 	}
 
 	// What a job reports is handed over in the application's next update. An idle frame rate
-	// may have put that a long way off, so a frame is asked for: for what a listener is to
-	// hear, and for a thread that is free for the next job, and not for a thread saying that
-	// it has started or has ended. From any thread.
+	// may have put that a long way off, so it is asked to be handed over between frames: what
+	// a listener is to hear, and a thread that is free for the next job, and not a thread
+	// saying that it has started or has ended. From any thread.
 	private static inline function __requestDelivery(event:ThreadEvent):Void
 	{
 		#if !macro
 		if (event.event != EXIT && event.event != WORK && lime.app.Application.current != null)
 		{
-			lime.app.Application.current.requestFrame();
+			@:privateAccess lime.app.Application.current.__requestDelivery();
 		}
 		#end
 	}

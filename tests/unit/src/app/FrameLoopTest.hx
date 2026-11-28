@@ -794,12 +794,13 @@ class FrameLoopTest extends Test
 
 			if (update == 2)
 			{
-				Thread.create(function()
+				// From a timer, which runs between frames, so all five are in before the frame
+				// can come. A thread that asked could be held up part way through them.
+				Timer.delay(function()
 				{
-					Sys.sleep(0.1);
 					asked = Timer.stamp();
 					for (i in 0...5) application.requestFrame();
-				});
+				}, 100);
 
 				return;
 			}
@@ -993,7 +994,8 @@ class FrameLoopTest extends Test
 	/**
 		With an idle frame rate, what ends off the main thread or between frames is heard of when
 		it ends, and not in the next idle frame, by an application that asks for no frame itself.
-		A job of a thread pool reports in an update, so one comes for it.
+		It brings no frame either: a listener that changes what is drawn asks for one. A job of a
+		thread pool reports on the main thread, between frames as well.
 	**/
 	@:timeout(15000)
 	public function testAThreadPoolsJobIsHeardOfWhenItEndsWithAnIdleFrameRate(async:Async):Void
@@ -1049,7 +1051,7 @@ class FrameLoopTest extends Test
 		}, null, 850);
 	}
 
-	/** A background worker's messages are heard in an update as well **/
+	/** A background worker's messages are heard on the main thread the same way **/
 	@:timeout(15000)
 	public function testABackgroundWorkersMessageIsHeardWhenItIsSentWithAnIdleFrameRate(async:Async):Void
 	{
@@ -1164,7 +1166,7 @@ class FrameLoopTest extends Test
 	// as on this branch, with or without an idle frame rate. That is a fault of its own, which
 	// this test found and doesn't fix. Not on macOS, whose file events come a while after the change.
 	#if ((windows || linux) && !hl)
-	/** A file watcher's changes are heard in an update, so one comes for them **/
+	/** What a file watcher saw is heard on the main thread the same way **/
 	@:timeout(15000)
 	public function testAChangeAFileWatcherSawIsHeardOfWhenItHappensWithAnIdleFrameRate(async:Async):Void
 	{
@@ -1214,8 +1216,9 @@ class FrameLoopTest extends Test
 		Sets an idle frame rate of 1 and, as an idle frame ends, calls `start`, which begins work
 		that ends some 300 ms later, sets `workEnded` as it does, and has its listener call the
 		function it is given. With nothing to bring it forward, the listener would hear in the
-		next idle frame, 700 ms after the work ended. `ready` is waited for first, at the frame
-		rate, and `within` is the milliseconds the listener is given.
+		next idle frame, 700 ms after the work ended. It is to hear within `within` milliseconds,
+		and before any update, as nothing here asks for a frame. `ready` is waited for first, at
+		the frame rate.
 	**/
 	private function delivery(async:Async, what:String, start:(Void->Void)->Void, ?finish:Void->Void, ?ready:Void->Bool, within:Float = 150):Void
 	{
@@ -1253,8 +1256,9 @@ class FrameLoopTest extends Test
 					Assert.isTrue(waited < within, what + ", which ended " + round((workEnded - startedAt) * 1000)
 						+ " ms into a wait of a second for an idle frame, was heard of " + round(waited) + " ms after it ended");
 
-					// While the work went on, nothing was delivered and no frame was needed
-					Assert.isTrue(frames <= 3, "there were " + frames + " updates between " + what + " being begun and being heard of");
+					// It is handed over between frames, and brings none
+					Assert.equals(0, frames, "there were " + frames + " updates between " + what
+						+ " being begun and being heard of, where no frame was asked for");
 				}
 
 				async.done();
@@ -1318,7 +1322,8 @@ class FrameLoopTest extends Test
 			}
 		};
 
-		application.onUpdate.add(listener);
+		// Ahead of every other listener, so an update that hands something over is counted first
+		application.onUpdate.add(listener, false, 1000);
 		cleanups.push(function()
 		{
 			finished = true;

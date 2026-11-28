@@ -37,12 +37,12 @@ typedef FrameOptions =
 		restored, resized or uncovered asks for one itself.
 
 		What happens between frames is still heard of on time. A `haxe.Timer`
-		fires when it is due, an HTTP request, a `WebSocket`, a `WebView` and the
-		main thread's event loop deliver as they would with frames coming, and
-		none of them brings a frame: a listener that changes what is drawn asks
-		for one. What reports in an update brings its own frame: the work of a
-		`lime.system.ThreadPool`, and so of a `lime.app.Future`, a file or an
-		asset that was loaded, a `BackgroundWorker` and a `FileWatcher`.
+		fires when it is due. An HTTP request, a `WebSocket`, a `WebView`, the
+		main thread's event loop, the work of a `lime.system.ThreadPool`, and so
+		of a `lime.app.Future`, a file or an asset that was loaded, a
+		`BackgroundWorker` and a `FileWatcher` deliver as they would with frames
+		coming. None of them brings a frame: a listener that changes what is
+		drawn asks for one.
 
 		A rate at or above the frame rate changes nothing. Native targets and
 		HTML5.

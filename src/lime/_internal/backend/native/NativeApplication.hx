@@ -322,6 +322,14 @@ class NativeApplication
 		#end
 	}
 
+	// What waits to be handed over on the main thread is handed over with the timers, which
+	// run between frames where frames come at an idle rate, and in the next update elsewhere.
+	// From any thread.
+	public function requestDelivery():Void
+	{
+		__requestTimer(0);
+	}
+
 	// Asks for the timers to be run in the milliseconds given. They run from the application's
 	// updates, and with an idle frame rate the next update may be a long way off, so the loop
 	// runs them on their own when this time comes first. It keeps the earliest time asked for
@@ -424,11 +432,12 @@ class NativeApplication
 				parent.onUpdate.dispatch(applicationEventInfo.deltaTime);
 			case TIMER:
 				// What is due between two updates, where frames come at an idle rate: timers,
-				// the main thread's events, and what is polled for
+				// the main thread's events, what is polled for, and what threads handed over
 				throwDeferredException();
 				updateTimer();
 				if (__updateWebSockets != null) __updateWebSockets();
 				if (__updateWebViews != null) __updateWebViews();
+				parent.__onDeliver.dispatch();
 			case IDLE:
 				if (__idleCallback != null) __idleCallback();
 

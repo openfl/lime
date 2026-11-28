@@ -37,6 +37,9 @@ class HTML5Application
 	private var frameRequested:Bool = false;
 	// The time between frames while none is asked for, or 0 where frames always come
 	private var idlePeriod:Float = 0;
+	// Something waits to be handed over on the main thread, and when that was last done
+	private var deliveryRequested:Bool = false;
+	private var lastDelivery:Float = 0;
 
 	// How early a frame may run, so animation frames at the rate asked for are never skipped
 	private static inline var FRAME_SLACK:Float = 2;
@@ -342,6 +345,12 @@ class HTML5Application
 		frameRequested = true;
 	}
 
+	public function requestDelivery():Void
+	{
+		// Taken on the browser's next animation frame, by its update if one is due
+		deliveryRequested = true;
+	}
+
 	public function exec():Int
 	{
 		Browser.window.addEventListener("keydown", handleKeyEvent, false);
@@ -499,6 +508,9 @@ class HTML5Application
 
 			// This frame is the one that was asked for. One asked for while it runs comes after it.
 			frameRequested = false;
+			// And its update hands over what waits for the main thread
+			deliveryRequested = false;
+			lastDelivery = currentUpdate;
 			deltaTime = currentUpdate - lastUpdate;
 			parent.frameDeltaTime = deltaTime;
 
@@ -526,6 +538,14 @@ class HTML5Application
 			}
 
 			lastUpdate = currentUpdate;
+		}
+		else if (deliveryRequested && (framePeriod < 0 || currentUpdate >= lastDelivery + framePeriod - FRAME_SLACK))
+		{
+			// Between frames, where they come at an idle rate: what waits for the main thread is
+			// handed over as often as updates would have done it, with no update or render
+			deliveryRequested = false;
+			lastDelivery = currentUpdate;
+			parent.__onDeliver.dispatch();
 		}
 
 		Browser.window.requestAnimationFrame(cast handleApplicationEvent);
