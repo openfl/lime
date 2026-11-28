@@ -359,16 +359,17 @@ class FrameLoopTest extends Test
 
 		frames(1, function(times:Array<Float>, deltas:Array<Int>, cpu:Float)
 		{
-			Assert.isTrue(Math.abs(sum(deltas) - elapsed(times)) <= 4,
-				"the times between " + times.length + " updates added up to " + sum(deltas) + " ms over " + round(elapsed(times)) + " ms");
+			var drifted = drift(times, [for (delta in deltas) delta * 1.0]);
+			Assert.isTrue(Math.abs(drifted) <= 4, "the times between " + times.length + " updates, which added up to " + sum(deltas) + " ms over "
+				+ round(elapsed(times)) + " ms, drifted " + round(drifted) + " ms from the time that passed");
 
 			pace(FrameProfile.PRECISION, 90);
 
 			frames(1, function(times:Array<Float>, deltas:Array<Int>, cpu:Float)
 			{
-				Assert.isTrue(Math.abs(sum(deltas) - elapsed(times)) <= 4,
-					"with the precision profile the times between " + times.length + " updates added up to " + sum(deltas) + " ms over "
-					+ round(elapsed(times)) + " ms");
+				var drifted = drift(times, [for (delta in deltas) delta * 1.0]);
+				Assert.isTrue(Math.abs(drifted) <= 4, "with the precision profile the times between " + times.length + " updates, which added up to "
+					+ sum(deltas) + " ms over " + round(elapsed(times)) + " ms, drifted " + round(drifted) + " ms from the time that passed");
 				async.done();
 			});
 		});
@@ -416,8 +417,9 @@ class FrameLoopTest extends Test
 				}
 
 				var passed = (stamps[stamps.length - 1] - stamps[0]) * 1000;
-				Assert.isTrue(Math.abs(total - passed) <= 3, "the frame delta times of " + precise.length + " updates added up to " + round(total) + " ms over "
-					+ round(passed) + " ms");
+				var drifted = drift(stamps, precise);
+				Assert.isTrue(Math.abs(drifted) <= 3, "the frame delta times of " + precise.length + " updates, which added up to " + round(total) + " ms over "
+					+ round(passed) + " ms, drifted " + round(drifted) + " ms from the time that passed");
 				Assert.isTrue(apart <= 1.001, "a frame delta time was " + round(apart) + " ms from the deltaTime of its update");
 				Assert.isTrue(fractions > precise.length / 2, "of " + precise.length + " frame delta times at 60 frames a second, " + fractions
 					+ " had a fraction: " + [for (i in 1...8) round3(precise[i])].join(" "));
@@ -1832,6 +1834,32 @@ class FrameLoopTest extends Test
 	private static function intervals(times:Array<Float>):Array<Float>
 	{
 		return [for (i in 1...times.length) (times[i] - times[i - 1]) * 1000];
+	}
+
+	/**
+		How far the deltas of the updates drifted from the time that passed between the first of
+		them and the last, in milliseconds. An update's time is taken by its listener, and one that
+		is called late once would count as drift, so the least distance of the first ten updates
+		is set against the least of the last ten.
+	**/
+	private static function drift(times:Array<Float>, deltas:Array<Float>):Float
+	{
+		var window = Std.int(Math.min(10, times.length / 2));
+		var first = Math.POSITIVE_INFINITY;
+		var last = Math.POSITIVE_INFINITY;
+		var total = 0.0;
+
+		for (i in 0...times.length)
+		{
+			// The delta of the first counts from before it
+			if (i > 0) total += deltas[i];
+
+			var behind = (times[i] - times[0]) * 1000 - total;
+			if (i < window) first = Math.min(first, behind);
+			if (i >= times.length - window) last = Math.min(last, behind);
+		}
+
+		return (times.length > 1) ? last - first : 0;
 	}
 
 	/** The `deltaTime` of every update after the first, which counts from before the first **/
