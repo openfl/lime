@@ -2123,7 +2123,6 @@ namespace lime
 
 #if defined(HX_WINDOWS) && !defined(HX_WINRT)
 		bool pumpedEvents = false;
-		bool handledEvent = false;
 #endif
 
 #if (!defined(IPHONE) && !defined(EMSCRIPTEN))
@@ -2139,9 +2138,6 @@ namespace lime
 			{
 #if defined(HX_WINDOWS) && !defined(HX_WINRT)
 				CheckModalException();
-#endif
-#if defined(HX_WINDOWS) && !defined(HX_WINRT)
-					handledEvent = true;
 #endif
 				HandleEvent(&event);
 				event.type = -1;
@@ -2162,16 +2158,14 @@ namespace lime
 		// Snapshot the batch size without dequeuing it. New arrivals cannot extend this
 		// turn indefinitely, preserving a finite cycle in uncapped modes too. Fetch
 		// one event at a time so SYSWMEVENT storage and early-exit payload ownership
-		// remain valid. Uncapped modes must not yield after every event just because
-		// IsFrameDue is always true; they drain this finite batch instead.
+		// remain valid. A due frame waits for the batch: an application whose frames
+		// run late always has one due, and yielding to it after each event would leave
+		// the queue growing and the application acting on input from seconds before.
 		int queuedEvents = SDL_PeepEvents(NULL, 0, SDL_PEEKEVENT, SDL_FIRSTEVENT, SDL_LASTEVENT);
 		while (queuedEvents-- > 0)
 		{
-			if (handledEvent && !schedulerUnthrottled && IsFrameDue(GetCurrentTimeMs()))
-				break;
 			if (SDL_PeepEvents(&event, 1, SDL_GETEVENT, SDL_FIRSTEVENT, SDL_LASTEVENT) != 1)
 				break;
-			handledEvent = true;
 #else
 		while (SDL_PollEvent(&event))
 		{
