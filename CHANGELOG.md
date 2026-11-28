@@ -105,6 +105,8 @@ Changelog
 - Added `lime diagnose`, which prints the Haxe, Lime, OpenFL and libhxcpp versions, with git commits for git checkouts, the folder `haxelib path hxcpp` gives, the C++ compiler hxcpp picks, the host and what Lime's native libraries were built from, to paste into a bug report.
 - Added `<window preserve-drawing-buffer="true" />` and the `preserveDrawingBuffer` option of `lime.embed()`, so an HTML5 application's main window can keep its drawing buffer for `readPixels()` and `toDataURL()`.
 - Added deprecation warnings to the command-line tools for what Lime 9 removes: the YUI Compressor (`-yui`), the armv5 and armv6 Android architectures, and Haxe 3.
+- Added embedding of dynamic iOS frameworks: `<dependency path="MyFramework.framework" embed="true" />` copies a dynamic framework or `.xcframework` into the application and signs it, as a framework holding Swift code needs. A static framework is linked as before.
+- Added an `alphaOnly` argument to `ImageDataUtil.gaussianBlur()`, which blurs the alpha alone and leaves the other channels at 0, for glows and drop shadows.
 - Changed native streamed audio to refill from a thread of its own, so a stall on the main thread no longer drains a stream's buffers and drops its sound. Define `lime_audio_no_stream_thread` to refill from the main thread as before.
 - Changed native audio loading to decode through SDL_sound first, then Lime's own WAV and Ogg Vorbis decoders.
 - Changed asset copying and embedding to behave consistently across targets.
@@ -155,6 +157,9 @@ Changelog
 - Updated the bundled CA certificates to Mozilla's 2026-10-20 list, which drops three eMudhra roots.
 - Updated FreeType to 2.14.3, libpng to 1.6.59, zlib to 1.3.2, HarfBuzz to 14.6.0, libjpeg-turbo to 2.1.5.1 and libwebm to 1.0.0.32, for security fixes in reading fonts, images, compressed data and WebM files. FreeType's auto-hinter and hinting changed between versions, so some hinted glyphs and auto-hinted outlines can differ by a few pixels.
 - Changed native builds for x86 to include libpng's SSE2 row filters, as ARM builds include its NEON ones, which undo the Sub, Average and Paeth filters of RGB and RGBA PNGs faster while decoding.
+- Changed `lime test ios -simulator` to run on an iOS simulator that is already running, as one opened in the Simulator app, when no device is named on the command line. An iPad is still used when one is asked for.
+- Changed `Image.getColorBoundsRect()` to read the rows in the order the buffer holds them, and between the first and last rows that match, so trimming an image that is mostly empty around its content reads far fewer pixels. With a mask of the alpha alone, it compares the alpha byte, so a premultiplied image is not unmultiplied.
+- Changed the Android Gradle templates to assign `namespace`, `ndkPath`, `ndkVersion` and `signingConfig` with `=`, which Gradle 10 requires.
 - Updated HashLink to 1.16.
 - Updated the macOS `webify`, which converts fonts for HTML5, to 0.1.10.0, and `ios-deploy` to 1.12.2, each with an arm64 build alongside x86_64, so neither needs Rosetta on Apple silicon Macs, and removed the unused `fruitstrap`.
 - Fixed an asset embedding regression.
@@ -299,7 +304,9 @@ Changelog
 - Fixed Cairo clipping thick strokes under a matrix that stretches one axis and shrinks the other by about the same factor.
 - Fixed `System.desktopDirectory` and `System.documentsDirectory` on Linux always giving `~/Desktop` and `~/Documents`, rather than the folders the desktop's user-dirs.dirs file names, such as `~/Bureau` in French.
 - Fixed `window.displayMode.refreshRate` reading 0 where SDL has no refresh rate for the window's mode, as on Linux: it now gives the display's current rate.
+- Fixed documentation builds that define `doc_gen` without `lime-doc-gen`, as flixel-doc's does, failing for HashLink on `GLShader.fromInt`.
 - Fixed `Window.fullscreen` reading `false` while a window is still fullscreen: after it is minimized and restored, as with Alt+Tab, when macOS enters fullscreen with a maximize, and when a maximized window goes fullscreen. It now reads SDL's own state at those events.
+- Fixed iOS simulators whose names hold parentheses, such as "iPad Air 11-inch (M2)", getting the wrong ID and name, so `lime test ios -simulator` could not start them.
 
 8.3.2 (05/13/2026)
 ------------------

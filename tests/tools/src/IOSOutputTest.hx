@@ -1,4 +1,6 @@
 import haxe.PosInfos;
+import haxe.io.Bytes;
+import haxe.io.BytesOutput;
 import hxp.Path;
 import lime.tools.IOSHelper;
 import sys.io.File;
@@ -311,6 +313,65 @@ class IOSOutputTest extends Test
 		Adds a haxelib named `name` that stands for an hxcpp, with the TLS build file in
 		tests/tools/fixtures/hxcpp-ssl named `sslBuildFixture`.
 	**/
+	// A framework of the project's own that asks to be embedded is copied into the app, where it is
+	// found at run time, when it is dynamic (#1944). A static one is linked into the app instead.
+	public function testADynamicFrameworkThatAsksToBeEmbeddedIsCopiedIntoTheApp():Void
+	{
+		writeBinary("Frameworks/Dynamic.framework/Dynamic", machO(6));
+		writeBinary("Frameworks/Universal.framework/Universal", universal(machO(6)));
+		writeBinary("Frameworks/Shared.xcframework/ios-arm64/Shared.framework/Shared", machO(6));
+		writeBinary("Frameworks/Static.framework/Static", archive());
+		writeBinary("Frameworks/Unasked.framework/Unasked", machO(6));
+
+		output.update('<project>
+			<app main="Main" file="MyApplication" />
+			<dependency path="Frameworks/Dynamic.framework" embed="true" />
+			<dependency path="Frameworks/Universal.framework" embed="true" />
+			<dependency path="Frameworks/Shared.xcframework" embed="true" />
+			<dependency path="Frameworks/Static.framework" embed="true" />
+			<dependency path="Frameworks/Unasked.framework" />
+		</project>');
+
+		var xcode = output.read(XCODE_PROJECT);
+		var phase = section(xcode, "PBXCopyFilesBuildPhase");
+
+		Assert.isTrue(phase.indexOf("name = \"Embed Frameworks\";") > -1, "there is no Embed Frameworks phase");
+		Assert.isTrue(phase.indexOf("dstSubfolderSpec = 10;") > -1, "the phase doesn't copy into the app's Frameworks folder");
+		Assert.equals(1, count(xcode, "isa = PBXCopyFilesBuildPhase;"));
+
+		for (name in ["Dynamic.framework", "Universal.framework", "Shared.xcframework"])
+		{
+			Assert.isTrue(phase.indexOf(name + " in Embed Frameworks") > -1, name + " is not embedded");
+			Assert.isTrue(lineWith(xcode, name + " in Embed Frameworks */ = {isa = PBXBuildFile;").indexOf("CodeSignOnCopy") > -1, name + " is not signed as it is copied");
+		}
+
+		for (name in ["Static.framework", "Unasked.framework"])
+		{
+			Assert.equals(-1, xcode.indexOf(name + " in Embed Frameworks"), name + " is embedded");
+			Assert.isTrue(xcode.indexOf(name + " in Frameworks") > -1, name + " is not linked");
+		}
+
+		var buildPhases = xcode.substring(xcode.indexOf("buildPhases = ("), xcode.indexOf("buildRules = ("));
+		Assert.isTrue(buildPhases.indexOf("/* Embed Frameworks */,") > -1, "the phase isn't one of the application's build phases");
+		// The debug and release configurations each look for frameworks in the app
+		Assert.equals(2, count(xcode, "\"@executable_path/Frameworks\""));
+	}
+
+	public function testWithNothingToEmbedTheProjectIsLeftAsItWas():Void
+	{
+		writeBinary("Frameworks/Static.framework/Static", archive());
+
+		output.update('<project>
+			<app main="Main" file="MyApplication" />
+			<dependency path="Frameworks/Static.framework" embed="true" />
+		</project>');
+
+		var xcode = output.read(XCODE_PROJECT);
+		Assert.equals(-1, xcode.indexOf("PBXCopyFilesBuildPhase"));
+		Assert.equals(-1, xcode.indexOf("LD_RUNPATH_SEARCH_PATHS"));
+		Assert.equals(-1, xcode.indexOf("Embed Frameworks"));
+	}
+
 	private function addHxcpp(name:String, sslBuildFixture:String):Void
 	{
 		fixture.addHaxelib(name, "<project />", ["src/hx/libs/ssl/Build.xml" => sslBuild(sslBuildFixture)]);
@@ -395,5 +456,45 @@ class IOSOutputTest extends Test
 	private static function sslBuild(name:String):String
 	{
 		return File.getContent(Path.combine(LimeRepo.path(), "tests/tools/fixtures/hxcpp-ssl/" + name + ".xml"));
+	}
+
+	private function writeBinary(file:String, bytes:Bytes):Void
+	{
+		File.saveBytes(fixture.write(file, ""), bytes);
+	}
+
+	// The 64-bit Mach-O header of an arm64 binary of the given file type, where 6 is a dynamic library
+	private static function machO(fileType:Int):Bytes
+	{
+		var output = new BytesOutput();
+		output.bigEndian = false;
+		for (value in [0xFEEDFACF, 0x0100000C, 0, fileType, 0, 0, 0, 0])
+		{
+			output.writeInt32(value);
+		}
+		return output.getBytes();
+	}
+
+	// A universal binary holding one architecture, at an offset of 4096 bytes
+	private static function universal(slice:Bytes):Bytes
+	{
+		var output = new BytesOutput();
+		output.bigEndian = true;
+		for (value in [0xCAFEBABE, 1, 0x0100000C, 0, 4096, slice.length, 12])
+		{
+			output.writeInt32(value);
+		}
+		while (output.length < 4096)
+		{
+			output.writeByte(0);
+		}
+		output.write(slice);
+		return output.getBytes();
+	}
+
+	// A static library, an ar archive
+	private static function archive():Bytes
+	{
+		return Bytes.ofString("!<arch>\n");
 	}
 }

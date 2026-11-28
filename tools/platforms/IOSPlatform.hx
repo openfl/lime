@@ -413,10 +413,14 @@ class IOSPlatform extends PlatformTarget
 		context.ADDL_PBX_FILE_REFERENCE = "";
 		context.ADDL_PBX_FRAMEWORKS_BUILD_PHASE = "";
 		context.ADDL_PBX_FRAMEWORK_GROUP = "";
+		context.ADDL_PBX_COPY_FILES_BUILD_PHASE = "";
+		context.ADDL_PBX_BUILD_PHASE_LIST = "";
+		context.ADDL_PBX_RUNPATH_SEARCH_PATHS = "";
 
 		context.frameworkSearchPaths = [];
 
 		var dependencies = project.dependencies.copy();
+		var embeddedFrameworks = "";
 
 		// libhxcpp's TLS checks certificates with the system's trust store, and leaves
 		// Security.framework to the app's link
@@ -431,6 +435,7 @@ class IOSPlatform extends PlatformTarget
 			var name:String = null;
 			var path:String = null;
 			var fileType:String = null;
+			var local = false;
 
 			if (Path.extension(dependency.name) == "framework")
 			{
@@ -449,12 +454,14 @@ class IOSPlatform extends PlatformTarget
 				name = Path.withoutDirectory(dependency.path);
 				path = Path.tryFullPath(dependency.path);
 				fileType = "wrapper.framework";
+				local = true;
 			}
 			else if (Path.extension(dependency.path) == "xcframework")
 			{
 				name = Path.withoutDirectory(dependency.path);
 				path = Path.tryFullPath(dependency.path);
 				fileType = "wrapper.xcframework";
+				local = true;
 			}
 
 			if (name != null)
@@ -470,7 +477,35 @@ class IOSPlatform extends PlatformTarget
 					+ "\"; name = \"" + name + "\"; path = \"" + path + "\"; sourceTree = SDKROOT; };\n";
 				context.ADDL_PBX_FRAMEWORKS_BUILD_PHASE += "				" + frameworkID + " /* " + name + " in Frameworks */,\n";
 				context.ADDL_PBX_FRAMEWORK_GROUP += "				" + fileID + " /* " + name + " */,\n";
+
+				// A framework of the project's own that asks to be embedded is copied into the app and
+				// signed, when it is dynamic. A static one is linked into the app, so it is left out.
+				if (dependency.embed && local)
+				{
+					if (isDynamicFramework(path))
+					{
+						var embedID = "11C0000000000018" + StringTools.getUniqueID();
+						context.ADDL_PBX_BUILD_FILE += "		" + embedID + " /* " + name + " in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = " + fileID
+							+ " /* " + name + " */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };\n";
+						embeddedFrameworks += "				" + embedID + " /* " + name + " in Embed Frameworks */,\n";
+					}
+					else
+					{
+						Log.warn(name + " is not a dynamic framework, so it is linked into the application rather than embedded");
+					}
+				}
 			}
+		}
+
+		if (embeddedFrameworks != "")
+		{
+			var phaseID = "11C0000000000018" + StringTools.getUniqueID();
+			context.ADDL_PBX_COPY_FILES_BUILD_PHASE = "\n\n/* Begin PBXCopyFilesBuildPhase section */\n		" + phaseID + " /* Embed Frameworks */ = {\n"
+				+ "			isa = PBXCopyFilesBuildPhase;\n			buildActionMask = 2147483647;\n			dstPath = \"\";\n			dstSubfolderSpec = 10;\n			files = (\n"
+				+ embeddedFrameworks
+				+ "			);\n			name = \"Embed Frameworks\";\n			runOnlyForDeploymentPostprocessing = 0;\n		};\n/* End PBXCopyFilesBuildPhase section */";
+			context.ADDL_PBX_BUILD_PHASE_LIST = "\n				" + phaseID + " /* Embed Frameworks */,";
+			context.ADDL_PBX_RUNPATH_SEARCH_PATHS = "\n				LD_RUNPATH_SEARCH_PATHS = (\n					\"$(inherited)\",\n					\"@executable_path/Frameworks\",\n				);";
 		}
 
 		context.HXML_PATH = System.findTemplate(project.templatePaths, "iphone/PROJ/haxe/Build.hxml", false);
@@ -960,6 +995,84 @@ class IOSPlatform extends PlatformTarget
 	@ignore public override function trace():Void {}
 
 	@ignore public override function uninstall():Void {}
+
+	/**
+		Whether a framework's binary is a dynamic library, which the app has to carry, rather than a
+		static library, which is linked into it. A universal binary is read through its first
+		architecture, and an .xcframework through its first framework.
+	**/
+	private static function isDynamicFramework(path:String):Bool
+	{
+		if (Path.extension(path) == "xcframework")
+		{
+			if (!FileSystem.exists(path) || !FileSystem.isDirectory(path)) return false;
+
+			for (slice in FileSystem.readDirectory(path))
+			{
+				var slicePath = Path.combine(path, slice);
+				if (!FileSystem.isDirectory(slicePath)) continue;
+
+				for (item in FileSystem.readDirectory(slicePath))
+				{
+					if (Path.extension(item) == "framework")
+					{
+						return isDynamicFramework(Path.combine(slicePath, item));
+					}
+				}
+			}
+
+			return false;
+		}
+
+		var binary = Path.combine(path, Path.withoutExtension(Path.withoutDirectory(path)));
+		if (!FileSystem.exists(binary) || FileSystem.isDirectory(binary)) return false;
+
+		var input = File.read(binary, true);
+
+		try
+		{
+			var header = input.read(8);
+			var offset = 0;
+
+			// A universal binary's header is big-endian, and the first architecture's offset follows
+			// its CPU type and subtype, in 32 bits, or 64 bits in a 64-bit header
+			if (header.get(0) == 0xCA && header.get(1) == 0xFE && header.get(2) == 0xBA && (header.get(3) == 0xBE || header.get(3) == 0xBF))
+			{
+				input.bigEndian = true;
+				input.read(8);
+				// A 64-bit offset's high half, which no framework comes near
+				if (header.get(3) == 0xBF) input.readInt32();
+				offset = input.readInt32();
+				input.seek(offset, sys.io.FileSeek.SeekBegin);
+				header = input.read(8);
+			}
+
+			// A static library is an ar archive. A Mach-O header gives its file type after the CPU
+			// type and subtype, in the header's own byte order, where 6 is a dynamic library.
+			var isDylib = false;
+
+			if (header.get(0) == 0xCF || header.get(0) == 0xCE)
+			{
+				input.bigEndian = false;
+				input.seek(offset + 12, sys.io.FileSeek.SeekBegin);
+				isDylib = header.get(1) == 0xFA && header.get(2) == 0xED && header.get(3) == 0xFE && input.readInt32() == 6;
+			}
+			else if (header.get(0) == 0xFE && header.get(1) == 0xED && header.get(2) == 0xFA)
+			{
+				input.bigEndian = true;
+				input.seek(offset + 12, sys.io.FileSeek.SeekBegin);
+				isDylib = input.readInt32() == 6;
+			}
+
+			input.close();
+			return isDylib;
+		}
+		catch (e:Dynamic)
+		{
+			input.close();
+			return false;
+		}
+	}
 }
 
 private typedef IconSize =
