@@ -263,6 +263,60 @@ class HTTPRequestTest extends Test
 		});
 	}
 
+	@:timeout(10000)
+	public function testAFileURLLoadsTheFileItNames(async:Async):Void
+	{
+		// A space, which a file URL percent-encodes, and a plus, which it keeps
+		var path = Sys.getCwd() + "lime-test-http-request a+b.txt";
+		sys.io.File.saveContent(path, "file URL");
+
+		// On Windows, file:///C:/dir/file.txt, as AIR's File.url gives
+		var urlPath = StringTools.replace(path, "\\", "/");
+		if (!StringTools.startsWith(urlPath, "/")) urlPath = "/" + urlPath;
+		urlPath = StringTools.replace(urlPath, " ", "%20");
+
+		// RFC 8089: an empty host, no authority at all, and localhost name this machine
+		var urls = ["file://" + urlPath, "file:" + urlPath, "file://localhost" + urlPath, "FILE://" + urlPath];
+
+		function finish():Void
+		{
+			sys.FileSystem.deleteFile(path);
+			async.done();
+		}
+
+		function next():Void
+		{
+			if (urls.length == 0)
+			{
+				// Another host's file is not this machine's file of the same path
+				var remote = "file://lime-test-host" + urlPath;
+				new HTTPRequest<String>().load(remote).onComplete(function(_)
+				{
+					Assert.fail(remote + " loaded this machine's file");
+					finish();
+				}).onError(function(_)
+				{
+					Assert.pass();
+					finish();
+				});
+				return;
+			}
+
+			var url = urls.shift();
+			new HTTPRequest<String>().load(url).onComplete(function(content)
+			{
+				Assert.equals("file URL", content, url);
+				next();
+			}).onError(function(error)
+			{
+				Assert.fail(url + " did not load: " + error);
+				next();
+			});
+		}
+
+		next();
+	}
+
 	private static function pathHeader(headers:Array<lime.net.HTTPRequestHeader>):String
 	{
 		var path = null;
