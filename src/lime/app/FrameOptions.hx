@@ -20,7 +20,9 @@ typedef FrameOptions =
 		The most frames a second on native desktop targets while every window
 		is minimised or hidden, whatever the profile, 30 by default. Events
 		still wake the application at once. A rate at or above the frame rate
-		changes nothing, and `0` keeps the full rate in the background.
+		changes nothing, and `0` keeps the full rate in the background. macOS,
+		which saves energy for applications nobody can see, may give fewer
+		than this, except with `0`.
 	**/
 	@:optional var backgroundFrameRate:Float;
 
