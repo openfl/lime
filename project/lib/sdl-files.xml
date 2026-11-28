@@ -578,6 +578,8 @@
         <section if="ios || tvos">
 
             <compilerflag value="-fobjc-arc" unless="OBJC_ARC" />
+            <!-- For the patched UIKit files in custom/, whose includes are relative to SDL's own -->
+            <compilerflag value="-I${NATIVE_TOOLKIT_PATH}/sdl/src/video/uikit/" />
             <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/audio/coreaudio/SDL_coreaudio.m" />
             <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/file/cocoa/SDL_rwopsbundlesupport.m" />
             <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/filesystem/cocoa/SDL_sysfilesystem.m" />
@@ -590,19 +592,23 @@
             <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/power/uikit/SDL_syspower.m" />
             <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/render/metal/SDL_render_metal.m" />
             <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/sensor/coremotion/SDL_coremotionsensor.m" if="ios" />
-            <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/video/uikit/SDL_uikitappdelegate.m" />
+            <!-- Patched for the UIScene life cycle, after SDL 3.4 -->
+            <file name="${NATIVE_TOOLKIT_PATH}/custom/sdl/src/video/uikit/SDL_uikitappdelegate.m" />
             <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/video/uikit/SDL_uikitclipboard.m" />
             <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/video/uikit/SDL_uikitevents.m" />
             <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/video/uikit/SDL_uikitmessagebox.m" />
             <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/video/uikit/SDL_uikitmetalview.m" />
-            <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/video/uikit/SDL_uikitmodes.m" />
+            <!-- Patched for the UIScene life cycle, after SDL 3.4 -->
+            <file name="${NATIVE_TOOLKIT_PATH}/custom/sdl/src/video/uikit/SDL_uikitmodes.m" />
             <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/video/uikit/SDL_uikitopengles.m" />
             <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/video/uikit/SDL_uikitopenglview.m" />
-            <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/video/uikit/SDL_uikitvideo.m" />
+            <!-- Patched for the UIScene life cycle, after SDL 3.4 -->
+            <file name="${NATIVE_TOOLKIT_PATH}/custom/sdl/src/video/uikit/SDL_uikitvideo.m" />
             <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/video/uikit/SDL_uikitview.m" />
             <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/video/uikit/SDL_uikitviewcontroller.m" />
             <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/video/uikit/SDL_uikitvulkan.m" />
-            <file name="${NATIVE_TOOLKIT_PATH}/sdl/src/video/uikit/SDL_uikitwindow.m" />
+            <!-- Patched for the UIScene life cycle, after SDL 3.4 -->
+            <file name="${NATIVE_TOOLKIT_PATH}/custom/sdl/src/video/uikit/SDL_uikitwindow.m" />
 
             <compilerflag value="-fobjc-arc" />
 

@@ -33,6 +33,7 @@ class ToolsTestMain
 		runner.addCase(new IOSOutputTest());
 		runner.addCase(new XCodeHelperTest());
 		runner.addCase(new WindowsOutputTest());
+		runner.addCase(new NativeFilesTest());
 		runner.addCase(new TemplateAssetOutputTest());
 		runner.addCase(new HashlinkHelperTest());
 		runner.addCase(new AppleOutputTest());
