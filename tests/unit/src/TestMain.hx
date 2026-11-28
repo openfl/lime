@@ -40,6 +40,7 @@ class TestMain extends Application
 		runner.addCase(new graphics.CairoTest());
 		runner.addCase(new graphics.CairoTextTest());
 		runner.addCase(new graphics.CairoTransformTest());
+		runner.addCase(new graphics.CairoWorkerTest());
 		runner.addCase(new graphics.ImageBlurTest());
 		runner.addCase(new graphics.ImageAllocationTest());
 		runner.addCase(new graphics.ImageCodecTest());
@@ -139,6 +140,7 @@ class TestMain extends Application
 		runner.addCase(new utils.BytesTest());
 		runner.addCase(new utils.CompressionTest());
 		runner.addCase(new utils.CompressionOutputTest());
+		runner.addCase(new utils.DataPointerTest());
 		runner.addCase(new utils.Float32ArrayTest());
 		runner.addCase(new utils.HTML5BytesTest());
 		runner.addCase(new utils.Float64ArrayTest());

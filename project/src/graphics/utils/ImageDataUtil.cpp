@@ -7,12 +7,6 @@
 namespace lime {
 
 
-	unsigned char alphaTable[256];
-	unsigned char redTable[256];
-	unsigned char greenTable[256];
-	unsigned char blueTable[256];
-
-
 	void ImageDataUtil::ColorTransform (Image* image, Rectangle* rect, ColorMatrix* colorMatrix) {
 
 		PixelFormat format = image->buffer->format;
@@ -21,6 +15,12 @@ namespace lime {
 
 		Rectangle* _rect = (Rectangle*)(image->type);
 		ImageDataView dataView = ImageDataView (image, rect);
+
+		// Locals, not globals: two threads transforming images at once must not share the tables
+		unsigned char alphaTable[256];
+		unsigned char redTable[256];
+		unsigned char greenTable[256];
+		unsigned char blueTable[256];
 
 		colorMatrix->GetAlphaTable (alphaTable);
 		colorMatrix->GetRedTable (redTable);

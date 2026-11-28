@@ -145,7 +145,10 @@ Changelog
 - Changed `-terser` to run terser through the system's `npx`, as `-npx` did, since Lime no longer bundles Node.js. It needs Node.js installed, and says so when it is not.
 - Changed `lime setup` to install libhxcpp, the continuation of hxcpp, in place of hxcpp, and to run its setup, which points the `hxcpp` haxelib at it so the compiler and every library that asks for hxcpp use it. Stock hxcpp, if installed, is left in place, and `haxelib run libhxcpp off` goes back to it. An `hxcpp` set with `haxelib dev` to a folder of your own is left as it is.
 - Changed the default iOS deployment target to 15.0, the oldest current Xcode versions build for.
-- Changed PNG and JPEG encoding on native targets to let the garbage collector run while it works, so an encode on another thread no longer holds up every collection until it finishes.
+- Changed PNG and JPEG encoding and decoding on native targets to let the garbage collector run while they work, so an image encoded or decoded on another thread no longer holds up every collection until it finishes.
+- Changed native audio decoding to let the garbage collector run while SDL_sound and libvorbis decode a sound, refill a stream or read for `VorbisFile.read()`, and while SDL_sound rewinds or seeks a stream, so decoding on another thread no longer holds up every collection until it finishes.
+- Changed `Bytes.compress()` and `Bytes.decompress()` on native targets to let the garbage collector run while zlib and LZMA work, so compressing or decompressing on another thread no longer holds up every collection until it finishes, and to decompress straight into a result that doubles as it grows, rather than growing it by one chunk at a time.
+- Changed native windows to let the garbage collector run while a buffer swap waits for the display, so a collection started on another thread no longer waits for the swap to finish.
 - Changed Windows file dialogs to open on a worker thread again, as on the other platforms, so the application keeps drawing while one is open, and a dialog over a borderless fullscreen window no longer stays hidden behind it.
 - Changed native OpenGL windows to ask for a 24-bit depth buffer, rather than at least 8 bits.
 - Changed an OpenGL window whose pixel format the driver refuses, as over Remote Desktop, to try again with a basic one, and an application whose first window still can't be made to show why in a message box and exit, rather than run on with nothing on screen.
@@ -165,6 +168,7 @@ Changelog
 - Changed `lime test ios -simulator` to run on an iOS simulator that is already running, as one opened in the Simulator app, when no device is named on the command line. An iPad is still used when one is asked for.
 - Changed `Image.getColorBoundsRect()` to read the rows in the order the buffer holds them, and between the first and last rows that match, so trimming an image that is mostly empty around its content reads far fewer pixels. With a mask of the alpha alone, it compares the alpha byte, so a premultiplied image is not unmultiplied.
 - Changed the Android Gradle templates to assign `namespace`, `ndkPath`, `ndkVersion` and `signingConfig` with `=`, which Gradle 10 requires.
+- Changed Cairo's `fill()`, `fillPreserve()`, `stroke()`, `strokePreserve()`, `paint()`, `paintWithAlpha()`, `mask()` and `maskSurface()` on native targets to let the garbage collector run while they draw, so drawing on another thread no longer holds up every collection until it finishes.
 - Updated HashLink to 1.16.
 - Updated the macOS `webify`, which converts fonts for HTML5, to 0.1.10.0, and `ios-deploy` to 1.12.2, each with an arm64 build alongside x86_64, so neither needs Rosetta on Apple silicon Macs, and removed the unused `fruitstrap`.
 - Fixed an asset embedding regression.
@@ -312,6 +316,8 @@ Changelog
 - Fixed documentation builds that define `doc_gen` without `lime-doc-gen`, as flixel-doc's does, failing for HashLink on `GLShader.fromInt`.
 - Fixed `Window.fullscreen` reading `false` while a window is still fullscreen: after it is minimized and restored, as with Alt+Tab, when macOS enters fullscreen with a maximize, and when a maximized window goes fullscreen. It now reads SDL's own state at those events.
 - Fixed iOS simulators whose names hold parentheses, such as "iPad Air 11-inch (M2)", getting the wrong ID and name, so `lime test ios -simulator` could not start them.
+- Fixed `Image.colorTransform()` on native targets giving the wrong colors when two threads transform images at once.
+- Fixed a native window's size and position reading uninitialised memory when SDL can't read the window.
 
 8.3.2 (05/13/2026)
 ------------------

@@ -3,6 +3,7 @@
 #include <system/CFFIPointer.h>
 #include <system/Mutex.h>
 #include <text/Font.h>
+#include <utils/DataPointer.h>
 #include <ft2build.h>
 #include FT_FREETYPE_H
 #include <hb.h>
@@ -149,7 +150,7 @@ namespace lime {
 
 	value lime_hb_blob_create (double data, int length, int memoryMode) {
 
-		hb_blob_t* blob = hb_blob_create ((const char*)(uintptr_t)data, length, (hb_memory_mode_t)memoryMode, 0, 0);
+		hb_blob_t* blob = hb_blob_create ((const char*)DataPointerToAddress (data), length, (hb_memory_mode_t)memoryMode, 0, 0);
 		return CFFIPointer (blob, gc_hb_blob);
 
 	}
@@ -157,7 +158,7 @@ namespace lime {
 
 	HL_PRIM HL_CFFIPointer* HL_NAME(hl_hb_blob_create) (double data, int length, int memoryMode) {
 
-		hb_blob_t* blob = hb_blob_create ((const char*)(uintptr_t)data, length, (hb_memory_mode_t)memoryMode, 0, 0);
+		hb_blob_t* blob = hb_blob_create ((const char*)DataPointerToAddress (data), length, (hb_memory_mode_t)memoryMode, 0, 0);
 		return HLCFFIPointer (blob, (hl_finalizer)hl_gc_hb_blob);
 
 	}
@@ -182,7 +183,7 @@ namespace lime {
 	double lime_hb_blob_get_data (value blob) {
 
 		unsigned int length = 0;
-		return (uintptr_t)hb_blob_get_data ((hb_blob_t*)val_data (blob), &length);
+		return DataPointerFromAddress ((uintptr_t)hb_blob_get_data ((hb_blob_t*)val_data (blob), &length));
 
 	}
 
@@ -190,7 +191,7 @@ namespace lime {
 	HL_PRIM double HL_NAME(hl_hb_blob_get_data) (HL_CFFIPointer* blob) {
 
 		unsigned int length = 0;
-		return (uintptr_t)hb_blob_get_data ((hb_blob_t*)blob->ptr, &length);
+		return DataPointerFromAddress ((uintptr_t)hb_blob_get_data ((hb_blob_t*)blob->ptr, &length));
 
 	}
 
@@ -198,7 +199,7 @@ namespace lime {
 	double lime_hb_blob_get_data_writable (value blob) {
 
 		unsigned int length = 0;
-		return (uintptr_t)hb_blob_get_data_writable ((hb_blob_t*)val_data (blob), &length);
+		return DataPointerFromAddress ((uintptr_t)hb_blob_get_data_writable ((hb_blob_t*)val_data (blob), &length));
 
 	}
 
@@ -206,7 +207,7 @@ namespace lime {
 	HL_PRIM double HL_NAME(hl_hb_blob_get_data_writable) (HL_CFFIPointer* blob) {
 
 		unsigned int length = 0;
-		return (uintptr_t)hb_blob_get_data_writable ((hb_blob_t*)blob->ptr, &length);
+		return DataPointerFromAddress ((uintptr_t)hb_blob_get_data_writable ((hb_blob_t*)blob->ptr, &length));
 
 	}
 
@@ -307,14 +308,14 @@ namespace lime {
 
 	void lime_hb_buffer_add_codepoints (value buffer, double text, int textLength, int itemOffset, int itemLength) {
 
-		hb_buffer_add_codepoints ((hb_buffer_t*)val_data (buffer), (const hb_codepoint_t*)(uintptr_t)text, textLength, itemOffset, itemLength);
+		hb_buffer_add_codepoints ((hb_buffer_t*)val_data (buffer), (const hb_codepoint_t*)DataPointerToAddress (text), textLength, itemOffset, itemLength);
 
 	}
 
 
 	HL_PRIM void HL_NAME(hl_hb_buffer_add_codepoints) (HL_CFFIPointer* buffer, double text, int textLength, int itemOffset, int itemLength) {
 
-		hb_buffer_add_codepoints ((hb_buffer_t*)buffer->ptr, (const hb_codepoint_t*)(uintptr_t)text, textLength, itemOffset, itemLength);
+		hb_buffer_add_codepoints ((hb_buffer_t*)buffer->ptr, (const hb_codepoint_t*)DataPointerToAddress (text), textLength, itemOffset, itemLength);
 
 	}
 
@@ -341,28 +342,28 @@ namespace lime {
 
 	void lime_hb_buffer_add_utf16 (value buffer, double text, int textLength, int itemOffset, int itemLength) {
 
-		hb_buffer_add_utf16 ((hb_buffer_t*)val_data (buffer), (const uint16_t*)(uintptr_t)text, textLength, itemOffset, itemLength);
+		hb_buffer_add_utf16 ((hb_buffer_t*)val_data (buffer), (const uint16_t*)DataPointerToAddress (text), textLength, itemOffset, itemLength);
 
 	}
 
 
 	HL_PRIM void HL_NAME(hl_hb_buffer_add_utf16) (HL_CFFIPointer* buffer, double text, int textLength, int itemOffset, int itemLength) {
 
-		hb_buffer_add_utf16 ((hb_buffer_t*)buffer->ptr, (const uint16_t*)(uintptr_t)text, textLength, itemOffset, itemLength);
+		hb_buffer_add_utf16 ((hb_buffer_t*)buffer->ptr, (const uint16_t*)DataPointerToAddress (text), textLength, itemOffset, itemLength);
 
 	}
 
 
 	void lime_hb_buffer_add_utf32 (value buffer, double text, int textLength, int itemOffset, int itemLength) {
 
-		hb_buffer_add_utf32 ((hb_buffer_t*)val_data (buffer), (const uint32_t*)(uintptr_t)text, textLength, itemOffset, itemLength);
+		hb_buffer_add_utf32 ((hb_buffer_t*)val_data (buffer), (const uint32_t*)DataPointerToAddress (text), textLength, itemOffset, itemLength);
 
 	}
 
 
 	HL_PRIM void HL_NAME(hl_hb_buffer_add_utf32) (HL_CFFIPointer* buffer, double text, int textLength, int itemOffset, int itemLength) {
 
-		hb_buffer_add_utf32 ((hb_buffer_t*)buffer->ptr, (const uint32_t*)(uintptr_t)text, textLength, itemOffset, itemLength);
+		hb_buffer_add_utf32 ((hb_buffer_t*)buffer->ptr, (const uint32_t*)DataPointerToAddress (text), textLength, itemOffset, itemLength);
 
 	}
 
